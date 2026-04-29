@@ -10,3 +10,10 @@ SELECT resolution_status, COUNT(*) AS trades,
        SUM(exposure_amount) AS exposure
 FROM `d4001-centralus-tdvip-creditrisk`.xvala_xva.training_fact_trades
 GROUP BY resolution_status;
+
+
+-- unresolved entity names
+SELECT resolution_status, COUNT(*) AS trades, 
+       SUM(exposure_amount) AS exposure
+FROM `d4001-centralus-tdvip-creditrisk`.xvala_xva.training_fact_trades
+GROUP BY resolution_status;
