@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CCR analytics layer — requirements, architecture, and terminology</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: #ffffff;
+    color: #1f1f1d;
+    margin: 0;
+    padding: 32px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 24px; font-weight: 500; margin: 0 0 6px 0; }
+  h2 { font-size: 20px; font-weight: 500; margin: 40px 0 12px 0; padding-bottom: 8px; border-bottom: 1px solid #e5e3da; }
+  h3 { font-size: 16px; font-weight: 500; margin: 28px 0 10px 0; color: #26215C; }
+  h4 { font-size: 14px; font-weight: 500; margin: 20px 0 8px 0; color: #3d3d3a; }
+  .subtitle { font-size: 13px; color: #6b6a64; margin-bottom: 28px; }
+  p { margin: 10px 0; font-size: 14px; color: #2a2a28; }
+  ul, ol { margin: 8px 0 14px 0; padding-left: 24px; font-size: 14px; }
+  li { margin: 5px 0; }
+  code { font-family: "SF Mono", Consolas, monospace; font-size: 12.5px; background: #f1efe8; padding: 1px 5px; border-radius: 3px; color: #3d3d3a; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #e5e3da; vertical-align: top; }
+  th { background: #f7f6f0; font-weight: 500; color: #3d3d3a; }
+  .toc { background: #f7f6f0; border: 1px solid #e5e3da; border-radius: 8px; padding: 16px 20px; margin: 20px 0 32px 0; font-size: 13px; }
+  .toc ol { margin: 6px 0; }
+  .toc a { color: #185FA5; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .callout { background: #E6F1FB; border-left: 3px solid #185FA5; border-radius: 0 6px 6px 0; padding: 12px 16px; margin: 16px 0; font-size: 13px; color: #0C447C; }
+  .callout-warn { background: #FAEEDA; border-left: 3px solid #BA7517; border-radius: 0 6px 6px 0; padding: 12px 16px; margin: 16px 0; font-size: 13px; color: #633806; }
+  .callout-pos { background: #E1F5EE; border-left: 3px solid #0F6E56; border-radius: 0 6px 6px 0; padding: 12px 16px; margin: 16px 0; font-size: 13px; color: #04342C; }
+  .term-block { background: #fafaf6; border: 1px solid #ebe9df; border-radius: 8px; padding: 14px 18px; margin: 12px 0; font-size: 13px; }
+  .term-name { font-weight: 600; color: #26215C; }
+  .term-status-confirmed { display: inline-block; background: #dcefe5; color: #04342C; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 500; margin-left: 6px; vertical-align: middle; }
+  .term-status-needs-sme { display: inline-block; background: #fcf1d6; color: #633806; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 500; margin-left: 6px; vertical-align: middle; }
+  .term-status-industry { display: inline-block; background: #e1ecf7; color: #0C447C; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 500; margin-left: 6px; vertical-align: middle; }
+  .req-block { background: #f7f6f0; border: 1px solid #e5e3da; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .req-num { display: inline-block; background: #534AB7; color: white; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-right: 8px; }
+  .pillar { background: linear-gradient(180deg, #fafaf6 0%, #ffffff 100%); border: 1px solid #e5e3da; border-radius: 10px; padding: 18px 22px; margin: 14px 0; }
+  .pillar-title { font-weight: 600; color: #26215C; margin-bottom: 6px; font-size: 15px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>CCR analytics layer — requirements, architecture, and terminology</h1>
+<div class="subtitle">Captures the GMC dashboard requirements from George Karahotzitis (the previously-pulled-together GMC workstream PowerBI requirements) · documents our architecture thinking for an analytics layer that sits on top of the CCR/Collateral Silver LDM · defines the terminology used along the way · scope is broad (analytics-layer thinking applies across Risk domains, not just CCR)</div>
+
+<div class="callout">
+  <b>Status of this document:</b> Captured for future work. We are NOT building this analytics layer yet. The Silver LDM (8 Risk-owned aggregates for CCR/Collateral) needs to be completed first. This document exists to (a) make sure our aggregate-level view has placeholders for everything George's requirements call out, (b) define unfamiliar terminology for clarity, (c) document the layered-architecture thinking so when we return to the analytics layer we have a foundation.
+</div>
+
+<div class="toc">
+  <b>Contents</b>
+  <ol>
+    <li><a href="#purpose">Purpose and audience</a></li>
+    <li><a href="#requirements">The GMC requirements — what George asked for and why each matters</a></li>
+    <li><a href="#completeness">Aggregation completeness check — what we've modeled, what's a placeholder, what's missing</a></li>
+    <li><a href="#architecture">Layered architecture — domain models, risk apps, dimensional layer, BI</a></li>
+    <li><a href="#diagram">Multi-fact + dimensions diagram (rough draft)</a></li>
+    <li><a href="#scaling">Why this scales beyond CCR</a></li>
+    <li><a href="#why-matters">Why this thinking matters (the governance value)</a></li>
+    <li><a href="#glossary">Glossary appendix</a></li>
+  </ol>
+</div>
+
+<h2 id="purpose">1. Purpose and audience</h2>
+
+<p>This document captures the analytics-layer thinking spawned by George Karahotzitis sharing the GMC workstream PowerBI requirements that they had previously pulled together. The intent is fourfold:</p>
+
+<ol>
+  <li><b>Awareness check on the LDM.</b> Make sure the aggregate-level view we've been building has placeholders for every concept George's requirements call out. If something is missing, surface it now.</li>
+  <li><b>Document the requirements verbatim.</b> So they don't get lost. They are exactly the kind of input that drives a CCR analytics layer.</li>
+  <li><b>Document the architecture thinking.</b> The principle that <i>dimensions come from domain models, measures come from Risk apps, and the dimensional layer is where they marry</i> — this is a governance pattern worth capturing.</li>
+  <li><b>Define terminology.</b> The requirements use a lot of acronyms and concepts that aren't universal. Where we don't have confirmed definitions, we mark "needs SME confirmation" rather than guess.</li>
+</ol>
+
+<p><b>Audience:</b> The data modeler / data architect responsible for the analytics layer (i.e., the person who will eventually build this), plus stakeholders like Eleanor who need to see the data-modeling-to-business-value chain. The document also serves as a template that scales to other Risk domains (LRM/Liquidity, Market Risk, Capital).</p>
+
+<h2 id="requirements">2. The GMC requirements — what George asked for and why each matters</h2>
+
+<p>George shared a set of 12 requirements that the GMC workstream had previously pulled together for their PowerBI build. These are typical CCR exposure dashboard requirements but worth examining one by one because each one anchors a specific conformed dimension or fact in the analytics layer.</p>
+
+<h3>The 12 requirements with business context</h3>
+
+<div class="req-block">
+  <p><span class="req-num">1</span><b>Currency on the facility / exposure (USD or CAD).</b></p>
+  <p>Why it matters: TD reports in two reporting currencies. Every measure in the dashboard needs to be available in both. This isn't trivially "convert at end of day" — the conversion methodology (spot vs WMR vs internal rate) must be consistent. Implies a Currency dimension and FX-rate-aware measures.</p>
+</div>
+
+<div class="req-block">
+  <p><span class="req-num">2</span><b>Current exposure (i.e., MTM).</b></p>
+  <p>Why it matters: The headline metric. Mark-to-market exposure of the derivative portfolio. Required at the netting set and at the trade level for drill-down. Sourced from the derivative valuation systems (RCAPS, XVALA, etc.) at end of day.</p>
+</div>
+
+<div class="req-block">
+  <p><span class="req-num">3</span><b>Show the collateral — it's a credit mitigant. Differentiate IM and VM.</b></p>
+  <p>Why it matters: Net exposure = MTM minus collateral. To present credit risk fairly, the dashboard must show both gross and net positions, with IM (Initial Margin, posted upfront for future-loss protection) separated from VM (Variation Margin, posted to settle current MTM). Sourced from CMOS.</p>
+</div>
+
+<div class="req-block">
+  <p><span class="req-num">4</span><b>Show: trading desk from <span class="term-status-confirmed">IHMS</span> for each trade, trader name, trading supervisor (from <span class="term-status-needs-sme">REDS-GRS</span>).</b></p>
+  <p>Why it matters: Attribution. When credit risk shows a number, the dashboard must allow drill-down to "whose trade?" — desk, trader, supervisor. This requires Book/Desk dimension joined to Trade fact.</p>
+</div>
+
+<div class="req-block">
+  <p><span class="req-num">5</span><b>Show lending manager for each facility.</b></p>
+  <p>Why it matters: For banking-book exposures (loan facilities, committed lines), the responsible relationship manager is needed. <i>Note: facilities are banking-book, not derivative. This requirement reaches outside our current CCR/Collateral scope into a separate Risk domain.</i></p>
+</div>
+
+<div class="req-block">
+  <p><span class="req-num">6</span><b>Add functionality to query by booking point — to identify <span class="term-status-needs-sme">IHC / CUSO / Europe (TDGF) / Asia / etc.</span></b></p>
+  <p>Why it matters: TD has multiple legal entities and geographic booking points. The same trade might book to TDS US (IHC = Intermediate Holding Company per US prudential rules) or to TDGF (TD Global Finance) or other entities. Regulatory reporting and capital allocation differ by booking point. Booking point must be a queryable dimension.</p>
+</div>
+
+<div class="req-block">
+  <p><span class="req-num">7</span><b>Industry classification / SIC code — and a view for non-bank financial institutions (<span class="term-status-industry">NBFI</span>), Banks, Corporates, Hedge Funds, <span class="term-status-industry">SSAs</span>, Commercial, and <span class="term-status-needs-sme">FMTA</span>.</b></p>
+  <p>Why it matters: Counterparty type drives risk policy. Concentration limits, eligible products, and reporting cuts all depend on counterparty industry classification. SSAs and Banks have different capital treatment than Hedge Funds and Corporates. The Counterparty dimension needs a Client Type attribute that maps to the standard sector taxonomy.</p>
+</div>
+
+<div class="req-block">
+  <p><span class="req-num">8</span><b>Decompose exposure by SIM, non-SIM, energy, and credit.</b></p>
+  <p>Why it matters: Risk-type decomposition. SIMM (Standard Initial Margin Model — usually written SIM in dashboards) is the ISDA-defined regulatory IM methodology. Non-SIM is anything outside SIMM scope (often Schedule IM under UMR or other legacy methods). Energy and credit are asset-class slices that GMC particularly cares about — likely because they have distinct concentration concerns. Implies a Risk Type dimension.</p>
+</div>
+
+<div class="req-block">
+  <p><span class="req-num">9</span><b>Portfolio statistics (include trending — e.g., YTD, QoQ, MoM):</b></p>
+  <ul>
+    <li>OTC: Notional by product type · MtM by product type · Top exposures by client type (NBFI, Banks, etc.) · Top 10 changes in DoD changes in absolute terms</li>
+    <li>SFT: Notional by underlying obligor (e.g., UST, GOC) · MtM by underlying obligor · Top exposures by client type · Top 10 changes in DoD changes in absolute terms</li>
+  </ul>
+  <p>Why it matters: This is the trend-and-rank view that risk managers run every morning. YTD (year-to-date), QoQ (quarter-over-quarter), MoM (month-over-month), DoD (day-over-day) trending requires a robust Date dimension and historical fact persistence. Top-N rankings are window functions — computationally expensive at query time, often pre-aggregated. The OTC vs SFT (Securities Financing Transactions, like repos) split is a standard product-type bifurcation. Issuer-level views for SFT are because repo risk is mostly about the underlying collateral issuer.</p>
+</div>
+
+<div class="req-block">
+  <p><span class="req-num">10</span><b>Within CCR Line Details, add sensitivities (from <span class="term-status-needs-sme">SENTOR</span>).</b></p>
+  <p>Why it matters: A CCR Line is the netting-set-level exposure summary that risk managers look at. Sensitivities (Delta, Gamma, Vega, sometimes by tenor bucket) tell you how exposure changes with market moves. Sourced from a dedicated sensitivities engine (SENTOR appears to be that engine — needs SME confirmation). This couples the analytics layer to a risk-engineering output.</p>
+</div>
+
+<div class="req-block">
+  <p><span class="req-num">11</span><b>Add a page with stress testing — include stressed PFE and standard PFE and include the last load date (since stress is only produced monthly). Include MTM stress from <span class="term-status-confirmed">RCS</span> and also include any IA and again, last load date.</b></p>
+  <p>Why it matters: Stress testing has different cadence (monthly) than daily exposure. The dashboard must show "as-of-last-stress-date" alongside daily exposure so users understand they're looking at stale stress numbers. PFE (Potential Future Exposure) is the credit risk metric; stressed PFE applies stress scenarios to it. RCS (Risk Capital Studio) is the stress engine. Implies a Stress Fact with its own Date dimension separate from the Daily Date.</p>
+</div>
+
+<div class="req-block">
+  <p><span class="req-num">12</span><b>Add a page with issuer risk — for repo, total notional by issuer (GOC, Gilt, US Agency, UST, etc.).</b></p>
+  <p>Why it matters: For Securities Financing Transactions (repos), the actual credit risk often sits with the issuer of the underlying collateral, not the repo counterparty. A repo where TD lent cash against UST collateral has UST issuer risk; same repo against an unrated corporate has corporate risk. Implies an Issuer dimension on Security Master plus a fact filtered to repo product types.</p>
+</div>
+
+<h2 id="completeness">3. Aggregation completeness check — what we've modeled, what's a placeholder, what's missing</h2>
+
+<p>Now the question that drove this whole exercise: <b>does our 8-aggregate Silver LDM cover everything George's requirements need?</b> Let's go requirement by requirement.</p>
+
+<table>
+  <thead>
+    <tr><th>Req</th><th>What's needed</th><th>Coverage in our LDM</th><th>Gap</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Currency on facility / exposure</td>
+      <td>Captured at multiple places — agreement base ccy, exposure reporting ccy, position currency. Currency is implicit attribute throughout.</td>
+      <td>None for CCR. Currency dim would be conformed across analytics.</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>MTM exposure</td>
+      <td>DAILY_EXPOSURE in Exposure & Margin aggregate (totalExposureAmount, itm/otm exposure)</td>
+      <td>None.</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Collateral as mitigant, IM vs VM</td>
+      <td>COLLATERAL_POSITION + POSITION_VALUATION in Inventory; agreement type (REG_VM/IMC/IMP) carries the IM-vs-VM distinction.</td>
+      <td>None.</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Trading desk, trader, supervisor</td>
+      <td>BOOK_DESK as upstream placeholder (dashed, not Risk-owned). Trade Master upstream.</td>
+      <td>The current LDM has the placeholder. The actual desk/trader/supervisor data lives in IHMS (confirmed) and possibly REDS-GRS (needs SME). We don't model the placeholder's internals.</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>Lending manager per facility</td>
+      <td>FACILITIES is shown as adjacent Risk domain placeholder (dashed, out of current scope).</td>
+      <td><b>Placeholder only.</b> Facilities are banking-book, separate Risk domain. Out of CCR/Collateral scope.</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>Booking point (IHC/CUSO/TDGF/etc.)</td>
+      <td>BOOK_DESK upstream placeholder; could be a regulatory_context attribute.</td>
+      <td>The booking-point taxonomy itself isn't modeled in our aggregate. It's a Book/Desk attribute that should surface as a dimension.</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>Industry / SIC, NBFI/Banks/Corp/HF/SSA</td>
+      <td>PARTY_RELATIONSHIP in Party aggregate carries party context. Industry / client-type attributes are <i>implicit</i>, not explicitly modeled.</td>
+      <td><b>Real gap to consider.</b> Party Relationship should have explicit attributes for industry_classification, client_type (NBFI/Bank/Corp/HF/SSA/etc.), or these should clearly come from Party Master upstream.</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>SIM / non-SIM / energy / credit decomposition</td>
+      <td>IM_BREAKDOWN in Exposure & Margin captures SIMM asset-class breakdown (Equity, Credit, Rates, FX, Commodity). The energy slice would map to Commodity sub-class.</td>
+      <td>Need to confirm IM_BREAKDOWN actually decomposes to the cuts GMC wants. If energy needs a separate slice from commodity, may need refinement.</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>Trending YTD/QoQ/MoM, top-N, OTC vs SFT</td>
+      <td>DAILY_EXPOSURE has time series via valuation_date. OTC vs SFT product type lives in Trade Master upstream + Trade-Agreement Mapping.</td>
+      <td>Time-series persistence policy needs to be set (3+ years for trending). Top-N analytics is a Gold-layer concern, not Silver.</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>CCR Line details with sensitivities</td>
+      <td>CCR Line concept (netting-set-level capital exposure) reaches into CCR Capital adjacent domain (placeholder, dashed). Sensitivities reach into XVA Analytics adjacent domain (placeholder, dashed).</td>
+      <td><b>Placeholder only.</b> Both CCR Capital and XVA Analytics are out of current scope but visible as dashed externals.</td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td>Stressed PFE and standard PFE, MTM stress, last load date</td>
+      <td>PFE and stress are CCR Capital adjacent domain (placeholder).</td>
+      <td><b>Placeholder only.</b> Out of current scope.</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>Issuer risk for repos</td>
+      <td>Security Master upstream placeholder. Trade-Agreement Mapping covers repo trades but issuer attribute is on Security, which is upstream.</td>
+      <td>The issuer-type taxonomy (GOC/Gilt/US Agency/UST/etc.) lives in Security Master. Need to surface issuer at fact-table level for analytics.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Net assessment</h3>
+
+<div class="callout-pos">
+  <b>The 8-aggregate Silver LDM covers all CCR/Collateral concepts in the requirements.</b> Where the requirements reach into adjacent Risk domains (Capital, XVA, Limits, Facilities), those are visible as dashed external aggregates — exactly as we designed.
+</div>
+
+<div class="callout-warn">
+  <b>One real gap to flag for follow-up:</b> Party Relationship currently doesn't explicitly carry industry/client-type attributes. We assumed those come from Party Master upstream. When we get to detail-modeling Party Relationship, we should explicitly call out which attributes are pulled snapshot-style from Party Master vs which are Risk-owned. Industry/SIC/client type should at minimum be a referenced attribute.
+</div>
+
+<div class="callout">
+  <b>Five requirements reach beyond CCR/Collateral scope:</b> Req 5 (facilities), Req 10 (CCR Line + sensitivities), Req 11 (stress/PFE), and parts of Req 12 (issuer reference data) require data from systems outside our current 8 aggregates. That's expected — those systems are the dashed adjacent Risk domains in our overview. Building the actual analytics layer requires those domains to also have Silver-quality data, which is a separate stream of work.
+</div>
+
+<h2 id="architecture">4. Layered architecture — domain models, risk apps, dimensional layer, BI</h2>
+
+<p>The thinking here matters. It establishes a governance principle that scales beyond CCR.</p>
+
+<h3>The pattern</h3>
+
+<p>Analytics dashboards (PowerBI, MicroStrategy, Tableau) sit at the top of a stack. Below them, the data needs to be organized in a way that's both performant for queries and faithful to the source-of-truth. The layered architecture we're describing has four conceptual tiers:</p>
+
+<div class="pillar">
+  <div class="pillar-title">Tier 1 — Source systems (apps and data products)</div>
+  <p>The originating systems where data is born. Two flavors:</p>
+  <ul>
+    <li><b>Domain data products</b> (the "what" — entities and reference data): Trade Master, Party Master, Security Master, Book/Desk hierarchy, Market Data, Valuation. These are the <i>nouns</i> of the business. They populate dimensions.</li>
+    <li><b>Risk apps</b> (the "how much" — calculated measures): CMOS (collateral), CRS (legacy capital), RCS (Risk Capital Studio — stress/PFE), XVALA (XVA), RCAPS (market risk capital), RAMS (market risk attribution), TCC (counterparty credit), SRLM (liquidity), ALFA (liquidity & funding). These are the <i>calculators</i>. They populate facts.</li>
+  </ul>
+</div>
+
+<div class="pillar">
+  <div class="pillar-title">Tier 2 — Domain models (Silver layer)</div>
+  <p>Normalized, curated, governed models per domain. This is where our 8-aggregate CCR/Collateral LDM sits. The Silver layer:</p>
+  <ul>
+    <li>Captures full audit trail and bitemporal versioning</li>
+    <li>Preserves source-of-truth lineage (TAMS authoritative for terms, CMOS for ops, etc.)</li>
+    <li>Resolves source-system inconsistencies into canonical entities</li>
+    <li>Is NOT optimized for analytics queries — it's optimized for fidelity</li>
+  </ul>
+  <p>Each Risk domain has its own Silver model: CCR/Collateral (this work), Capital, XVA, Liquidity, Market Risk, etc. Each owns its measures and entities.</p>
+</div>
+
+<div class="pillar">
+  <div class="pillar-title">Tier 3 — Dimensional layer (Gold layer)</div>
+  <p>Subject-level facts and conformed dimensions. This is where the analytics architect designs the star schemas:</p>
+  <ul>
+    <li><b>Conformed dimensions</b> are <i>shared</i> across facts. The same Counterparty Dimension is used by Daily Exposure Fact, Stress Fact, Sensitivities Fact, etc. Conformance is enforced by the data modeling team — not by the analytics consumer.</li>
+    <li><b>Subject-level facts</b> are scoped per measurement process. Daily Exposure is one fact. Margin Calls are another. Stress is another. They're separate because their grain, cadence, and sources differ.</li>
+    <li><b>Each dimension's source is explicit</b> — Counterparty dim comes from Party Master domain, Security dim from Security Master domain, etc.</li>
+    <li><b>Each fact's measures' source is explicit</b> — Daily Exposure measures come from CMOS, Stress measures come from RCS, Sensitivities measures from SENTOR, etc.</li>
+  </ul>
+</div>
+
+<div class="pillar">
+  <div class="pillar-title">Tier 4 — Consumption layer (BI / dashboard / self-service)</div>
+  <p>Two patterns common here:</p>
+  <ul>
+    <li><b>Direct on dimensional layer</b> — BI tool queries star schemas directly. Best for governance, slower for unsophisticated users.</li>
+    <li><b>Flat consumption fact (denormalized)</b> — a wide table built on top of the dimensional layer for ease of BI consumption. Best for self-service users in PowerBI / MicroStrategy where every join is friction. Sacrifices some flexibility for usability.</li>
+  </ul>
+  <p>The right answer is usually <b>both</b> — the dimensional star schema is the system of record for analytics, and a flat consumption view is generated from it for the easiest BI experience.</p>
+</div>
+
+<h3>The principle that makes this work</h3>
+
+<div class="callout-pos">
+  <b>Dimensions come from domain models. Measures come from Risk apps. The dimensional layer is where they marry.</b> Neither dimensions nor measures are <i>invented</i> at the analytics layer — they're sourced from authoritative places. The analytics layer is a marriage point, not an originator.
+</div>
+
+<p>This principle has consequences:</p>
+<ul>
+  <li>If the Counterparty domain model changes (say, a new client-type taxonomy), the Counterparty Dimension automatically reflects the change. The analytics architect doesn't have to "decide" — they inherit.</li>
+  <li>If RCS produces a new stress measure (say, Reverse Stress Test), it appears as a new column on the Stress Fact. The analytics architect designs how it joins to dimensions but doesn't define the measure.</li>
+  <li>The data modeler's role is to <b>enforce conformance</b> — making sure the Counterparty Dimension is identical regardless of which fact joins to it. This is data governance work, not analytics work.</li>
+</ul>
+
+<h2 id="diagram">5. Multi-fact + dimensions diagram (rough draft)</h2>
+
+<p>The diagram below is a rough draft for the CCR analytics layer. Boxes only — no attributes — because the purpose is to show <i>relationships and dependencies</i>, not full schema. Three things are shown:</p>
+
+<ol>
+  <li><b>Where each dimension comes from</b> — every dimension is labeled with its originating domain (Trade, Party, Security, Book/Desk, Market Data, etc.)</li>
+  <li><b>Where each fact's measures come from</b> — every fact is labeled with its producing Risk app (CMOS, RCS, XVALA, etc.)</li>
+  <li><b>The flow</b> — domain data products and Risk apps feed into Silver, which feeds into the dimensional layer, which feeds into a flat consumption fact, which feeds into BI</li>
+</ol>
+
+<p>The diagram is in a separate file: <code>analytics_layer_diagram.html</code>. View it standalone for ease of sharing.</p>
+
+<h2 id="scaling">6. Why this scales beyond CCR</h2>
+
+<p>The architecture above is explicitly drawn for CCR. But the same pattern works for every Risk analytics domain. Specifically:</p>
+
+<table>
+  <thead>
+    <tr><th>Risk domain</th><th>Silver source(s)</th><th>Risk apps producing measures</th><th>Distinctive dimensions</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>CCR / Collateral</b> (current work)</td>
+      <td>CCR/Collateral Silver LDM (this project)</td>
+      <td>CMOS, CRS, XVALA, RCS, TCC</td>
+      <td>Agreement, Counterparty, Margin Call Action Type</td>
+    </tr>
+    <tr>
+      <td><b>Liquidity (LRM)</b></td>
+      <td>Liquidity Silver (separate work, separate domain)</td>
+      <td>ALFA, SRLM</td>
+      <td>Funding Source, Liquidity Bucket, NSFR Category, LCR Outflow Type</td>
+    </tr>
+    <tr>
+      <td><b>Market Risk</b></td>
+      <td>Market Risk Silver (separate)</td>
+      <td>RCAPS, RAMS, TDCIS</td>
+      <td>Risk Factor, P&amp;L Vector, VaR/SVaR Buckets, FRTB Risk Class</td>
+    </tr>
+    <tr>
+      <td><b>Capital</b></td>
+      <td>Capital Silver (separate)</td>
+      <td>CRS, RCAPS, XVALA, TRW, INF</td>
+      <td>Regulatory Approach (SA-CCR, IMM, FRTB SA/IMA), RWA Category</td>
+    </tr>
+    <tr>
+      <td><b>Counterparty Limits</b></td>
+      <td>Limits Silver</td>
+      <td>(InfApp / CLM)</td>
+      <td>Limit Type, Limit Hierarchy, Approver, Watch List Status</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Each Risk domain follows the same pattern: source apps + domain data products → Silver → dimensional layer → BI. <b>The conformed dimensions are shared across domains.</b> Counterparty dimension is the same whether you're analyzing CCR exposure, Market Risk VaR, Liquidity outflows, or Capital allocation. Date dimension is universal. Currency dimension is universal. Book/Desk dimension is universal.</p>
+
+<p>This means: <b>build conformed dimensions ONCE, use them everywhere.</b> That's the data modeler's leverage — one well-designed Counterparty dimension serves all Risk analytics. Without conformance, every analytics build re-invents the same dimensions, with subtle inconsistencies that bite later.</p>
+
+<h2 id="why-matters">7. Why this thinking matters (the governance value)</h2>
+
+<p>Three reasons this layered architecture is worth establishing as a TD-wide pattern, not just doing it ad-hoc per project:</p>
+
+<h3>Reason 1 — Clear ownership prevents reinvention</h3>
+
+<p>If three analytics teams (CCR, Liquidity, Market Risk) each build their own "counterparty dimension" with their own definition of client type, the result is three subtly different views of the same counterparty in three different dashboards. By the time someone notices, weeks of analysis have been done on inconsistent foundations. The conformed dimensional layer prevents this by saying "Counterparty is owned by Party Master domain, Counterparty dimension is built once, every fact joins to the same dimension."</p>
+
+<h3>Reason 2 — Source-system changes propagate predictably</h3>
+
+<p>When Party Master adds a new client_type value (say, "Family Office" gets split out from "Asset Manager"), the change propagates to the Counterparty dimension automatically, and from there to every dashboard that uses it. Without the layered architecture, every dashboard owner has to find out about the change and update their own copy. Data modelers handle the propagation; analytics consumers don't have to.</p>
+
+<h3>Reason 3 — It justifies the data modeling role itself</h3>
+
+<p>This is worth saying explicitly. In many shops, the data modeler is seen as a documentation function — "they draw diagrams." But the layered architecture surfaces the actual value: <i>data modelers are the people who design the conformance contract between source systems and analytics</i>. Without that contract, every BI build is a one-off integration. With it, BI builds are composable. That's the case to make to Eleanor.</p>
+
+<h3>What this means for our current work</h3>
+
+<p>Our 8-aggregate CCR/Collateral Silver LDM is the foundation. When we move to the analytics layer (later, after LDM is stable), we will:</p>
+<ul>
+  <li>Build conformed dimensions on top of Silver, sourced from Party Master, Trade Master, Security Master, Book/Desk, etc.</li>
+  <li>Build subject-level facts per measurement process (Daily Exposure, Margin Call, Collateral Position, Movement, Stress, Sensitivities, etc.)</li>
+  <li>Build a flat consumption fact (or several) for BI ease-of-use</li>
+  <li>Connect to PowerBI / MicroStrategy via the consumption layer</li>
+</ul>
+
+<p>The Silver work we're doing now is what makes all of this possible. If Silver is incomplete or inconsistent, the analytics layer inherits that incompleteness. If Silver is solid, the analytics layer is a presentation problem, not a data problem.</p>
+
+<h2 id="glossary">8. Glossary appendix</h2>
+
+<p>Consolidated definitions of every acronym used in this document. Status legend: <span class="term-status-confirmed">confirmed</span> = grounded in TD source catalogs; <span class="term-status-industry">industry standard</span> = standard industry definition; <span class="term-status-needs-sme">needs SME</span> = best-guess interpretation, requires confirmation.</p>
+
+<h3>Risk applications and systems</h3>
+
+<div class="term-block">
+  <span class="term-name">CMOS</span><span class="term-status-confirmed">confirmed</span>
+  <p>Credit Risk app — collateral management system. TD's wrapper around Vermeg Colline. Authoritative source for daily collateral operations (positions, movements, margin calls). 41 sources mapped in TD catalogs.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">CRS</span><span class="term-status-confirmed">confirmed</span>
+  <p>Credit Risk app — legacy capital calculation engine. Calculates regulatory capital metrics (SA-CCR EAD, RWA). Being retired by 2028-10-30, replaced product-by-product by XVALA. 19 sources mapped.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">XVALA</span><span class="term-status-confirmed">confirmed</span>
+  <p>Credit Risk app — XVA Analytics engine. Calculates valuation adjustments (CVA, DVA, FVA, MVA, ColVA). Replacing CRS for new products. 48 sources mapped.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">RCS</span><span class="term-status-confirmed">confirmed</span>
+  <p>Risk Capital Studio (Market Risk app). Engine for stress testing, PFE calculation, and MTM stress scenarios. Output is monthly cadence (per the GMC requirement note "stress is only produced monthly"). 29 sources mapped.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">RCAPS</span><span class="term-status-confirmed">confirmed</span>
+  <p>Risk Capital Analytics and Pricing System (Market Risk app). Major Market Risk capital and analytics platform. 65 sources mapped — the largest single Risk app by source count.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">RAMS</span><span class="term-status-confirmed">confirmed</span>
+  <p>Market Risk app — Risk Attribution Management System (likely; needs SME confirmation on full expansion). 34 sources mapped.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">TCC</span><span class="term-status-confirmed">confirmed</span>
+  <p>Credit Risk app — likely Trade Credit Counterparty or Trade Capture Compliance (needs SME confirmation on expansion). 27 sources mapped.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">ALFA</span><span class="term-status-confirmed">confirmed</span>
+  <p>Liquidity app — collects data for liquidity and funding (per App tab in Master Data Sources). 39 sources mapped.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">SRLM</span><span class="term-status-confirmed">confirmed</span>
+  <p>Liquidity app. 36 sources mapped. Full expansion needs SME confirmation.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">TRW</span><span class="term-status-confirmed">confirmed</span>
+  <p>Finance app. 25 sources mapped. Full expansion needs SME confirmation.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">INF</span><span class="term-status-confirmed">confirmed</span>
+  <p>Finance app — likely "InfApp" referenced in our domain modeling for breach management and workflow. 9 sources mapped.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">IHMS</span><span class="term-status-confirmed">confirmed</span>
+  <p>Investment Hierarchy Management System (per TD catalogs — also seen as Inventory Hierarchy Management System in some sheets). TD's authoritative source for book and portfolio hierarchy. Provides desk, trader, supervisor, and book attribution.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">SENTOR</span><span class="term-status-needs-sme">needs SME</span>
+  <p>Mentioned in George's requirements as the source of sensitivities for CCR Line Details. Likely a Risk-engineering system that produces delta/gamma/vega/IR-tenor sensitivities for derivative trades. <i>Confirmation needed: full name, ownership, refresh cadence, scope.</i></p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">REDS-GRS</span><span class="term-status-needs-sme">needs SME</span>
+  <p>Mentioned in George's requirements as the source of trading supervisor data. Combination of REDS (possibly Reference Engineering Data Store) and GRS (possibly Group Risk Systems). <i>Confirmation needed.</i></p>
+</div>
+
+<h3>Counterparty / industry classification</h3>
+
+<div class="term-block">
+  <span class="term-name">NBFI</span><span class="term-status-industry">industry standard</span>
+  <p>Non-Bank Financial Institution. Standard industry classification covering hedge funds, asset managers, insurance companies, family offices, fintech firms, etc. — financial firms that are not depository banks. Has growing regulatory focus due to systemic-risk concerns.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">SSA</span><span class="term-status-industry">industry standard</span>
+  <p>Sovereigns, Supranationals, and Agencies. Standard industry classification for governments, government-related agencies (e.g., Fannie Mae, Freddie Mac), and supranational entities (World Bank, EIB, etc.). Distinct counterparty type with often-zero risk weight under regulatory rules.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">FMTA</span><span class="term-status-needs-sme">needs SME</span>
+  <p>In George's requirements as a counterparty / industry classification alongside NBFI, Banks, Corporates, etc. Possibly "Financial Markets Trade Association" or a TD-specific category. <i>Confirmation needed.</i></p>
+</div>
+
+<h3>Booking and legal entity</h3>
+
+<div class="term-block">
+  <span class="term-name">IHC</span><span class="term-status-industry">industry standard</span>
+  <p>Intermediate Holding Company. US prudential regulatory concept — foreign banks operating in the US must hold their US operations in an IHC subject to US capital and liquidity rules. Booking through IHC means the trade hits US regulatory reporting.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">CUSO</span><span class="term-status-needs-sme">needs SME</span>
+  <p>In George's requirements as a booking-point category. Possibly "Credit Union Service Organization" (industry term) or a TD-specific abbreviation. <i>Confirmation needed.</i></p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">TDGF</span><span class="term-status-needs-sme">needs SME</span>
+  <p>TD Global Finance. Likely the European TD legal entity used for booking trades from the European business. <i>Confirmation needed on exact entity scope.</i></p>
+</div>
+
+<h3>Risk metrics and methodologies</h3>
+
+<div class="term-block">
+  <span class="term-name">PFE</span><span class="term-status-industry">industry standard</span>
+  <p>Potential Future Exposure. Statistical measure of how much exposure could grow over a future horizon at a given confidence level (e.g., 95th percentile). Standard CCR metric. "Stressed PFE" applies stress scenarios; "Standard PFE" uses base-case parameters.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">MTM</span><span class="term-status-industry">industry standard</span>
+  <p>Mark-to-Market. Current value of a derivative based on current market prices. The starting point of CCR exposure measurement.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">SIMM (or SIM)</span><span class="term-status-industry">industry standard</span>
+  <p>Standard Initial Margin Model. ISDA-defined methodology for calculating Initial Margin under UMR (Uncleared Margin Rules). Most regulated bilateral derivatives use SIMM. "Non-SIM" generally means anything outside SIMM scope (Schedule IM, legacy methods).</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">IM / VM</span><span class="term-status-industry">industry standard</span>
+  <p>Initial Margin / Variation Margin. IM is collateral posted upfront to cover potential future losses (regulated by UMR). VM is collateral exchanged daily to settle current MTM moves.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">IA</span><span class="term-status-industry">industry standard</span>
+  <p>Independent Amount. Pre-UMR concept — fixed amount of collateral posted independent of MTM. Largely superseded by SIMM IM under UMR but persists in legacy agreements and trade-level structures (synthetic prime brokerage).</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">SFT</span><span class="term-status-industry">industry standard</span>
+  <p>Securities Financing Transaction. Repos, reverse repos, securities lending, and similar product types. Distinct from OTC derivatives — different product economics, different risk profile (issuer risk vs counterparty risk).</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">CCR Line</span><span class="term-status-industry">industry standard</span>
+  <p>The netting-set-level credit exposure summary for a counterparty. "Show me the CCR Line for Counterparty X" means show the aggregated MTM, IM, VM, PFE, and other measures across all trades with X under all governing agreements.</p>
+</div>
+
+<h3>Issuers (for SFT issuer-risk analysis)</h3>
+
+<div class="term-block">
+  <span class="term-name">UST</span><span class="term-status-industry">industry standard</span>
+  <p>US Treasury. Sovereign issuer of US government bonds. Standard repo collateral.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">GOC</span><span class="term-status-industry">industry standard</span>
+  <p>Government of Canada. Canadian sovereign issuer of CGB (Canada Government Bonds). Standard CAD-denominated repo collateral.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">Gilt</span><span class="term-status-industry">industry standard</span>
+  <p>UK government bond issued by HM Treasury. Standard GBP-denominated repo collateral.</p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">US Agency</span><span class="term-status-industry">industry standard</span>
+  <p>US government-sponsored enterprises (Fannie Mae, Freddie Mac, Ginnie Mae, etc.). Issuer credit is implicitly or explicitly backed by the US government. Common repo collateral.</p>
+</div>
+
+<h3>Trending and time-series</h3>
+
+<div class="term-block">
+  <span class="term-name">YTD / QoQ / MoM / DoD</span><span class="term-status-industry">industry standard</span>
+  <p>Year-to-Date / Quarter-over-Quarter / Month-over-Month / Day-over-Day. Standard time-series comparisons. Each requires the fact table to retain enough history.</p>
+</div>
+
+<h3>Other terms used</h3>
+
+<div class="term-block">
+  <span class="term-name">GMC</span><span class="term-status-needs-sme">needs SME</span>
+  <p>Mentioned by George as the workstream that previously pulled together these requirements. Likely a TD committee or governance group focused on credit/risk/collateral. <i>Confirmation needed on full name and scope.</i></p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">RADS</span><span class="term-status-needs-sme">needs SME</span>
+  <p>Mentioned earlier in our conversation as a term to clarify. Did not appear in TD source catalogs. Possibly Risk Aggregation Data Store or similar. <i>Confirmation needed.</i></p>
+</div>
+
+<div class="term-block">
+  <span class="term-name">Watch list</span><span class="term-status-needs-sme">needs SME</span>
+  <p>A list of counterparties under heightened review — typically credit (counterparty showing financial distress), but also possibly legal/regulatory (sanctions, AML concerns). Watch list status drives review frequency, exposure limits, possibly trade rejection rules. Status is BOTH a dimensional attribute (slice exposures by watch list) AND a domain concept (Party Master extension). <i>Specific TD watch-list construct, ownership, and policy needs SME confirmation.</i></p>
+</div>
+
+<hr style="margin-top: 48px; border: 0; border-top: 1px solid #e5e3da;">
+
+<p style="color: #6b6a64; font-size: 12px; text-align: center; margin-top: 24px;">CCR analytics layer document v1.0 · captured for future work · revisit after Silver LDM completion · companion diagram in <code>analytics_layer_diagram.html</code></p>
+
+</div>
+</body>
+</html>

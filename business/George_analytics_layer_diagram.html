@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CCR analytics layer — diagram (rough draft)</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: #ffffff;
+    color: #1f1f1d;
+    margin: 0;
+    padding: 24px;
+  }
+  h1 { font-size: 20px; font-weight: 500; margin: 0 0 6px 0; }
+  .subtitle { font-size: 13px; color: #6b6a64; margin-bottom: 20px; }
+  .diagram-card {
+    background: #ffffff;
+    border: 1px solid #e5e3da;
+    border-radius: 12px;
+    padding: 24px;
+    overflow-x: auto;
+  }
+  svg { display: block; max-width: 100%; height: auto; }
+  .legend {
+    margin-top: 16px;
+    padding: 14px 18px;
+    background: #f7f6f0;
+    border: 1px solid #e5e3da;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #3d3d3a;
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<h1>CCR analytics layer — rough-draft diagram</h1>
+<div class="subtitle">Boxes only · shows dimensions sourced from domains, facts sourced from Risk apps, dimensional layer marrying them, flat consumption fact for BI · CCR worked example, but pattern scales to LRM/MR/Capital</div>
+
+<div class="diagram-card">
+
+<svg width="100%" viewBox="0 0 1240 1480" role="img">
+<defs>
+  <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M2 1L9 5L2 9" fill="#666" stroke="#666" stroke-width="0.4"/>
+  </marker>
+  <marker id="arr-thick" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+    <path d="M2 1L9 5L2 9" fill="#534AB7" stroke="#534AB7" stroke-width="0.4"/>
+  </marker>
+</defs>
+
+<!-- Title bands -->
+<text style="font-size:13px; font-weight:600;" x="20" y="28" fill="#1f1f1d">TIER 4 — Consumption (BI / dashboard / self-service)</text>
+
+<!-- BI tools -->
+<g>
+  <rect x="380" y="48" width="220" height="60" rx="8" fill="#F4F0FB" stroke="#534AB7" stroke-width="1"/>
+  <text style="font-size:13px; font-weight:600;" x="490" y="76" text-anchor="middle" fill="#26215C">PowerBI</text>
+  <text style="font-size:11px;" x="490" y="94" text-anchor="middle" fill="#3C3489">George's GMC dashboard</text>
+</g>
+<g>
+  <rect x="640" y="48" width="220" height="60" rx="8" fill="#F4F0FB" stroke="#534AB7" stroke-width="1"/>
+  <text style="font-size:13px; font-weight:600;" x="750" y="76" text-anchor="middle" fill="#26215C">MicroStrategy</text>
+  <text style="font-size:11px;" x="750" y="94" text-anchor="middle" fill="#3C3489">future POC target</text>
+</g>
+
+<!-- Arrows from flat fact to BI -->
+<path d="M620 240 L 490 110" stroke="#534AB7" stroke-width="1.5" fill="none" marker-end="url(#arr-thick)"/>
+<path d="M620 240 L 750 110" stroke="#534AB7" stroke-width="1.5" fill="none" marker-end="url(#arr-thick)"/>
+
+<!-- Flat consumption fact -->
+<g>
+  <rect x="380" y="245" width="480" height="80" rx="10" fill="#FFE9DA" stroke="#C04A19" stroke-width="1.5"/>
+  <text style="font-size:13px; font-weight:600;" x="620" y="272" text-anchor="middle" fill="#4A1B0C">FACT_DAILY_DASHBOARD (flat consumption)</text>
+  <text style="font-size:11px;" x="620" y="292" text-anchor="middle" fill="#712B13">Wide denormalized view — built on top of dimensional layer</text>
+  <text style="font-size:11px;" x="620" y="308" text-anchor="middle" fill="#712B13">All commonly-used measures + dimension attributes joined</text>
+</g>
+
+<!-- Tier 3 label -->
+<text style="font-size:13px; font-weight:600;" x="20" y="370" fill="#1f1f1d">TIER 3 — Dimensional layer (Gold / star schemas)</text>
+<text style="font-size:11px;" x="20" y="386" fill="#5a5a56">Subject-level facts (left) · conformed dimensions (right) · marriage point of measures and dimensions</text>
+
+<!-- Subject-level facts (left side) -->
+<g>
+  <rect x="20" y="410" width="300" height="60" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.7"/>
+  <text style="font-size:12px; font-weight:600;" x="170" y="434" text-anchor="middle" fill="#4A1B0C">FACT_DAILY_EXPOSURE</text>
+  <text style="font-size:10px;" x="170" y="450" text-anchor="middle" fill="#712B13">measures from CMOS · grain: agreement-day</text>
+  <text style="font-size:10px;" x="170" y="464" text-anchor="middle" fill="#712B13">mtm, ia, threshold, itm/otm exposure</text>
+</g>
+<g>
+  <rect x="20" y="478" width="300" height="60" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.7"/>
+  <text style="font-size:12px; font-weight:600;" x="170" y="502" text-anchor="middle" fill="#4A1B0C">FACT_MARGIN_CALL</text>
+  <text style="font-size:10px;" x="170" y="518" text-anchor="middle" fill="#712B13">measures from CMOS · grain: call event</text>
+  <text style="font-size:10px;" x="170" y="532" text-anchor="middle" fill="#712B13">action, status, agreed/booked amounts</text>
+</g>
+<g>
+  <rect x="20" y="546" width="300" height="60" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.7"/>
+  <text style="font-size:12px; font-weight:600;" x="170" y="570" text-anchor="middle" fill="#4A1B0C">FACT_COLLATERAL_POSITION</text>
+  <text style="font-size:10px;" x="170" y="586" text-anchor="middle" fill="#712B13">measures from CMOS · grain: position-day</text>
+  <text style="font-size:10px;" x="170" y="600" text-anchor="middle" fill="#712B13">par, market value, haircut, collateral value</text>
+</g>
+<g>
+  <rect x="20" y="614" width="300" height="60" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.7"/>
+  <text style="font-size:12px; font-weight:600;" x="170" y="638" text-anchor="middle" fill="#4A1B0C">FACT_COLLATERAL_MOVEMENT</text>
+  <text style="font-size:10px;" x="170" y="654" text-anchor="middle" fill="#712B13">measures from CMOS · grain: movement event</text>
+  <text style="font-size:10px;" x="170" y="668" text-anchor="middle" fill="#712B13">nominal, settlement amount, movement type</text>
+</g>
+<g>
+  <rect x="20" y="682" width="300" height="60" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.7"/>
+  <text style="font-size:12px; font-weight:600;" x="170" y="706" text-anchor="middle" fill="#4A1B0C">FACT_PAI_ACCRUAL</text>
+  <text style="font-size:10px;" x="170" y="722" text-anchor="middle" fill="#712B13">measures from CMOS + TMS · grain: position-day</text>
+  <text style="font-size:10px;" x="170" y="736" text-anchor="middle" fill="#712B13">accrual amount, rate, currency</text>
+</g>
+<g>
+  <rect x="20" y="750" width="300" height="60" rx="8" fill="#FFE0CC" stroke="#C04A19" stroke-width="0.7" stroke-dasharray="4 2"/>
+  <text style="font-size:12px; font-weight:600;" x="170" y="774" text-anchor="middle" fill="#4A1B0C">FACT_PFE_STRESS (adjacent)</text>
+  <text style="font-size:10px;" x="170" y="790" text-anchor="middle" fill="#712B13">measures from RCS · monthly cadence</text>
+  <text style="font-size:10px;" x="170" y="804" text-anchor="middle" fill="#712B13">stressed PFE, standard PFE, MTM stress</text>
+</g>
+<g>
+  <rect x="20" y="818" width="300" height="60" rx="8" fill="#FFE0CC" stroke="#C04A19" stroke-width="0.7" stroke-dasharray="4 2"/>
+  <text style="font-size:12px; font-weight:600;" x="170" y="842" text-anchor="middle" fill="#4A1B0C">FACT_SENSITIVITIES (adjacent)</text>
+  <text style="font-size:10px;" x="170" y="858" text-anchor="middle" fill="#712B13">measures from SENTOR · grain: trade-day</text>
+  <text style="font-size:10px;" x="170" y="872" text-anchor="middle" fill="#712B13">delta, gamma, vega by tenor bucket</text>
+</g>
+<g>
+  <rect x="20" y="886" width="300" height="60" rx="8" fill="#FFE0CC" stroke="#C04A19" stroke-width="0.7" stroke-dasharray="4 2"/>
+  <text style="font-size:12px; font-weight:600;" x="170" y="910" text-anchor="middle" fill="#4A1B0C">FACT_CCR_CAPITAL (adjacent)</text>
+  <text style="font-size:10px;" x="170" y="926" text-anchor="middle" fill="#712B13">measures from XVALA / CRS · grain: netting-set-day</text>
+  <text style="font-size:10px;" x="170" y="940" text-anchor="middle" fill="#712B13">EAD, RWA, capital allocation</text>
+</g>
+
+<!-- Conformed dimensions (right side) -->
+<g>
+  <rect x="900" y="410" width="320" height="46" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.7"/>
+  <text style="font-size:12px; font-weight:600;" x="1060" y="430" text-anchor="middle" fill="#26215C">DIM_DATE</text>
+  <text style="font-size:10px;" x="1060" y="446" text-anchor="middle" fill="#3C3489">domain: Calendar / universal</text>
+</g>
+<g>
+  <rect x="900" y="464" width="320" height="46" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.7"/>
+  <text style="font-size:12px; font-weight:600;" x="1060" y="484" text-anchor="middle" fill="#26215C">DIM_COUNTERPARTY</text>
+  <text style="font-size:10px;" x="1060" y="500" text-anchor="middle" fill="#3C3489">domain: Reference and Master Data (Party Master)</text>
+</g>
+<g>
+  <rect x="900" y="518" width="320" height="46" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.7"/>
+  <text style="font-size:12px; font-weight:600;" x="1060" y="538" text-anchor="middle" fill="#26215C">DIM_AGREEMENT</text>
+  <text style="font-size:10px;" x="1060" y="554" text-anchor="middle" fill="#3C3489">domain: Reference Data (TAMS via CCR Silver)</text>
+</g>
+<g>
+  <rect x="900" y="572" width="320" height="46" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.7"/>
+  <text style="font-size:12px; font-weight:600;" x="1060" y="592" text-anchor="middle" fill="#26215C">DIM_TRADE</text>
+  <text style="font-size:10px;" x="1060" y="608" text-anchor="middle" fill="#3C3489">domain: Post-Trade (Trade Master)</text>
+</g>
+<g>
+  <rect x="900" y="626" width="320" height="46" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.7"/>
+  <text style="font-size:12px; font-weight:600;" x="1060" y="646" text-anchor="middle" fill="#26215C">DIM_BOOK_DESK</text>
+  <text style="font-size:10px;" x="1060" y="662" text-anchor="middle" fill="#3C3489">domain: Reference Data (IHMS) + REDS-GRS</text>
+</g>
+<g>
+  <rect x="900" y="680" width="320" height="46" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.7"/>
+  <text style="font-size:12px; font-weight:600;" x="1060" y="700" text-anchor="middle" fill="#26215C">DIM_SECURITY</text>
+  <text style="font-size:10px;" x="1060" y="716" text-anchor="middle" fill="#3C3489">domain: Reference Data (Security Master)</text>
+</g>
+<g>
+  <rect x="900" y="734" width="320" height="46" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.7"/>
+  <text style="font-size:12px; font-weight:600;" x="1060" y="754" text-anchor="middle" fill="#26215C">DIM_COLLATERAL_TYPE</text>
+  <text style="font-size:10px;" x="1060" y="770" text-anchor="middle" fill="#3C3489">domain: enumerated (IM/VM, asset class)</text>
+</g>
+<g>
+  <rect x="900" y="788" width="320" height="46" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.7"/>
+  <text style="font-size:12px; font-weight:600;" x="1060" y="808" text-anchor="middle" fill="#26215C">DIM_RISK_TYPE</text>
+  <text style="font-size:10px;" x="1060" y="824" text-anchor="middle" fill="#3C3489">domain: enumerated (SIM/non-SIM/energy/credit)</text>
+</g>
+<g>
+  <rect x="900" y="842" width="320" height="46" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.7"/>
+  <text style="font-size:12px; font-weight:600;" x="1060" y="862" text-anchor="middle" fill="#26215C">DIM_REGULATORY_REGIME</text>
+  <text style="font-size:10px;" x="1060" y="878" text-anchor="middle" fill="#3C3489">domain: Reference Data (TAMS via CCR Silver)</text>
+</g>
+<g>
+  <rect x="900" y="896" width="320" height="46" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.7"/>
+  <text style="font-size:12px; font-weight:600;" x="1060" y="916" text-anchor="middle" fill="#26215C">DIM_CURRENCY</text>
+  <text style="font-size:10px;" x="1060" y="932" text-anchor="middle" fill="#3C3489">domain: Reference Data (universal)</text>
+</g>
+
+<!-- Connection lines from facts to dimensions cluster (visual hint, not exhaustive) -->
+<line x1="320" y1="440" x2="900" y2="440" stroke="#bbb" stroke-width="0.5" stroke-dasharray="2 2"/>
+<line x1="320" y1="500" x2="900" y2="500" stroke="#bbb" stroke-width="0.5" stroke-dasharray="2 2"/>
+<line x1="320" y1="560" x2="900" y2="560" stroke="#bbb" stroke-width="0.5" stroke-dasharray="2 2"/>
+<line x1="320" y1="620" x2="900" y2="620" stroke="#bbb" stroke-width="0.5" stroke-dasharray="2 2"/>
+<line x1="320" y1="700" x2="900" y2="700" stroke="#bbb" stroke-width="0.5" stroke-dasharray="2 2"/>
+<line x1="320" y1="780" x2="900" y2="780" stroke="#bbb" stroke-width="0.5" stroke-dasharray="2 2"/>
+<line x1="320" y1="860" x2="900" y2="860" stroke="#bbb" stroke-width="0.5" stroke-dasharray="2 2"/>
+
+<!-- Label for dimensions area -->
+<text style="font-size:10px; font-style:italic;" x="1060" y="404" text-anchor="middle" fill="#5a5a56">Each dimension labeled with its source domain</text>
+
+<!-- Arrow from facts/dims up to flat fact -->
+<path d="M170 410 L 380 290" stroke="#993C1D" stroke-width="1.2" fill="none" marker-end="url(#arr)"/>
+<path d="M1060 410 L 860 290" stroke="#534AB7" stroke-width="1.2" fill="none" marker-end="url(#arr)"/>
+
+<!-- Tier 2 label -->
+<text style="font-size:13px; font-weight:600;" x="20" y="990" fill="#1f1f1d">TIER 2 — Silver layer (per-domain LDM)</text>
+<text style="font-size:11px;" x="20" y="1006" fill="#5a5a56">Each Risk domain has its own normalized LDM · this is where our 8-aggregate CCR/Collateral model lives · feeds Tier 3</text>
+
+<!-- Silver domain boxes -->
+<g>
+  <rect x="20" y="1024" width="240" height="100" rx="8" fill="#FCF1ED" stroke="#993C1D" stroke-width="1.2"/>
+  <text style="font-size:12px; font-weight:600;" x="140" y="1048" text-anchor="middle" fill="#4A1B0C">CCR / Collateral Silver</text>
+  <text style="font-size:10px;" x="140" y="1066" text-anchor="middle" fill="#712B13">8 aggregates, this LDM project</text>
+  <text style="font-size:10px;" x="140" y="1080" text-anchor="middle" fill="#712B13">(Party, Legal Agreement, Reg Context,</text>
+  <text style="font-size:10px;" x="140" y="1094" text-anchor="middle" fill="#712B13">Trade Mapping, Exposure, Inventory,</text>
+  <text style="font-size:10px;" x="140" y="1108" text-anchor="middle" fill="#712B13">Settlement, Workflow)</text>
+</g>
+<g>
+  <rect x="280" y="1024" width="240" height="100" rx="8" fill="#FCF1ED" stroke="#993C1D" stroke-width="0.7" stroke-dasharray="4 2"/>
+  <text style="font-size:12px; font-weight:600;" x="400" y="1048" text-anchor="middle" fill="#4A1B0C">Capital Silver</text>
+  <text style="font-size:10px;" x="400" y="1066" text-anchor="middle" fill="#712B13">SA-CCR, RWA, EAD</text>
+  <text style="font-size:10px;" x="400" y="1080" text-anchor="middle" fill="#712B13">(future work, separate stream)</text>
+</g>
+<g>
+  <rect x="540" y="1024" width="240" height="100" rx="8" fill="#FCF1ED" stroke="#993C1D" stroke-width="0.7" stroke-dasharray="4 2"/>
+  <text style="font-size:12px; font-weight:600;" x="660" y="1048" text-anchor="middle" fill="#4A1B0C">XVA Silver</text>
+  <text style="font-size:10px;" x="660" y="1066" text-anchor="middle" fill="#712B13">CVA, DVA, FVA, MVA</text>
+  <text style="font-size:10px;" x="660" y="1080" text-anchor="middle" fill="#712B13">(future work, separate stream)</text>
+</g>
+<g>
+  <rect x="800" y="1024" width="200" height="100" rx="8" fill="#FCF1ED" stroke="#993C1D" stroke-width="0.7" stroke-dasharray="4 2"/>
+  <text style="font-size:12px; font-weight:600;" x="900" y="1048" text-anchor="middle" fill="#4A1B0C">Market Risk Silver</text>
+  <text style="font-size:10px;" x="900" y="1066" text-anchor="middle" fill="#712B13">VaR, FRTB, sensitivities</text>
+  <text style="font-size:10px;" x="900" y="1080" text-anchor="middle" fill="#712B13">(future work)</text>
+</g>
+<g>
+  <rect x="1020" y="1024" width="200" height="100" rx="8" fill="#FCF1ED" stroke="#993C1D" stroke-width="0.7" stroke-dasharray="4 2"/>
+  <text style="font-size:12px; font-weight:600;" x="1120" y="1048" text-anchor="middle" fill="#4A1B0C">Liquidity (LRM) Silver</text>
+  <text style="font-size:10px;" x="1120" y="1066" text-anchor="middle" fill="#712B13">LCR, NSFR, FR 2052a</text>
+  <text style="font-size:10px;" x="1120" y="1080" text-anchor="middle" fill="#712B13">(future work)</text>
+</g>
+
+<!-- Arrows from Silver to dimensional layer -->
+<path d="M140 1024 L 140 950" stroke="#666" stroke-width="1" fill="none" marker-end="url(#arr)"/>
+<path d="M400 1024 L 400 950" stroke="#666" stroke-width="0.8" fill="none" marker-end="url(#arr)" stroke-dasharray="3 3"/>
+<path d="M660 1024 L 660 950" stroke="#666" stroke-width="0.8" fill="none" marker-end="url(#arr)" stroke-dasharray="3 3"/>
+
+<!-- Tier 1 label -->
+<text style="font-size:13px; font-weight:600;" x="20" y="1180" fill="#1f1f1d">TIER 1 — Source systems (Risk apps + domain data products)</text>
+<text style="font-size:11px;" x="20" y="1196" fill="#5a5a56">Risk apps produce measures · domain data products provide entities and reference data · TD source catalog has 392 sources, 13 distinct apps</text>
+
+<!-- Risk apps -->
+<text style="font-size:11px; font-weight:600;" x="20" y="1224" fill="#3d3d3a">Risk apps (produce measures):</text>
+<g>
+  <rect x="20" y="1232" width="100" height="46" rx="6" fill="#FFF8E5" stroke="#B17E26"/>
+  <text style="font-size:11px; font-weight:600;" x="70" y="1252" text-anchor="middle" fill="#5C3F11">CMOS</text>
+  <text style="font-size:9px;" x="70" y="1266" text-anchor="middle" fill="#7C5421">Credit Risk · 41 src</text>
+</g>
+<g>
+  <rect x="130" y="1232" width="100" height="46" rx="6" fill="#FFF8E5" stroke="#B17E26"/>
+  <text style="font-size:11px; font-weight:600;" x="180" y="1252" text-anchor="middle" fill="#5C3F11">CRS</text>
+  <text style="font-size:9px;" x="180" y="1266" text-anchor="middle" fill="#7C5421">Credit Risk · 19 src</text>
+</g>
+<g>
+  <rect x="240" y="1232" width="100" height="46" rx="6" fill="#FFF8E5" stroke="#B17E26"/>
+  <text style="font-size:11px; font-weight:600;" x="290" y="1252" text-anchor="middle" fill="#5C3F11">XVALA</text>
+  <text style="font-size:9px;" x="290" y="1266" text-anchor="middle" fill="#7C5421">Credit Risk · 48 src</text>
+</g>
+<g>
+  <rect x="350" y="1232" width="100" height="46" rx="6" fill="#FFF8E5" stroke="#B17E26"/>
+  <text style="font-size:11px; font-weight:600;" x="400" y="1252" text-anchor="middle" fill="#5C3F11">RCS</text>
+  <text style="font-size:9px;" x="400" y="1266" text-anchor="middle" fill="#7C5421">Market Risk · 29 src</text>
+</g>
+<g>
+  <rect x="460" y="1232" width="100" height="46" rx="6" fill="#FFF8E5" stroke="#B17E26"/>
+  <text style="font-size:11px; font-weight:600;" x="510" y="1252" text-anchor="middle" fill="#5C3F11">RCAPS</text>
+  <text style="font-size:9px;" x="510" y="1266" text-anchor="middle" fill="#7C5421">Market Risk · 65 src</text>
+</g>
+<g>
+  <rect x="570" y="1232" width="100" height="46" rx="6" fill="#FFF8E5" stroke="#B17E26"/>
+  <text style="font-size:11px; font-weight:600;" x="620" y="1252" text-anchor="middle" fill="#5C3F11">RAMS</text>
+  <text style="font-size:9px;" x="620" y="1266" text-anchor="middle" fill="#7C5421">Market Risk · 34 src</text>
+</g>
+<g>
+  <rect x="680" y="1232" width="100" height="46" rx="6" fill="#FFF8E5" stroke="#B17E26"/>
+  <text style="font-size:11px; font-weight:600;" x="730" y="1252" text-anchor="middle" fill="#5C3F11">TCC</text>
+  <text style="font-size:9px;" x="730" y="1266" text-anchor="middle" fill="#7C5421">Credit Risk · 27 src</text>
+</g>
+<g>
+  <rect x="790" y="1232" width="100" height="46" rx="6" fill="#FFF8E5" stroke="#B17E26"/>
+  <text style="font-size:11px; font-weight:600;" x="840" y="1252" text-anchor="middle" fill="#5C3F11">ALFA</text>
+  <text style="font-size:9px;" x="840" y="1266" text-anchor="middle" fill="#7C5421">Liquidity · 39 src</text>
+</g>
+<g>
+  <rect x="900" y="1232" width="100" height="46" rx="6" fill="#FFF8E5" stroke="#B17E26"/>
+  <text style="font-size:11px; font-weight:600;" x="950" y="1252" text-anchor="middle" fill="#5C3F11">SRLM</text>
+  <text style="font-size:9px;" x="950" y="1266" text-anchor="middle" fill="#7C5421">Liquidity · 36 src</text>
+</g>
+<g>
+  <rect x="1010" y="1232" width="100" height="46" rx="6" fill="#FFF8E5" stroke="#B17E26"/>
+  <text style="font-size:11px; font-weight:600;" x="1060" y="1252" text-anchor="middle" fill="#5C3F11">TRW</text>
+  <text style="font-size:9px;" x="1060" y="1266" text-anchor="middle" fill="#7C5421">Finance · 25 src</text>
+</g>
+<g>
+  <rect x="1120" y="1232" width="100" height="46" rx="6" fill="#FFF8E5" stroke="#B17E26"/>
+  <text style="font-size:11px; font-weight:600;" x="1170" y="1252" text-anchor="middle" fill="#5C3F11">SENTOR</text>
+  <text style="font-size:9px;" x="1170" y="1266" text-anchor="middle" fill="#7C5421">needs SME</text>
+</g>
+
+<!-- Domain data products -->
+<text style="font-size:11px; font-weight:600;" x="20" y="1310" fill="#3d3d3a">Domain data products (provide dimensions / entities):</text>
+<g>
+  <rect x="20" y="1318" width="160" height="46" rx="6" fill="#E1ECF7" stroke="#185FA5"/>
+  <text style="font-size:11px; font-weight:600;" x="100" y="1338" text-anchor="middle" fill="#0C447C">Reference and Master Data</text>
+  <text style="font-size:9px;" x="100" y="1352" text-anchor="middle" fill="#185FA5">75 sources · TDS Domain</text>
+</g>
+<g>
+  <rect x="190" y="1318" width="140" height="46" rx="6" fill="#E1ECF7" stroke="#185FA5"/>
+  <text style="font-size:11px; font-weight:600;" x="260" y="1338" text-anchor="middle" fill="#0C447C">Post-Trade</text>
+  <text style="font-size:9px;" x="260" y="1352" text-anchor="middle" fill="#185FA5">126 sources · TDS Domain</text>
+</g>
+<g>
+  <rect x="340" y="1318" width="140" height="46" rx="6" fill="#E1ECF7" stroke="#185FA5"/>
+  <text style="font-size:11px; font-weight:600;" x="410" y="1338" text-anchor="middle" fill="#0C447C">Position</text>
+  <text style="font-size:9px;" x="410" y="1352" text-anchor="middle" fill="#185FA5">38 sources · TDS Domain</text>
+</g>
+<g>
+  <rect x="490" y="1318" width="160" height="46" rx="6" fill="#E1ECF7" stroke="#185FA5"/>
+  <text style="font-size:11px; font-weight:600;" x="570" y="1338" text-anchor="middle" fill="#0C447C">Internal Pricing Data</text>
+  <text style="font-size:9px;" x="570" y="1352" text-anchor="middle" fill="#185FA5">26 sources · TDS Domain</text>
+</g>
+<g>
+  <rect x="660" y="1318" width="160" height="46" rx="6" fill="#E1ECF7" stroke="#185FA5"/>
+  <text style="font-size:11px; font-weight:600;" x="740" y="1338" text-anchor="middle" fill="#0C447C">3rd Party Market Data</text>
+  <text style="font-size:9px;" x="740" y="1352" text-anchor="middle" fill="#185FA5">26 sources · TDS Domain</text>
+</g>
+<g>
+  <rect x="830" y="1318" width="180" height="46" rx="6" fill="#E1ECF7" stroke="#185FA5"/>
+  <text style="font-size:11px; font-weight:600;" x="920" y="1338" text-anchor="middle" fill="#0C447C">Derived Data and Metrics</text>
+  <text style="font-size:9px;" x="920" y="1352" text-anchor="middle" fill="#185FA5">98 sources · TDS Domain</text>
+</g>
+<g>
+  <rect x="1020" y="1318" width="200" height="46" rx="6" fill="#E1ECF7" stroke="#185FA5"/>
+  <text style="font-size:11px; font-weight:600;" x="1120" y="1338" text-anchor="middle" fill="#0C447C">IHMS, REDS-GRS, etc.</text>
+  <text style="font-size:9px;" x="1120" y="1352" text-anchor="middle" fill="#185FA5">specific reference systems</text>
+</g>
+
+<!-- Connecting Tier 1 to Tier 2 -->
+<path d="M70 1232 L 140 1124" stroke="#666" stroke-width="0.7" fill="none" marker-end="url(#arr)"/>
+<path d="M400 1232 L 400 1124" stroke="#666" stroke-width="0.7" fill="none" marker-end="url(#arr)" stroke-dasharray="3 3"/>
+
+<!-- Note at bottom -->
+<text style="font-size:11px; font-style:italic;" x="20" y="1410" fill="#5a5a56">Notes:</text>
+<text style="font-size:11px;" x="20" y="1428" fill="#5a5a56">• Solid borders = in current scope (CCR/Collateral) · dashed borders = adjacent or future Risk domains</text>
+<text style="font-size:11px;" x="20" y="1444" fill="#5a5a56">• Each fact is labeled with its producing Risk app · each dimension is labeled with its source domain</text>
+<text style="font-size:11px;" x="20" y="1460" fill="#5a5a56">• Source counts (e.g., "41 src" for CMOS) come from TD's master data source catalog (Master_Data_Sources_v13)</text>
+
+</svg>
+
+</div>
+
+<div class="legend">
+  <strong>How to read this diagram:</strong>
+  Reading bottom-to-top: Tier 1 source systems (Risk apps producing measures + Domain data products providing entities) feed into Tier 2 Silver per-domain LDMs (our CCR/Collateral work + future LRM, Capital, XVA, Market Risk Silver layers). Silver feeds into Tier 3 dimensional layer (subject-level facts on the left, conformed dimensions on the right). The dimensional layer is the marriage point — facts join to conformed dims. Tier 4 consumption surfaces this through a flat denormalized view (or directly on the star schemas) into BI tools (PowerBI, MicroStrategy).
+  <br><br>
+  <strong>Key principles encoded in the diagram:</strong> (1) Conformed dimensions are shared across facts. (2) Each dimension's source domain is named. (3) Each fact's producing Risk app is named. (4) Adjacent / future domains are dashed.
+</div>
+
+</body>
+</html>
