@@ -1,0 +1,952 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Credit Risk Sensitivities — Living Study Notes</title>
+<style>
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f5faf7;
+    color: #1f2d24;
+    margin: 0;
+    padding: 28px;
+    line-height: 1.45;
+  }
+  h1 { color: #174d2e; margin-bottom: 6px; font-size: 30px; }
+  h2 { color: #20653d; margin-top: 30px; border-bottom: 2px solid #d8eadf; padding-bottom: 6px; }
+  h3 { color: #174d2e; margin-bottom: 6px; }
+  .subtitle { color: #52645a; margin-bottom: 24px; font-size: 15px; }
+  .canvas {
+    background: white;
+    border: 1px solid #cfe3d6;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+    margin-bottom: 24px;
+  }
+  .mental, .tree, .code {
+    background: #eef8f1;
+    border: 2px solid #4e9b6d;
+    border-radius: 16px;
+    padding: 18px;
+    font-family: "Courier New", monospace;
+    white-space: pre-wrap;
+    font-size: 15px;
+    line-height: 1.45;
+    overflow-x: auto;
+  }
+  .tree {
+    background: #f7fbff;
+    border-color: #6b8fd6;
+  }
+  .code {
+    border: 1px solid #cde0d3;
+    background: #f7fbf8;
+    font-size: 14px;
+  }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .box {
+    border: 2px solid #5aa879;
+    border-radius: 14px;
+    padding: 14px;
+    background: #f8fffa;
+  }
+  .bond { border-color: #4e9b6d; background: #f8fffa; }
+  .cds { border-color: #9c78c7; background: #fbf8ff; }
+  .survival { border-color: #d9a441; background: #fffaf0; }
+  .danger { border-color: #c77d7d; background: #fff7f7; }
+  .capital { border-color: #6b8fd6; background: #f6f9ff; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13px;
+    background: white;
+    margin-top: 10px;
+  }
+  th { background: #dff1e5; color: #173b25; }
+  th, td {
+    border: 1px solid #b9d8c4;
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .note {
+    background: #fff9e8;
+    border-left: 5px solid #d9a441;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  .mini { font-size: 12px; color: #5b675f; }
+  .svgwrap {
+    overflow-x: auto;
+    border: 1px solid #cfe3d6;
+    border-radius: 14px;
+    background: #fbfffc;
+    padding: 10px;
+  }
+  .callout {
+    background: #eaf0ff;
+    border-left: 6px solid #6b8fd6;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 15px;
+  }
+  .pill {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #e8f6ed;
+    color: #15542e;
+    font-weight: bold;
+    font-size: 12px;
+    margin: 2px 0;
+  }
+  @media print {
+    body { background: white; padding: 12px; }
+    .canvas { box-shadow: none; page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+  <h1>Credit Risk Sensitivities — Living Study Notes</h1>
+  <div class="subtitle">A daily-read document to make curves, CDS, CS01, PFE, CVA, and SA-CVA stay connected.</div>
+
+  <div class="canvas">
+    <h2>1) Final intuition — lock this in</h2>
+    <div class="mental">Risk-free curve → “time value of money”
+
+Credit spread curve → “how risky the borrower is”
+
+CDS → “instrument that tells you and trades that risk”
+
+Survival curve → “probability the borrower defaults”</div>
+  </div>
+
+  <div class="canvas">
+    <h2>2) The 3 lenses: one credit risk, three languages</h2>
+    <div class="callout">
+      <b>Master insight:</b> Yield, spread, CDS premium, and default probability are different languages describing the same underlying credit risk.
+    </div>
+
+    <div class="grid3" style="margin-top:16px;">
+      <div class="box bond">
+        <h3>Lens 1 — Bond</h3>
+        <p><b>Credit risk shows up as higher yield.</b></p>
+        <p>Example: if risk-free is 4% and ABC Corp bond yields 5%, the extra 1% is the credit spread.</p>
+        <div class="code">Bond view:
+“I need 5% instead of 4% because ABC has credit risk.”</div>
+      </div>
+
+      <div class="box cds">
+        <h3>Lens 2 — CDS</h3>
+        <p><b>Credit risk shows up as insurance premium.</b></p>
+        <p>Example: ABC 5Y CDS spread = 100 bp. A protection buyer pays 1% per year for default protection.</p>
+        <div class="code">CDS view:
+“I pay 1% per year to insure against ABC default.”</div>
+      </div>
+
+      <div class="box survival">
+        <h3>Lens 3 — Survival Curve</h3>
+        <p><b>Credit risk shows up as default probability.</b></p>
+        <p>Example: the same 100 bp spread can imply an approximate 5-year survival probability around 92%.</p>
+        <div class="code">Survival view:
+“ABC has about an 8% chance of default over 5 years.”</div>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:16px;">
+      <b>Important correction:</b> CDS does not “offset the spread curve.” CDS is an instrument whose value moves with the credit spread curve. A CDS protection position can be used to hedge a bond because the bond and CDS react in opposite directions when spreads widen.
+    </div>
+  </div>
+
+  <div class="canvas">
+    <h2>3) Same trade priced 3 ways — the aha moment</h2>
+    <p><b>Example:</b> ABC Corp 5-year credit risk, notional = $1,000,000.</p>
+
+    <div class="grid3">
+      <div class="box bond">
+        <h3>1. Bond View</h3>
+        <div class="code">Risk-free rate = 4%
+Credit spread = 1%
+
+Bond yield = 5%
+
+Price = discounted cashflows using 5%
+→ Value ≈ $1,000,000</div>
+        <p class="mini">The bond expresses credit risk through extra yield.</p>
+      </div>
+
+      <div class="box cds">
+        <h3>2. CDS View</h3>
+        <div class="code">CDS spread = 100 bp
+
+Protection buyer pays 1% per year.
+
+Value depends on:
+- premium leg
+- protection leg
+
+At fair value:
+Premium ≈ Protection</div>
+        <p class="mini">The CDS expresses credit risk through insurance premium.</p>
+      </div>
+
+      <div class="box survival">
+        <h3>3. Survival Curve View</h3>
+        <div class="code">Spread = 100 bp
+Recovery = 40%
+
+Implied default intensity ≈ 1.67%
+
+5Y survival probability ≈ ~92%
+
+Used to:
+- price CDS
+- compute CVA</div>
+        <p class="mini">The survival curve expresses credit risk through probability.</p>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:16px;">
+      All 3 are different representations of the same thing: <b>the market view of ABC Corp credit risk.</b>
+    </div>
+  </div>
+
+  <div class="canvas">
+    <h2>4) Clean mental model: what feeds what?</h2>
+    <div class="mental">CS01 path:
+Curve → Price trade → Shock +1 bp → Reprice → CS01
+
+Exposure/PFE path:
+Trades → Netting set → Exposure profile → PFE / stressed PFE
+
+CVA path:
+Exposure profile + default probability + recovery → CVA
+
+SA-CVA path:
+CVA sensitivities → risk weights + correlations → capital</div>
+  </div>
+
+  <div class="canvas">
+    <h2>5) Credit Risk Sensitivity Tree</h2>
+    <div class="tree">🌳 CREDIT RISK SENSITIVITY TREE
+
+1. Trade Layer
+   ├─ Bond
+   ├─ CDS
+   └─ Derivatives
+
+2. Market Data Layer
+   ├─ Risk-free curve
+   ├─ Credit spread quotes (CDS)
+   └─ Recovery rates
+
+3. Curve Construction
+   ├─ Bootstrap hazard rates
+   ├─ Build survival curve
+   └─ Interpolate tenors
+
+4. Pricing Engine
+   ├─ Bond PV = discounted cashflows
+   ├─ CDS:
+   │   ├─ Premium leg
+   │   └─ Protection leg
+   └─ Compute base value
+
+5. Sensitivity Engine
+   ├─ Shock spread (+1 bp)
+   ├─ Reprice
+   └─ CS01 = value change
+
+6. Data Product
+   ├─ fact_sensitivities
+   ├─ dim_trade
+   ├─ dim_counterparty
+   ├─ dim_netting_set
+   ├─ dim_curve / tenor
+   └─ dim_scenario
+
+7. Aggregation Layer
+   ├─ By trade
+   ├─ By counterparty
+   ├─ By curve
+   └─ By tenor bucket
+
+8. Risk Usage
+   ├─ Hedging (CDS vs bonds)
+   ├─ P&L explain
+   └─ Limit monitoring
+
+9. Counterparty Credit Risk
+   ├─ Netting sets / legal agreements
+   └─ Exposure calculation
+
+10. Regulatory Capital
+   ├─ SA-CVA
+   ├─ Input = sensitivities
+   ├─ Apply risk weights
+   └─ Apply correlations → capital</div>
+  </div>
+
+  <div class="canvas">
+    <h2>6) Curves: repeated in different words</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Curve / concept</th>
+          <th>Simple meaning</th>
+          <th>Example value</th>
+          <th>Where it feeds</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Risk-free curve</td>
+          <td>Baseline interest rate over time; time value of money.</td>
+          <td>5Y = 4.00%</td>
+          <td>Discounting bond cashflows, CDS legs, CVA future losses.</td>
+        </tr>
+        <tr>
+          <td>Credit spread curve</td>
+          <td>Extra yield/premium required for borrower credit risk.</td>
+          <td>ABC 5Y = 100 bp</td>
+          <td>Bond pricing, CDS pricing, CS01 shocks.</td>
+        </tr>
+        <tr>
+          <td>CDS quote/curve</td>
+          <td>Market price of buying/selling credit protection.</td>
+          <td>ABC 5Y CDS = 100 bp</td>
+          <td>Often used to build the credit spread curve.</td>
+        </tr>
+        <tr>
+          <td>Survival/default curve</td>
+          <td>Probability the borrower survives or defaults over time.</td>
+          <td>5Y survival ≈ 92%</td>
+          <td>CDS pricing, CVA, counterparty default modeling.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="canvas">
+    <h2>7) Draw the credit spread curve</h2>
+    <div class="svgwrap">
+      <svg width="960" height="390" viewBox="0 0 960 390">
+        <rect width="960" height="390" fill="#fbfffc"/>
+        <line x1="90" y1="320" x2="870" y2="320" stroke="#333" stroke-width="2"/>
+        <line x1="90" y1="320" x2="90" y2="40" stroke="#333" stroke-width="2"/>
+        <text x="420" y="365" font-size="14" fill="#333">Tenor / maturity</text>
+        <text x="20" y="30" font-size="14" fill="#333">Credit spread in basis points</text>
+
+        <text x="55" y="324" font-size="12">70</text>
+        <text x="55" y="270" font-size="12">90</text>
+        <text x="49" y="216" font-size="12">110</text>
+        <text x="49" y="162" font-size="12">130</text>
+        <text x="49" y="108" font-size="12">150</text>
+
+        <text x="155" y="343" font-size="12">1Y</text>
+        <text x="330" y="343" font-size="12">3Y</text>
+        <text x="505" y="343" font-size="12">5Y</text>
+        <text x="740" y="343" font-size="12">10Y</text>
+
+        <polyline points="165,293 340,266 515,239 755,158" fill="none" stroke="#2b7a4b" stroke-width="4"/>
+        <circle cx="165" cy="293" r="7" fill="#2b7a4b"/>
+        <circle cx="340" cy="266" r="7" fill="#2b7a4b"/>
+        <circle cx="515" cy="239" r="7" fill="#2b7a4b"/>
+        <circle cx="755" cy="158" r="7" fill="#2b7a4b"/>
+
+        <polyline points="165,290 340,263 515,236 755,155" fill="none" stroke="#d08b2f" stroke-width="3" stroke-dasharray="8 6"/>
+        <circle cx="515" cy="236" r="7" fill="#d08b2f"/>
+
+        <text x="185" y="287" font-size="12" fill="#174d2e">80 bp</text>
+        <text x="360" y="260" font-size="12" fill="#174d2e">90 bp</text>
+        <text x="535" y="233" font-size="12" fill="#174d2e">100 bp</text>
+        <text x="775" y="152" font-size="12" fill="#174d2e">130 bp</text>
+
+        <line x1="515" y1="239" x2="515" y2="236" stroke="#c45f2d" stroke-width="4"/>
+        <text x="545" y="218" font-size="14" fill="#8a4e10">+1 bp shock: 100 → 101 bp</text>
+
+        <rect x="610" y="60" width="285" height="88" rx="12" fill="#fff9e8" stroke="#d9a441"/>
+        <text x="630" y="85" font-size="14" font-weight="bold">How to read this</text>
+        <text x="630" y="108" font-size="12">A 5Y trade uses the 5Y point.</text>
+        <text x="630" y="128" font-size="12">A 7Y trade would use interpolation.</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="canvas">
+    <h2>8) Actual data values: curve → pricing → CS01</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Trade</th>
+          <th>Product</th>
+          <th>Curve point used</th>
+          <th>Base value</th>
+          <th>Shocked curve point</th>
+          <th>Shocked value</th>
+          <th>CS01</th>
+          <th>Meaning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>T1</td>
+          <td>ABC 5Y Bond</td>
+          <td>ABC_USD_SNR 5Y = 100 bp</td>
+          <td>$1,000,000</td>
+          <td>ABC_USD_SNR 5Y = 101 bp</td>
+          <td>$999,800</td>
+          <td><b>-$200</b></td>
+          <td>Bond loses $200 if ABC spread widens by 1 bp.</td>
+        </tr>
+        <tr>
+          <td>T2</td>
+          <td>ABC 5Y CDS protection bought</td>
+          <td>ABC_USD_SNR 5Y = 100 bp</td>
+          <td>$50,000</td>
+          <td>ABC_USD_SNR 5Y = 101 bp</td>
+          <td>$50,220</td>
+          <td><b>+$220</b></td>
+          <td>CDS protection gains $220 if ABC spread widens by 1 bp.</td>
+        </tr>
+        <tr>
+          <td colspan="6"><b>Net CS01 for this small portfolio</b></td>
+          <td><b>+$20</b></td>
+          <td>Almost hedged. The CDS offsets most of the bond spread risk.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="canvas">
+    <h2>9) CS01 vs PFE — do not mix these</h2>
+    <div class="grid2">
+      <div class="box capital">
+        <h3>CS01 is sensitivity</h3>
+        <div class="code">Question:
+If credit spread moves by 1 bp, how much does trade value change?</div>
+        <table>
+          <tr><th>Trade</th><th>CS01</th></tr>
+          <tr><td>Bond</td><td>-$200</td></tr>
+          <tr><td>CDS</td><td>+$220</td></tr>
+          <tr><td>Net</td><td>+$20</td></tr>
+        </table>
+      </div>
+
+      <div class="box danger">
+        <h3>PFE is exposure</h3>
+        <div class="code">Question:
+How large could my counterparty exposure become in the future?</div>
+        <table>
+          <tr><th>Measure</th><th>Example value</th></tr>
+          <tr><td>Current exposure after netting</td><td>$250K</td></tr>
+          <tr><td>PFE 95%</td><td>$700K</td></tr>
+          <tr><td>Stressed PFE</td><td>$1.2M</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="canvas">
+    <h2>10) Exposure, EE, PFE, stressed PFE, and risk factors</h2>
+
+    <div class="callout">
+      <b>Final intuition:</b> Risk factors move → trade values change → exposure changes → EE / PFE / stressed PFE are calculated from those future exposure outcomes.
+    </div>
+
+    <h3>10.1 What are risk factors?</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Risk factor</th>
+          <th>Simple meaning</th>
+          <th>Example movement</th>
+          <th>What it can change</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Interest rate curve</td>
+          <td>Market interest rates over time</td>
+          <td>5Y USD rate moves from 4.00% to 4.25%</td>
+          <td>Discounted value of cashflows</td>
+        </tr>
+        <tr>
+          <td>Credit spread curve</td>
+          <td>Market view of borrower credit risk</td>
+          <td>ABC 5Y spread moves from 100 bp to 130 bp</td>
+          <td>Bond value, CDS value, CVA</td>
+        </tr>
+        <tr>
+          <td>FX rate</td>
+          <td>Currency exchange rate</td>
+          <td>EUR/USD moves from 1.10 to 1.05</td>
+          <td>Value of cross-currency trades</td>
+        </tr>
+        <tr>
+          <td>Equity price</td>
+          <td>Stock/index price</td>
+          <td>S&P 500 moves down 5%</td>
+          <td>Equity derivatives</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <b>Risk factors are not the output.</b> They are the moving market variables used to create future trade values.
+    </div>
+
+    <h3>10.2 What is exposure?</h3>
+    <div class="code">Exposure = “If the counterparty defaults at that time, how much do they owe me?”</div>
+
+    <p>Exposure is calculated after revaluing trades and applying netting rules.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Trade</th>
+          <th>Future value to bank</th>
+          <th>Meaning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Trade A</td>
+          <td>+$1,050,000</td>
+          <td>Counterparty owes bank</td>
+        </tr>
+        <tr>
+          <td>Trade B</td>
+          <td>-$800,000</td>
+          <td>Bank owes counterparty</td>
+        </tr>
+        <tr>
+          <td><b>Netting set exposure</b></td>
+          <td><b>$250,000</b></td>
+          <td>Positive amount owed to bank after legal netting</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>10.3 What is an exposure profile?</h3>
+    <p>An exposure profile is exposure measured across future time points.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Future time</th>
+          <th>Expected Exposure / EE</th>
+          <th>PFE</th>
+          <th>Plain-English reading</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1Y</td>
+          <td>$300K</td>
+          <td>$500K</td>
+          <td>At 1Y, typical exposure is $300K, bad-but-plausible exposure is $500K</td>
+        </tr>
+        <tr>
+          <td>3Y</td>
+          <td>$500K</td>
+          <td>$700K</td>
+          <td>At 3Y, exposure is expected to be larger</td>
+        </tr>
+        <tr>
+          <td>5Y</td>
+          <td>$600K</td>
+          <td>$900K</td>
+          <td>At 5Y, the tail exposure is higher</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>10.4 EE, PFE, stressed PFE</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Simple meaning</th>
+          <th>Example</th>
+          <th>Used for</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>EE / Expected Exposure</td>
+          <td>Average exposure across many simulated outcomes at a future time</td>
+          <td>At 3Y, average exposure = $500K</td>
+          <td>CVA calculation</td>
+        </tr>
+        <tr>
+          <td>PFE / Potential Future Exposure</td>
+          <td>High-percentile exposure under ordinary simulation assumptions</td>
+          <td>At 3Y, 95th percentile exposure = $700K</td>
+          <td>Counterparty limits and risk reporting</td>
+        </tr>
+        <tr>
+          <td>Stressed PFE</td>
+          <td>High-percentile exposure under crisis-like market conditions</td>
+          <td>At 3Y, stressed 95th percentile exposure = $1.2M</td>
+          <td>Stress testing, risk appetite, capital analysis</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <b>Important:</b> Stressed market conditions are not the same thing as ordinary scenarios. Ordinary scenarios simulate many possible normal-market paths. Stressed market conditions deliberately force the market into crisis-like assumptions.
+    </div>
+
+    <h3>10.5 Ordinary scenarios vs stressed market conditions</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Concept</th>
+          <th>What it means</th>
+          <th>Example</th>
+          <th>Output</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Ordinary scenarios</td>
+          <td>Many simulated future paths based on normal market behavior</td>
+          <td>Interest rates move up/down mildly; credit spreads move 5–30 bp</td>
+          <td>EE and normal PFE</td>
+        </tr>
+        <tr>
+          <td>Stressed market conditions</td>
+          <td>Deliberately severe market environment</td>
+          <td>Credit spreads widen 150 bp, rates jump, FX moves sharply, volatility spikes</td>
+          <td>Stressed PFE</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="code">Ordinary scenario example:
+ABC 5Y spread path: 100 bp → 110 bp → 120 bp
+Exposure at 3Y: $700K PFE
+
+Stressed market example:
+ABC 5Y spread shock: 100 bp → 250 bp
+Exposure at 3Y: $1.2M stressed PFE</div>
+  </div>
+
+  <div class="canvas">
+    <h2>11) CVA rebuilt using exposure intuition</h2>
+
+    <div class="callout">
+      <b>CVA = expected loss from counterparty default.</b> It combines exposure with default probability and recovery.
+    </div>
+
+    <h3>11.1 Keep the worlds separate</h3>
+    <div class="mental">Exposure world:
+Risk factors move → trades are revalued → netting is applied → EE/PFE/stressed PFE
+
+Default world:
+Credit spreads → survival/default curve → probability of default
+
+CVA world:
+Expected Exposure + Default Probability + Loss Given Default → CVA</div>
+
+    <h3>11.2 Step-by-step CVA with numbers</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Future time</th>
+          <th>EE used for CVA</th>
+          <th>Incremental default probability</th>
+          <th>Loss if default occurs</th>
+          <th>Expected loss</th>
+          <th>Discounted expected loss</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1Y</td>
+          <td>$300K</td>
+          <td>1.67%</td>
+          <td>60% of exposure</td>
+          <td>About $3K</td>
+          <td>About $2.9K</td>
+        </tr>
+        <tr>
+          <td>3Y</td>
+          <td>$500K</td>
+          <td>3.00%</td>
+          <td>60% of exposure</td>
+          <td>About $9K</td>
+          <td>About $8.2K</td>
+        </tr>
+        <tr>
+          <td>5Y</td>
+          <td>$700K</td>
+          <td>3.00%</td>
+          <td>60% of exposure</td>
+          <td>About $12.6K</td>
+          <td>About $10.4K</td>
+        </tr>
+        <tr>
+          <td colspan="5"><b>Total CVA</b></td>
+          <td><b>About $21.5K</b></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>11.3 What each number means</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Number</th>
+          <th>Meaning</th>
+          <th>Source</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>$300K / $500K / $700K EE</td>
+          <td>Average exposure at future time points</td>
+          <td>Exposure simulation after netting</td>
+        </tr>
+        <tr>
+          <td>Default probability</td>
+          <td>Chance counterparty defaults in that period</td>
+          <td>Credit spread / survival curve</td>
+        </tr>
+        <tr>
+          <td>60% loss</td>
+          <td>If recovery is 40%, loss given default is 60%</td>
+          <td>Recovery assumption</td>
+        </tr>
+        <tr>
+          <td>Discounted expected loss</td>
+          <td>Expected loss converted into today’s dollars</td>
+          <td>Risk-free discount curve</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <b>Daily-read version:</b> CVA starts with expected exposure, then asks: “What is the chance the counterparty defaults, how much would I lose after recovery, and what is that loss worth today?”
+    </div>
+  </div>
+
+  <div class="canvas">
+    <h2>12) Why SA-CVA uses sensitivities instead of exposure directly</h2>
+
+    <div class="grid2">
+      <div class="box danger">
+        <h3>Exposure / EE / PFE</h3>
+        <p>These are model-heavy outputs.</p>
+        <ul>
+          <li>Depend on simulation choices</li>
+          <li>Depend on netting and collateral</li>
+          <li>Depend on future market path assumptions</li>
+          <li>Difficult to compare across banks</li>
+        </ul>
+      </div>
+
+      <div class="box capital">
+        <h3>Sensitivities</h3>
+        <p>These are cleaner regulatory risk inputs.</p>
+        <ul>
+          <li>Measure how CVA changes when market risk factors move</li>
+          <li>Can be bucketed by curve, tenor, counterparty, risk class</li>
+          <li>Can receive prescribed risk weights</li>
+          <li>Easier to aggregate with correlations</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>12.1 The key distinction</h3>
+    <div class="mental">CVA:
+“How much expected loss do I have from counterparty default?”
+
+SA-CVA:
+“How much can my CVA change when market risk factors move?”</div>
+
+    <h3>12.2 Example</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Input</th>
+          <th>Sample value</th>
+          <th>Meaning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>CVA amount</td>
+          <td>$21.5K</td>
+          <td>Expected loss adjustment today</td>
+        </tr>
+        <tr>
+          <td>CVA credit spread sensitivity</td>
+          <td>+$20 per 1 bp</td>
+          <td>If counterparty credit spread moves 1 bp, CVA changes by about $20</td>
+        </tr>
+        <tr>
+          <td>Risk weight</td>
+          <td>10%</td>
+          <td>Regulatory scaling factor for the risk bucket</td>
+        </tr>
+        <tr>
+          <td>Weighted sensitivity</td>
+          <td>2</td>
+          <td>20 × 10%</td>
+        </tr>
+        <tr>
+          <td>Correlation</td>
+          <td>25%</td>
+          <td>Used to combine multiple risk buckets without simply adding everything</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <b>Final intuition:</b> CVA uses exposure. SA-CVA capital uses the sensitivity of CVA to market movements. That is why SA-CVA is a sensitivity-based capital framework, not just an exposure report.
+    </div>
+  </div>
+
+
+
+  <div class="canvas">
+    <h2>13) Common Confusion — CS01 vs CVA CS01</h2>
+
+    <div class="callout">
+      Same spread bump (+1 bp) is used, but applied in two different engines.
+    </div>
+
+    <div class="mental">Spread bump (+1 bp)
+     ↓
+ ┌───────────────┬───────────────┐
+ │               │               │
+ ▼               ▼               ▼
+Reprice trades   Recompute CVA   (same shock)
+ │               │
+ ▼               ▼
+Trade CS01       CVA CS01</div>
+
+    <h3>13.1 Definitions</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Concept</th>
+          <th>Meaning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Trade CS01</td>
+          <td>Change in trade value when credit spread moves by 1 bp</td>
+        </tr>
+        <tr>
+          <td>CVA</td>
+          <td>Expected loss from counterparty default</td>
+        </tr>
+        <tr>
+          <td>CVA CS01</td>
+          <td>Change in CVA when credit spread moves by 1 bp</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>13.2 Key takeaway</h3>
+    <div class="mental">Same shock → different engines → different outputs
+
+Trade CS01 ≠ CVA CS01
+
+Trade CS01 = price sensitivity
+CVA CS01 = risk (expected loss) sensitivity</div>
+
+    <div class="note">
+      We do NOT feed trade CS01 into CVA. We reapply the same shock and recompute CVA.
+    </div>
+  </div>
+
+
+  <div class="canvas">
+    <h2>14) Market Risk, Risk Factors, and How Stress Impacts CCR</h2>
+    <div class="callout">
+      <b>Core bridge:</b> Market risk moves the risk factors. Those movements revalue trades. Revalued trades change exposure. Changed exposure changes counterparty credit risk and CVA.
+    </div>
+
+    <h3>14.1 The connected flow</h3>
+    <div class="mental">Risk factors move
+  ↓
+Trades are repriced / MtM changes
+  ↓
+Netting is applied
+  ↓
+Exposure profile changes
+  ↓
+EE / PFE / stressed PFE change
+  ↓
+CVA and counterparty risk change</div>
+
+    <h3>14.2 What are risk factors?</h3>
+    <table>
+      <thead><tr><th>Risk factor</th><th>Example</th><th>What it impacts</th><th>CCR impact</th></tr></thead>
+      <tbody>
+        <tr><td>Interest-rate curve</td><td>USD SOFR / Treasury curve</td><td>IRS, swaps, discounting</td><td>Changes MtM and future exposure profile</td></tr>
+        <tr><td>Credit spread curve</td><td>ABC Bank 5Y CDS spread</td><td>Bond, CDS, CVA default probability</td><td>Can increase CVA and credit sensitivity</td></tr>
+        <tr><td>FX rate</td><td>EUR/USD, USD/INR, CNH/USD</td><td>FX forwards/swaps and collateral</td><td>Can increase positive exposure to counterparty</td></tr>
+        <tr><td>Equity price / index</td><td>S&P 500, bank index</td><td>Equity derivatives</td><td>Can increase exposure on options/swaps</td></tr>
+        <tr><td>Volatility</td><td>Equity vol, FX vol, rates vol</td><td>Options and exposure tail</td><td>Often increases PFE and stressed PFE</td></tr>
+        <tr><td>Commodity price</td><td>Oil, gas, gold</td><td>Commodity swaps/options</td><td>Can change exposure materially for commodity counterparties</td></tr>
+      </tbody>
+    </table>
+
+    <h3>14.3 MtM vs exposure under market movement</h3>
+    <table>
+      <thead><tr><th>Concept</th><th>Question answered</th><th>Simple example</th></tr></thead>
+      <tbody>
+        <tr><td>Base MtM</td><td>What is the trade worth today?</td><td>IRS value today = +$1.0M</td></tr>
+        <tr><td>Stressed MtM</td><td>What would the trade be worth under a stress shock?</td><td>Under Lehman scenario, IRS value = +$1.8M</td></tr>
+        <tr><td>Exposure</td><td>If counterparty defaults at a future time, how much do they owe me?</td><td>Positive value after netting = exposure</td></tr>
+        <tr><td>PFE</td><td>How large could exposure become in bad-but-plausible future paths?</td><td>95% peak PFE = $900K</td></tr>
+        <tr><td>Stressed PFE</td><td>How large could exposure become under crisis-like conditions?</td><td>Lehman stressed peak PFE = $1.4M</td></tr>
+      </tbody>
+    </table>
+
+    <h3>14.4 Ordinary scenarios vs stressed market conditions</h3>
+    <table>
+      <thead><tr><th>Item</th><th>Ordinary scenario</th><th>Stressed market condition</th></tr></thead>
+      <tbody>
+        <tr><td>Purpose</td><td>Estimate likely future exposure distribution</td><td>Estimate crisis impact</td></tr>
+        <tr><td>Movement</td><td>Rates/spreads/FX move within modeled ranges</td><td>Large crisis shocks are applied deliberately</td></tr>
+        <tr><td>Example</td><td>ABC spread 100 bp -> 115 bp</td><td>ABC spread 100 bp -> 250 bp</td></tr>
+        <tr><td>Output</td><td>EE and PFE</td><td>Stressed MtM, stressed PFE, stressed CVA</td></tr>
+      </tbody>
+    </table>
+
+    <h3>14.5 Stress examples</h3>
+    <table>
+      <thead><tr><th>Stress scenario</th><th>Type</th><th>Risk factors shocked</th><th>Typical CCR impact</th></tr></thead>
+      <tbody>
+        <tr><td>Lehman 2008</td><td>Historical</td><td>Credit spreads widen, liquidity stress, rates shift, equities fall</td><td>Higher stressed MtM and stressed PFE for vulnerable portfolios</td></tr>
+        <tr><td>COVID March 2020</td><td>Historical</td><td>Volatility spike, liquidity shock, equity fall, credit widening</td><td>Tail exposures increase rapidly</td></tr>
+        <tr><td>China stress</td><td>Hypothetical or regional</td><td>Asia credit spreads, CNH/CNY FX, commodities, equities</td><td>Regional counterparty and product exposures may spike</td></tr>
+        <tr><td>Rate shock</td><td>Hypothetical</td><td>Parallel or curve-specific rates move</td><td>IRS and swap exposure profile shifts</td></tr>
+        <tr><td>Sovereign stress</td><td>Hypothetical/historical</td><td>Sovereign CDS, local rates, FX devaluation</td><td>Country and sovereign-linked exposure increases</td></tr>
+      </tbody>
+    </table>
+
+    <h3>14.6 Daily-read summary</h3>
+    <div class="mental">Market risk = the cause of market movement
+CCR = the counterparty exposure impact of that movement
+
+Markets move -> trades reprice -> exposure changes -> CVA changes
+
+Do not mix base and stressed numbers silently.
+Always label: scenario, time bucket, confidence level, and valuation date.</div>
+  </div>
+
+</body>
+</html>
