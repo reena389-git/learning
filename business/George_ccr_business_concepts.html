@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>CCR Business Concepts — Agents, Country of Risk, Adjustments, CCPs</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root{
+    --ink: #1a1a1a;
+    --ink-soft: #4a4a4a;
+    --paper: #faf8f3;
+    --paper-warm: #f3efe5;
+    --rule: #d9d3c4;
+    --accent: #7a3b1f;
+    --accent-soft: #c47a4a;
+    --flag: #b8431f;
+    --flag-bg: #fbeae0;
+    --good: #2d5e3a;
+    --good-bg: #e6efe1;
+    --neutral: #4d5d6c;
+    --neutral-bg: #e6ecf1;
+    --code-bg: #efeadc;
+    --highlight: #fff4c4;
+    --def-bg: #f0ece0;
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--paper); color: var(--ink); font-family:'Inter Tight', sans-serif; font-size: 15px; line-height: 1.62; }
+
+  .page{ max-width: 940px; margin: 0 auto; padding: 56px 64px 96px; }
+
+  h1, h2, h3, h4{ font-family:'Fraunces', serif; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+  h1{ font-size: 36px; line-height: 1.1; margin: 0 0 8px; font-weight: 700; }
+  h2{ font-size: 24px; margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); }
+  h3{ font-size: 18px; margin: 28px 0 10px; color: var(--accent); }
+  h4{ font-size: 14.5px; margin: 18px 0 8px; font-family:'Inter Tight', sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); }
+
+  .meta{ color: var(--ink-soft); font-size: 13px; margin: 0 0 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .lede{ font-family:'Fraunces', serif; font-size: 17px; line-height: 1.55; color: var(--ink-soft); border-left: 3px solid var(--accent); padding: 4px 0 4px 18px; margin: 22px 0 32px; font-style: italic; }
+
+  p{ margin: 0 0 12px; }
+  code, .mono{ font-family: 'JetBrains Mono', monospace; background: var(--code-bg); padding: 1px 6px; border-radius: 3px; font-size: 13px; }
+
+  table{ width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13.5px; }
+  th, td{ text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th{ background: var(--paper-warm); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); }
+  td.num{ text-align: right; font-family: 'JetBrains Mono', monospace; }
+  tr.breach td{ background: var(--flag-bg); }
+
+  ul.clean{ padding-left: 22px; margin: 8px 0 12px; }
+  ul.clean li{ margin: 5px 0; }
+
+  .definition{
+    background: var(--def-bg);
+    border-left: 4px solid var(--neutral);
+    padding: 10px 16px;
+    margin: 12px 0;
+    border-radius: 0 4px 4px 0;
+    font-size: 14px;
+  }
+  .definition .term{
+    display: block;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .callout{
+    border: 1px dashed var(--accent);
+    background: #fff9f0;
+    padding: 14px 20px;
+    border-radius: 4px;
+    margin: 18px 0;
+    font-size: 14px;
+  }
+  .callout-title{ font-family:'Fraunces', serif; font-style: italic; font-weight: 600; color: var(--accent); margin-bottom: 4px; font-size: 15px; }
+
+  .dashboard-section{
+    border: 1px solid var(--accent-soft);
+    background: #fffaf3;
+    border-radius: 6px;
+    padding: 16px 22px;
+    margin: 24px 0;
+  }
+  .dashboard-section-label{
+    display: inline-block;
+    background: var(--accent);
+    color: var(--paper);
+    font-size: 10.5px;
+    padding: 3px 10px;
+    border-radius: 3px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .dashboard-image{
+    margin: 14px 0;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .dashboard-image img{ display: block; width: 100%; height: auto; }
+  .dashboard-image .caption{
+    padding: 8px 14px;
+    background: var(--paper-warm);
+    border-top: 1px solid var(--rule);
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-style: italic;
+    font-family: 'Fraunces', serif;
+  }
+  .dashboard-image .caption b{
+    font-style: normal;
+    font-family: 'Inter Tight', sans-serif;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 10.5px;
+    margin-right: 6px;
+  }
+
+  .toc{ background: var(--paper-warm); border: 1px solid var(--rule); padding: 16px 22px; border-radius: 6px; margin: 24px 0 36px; font-size: 14px; }
+  .toc b{ font-family:'Fraunces', serif; font-weight: 600; }
+  .toc ol{ margin: 8px 0 0; padding-left: 22px; }
+  .toc li{ margin: 4px 0; }
+  .toc a{ color: var(--ink); text-decoration: none; }
+  .toc a:hover{ color: var(--accent); }
+
+  .dashboard-should{
+    background: var(--good-bg);
+    border-left: 4px solid var(--good);
+    padding: 12px 18px;
+    margin: 14px 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .dashboard-should-title{
+    display: block;
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 600;
+    color: var(--good);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+
+  .dashboard-shows-instead{
+    background: var(--flag-bg);
+    border-left: 4px solid var(--flag);
+    padding: 12px 18px;
+    margin: 14px 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .dashboard-shows-instead-title{
+    display: block;
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 600;
+    color: var(--flag);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+
+  .footer-note{ margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--rule); color: var(--ink-soft); font-size: 13px; font-style: italic; }
+
+  .hl{ background: var(--highlight); padding: 1px 4px; border-radius: 2px; }
+
+  .diagram{
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.65;
+    white-space: pre;
+    overflow-x: auto;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <p class="meta">CCR Learning Guide · Business concepts deep dive · Addendum to "Lines, Exposure, Margin Calls, Risk Movement"</p>
+  <h1>CCR Business Concepts — Agents, Country of Risk, Adjustments, and CCPs</h1>
+  <p class="lede">A deeper look at the business mechanics that drive what shows up on the CCR dashboard. This document complements the main explainer by unpacking the relationships, identifiers, and lifecycle events that underlie line names, breach severity, and the data conflicts identified in the dashboard review. Each section covers <i>what the business actually does</i>, then <i>what a proper dashboard should show</i> versus what the current dashboard shows.</p>
+
+  <div class="toc">
+    <b>Contents</b>
+    <ol>
+      <li><a href="#agents">Part 1 — The agent model: how one legal entity carries thousands of clients</a></li>
+      <li><a href="#country">Part 2 — Country of risk vs country of domicile vs country of listing</a></li>
+      <li><a href="#ccps">Part 3 — CCPs and clearing: what OCC and C2C actually mean</a></li>
+      <li><a href="#linetypes">Part 4 — Line types decoded: CP, HC, C2C, CONT, EBL, DBL</a></li>
+      <li><a href="#adjustments">Part 5 — Adjustments and manual bookings: lifecycle events vs trades</a></li>
+      <li><a href="#im">Part 6 — Initial Margin postings: not trades, but they look like trades</a></li>
+      <li><a href="#severity">Part 7 — Breach severity: why a 1A breach and a 5C breach are different problems</a></li>
+      <li><a href="#identifiers">Part 8 — The party identifier problem: CP_CODE, Counterparty Code, and the agent-client split</a></li>
+      <li><a href="#summary">Part 9 — What a properly-built dashboard would look like</a></li>
+    </ol>
+  </div>
+
+  <h2 id="agents">Part 1 — The agent model: how one legal entity carries thousands of clients</h2>
+
+  <h3>1.1 What an agent is, from the business side</h3>
+
+  <p>In capital markets, large numbers of trades are booked between a bank and a counterparty entity that <b>does not own the trade economics itself</b> — it is acting on behalf of an underlying client. The agent is the legal-and-operational face of the relationship; the client is the economic owner.</p>
+
+  <p>Three common patterns:</p>
+
+  <ul class="clean">
+    <li><b>Prime brokerage.</b> A prime broker (Goldman Sachs PB, Morgan Stanley PB, JPMorgan PB) executes and clears trades for hundreds of hedge funds. The PB enters into trades with banks on behalf of each fund. The bank's legal counterparty is the PB; the credit risk is on the underlying fund.</li>
+    <li><b>Investment manager structures.</b> An asset manager (BlackRock, Bridgewater, Citadel) trades on behalf of dozens of underlying funds it manages. The manager is the agent; each fund is a client.</li>
+    <li><b>Trustee / custodian structures.</b> A trustee (Bank of New York Mellon, State Street) holds assets for many beneficial owners. Trades booked under the trustee's name carry credit risk on the underlying beneficiaries.</li>
+  </ul>
+
+  <div class="definition">
+    <span class="term">Agent</span>
+    A legal entity that books trades on behalf of underlying clients. The bank's trading-system counterparty is the agent; the bank's actual credit risk sits with each underlying client. The agent does not own the trade economics — it acts as a conduit.
+  </div>
+
+  <div class="definition">
+    <span class="term">Underlying client</span>
+    The fund, account, or beneficial owner whose money is at risk in a trade booked under an agent's name. Multiple underlying clients can share the same agent legal entity.
+  </div>
+
+  <h3>1.2 Why this structure exists</h3>
+
+  <p>Three business reasons:</p>
+
+  <ul class="clean">
+    <li><b>Operational efficiency.</b> A prime broker negotiates one ISDA Master Agreement with each bank counterparty, and that agreement covers all of its underlying funds. Without the agent structure, every fund would need its own ISDA with every bank — thousands of agreements instead of dozens.</li>
+    <li><b>Anonymity for clients.</b> Hedge funds often prefer not to be named directly to street counterparties. The agent's identity is what shows on confirmations; the underlying client is invisible to the broader market.</li>
+    <li><b>Cross-margining.</b> An agent's underlying clients can share collateral pools, netting agreements, and margin calculations under one master arrangement. This dramatically reduces collateral requirements vs. each fund operating standalone.</li>
+  </ul>
+
+  <h3>1.3 How credit risk really works under an agent</h3>
+
+  <p>From a credit perspective, the agent is a conduit. The bank's loss exposure is not to the agent but to the fund whose trade went bad. So:</p>
+
+  <ul class="clean">
+    <li>Credit limits are set <b>per underlying client</b>, not per agent.</li>
+    <li>An agent with 10,000 underlying funds carries 10,000 individual credit lines.</li>
+    <li>Ratings are <b>per underlying client</b> — and they vary widely. One fund in a PB book might be 1A; another might be 5C.</li>
+    <li>If an underlying fund defaults, the bank suffers the loss — even if every other fund under the same agent is healthy.</li>
+  </ul>
+
+  <p>This is why <span class="hl">Zymer Gjonbalaj / Bank North Summit Client shows 11,840 lines aggregated</span> on the dashboard: that is one agent legal entity covering 11,840 underlying clients, each with its own credit line.</p>
+
+  <div class="diagram">  Bank (TDS)
+       │
+       │  ISDA Master Agreement
+       ▼
+   ┌─ Agent Legal Entity (e.g. "Bank North Summit Client") ─┐
+   │                                                       │
+   │   ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐     │
+   │   │Client 1│  │Client 2│  │Client 3│  │ ...    │     │
+   │   │Rating: │  │Rating: │  │Rating: │  │11,840  │     │
+   │   │ 1A     │  │ 3B     │  │ 5C     │  │ in all │     │
+   │   │CR Line │  │CR Line │  │CR Line │  │        │     │
+   │   │$50M    │  │$30M    │  │$10M    │  │        │     │
+   │   └────────┘  └────────┘  └────────┘  └────────┘     │
+   │                                                       │
+   │   Trades reference: agent name (for execution)        │
+   │   Credit risk sits on: underlying client (per trade)  │
+   └───────────────────────────────────────────────────────┘</div>
+
+  <h3>1.4 How this currently shows up on the dashboard</h3>
+
+  <div class="dashboard-section">
+    <span class="dashboard-section-label">Dashboard Worked Example — Zymer agent</span>
+
+    <p>Selecting <i>Zymer Gjonbalaj (Bank North Summit Client) NJ-USA</i> in the CPTY filter aggregates 11,840 credit lines under one chart. The CCR Line Details below shows 5 visible lines (out of the 11,840); the Trade Details below that shows 5 trade rows, each with a different <i>Counterparty Code</i> pointing to a different underlying client (FNFC_C2C, MPFN_C2C, MGDN_C2C, TIST_C2C ×2).</p>
+
+    <div class="dashboard-image">
+      <img src="images/zymer_breaches.jpg" alt="Zymer Gjonbalaj agent block view">
+      <div class="caption"><b>Current dashboard</b>One agent entity with 11,840 underlying lines aggregated. Two pink rows flagged Y (breaches): BAN2_EBL rated 1A and GAMP_C2C rated 5C. Trade Details shows 5 different underlying clients via the Counterparty Code column.</div>
+    </div>
+
+    <div class="dashboard-shows-instead">
+      <span class="dashboard-shows-instead-title">What the current dashboard shows</span>
+      <p>Aggregate exposure for the agent. The "agent ↔ underlying client" relationship is encoded only in the <code>LEGAL_NAME</code> string ("BANK NORTH SUMMIT CLIENT") and in the line/counterparty codes (BAN2, GAMP, FNFC...) — there is no proper drill-down. A user looking at the breach has to mentally parse "GAMP_C2C is one underlying client under the agent; let me check its rating."</p>
+    </div>
+
+    <div class="dashboard-should">
+      <span class="dashboard-should-title">What a proper dashboard should show</span>
+      <ul class="clean">
+        <li><b>Agent summary card</b> at the top: agent legal name, jurisdiction, number of underlying clients, aggregate exposure, count of breaches across all clients.</li>
+        <li><b>Underlying clients table</b> below it: one row per underlying client with that client's own rating, exposure, limit utilisation, and breach flag. Filterable and sortable.</li>
+        <li><b>Drill from a client back up to the agent</b> in one click, and from the agent back down to clients in one click. The relationship is explicit, not parsed from strings.</li>
+        <li><b>Breach focus mode</b>: filter to only underlying clients with breaches, ranked by severity (see Part 7).</li>
+        <li><b>Concentration view</b>: which underlying clients account for the largest share of the agent's aggregate exposure? Top 10 by exposure, top 10 by rating tier.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 id="country">Part 2 — Country of risk vs country of domicile vs country of listing</h2>
+
+  <h3>2.1 Three different country attributes</h3>
+
+  <p>A single legal entity has <i>several</i> country attributes, and they often differ. Confusing them is a common source of dashboard misreading.</p>
+
+  <div class="definition">
+    <span class="term">Country of domicile</span>
+    The country in which the legal entity is incorporated and registered. For RBC's Sydney branch, the legal entity might be domiciled in Canada (it is a branch of a Canadian bank) or in Australia (if Sydney is a separately incorporated subsidiary).
+  </div>
+
+  <div class="definition">
+    <span class="term">Country of listing</span>
+    The country in which the entity's securities are publicly traded. RBC's primary listing is Canada (TSX), but RBC Sydney branch might appear with an Australian Bloomberg ticker (suffix .AU) if it has separately listed instruments there.
+  </div>
+
+  <div class="definition">
+    <span class="term">Country of risk</span>
+    The country whose economic, regulatory, political, and credit environment would cause the bank to take a loss if the counterparty failed. For credit purposes, this is the most important country. It is <i>assessed</i> by the bank, not just read off a registration document.
+  </div>
+
+  <h3>2.2 Why country of risk matters most for credit</h3>
+
+  <p>Credit risk attaches to where the money would actually disappear if things went wrong. Three patterns make this nuanced:</p>
+
+  <ul class="clean">
+    <li><b>Branch vs subsidiary structure.</b> RBC Sydney as a <i>branch</i> of Canadian RBC carries Canadian country of risk (the parent stands behind the branch). RBC Sydney as a <i>subsidiary</i> incorporated under Australian law carries Australian country of risk (the parent does not legally have to support it).</li>
+    <li><b>Parent guarantee.</b> A subsidiary in a high-risk country may still be assessed as low-risk if the parent in a stable country has guaranteed it.</li>
+    <li><b>Transfer risk.</b> Even if the legal entity is in a stable country, the credit risk may sit in another country if currency controls or convertibility issues would prevent the bank from collecting payment.</li>
+  </ul>
+
+  <h3>2.3 The RBC Sydney case</h3>
+
+  <p>In the dashboard, the entity <code>RB2C_SDY</code> appears as "ROYAL BANK OF CANADA-SDY (REG VM CSA)" with Bloomberg ticker <code>69229Z AU</code> (an Australian listing identifier) but COUNTRY_RISK = <code>CAN</code>. To a reader who has not internalised the three-country distinction, this looks like a data error.</p>
+
+  <p>It is not. It says: <i>this is a Sydney branch / Sydney-listed entity of Royal Bank of Canada, and TDS has assessed the credit risk as Canadian because the parent in Canada stands behind it</i>. All three pieces of information are correct and useful — they just need to be labelled clearly.</p>
+
+  <div class="dashboard-section">
+    <span class="dashboard-section-label">Dashboard Worked Example — RBC Sydney</span>
+
+    <p>The Party Details panel on the RBC view shows three RBC entity rows (LDN, LDN, SDY) with different tickers and different MOODYS/SANDP ratings, but all three carrying COUNTRY_RISK = CAN.</p>
+
+    <div class="dashboard-image">
+      <img src="images/rbc_legal_name_view.jpg" alt="RBC Legal Name View">
+      <div class="caption"><b>Current dashboard</b>RBC Party Details. <code>RB2C_LDN</code> and <code>RBCM_LDN</code> show ticker 2756Z LN (London listing). <code>RB2C_SDY</code> shows ticker 69229Z AU (Australian listing). All three show COUNTRY_RISK = CAN.</div>
+    </div>
+
+    <div class="dashboard-shows-instead">
+      <span class="dashboard-shows-instead-title">What the current dashboard shows</span>
+      <p>Only one country field. The user cannot distinguish where the entity is incorporated, where it operates, or where its credit risk is assessed.</p>
+    </div>
+
+    <div class="dashboard-should">
+      <span class="dashboard-should-title">What a proper dashboard should show</span>
+      <ul class="clean">
+        <li><b>Three labelled country attributes</b>: Country of Domicile, Country of Operation/Listing, Country of Risk. Each separately filterable.</li>
+        <li><b>Visual cue when they diverge</b>: e.g. a small icon next to "Country of Risk: CAN" indicating "differs from Country of Listing (AU)" — drawing attention to a meaningful credit decision rather than hiding it.</li>
+        <li><b>Country-of-risk drill</b>: clicking on Country of Risk = CAN brings up all entities, agents, and underlying clients assessed against Canadian risk regardless of their listing or domicile.</li>
+        <li><b>Transfer-risk overlay</b>: for entities where the country of operation is high-risk but country of credit risk is low (due to parent guarantees), surface this explicitly so the credit officer can see the structural risk.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 id="ccps">Part 3 — CCPs and clearing: what OCC and C2C actually mean</h2>
+
+  <h3>3.1 What a CCP is</h3>
+
+  <div class="definition">
+    <span class="term">Central Counterparty (CCP)</span>
+    A clearing house that sits between buyer and seller in a trade. When two banks execute an interest rate swap and decide to clear it, they both submit the trade to a CCP. The CCP then becomes the legal counterparty to <i>both</i> sides — the original bilateral trade is replaced by two trades, each with the CCP. The two original parties no longer face each other; they face the CCP.
+  </div>
+
+  <p>Major CCPs include:</p>
+
+  <ul class="clean">
+    <li><b>LCH (London Clearing House)</b> — the dominant CCP for interest rate swaps, also clears credit derivatives and FX.</li>
+    <li><b>CME (Chicago Mercantile Exchange)</b> — futures and options on rates, equities, FX, commodities; significant cleared swaps business.</li>
+    <li><b>ICE Clear Credit</b> — the main CCP for credit derivatives (CDS, CDX indices).</li>
+    <li><b>The Options Clearing Corporation (OCC)</b> — the CCP for US-listed equity and index options.</li>
+    <li><b>DTCC / NSCC / FICC</b> — the family of CCPs for US securities (equities, government bonds, mortgage-backed securities).</li>
+  </ul>
+
+  <h3>3.2 Why CCPs exist</h3>
+
+  <p>Three reasons, in order of historical importance:</p>
+
+  <ul class="clean">
+    <li><b>Counterparty risk reduction.</b> A CCP is required to be extremely well-capitalised and to collect margin from all members. Facing a CCP is much safer than facing an arbitrary bank counterparty — the CCP's default risk is very low.</li>
+    <li><b>Netting efficiency.</b> A bank's many trades with many counterparties all face the same CCP, so they net down to a single net position. This dramatically reduces gross exposure and capital requirements.</li>
+    <li><b>Regulatory mandate.</b> Post-2008, regulators (G20 commitments, then Dodd-Frank in the US, EMIR in Europe) required that standardised OTC derivatives be cleared through CCPs. So cleared volumes are not just a choice — they are mandated for many product types.</li>
+  </ul>
+
+  <h3>3.3 What "OCC" is on the dashboard</h3>
+
+  <p><b>OCC = The Options Clearing Corporation</b>. It is the central counterparty for all US-listed equity and index options. Every options trade executed on a US exchange (CBOE, NYSE, Nasdaq) is novated to OCC the moment it is executed. Every options market participant — banks, market makers, broker-dealers — faces OCC, not each other.</p>
+
+  <p>So when TDS has credit lines with OCC, those lines cover TDS's options-related cleared exposure to OCC itself. OCC is rated investment grade (typically 1C internally) because of its capitalisation and margin requirements.</p>
+
+  <h3>3.4 What "C2C" means</h3>
+
+  <div class="definition">
+    <span class="term">C2C — Cleared-to-Cleared</span>
+    A line type designation meaning the credit line covers trades that are cleared through a CCP. The risk on a C2C line is exposure to the CCP, not to the original trading counterparty (which has been novated away). Distinguished from bilateral (uncleared) lines where the bank faces the counterparty directly.
+  </div>
+
+  <p>So when a line is named <code>CP_(TDBK)_(OPCL_EBL)</code> with Line Type = <code>C2C</code>, it means: <i>a counterparty (CP) line owned by TD Bank (TDBK) for trades involving OCC (OPCL) under an Eligible Bilateral Line arrangement that is cleared (C2C)</i>.</p>
+
+  <p>C2C lines have different characteristics from bilateral lines:</p>
+
+  <ul class="clean">
+    <li><b>Lower PFE</b> because the CCP collects daily margin (often intraday).</li>
+    <li><b>Smaller limits</b> typically required because the credit risk is on the CCP, not the agent or end-client.</li>
+    <li><b>Different breach treatment</b> — a breach on a C2C line is less alarming than a breach on a bilateral line of the same size because the CCP's own credit quality is much higher.</li>
+    <li><b>Different netting rules</b> — trades on a C2C line net within the CCP's netting set; bilateral trades net within the ISDA netting set.</li>
+  </ul>
+
+  <h3>3.5 The OCC dashboard example</h3>
+
+  <div class="dashboard-section">
+    <span class="dashboard-section-label">Dashboard Worked Example — OCC</span>
+
+    <p>OCC appears on the dashboard as "OPTIONS CLEARING CORPORATION THE" with 3 lines aggregated. All three are C2C lines (CP_(TDAF)_(OPCL_EBL), CP_(TDSC)_(OPCL_EBL), CP_(TDSU)_(OPCL_EBL) — one per TDS booking entity), all rated 1C. The Trade Details panel shows a different column set than for bilateral counterparties — Principal 1, Principal 2, C2C Charge, C2C Charge Cur replace the Deal Type column.</p>
+
+    <div class="dashboard-image">
+      <img src="images/legal_name_view_overview.jpg" alt="Legal Name View overview structure">
+      <div class="caption"><b>Current dashboard</b>OCC view sample. Three approved lines, all C2C-type, all rated 1C. Trade Details shows cleared-trade column structure (Principal 1, Principal 1 Currency, Principal 2, Principal 2 Currency, C2C Charge, C2C Charge Cur) rather than the OTC derivative column structure.</div>
+    </div>
+
+    <div class="dashboard-shows-instead">
+      <span class="dashboard-shows-instead-title">What the current dashboard shows</span>
+      <p>OCC is presented identically to a bilateral counterparty, with the trade-detail column shape changing silently. There is no visual cue that this is a CCP, that the risk profile is fundamentally different, or that the "counterparty" being faced is actually a central clearing entity.</p>
+    </div>
+
+    <div class="dashboard-should">
+      <span class="dashboard-should-title">What a proper dashboard should show</span>
+      <ul class="clean">
+        <li><b>CCP indicator</b>: a clear "CCP" badge or icon on any counterparty card where the entity is a central counterparty. OCC, LCH, CME, ICE, DTCC should all carry it.</li>
+        <li><b>Separate "Cleared Exposure" summary tile</b> distinct from "Bilateral Exposure" on the headline view, because the risk characteristics differ.</li>
+        <li><b>CCP-specific metrics</b>: gross-to-net netting ratio (how much exposure gets cancelled out by clearing-house netting), margin held at CCP, default-fund contribution.</li>
+        <li><b>Member type</b>: is TDS a direct clearing member of this CCP, or an indirect (client clearing) participant? This affects the loss waterfall in a CCP default scenario.</li>
+        <li><b>Concentration warning</b>: if TDS's cleared exposure becomes concentrated in one CCP, surface that as a systemic risk metric. Post-Lehman, regulators care a lot about CCP concentration.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 id="linetypes">Part 4 — Line types decoded: CP, HC, C2C, CONT, EBL, DBL</h2>
+
+  <p>The line names on the dashboard pack a lot of structured information into a single string. Decoding them is straightforward once you know the convention.</p>
+
+  <h3>4.1 The naming pattern</h3>
+
+  <p>A typical TDS line name is:</p>
+
+  <div class="diagram">  [line purpose]_(booking entity)_(counterparty code)_[line subtype]
+
+  Examples:
+    CP_(TDBK)_(RBCM_DBL)        →  Counterparty line, TD Bank, RBCM counterparty, Daylight
+    HC_(TDBK)_(RBCM)            →  Haircut line, TD Bank, RBCM counterparty
+    CP_(TDSC)_(BAN2_EBL)        →  Counterparty line, TD Securities, BAN2 client, EBL subtype
+    CP_(TDBK)_(GAMP_C2C)        →  Counterparty line, TD Bank, GAMP client, C2C (cleared)</div>
+
+  <h3>4.2 Line purpose codes</h3>
+
+  <table>
+    <thead><tr><th>Code</th><th>Stands for</th><th>What the line covers</th></tr></thead>
+    <tbody>
+      <tr><td><code>CP</code></td><td>Counterparty</td><td>Trade exposure to the named counterparty. The standard CCR line type.</td></tr>
+      <tr><td><code>HC</code></td><td>Haircut</td><td>Collateral haircut risk — the risk that collateral posted against trades loses value during liquidation. Sits alongside the CP line; same counterparty, different risk dimension.</td></tr>
+      <tr><td><code>SL</code> / <code>SLG</code></td><td>Settlement / Settlement Limit</td><td>Settlement-day exposure — the risk that on settlement day, one side pays but the other does not. Covers Herstatt-type risk.</td></tr>
+      <tr><td><code>PSE</code></td><td>Pre-Settlement Exposure</td><td>Exposure before settlement — typically used for shorter-dated FX or securities financing.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>4.3 Line subtype codes</h3>
+
+  <table>
+    <thead><tr><th>Code</th><th>Stands for</th><th>Key characteristic</th></tr></thead>
+    <tbody>
+      <tr><td><code>CONT</code></td><td>Contingent</td><td>Line is contingent on a specific condition or trigger (e.g. only available if certain documentation is in place, or activates only on a corporate event).</td></tr>
+      <tr><td><code>C2C</code></td><td>Cleared-to-Cleared</td><td>Trades cleared through a CCP. See Part 3.</td></tr>
+      <tr><td><code>DBL</code></td><td>Daylight</td><td>Intraday-only exposure. Resets at end of day. Used for high-volume short-duration activity like intraday FX settlement or repo where positions close out before COB.</td></tr>
+      <tr><td><code>EBL</code></td><td>Eligible Bilateral Line</td><td>A bilateral line that meets specific eligibility criteria for capital or regulatory treatment (often related to netting agreements or collateral arrangements being in place).</td></tr>
+      <tr><td><code>OBL</code></td><td>Ordinary Bilateral Line</td><td>Standard bilateral line without special eligibility. Default for OTC derivative exposure under normal ISDA arrangements.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>4.4 The booking entity codes</h3>
+
+  <p>The middle portion identifies <i>which TDS legal entity</i> owns the credit line. TDS operates through multiple legal entities for jurisdictional, regulatory, and capital reasons:</p>
+
+  <table>
+    <thead><tr><th>Code</th><th>Entity</th><th>Jurisdiction</th></tr></thead>
+    <tbody>
+      <tr><td><code>TDBK</code></td><td>The Toronto-Dominion Bank (parent)</td><td>Canada (federal)</td></tr>
+      <tr><td><code>TDSC</code></td><td>TD Securities Canada</td><td>Canada</td></tr>
+      <tr><td><code>TDSU</code></td><td>TD Securities USA</td><td>United States</td></tr>
+      <tr><td><code>TDEU</code></td><td>TD Securities Europe</td><td>EU (typically Ireland or Germany)</td></tr>
+      <tr><td><code>TDSE</code></td><td>TD Securities Europe (alt entity)</td><td>EU</td></tr>
+      <tr><td><code>TDGF</code></td><td>TD Greystone / asset management</td><td>Canada</td></tr>
+      <tr><td><code>TDAF</code></td><td>TD Securities Australia / Far East</td><td>Australia/APAC</td></tr>
+      <tr><td><code>TBNA</code></td><td>TD Bank North America</td><td>US retail/commercial</td></tr>
+      <tr><td><code>TCAX</code></td><td>TD Cowen (acquired research/trading)</td><td>US</td></tr>
+    </tbody>
+  </table>
+
+  <p>Each entity has its own credit appetite, its own regulatory framework, and its own credit committee. The same external counterparty (e.g. RBC) will have separate lines under each TDS entity that trades with it.</p>
+
+  <h3>4.5 Why this matters for the dashboard</h3>
+
+  <div class="dashboard-section">
+    <span class="dashboard-section-label">Dashboard Worked Example — Line names</span>
+
+    <div class="dashboard-shows-instead">
+      <span class="dashboard-shows-instead-title">What the current dashboard shows</span>
+      <p>The line name appears as a single string in the <i>Line</i> column of CCR Line Details. To filter by purpose ("show me all my HC lines") or by subtype ("show me everything daylight"), the user must visually scan and recognise the pattern, or use a string-contains filter. The convention is not documented in the dashboard itself — knowledge is tribal.</p>
+    </div>
+
+    <div class="dashboard-should">
+      <span class="dashboard-should-title">What a proper dashboard should show</span>
+      <ul class="clean">
+        <li><b>Parsed columns</b> for line purpose (CP/HC/SL), booking entity (TDBK/TDSC/...), counterparty code (RBCM/GAMP/...), and line subtype (CONT/C2C/DBL/EBL/OBL).</li>
+        <li><b>Each column independently filterable</b>: select Line Subtype = DBL across the dropdown and the dashboard shows all daylight lines across all counterparties.</li>
+        <li><b>Original line name retained</b> in a side column for reference, but the parsed attributes drive filtering and analysis.</li>
+        <li><b>Legend or tooltip</b> defining each code so new users don't have to learn the convention by osmosis.</li>
+        <li><b>Cross-cutting views</b>: "all C2C lines globally" / "all daylight lines for TDBK" / "all haircut lines with disputes" — currently impossible without scripting.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 id="adjustments">Part 5 — Adjustments and manual bookings: lifecycle events vs trades</h2>
+
+  <h3>5.1 What "adjustment" means in trade booking</h3>
+
+  <p>Every trade in a trading system has a <i>lifecycle</i>: it is booked, becomes active, may be amended, may be partially or fully terminated, eventually expires or settles. Along the way, things go wrong — bookings are miskeyed, prices need correcting, dates were entered wrong, a confirmation reveals an economic detail that differs from the booking. The trading system has to record these corrections.</p>
+
+  <div class="definition">
+    <span class="term">Adjustment</span>
+    A booking entered into the trading system to correct, modify, or supplement an existing trade. Not a new trade — a <i>change to an existing trade</i>. The adjustment row references the original trade and represents the delta.
+  </div>
+
+  <p>Common adjustment types:</p>
+
+  <table>
+    <thead><tr><th>Type</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><b>Economic correction</b></td><td>Fixes a wrong price, notional, or other economic term on the original trade.</td></tr>
+      <tr><td><b>Date correction</b></td><td>Fixes a wrong trade date, value date, or maturity date.</td></tr>
+      <tr><td><b>Static-data correction</b></td><td>Fixes a wrong counterparty, desk, or book attribution.</td></tr>
+      <tr><td><b>Reversal</b></td><td>Cancels the effect of a prior incorrect booking entirely — booked as an offsetting adjustment.</td></tr>
+      <tr><td><b>Novation booking</b></td><td>Records that the trade was transferred from one counterparty to another — requires zeroing out the original and rebooking under the new counterparty.</td></tr>
+      <tr><td><b>Lifecycle event</b></td><td>Records a partial termination, early exercise, or contractual event affecting the trade.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5.2 Why adjustments are often booked manually</h3>
+
+  <p>Most adjustments cannot flow through the standard front-office booking workflow because:</p>
+
+  <ul class="clean">
+    <li>They reference an existing trade, so the trading system needs a manual link to the parent.</li>
+    <li>They require approval from a senior trader or middle-office operations control.</li>
+    <li>They are corrections, so the original booking has to remain (for audit) while the correction is applied.</li>
+    <li>The economic terms may not fit the standard trade template (e.g. a partial fee adjustment, a settlement break correction).</li>
+  </ul>
+
+  <p>So adjustments are typically booked via a <b>manual entry workflow</b>, which is why they show up on the dashboard with Book names prefixed by <code>MANUAL_</code> and Source System = <code>MANUAL</code>.</p>
+
+  <h3>5.3 What the manual book name encodes</h3>
+
+  <p>The manual book name is doing two jobs that should be separated:</p>
+
+  <table>
+    <thead><tr><th>Example book name</th><th>What it encodes</th></tr></thead>
+    <tbody>
+      <tr><td><code>MANUAL_ASG</code></td><td>Manual adjustment, originated from ASG desk (Asset Servicing Group, or possibly a specific trading book code).</td></tr>
+      <tr><td><code>MANUAL_GED TDBLN EUCEDOPT</code></td><td>Manual adjustment, originated from GED desk, TDBLN sub-book, EUCEDOPT product/portfolio (European Credit Options).</td></tr>
+      <tr><td><code>MANUAL_LME-AH</code></td><td>Manual adjustment, originated from LME desk (London Metal Exchange), AH (Aluminium) product.</td></tr>
+    </tbody>
+  </table>
+
+  <p>The book name therefore tells us:</p>
+  <ul class="clean">
+    <li>That this is a manual adjustment (the MANUAL_ prefix).</li>
+    <li>Which trading desk owns the underlying portfolio being adjusted.</li>
+    <li>Which sub-book or product family within that desk.</li>
+  </ul>
+
+  <p>But it does <b>not</b> tell us:</p>
+  <ul class="clean">
+    <li>Which original trade is being adjusted (no parent_trade_id).</li>
+    <li>Why the adjustment was needed (no reason code).</li>
+    <li>What the underlying product type is (only desk-level granularity).</li>
+    <li>Who approved the adjustment (no audit trail visible).</li>
+  </ul>
+
+  <h3>5.4 How this currently shows up on the dashboard</h3>
+
+  <div class="dashboard-section">
+    <span class="dashboard-section-label">Dashboard Worked Example — Manual adjustments under Zymer</span>
+
+    <p>The Zymer agent's Trade Details panel shows 5 visible rows, all of them adjustments. Every row has Deal Type = "Adjustment", Source System = "MANUAL", and the desk/product information is buried in the Book name string.</p>
+
+    <div class="dashboard-image">
+      <img src="images/zymer_breaches.jpg" alt="Zymer Trade Details showing all adjustment rows">
+      <div class="caption"><b>Current dashboard</b>5 visible trade rows for Zymer agent. All show Deal Type = Adjustment. Books: MANUAL_ASG (×2), MANUAL_GED TDBLN EUCEDOPT, MANUAL_LME-AH (×2). No underlying trade is identified.</div>
+    </div>
+
+    <div class="dashboard-shows-instead">
+      <span class="dashboard-shows-instead-title">What the current dashboard shows</span>
+      <p>"Adjustment" appears as the Deal Type, conflating a <i>lifecycle event</i> (this is a correction/modification) with a <i>product type</i> (which the column is supposed to represent). The underlying product, the original trade being adjusted, the reason for the adjustment, and the approval trail are all invisible.</p>
+    </div>
+
+    <div class="dashboard-should">
+      <span class="dashboard-should-title">What a proper dashboard should show</span>
+      <ul class="clean">
+        <li><b>Lifecycle Event column</b> separate from Product column. The lifecycle column would say "Adjustment", "New", "Amended", "Cancelled", "Novated", "Reversed", "Expired". The product column would carry the actual instrument type even on adjustments.</li>
+        <li><b>Parent trade reference</b>: every adjustment row carries a parent_trade_id pointing to the original trade. The dashboard renders this as a clickable link — one click jumps to the original trade.</li>
+        <li><b>Adjustment reason code</b>: a structured field with values like "economic_correction", "date_correction", "reversal", "novation", "partial_termination", "fee_adjustment".</li>
+        <li><b>Adjustment dollar magnitude</b>: how much did this adjustment change the trade's value, notional, or maturity? Surface as a measure.</li>
+        <li><b>Approval audit</b>: who entered the adjustment, who approved it, when. Available as a drill-down panel.</li>
+        <li><b>Adjustment grouping</b>: filter trades to "trades with adjustments in the last 30 days" — operationally important because excessive adjustments can flag a control issue or system problem.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 id="im">Part 6 — Initial Margin postings: not trades, but they look like trades</h2>
+
+  <h3>6.1 IM postings are bookings, not trades</h3>
+
+  <p>When TDS receives Initial Margin from a counterparty, the IM has to go <i>somewhere</i> in the books. It is collateral — typically cash or securities — pledged to TDS to cover potential future losses on a portfolio of trades. The IM does not have its own trade economics. It is a collateral posting against an existing portfolio.</p>
+
+  <p>But trading systems are designed to record trades, not collateral. So the IM gets booked as a "pseudo-trade" in a dedicated IM book, with:</p>
+
+  <ul class="clean">
+    <li>A unique identifier (often containing "CASH" if it's cash collateral).</li>
+    <li>A nominal "maturity" inherited from the underlying portfolio (since the IM remains as long as the portfolio is open).</li>
+    <li>A nominal "trade date" (often blank, or set to the date the IM was first posted).</li>
+    <li>A book name flagging it as an IM book (e.g. <code>TCIM_IMBOOK</code>).</li>
+    <li>A desk tag indicating "IM" rather than a trading desk (e.g. <code>IMDESK</code>).</li>
+  </ul>
+
+  <h3>6.2 The conceptual confusion</h3>
+
+  <p>An IM posting is conceptually:</p>
+
+  <div class="diagram">  Concept            Property               Value
+  ──────────────────────────────────────────────────────────
+  Product            Cash Collateral        (not Equity Swap)
+  Trade Purpose      Initial Margin         (not Risk-Taking)
+  Collateral Type    IM                     (not VM or Fee)
+  Counterparty       Alyeska Master Fund    (the poster)
+  Underlying         Alyeska Equity Swap    (what it collateralises)
+                     Portfolio
+  Notional           $X cash (IM amount)    (not derivative notional)
+  Posting Date       2026-04-23             (when IM first received)
+  Latest Adjustment  2026-05-07             (last IM call settlement)</div>
+
+  <h3>6.3 How this currently shows up on the dashboard</h3>
+
+  <div class="dashboard-section">
+    <span class="dashboard-section-label">Dashboard Worked Example — Alyeska's IM row</span>
+
+    <p>Alyeska Master Fund's Trade Details panel shows 4 Equity Swap rows from the SOPHIS US Prime Equity Swap book, followed by 1 IM row from the TCIM IM book. All 5 rows have identical Years To Maturity (0.59726) because the IM row's maturity inherits from the underlying swap portfolio.</p>
+
+    <div class="dashboard-image">
+      <img src="images/alyeska_im_in_dealtype.jpg" alt="Alyeska IM row alongside Equity Swap rows">
+      <div class="caption"><b>Current dashboard</b>Alyeska Trade Details. Top 4 rows: Deal Type = Equity Swap. Bottom row: Deal Type = IM, Book = TCIM_IMBOOK, Desk = IMDESK, Deal ID = USDCASH00006D1 (the "USDCASH" prefix reveals it as cash collateral). Trade Date is blank; Maturity Date matches the swaps.</div>
+    </div>
+
+    <div class="dashboard-shows-instead">
+      <span class="dashboard-shows-instead-title">What the current dashboard shows</span>
+      <p>The IM row appears as if it were a trade, with "IM" sitting in the Deal Type column alongside "Equity Swap". The link to the underlying portfolio it collateralises is implicit (same counterparty, same maturity date, same Years To Maturity) but never explicit. A user could miscount the position by treating the IM row as a separate trade.</p>
+    </div>
+
+    <div class="dashboard-should">
+      <span class="dashboard-should-title">What a proper dashboard should show</span>
+      <ul class="clean">
+        <li><b>Separate Collateral panel</b>, distinct from Trade Details. IM and VM postings live there, not in the trade list.</li>
+        <li><b>The collateral panel shows</b>: posting party, collateral type (IM/VM), collateral asset (cash/securities), amount, currency, haircut applied, net value to TDS, posting date, last adjustment date, link to the underlying portfolio.</li>
+        <li><b>Reverse navigation</b>: clicking on a trade portfolio should show "Collateral held against this portfolio: $X IM, $Y VM, total mitigation: $Z" — bringing the collateral into the exposure picture.</li>
+        <li><b>Collateral-to-exposure ratio</b>: a derived measure showing how well covered the trade portfolio is. Useful for spotting under-collateralised relationships.</li>
+        <li><b>Collateral movement timeline</b>: when did the IM amount change, and by how much? Sudden drops or step-ups are meaningful.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 id="severity">Part 7 — Breach severity: why a 1A breach and a 5C breach are different problems</h2>
+
+  <h3>7.1 What a breach actually signals</h3>
+
+  <p>An <i>Excess Flag = Y</i> means a credit line has utilised more than its approved limit. But the same flag covers very different situations.</p>
+
+  <h3>7.2 Two breach archetypes</h3>
+
+  <p><b>Archetype 1: Operational / sizing breach.</b> Counterparty is healthy (high rating), but exposure has grown beyond the line size because:</p>
+
+  <ul class="clean">
+    <li>New trades pushed utilisation above the approved limit.</li>
+    <li>Market moves increased the mark-to-market value of existing positions.</li>
+    <li>The original line was sized conservatively and the client has grown.</li>
+  </ul>
+
+  <p>This kind of breach is a <b>sizing/control issue</b>. Resolution: increase the line, reduce the position, or apply for a waiver. No urgent credit concern.</p>
+
+  <p><b>Archetype 2: Credit deterioration breach.</b> Counterparty is weak or deteriorating (low rating), and the breach signals that risk is compounding:</p>
+
+  <ul class="clean">
+    <li>Counterparty's credit quality has degraded since the line was sized.</li>
+    <li>Internal rating downgrade has tightened the available limit.</li>
+    <li>External signals (CDS spread widening, market chatter, missed margin calls) corroborate the deterioration.</li>
+  </ul>
+
+  <p>This kind of breach is a <b>credit issue</b>. Resolution: reduce exposure aggressively, demand additional collateral, escalate to credit committee. Genuinely urgent.</p>
+
+  <h3>7.3 The Zymer dashboard example</h3>
+
+  <div class="dashboard-section">
+    <span class="dashboard-section-label">Dashboard Worked Example — Two breaches, very different problems</span>
+
+    <p>Zymer's CCR Line Details shows two pink-highlighted (Excess Flag = Y) rows:</p>
+
+    <table>
+      <thead><tr><th>Line</th><th>Worst Rating</th><th>Min Availability</th><th>Bucket</th><th>Archetype</th></tr></thead>
+      <tbody>
+        <tr class="breach"><td><code>CP_(TDSC)_(BAN2_EBL)</code></td><td>1A</td><td>−$700,081,641</td><td>3-12mo</td><td>Sizing — the underlying client is high-quality but the line is too small</td></tr>
+        <tr class="breach"><td><code>CP_(TDBK)_(GAMP_C2C)</code></td><td>5C</td><td>−$364,084,371</td><td>0-3mo</td><td>Credit — the underlying client is weak <i>and</i> the line is breached</td></tr>
+      </tbody>
+    </table>
+
+    <div class="dashboard-image">
+      <img src="images/zymer_breaches.jpg" alt="Two breach rows with different ratings">
+      <div class="caption"><b>Current dashboard</b>Two pink rows. Both flagged Y. Same colour. No visual distinction between the high-rated breach (1A — sizing issue) and the low-rated breach (5C — credit deterioration).</div>
+    </div>
+
+    <div class="dashboard-shows-instead">
+      <span class="dashboard-shows-instead-title">What the current dashboard shows</span>
+      <p>Same pink colour for both breaches. Same Y flag. The credit officer must mentally combine the rating column with the breach flag to decide which one needs urgent attention. With 11,840 lines aggregated under the agent, easy to overlook.</p>
+    </div>
+
+    <div class="dashboard-should">
+      <span class="dashboard-should-title">What a proper dashboard should show</span>
+      <ul class="clean">
+        <li><b>Breach severity tiering</b>, derived from rating × breach magnitude × concentration. Example tiers:
+          <ul class="clean">
+            <li>Tier 1 (red, urgent): Rating ≤ 4 AND breach magnitude > $X — credit deterioration breaches</li>
+            <li>Tier 2 (orange, watch): Rating 1-3 AND breach magnitude > $X — large sizing breaches on healthy counterparties</li>
+            <li>Tier 3 (yellow, monitor): Rating 1-3 AND breach magnitude ≤ $X — small sizing breaches</li>
+            <li>Tier 4 (blue, informational): Rating 1-3 AND availability close to zero — pre-breach warning</li>
+          </ul>
+        </li>
+        <li><b>Breach narrative on hover</b>: "This breach is on a 1A client; likely sizing issue. Recent exposure growth: +$X over 30 days" or "This breach is on a 5C client; recent rating downgrade in Q1. CDS spread widened 80bps in last 30 days."</li>
+        <li><b>Breach trend</b>: is the breach getting worse or improving? A 5C breach that's stable is one thing; a 5C breach that's growing 20% per day is a different problem.</li>
+        <li><b>Suggested action</b>: tier 1 breaches surface a "Recommended action" panel — escalate to credit committee, demand collateral, reduce exposure. Tier 3 surface "Schedule line review".</li>
+        <li><b>Breach aging</b>: how long has this line been in breach? Day 1 vs Day 30 are very different — long-running breaches indicate a control problem.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 id="identifiers">Part 8 — The party identifier problem: CP_CODE, Counterparty Code, and the agent-client split</h2>
+
+  <h3>8.1 Multiple identifiers for the same conceptual party</h3>
+
+  <p>The dashboard exposes several identifier columns that look similar but mean different things:</p>
+
+  <table>
+    <thead><tr><th>Column / field</th><th>Found on</th><th>What it identifies</th></tr></thead>
+    <tbody>
+      <tr><td><code>CP_CODE</code></td><td>Party Details panel</td><td>A specific legal entity in TDS's counterparty master. <code>RB2C_LDN</code>, <code>RBCM_LDN</code>, <code>RB2C_SDY</code> are three CP_CODE values, all under RBC.</td></tr>
+      <tr><td><code>CP_NAME</code></td><td>Party Details panel</td><td>Short name for the legal entity. e.g. "ROYAL BANK OF CANADA-LDN (REG VM CSA)".</td></tr>
+      <tr><td><code>LEGAL_NAME</code></td><td>Party Details panel</td><td>Full legal entity name. e.g. "ROYAL BANK OF CANADA".</td></tr>
+      <tr><td><code>Counterparty Code</code></td><td>Trade Details panel</td><td>The line reference (e.g. <code>CP_(TDBK)_(RBCM_C2C)</code>) — actually a <i>line identifier</i>, not a counterparty identifier. Embeds the booking entity and the counterparty's CP_CODE.</td></tr>
+      <tr><td><code>Line</code> (in CCR Line Details)</td><td>CCR Line Details</td><td>Same as Counterparty Code in Trade Details — the line identifier.</td></tr>
+      <tr><td><code>BLOOMBERG_TICKER</code></td><td>Party Details panel</td><td>External market identifier (e.g. "2756Z LN"). May be NOTICKER for private entities.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>8.2 The naming confusion</h3>
+
+  <p>The most confusing pair is <b>Counterparty Code</b> (on Trade Details) versus <b>CP_CODE</b> (on Party Details). The names suggest they should be the same — both are codes for counterparties. They are not the same.</p>
+
+  <ul class="clean">
+    <li><b>CP_CODE</b> is the counterparty's identifier in TDS's master data. One per legal entity. e.g. <code>ALYA_C2C</code>, <code>RBCM_LDN</code>, <code>OPCL_BSB</code>.</li>
+    <li><b>Counterparty Code</b> on Trade Details is a <i>line identifier</i>. It includes the booking entity and the CP_CODE. e.g. <code>CP_(TDBK)_(ALYA_C2C)</code>.</li>
+  </ul>
+
+  <p>So a trade row's "Counterparty Code" is actually identifying which credit line that trade consumed, not which counterparty it was with. Better names would be:</p>
+
+  <ul class="clean">
+    <li>Trade Details <code>Counterparty Code</code> → <b>Line Reference</b> or <b>Credit Line ID</b></li>
+    <li>Party Details <code>CP_CODE</code> → <b>Party ID</b> or <b>Counterparty ID</b></li>
+  </ul>
+
+  <h3>8.3 The agent-client identifier problem</h3>
+
+  <p>Under an agent structure, each underlying client has its own CP_CODE. So Zymer Gjonbalaj (the agent) has thousands of underlying CP_CODEs — one per fund or beneficial owner it represents. Examples visible in the Zymer screenshot:</p>
+
+  <ul class="clean">
+    <li><code>FNFC_C2C</code> — an underlying client of the agent</li>
+    <li><code>MPFN_C2C</code> — another underlying client</li>
+    <li><code>MGDN_C2C</code> — another</li>
+    <li><code>TIST_C2C</code> — another (×2 lines under this same client)</li>
+    <li><code>BAN2_EBL</code> — yet another (this one rated 1A)</li>
+    <li><code>GAMP_C2C</code> — and this one rated 5C</li>
+  </ul>
+
+  <p>These are <i>not</i> different counterparties from a relationship perspective — they all sit under Zymer's umbrella. But for credit risk purposes they are completely independent: separate ratings, separate limits, separate breach states.</p>
+
+  <h3>8.4 What a proper dashboard should show</h3>
+
+  <div class="dashboard-section">
+    <span class="dashboard-section-label">Identifier model — recommended</span>
+
+    <div class="dashboard-should">
+      <span class="dashboard-should-title">A clean party model</span>
+      <ul class="clean">
+        <li><b><code>party_id</code></b> — globally unique identifier for every legal entity (agent, underlying client, branch, parent).</li>
+        <li><b><code>legal_name</code></b> — full registered name. e.g. "ALYESKA MASTER FUND, L.P."</li>
+        <li><b><code>short_name</code></b> — display name. e.g. "Alyeska Master Fund"</li>
+        <li><b><code>party_role</code></b> — what this party is in any specific relationship: trading counterparty, agent, underlying client, parent, guarantor, collateral provider, issuer.</li>
+        <li><b><code>party_relationship_id</code></b> — joins party to party via a relationship table. Captures "X is agent for Y", "P is parent of Q", "G guarantees H".</li>
+      </ul>
+
+      <span class="dashboard-should-title" style="margin-top:14px;">A clean line model</span>
+      <ul class="clean">
+        <li><b><code>line_id</code></b> — globally unique identifier for each credit line.</li>
+        <li><b><code>line_name</code></b> — the human-readable string, kept as-is for continuity. e.g. <code>CP_(TDBK)_(GAMP_C2C)</code>.</li>
+        <li><b><code>line_purpose</code></b> — CP / HC / SL / PSE (parsed from line_name).</li>
+        <li><b><code>booking_entity_id</code></b> → joins to dim_booking_entity (TDBK, TDSC, ...).</li>
+        <li><b><code>counterparty_party_id</code></b> → joins to dim_party.</li>
+        <li><b><code>line_subtype</code></b> — CONT / C2C / DBL / EBL / OBL (parsed from line_name).</li>
+      </ul>
+
+      <span class="dashboard-should-title" style="margin-top:14px;">A clean trade model</span>
+      <ul class="clean">
+        <li><b><code>trade_id</code></b> — globally unique identifier for each trade.</li>
+        <li><b><code>line_id</code></b> → joins to dim_line (the line this trade consumes).</li>
+        <li><b><code>counterparty_party_id</code></b> → the legal counterparty (might be the agent).</li>
+        <li><b><code>credit_risk_party_id</code></b> → the underlying client where the credit risk actually sits.</li>
+        <li><b><code>product_id</code></b> → dim_product (Equity Swap, Cash Collateral, etc.).</li>
+        <li><b><code>trade_purpose_id</code></b> → dim_trade_purpose (Risk-Taking, Initial Margin, Variation Margin, Adjustment-Reversal).</li>
+        <li><b><code>lifecycle_event_id</code></b> → dim_lifecycle_event (New, Active, Amended, Adjusted, Cancelled, Novated, Reversed, Expired).</li>
+        <li><b><code>parent_trade_id</code></b> → for adjustments, the original trade.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 id="summary">Part 9 — What a properly-built dashboard would look like</h2>
+
+  <p>Synthesising the dashboard-should sections above, a properly-built CCR analytics dashboard has these characteristics:</p>
+
+  <h3>9.1 Identifier transparency</h3>
+  <ul class="clean">
+    <li>Every entity has a stable, globally unique ID. Names are display attributes, not identifiers.</li>
+    <li>Agent ↔ underlying client relationships are explicit, not parsed from name strings.</li>
+    <li>Trading counterparty (legal face) and credit risk party (where loss would land) are separately surfaced.</li>
+    <li>Line codes are parsed into structured attributes; the original code is preserved for continuity.</li>
+  </ul>
+
+  <h3>9.2 Country transparency</h3>
+  <ul class="clean">
+    <li>Country of domicile, country of operation, and country of risk are three separately filterable attributes.</li>
+    <li>When they diverge (e.g. RBC Sydney with country of risk Canada), the dashboard surfaces that meaningfully rather than hiding it.</li>
+  </ul>
+
+  <h3>9.3 Lifecycle and purpose transparency</h3>
+  <ul class="clean">
+    <li>Product, trade purpose, and lifecycle event are three separate dimensions. "IM" lives under purpose, not product. "Adjustment" lives under lifecycle, not product.</li>
+    <li>Every adjustment row carries a parent trade reference and an adjustment reason code.</li>
+    <li>Collateral postings live in a Collateral panel, not the Trade Details panel.</li>
+  </ul>
+
+  <h3>9.4 Risk-tiered breach surfacing</h3>
+  <ul class="clean">
+    <li>Breaches are colour-coded by severity tier, not by binary Y/N.</li>
+    <li>Severity combines rating, magnitude, concentration, aging, and trend.</li>
+    <li>Each tier has a suggested action.</li>
+  </ul>
+
+  <h3>9.5 CCP-aware risk views</h3>
+  <ul class="clean">
+    <li>CCP counterparties are visually flagged.</li>
+    <li>Cleared and bilateral exposure are summed separately, because their risk profiles differ.</li>
+    <li>Concentration in any one CCP is surfaced as a systemic risk metric.</li>
+  </ul>
+
+  <h3>9.6 Drill paths in both directions</h3>
+  <ul class="clean">
+    <li>Agent → underlying clients (one click).</li>
+    <li>Underlying client → parent agent (one click).</li>
+    <li>Trade portfolio → collateral held against it.</li>
+    <li>Adjustment → original trade.</li>
+    <li>Line → all trades consuming that line.</li>
+    <li>Country of risk → all entities assessed against that country.</li>
+  </ul>
+
+  <h3>9.7 The underlying principle</h3>
+
+  <div class="callout">
+    <p class="callout-title">The data model is the dashboard</p>
+    <p>Every problem on the current dashboard is a manifestation of the data not being modelled properly. Lines names that pack four attributes into one string. "IM" in the Deal Type column because there is no Trade Purpose dimension. "Adjustment" in the Deal Type column because there is no Lifecycle Event dimension. Agent and underlying client conflated because there is no Party Relationship table. Country of risk muddled with country of domicile because there is no clean Country dimension hierarchy. <b>Fix the model and the dashboard becomes obvious.</b></p>
+  </div>
+
+  <p class="footer-note">CCR Learning Guide · Business concepts addendum · Companion to "Lines, Exposure, Margin Calls, Risk Movement" · 10 May 2026.</p>
+
+</div>
+</body>
+</html>
