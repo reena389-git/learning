@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CCR Analytics Semantic Modeling — v9 (enriched)</title>
+<style>
+  :root { --green:#174d2e; --mid:#2f7a4e; --light:#eef8f1; --blue:#eaf0ff; --gold:#fff7dd; --red:#fff1f1; --ink:#1f2d24; }
+  body { font-family: Arial, Helvetica, sans-serif; background:#f5faf7; color:var(--ink); margin:0; padding:28px; line-height:1.45; }
+  h1 { color:var(--green); margin:0 0 6px; font-size:30px; }
+  h2 { color:#20653d; margin-top:30px; border-bottom:2px solid #d8eadf; padding-bottom:6px; }
+  h3 { color:var(--green); margin-bottom:8px; }
+  h4 { color:var(--mid); margin: 16px 0 6px; font-size: 14px; }
+  .subtitle { color:#52645a; margin-bottom:22px; }
+  .card { background:white; border:1px solid #cfe3d6; border-radius:16px; padding:20px; box-shadow:0 3px 12px rgba(0,0,0,.06); margin-bottom:24px; }
+  .callout { background:var(--blue); border-left:6px solid #6b8fd6; padding:14px; border-radius:10px; }
+  .note { background:#fff9e8; border-left:5px solid #d9a441; padding:12px; border-radius:8px; }
+  .note-new { background:#e3fcef; border-left:5px solid #006644; padding:12px; border-radius:8px; }
+  .note-correct { background:#fff5d6; border-left:5px solid #a06820; padding:12px; border-radius:8px; }
+  .code { background:#f7fbf8; border:1px solid #cde0d3; border-radius:12px; padding:14px; font-family:'Courier New', monospace; white-space:pre-wrap; overflow:auto; font-size:13px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
+  .box { border:2px solid #5aa879; border-radius:14px; padding:14px; background:#f8fffa; }
+  .blue { border-color:#6b8fd6; background:#f6f9ff; }
+  .gold { border-color:#d9a441; background:#fffaf0; }
+  .red { border-color:#c77d7d; background:#fff7f7; }
+  .new-tag { display:inline-block; background:#006644; color:white; font-size:10px; font-weight:700; letter-spacing:1px; padding:2px 8px; border-radius:3px; margin-left:8px; vertical-align:middle; }
+  .correct-tag { display:inline-block; background:#a06820; color:white; font-size:10px; font-weight:700; letter-spacing:1px; padding:2px 8px; border-radius:3px; margin-left:8px; vertical-align:middle; }
+  table { border-collapse:collapse; width:100%; font-size:13px; background:white; margin:12px 0; }
+  th { background:#dff1e5; color:#173b25; }
+  th, td { border:1px solid #b9d8c4; padding:8px; text-align:left; vertical-align:top; }
+  .small { font-size:12px; color:#5b675f; }
+  @media print { body { background:white; padding:12px; } .card { box-shadow:none; page-break-inside:avoid; } }
+</style>
+</head>
+<body>
+<h1>CCR Analytics Semantic Modeling — v10</h1>
+<div class="subtitle">Daily-read consolidation: star/galaxy models, grain, data products, multi-grain constellations, contracts, metric semantics, dbt, Databricks metric views, MicroStrategy/Strategy. <strong>v10 changes:</strong> data progression collapsed from 7 stages to <b>6 canonical stages</b> (Raw + Cleansed merged; Trusted/Authoritative/Certified reframed as <i>attributes</i> of a Data Product, not separate stages); conformance explanation tightened with explicit XVALA / CMOS / REGDS → cp_id mapping; star schema framing clarified — semantic enforcement is separate from the schema itself; ownership tier clarification added to §10.5 (App / PG Leader / DD).</div>
+
+
+<!-- =========== §1 =========== -->
+<div class="card">
+<h2>1) The master mental model</h2>
+<div class="code">Data product = governed package of data + rules
+Fact table = numeric core of the product
+Metric = named business number
+Grain = level at which the metric is true
+Dimension = business axis used to slice or roll the metric
+Hierarchy = valid navigation path
+Semantic layer = machine-readable rules for meaning, joins, and aggregation
+BI tool = user-facing interface that applies those rules</div>
+<div class="note"><b>Key distinction:</b> Documentation tells humans the rules. The semantic layer and BI model enforce the rules for machines and users.</div>
+
+<h4>Governance role of each concept <span class="new-tag">ENRICHED</span></h4>
+<p>Each concept above plays a specific role in keeping numbers correct:</p>
+<table>
+<thead><tr><th>Concept</th><th>Governance role</th></tr></thead>
+<tbody>
+<tr><td><b>Data product</b></td><td>The governed unit — a contracted package consumers can rely on.</td></tr>
+<tr><td><b>Fact + dimension</b></td><td>The structural primitives that make the data analyzable.</td></tr>
+<tr><td><b>Metric</b></td><td>The business unit consumers actually ask about ("what's our PFE?").</td></tr>
+<tr><td><b>Grain</b></td><td>The contract for what the metric <i>means</i> — the level at which the number is true.</td></tr>
+<tr><td><b>Semantic layer</b></td><td>The enforcement of the contract — refuses unsafe operations machines would otherwise allow.</td></tr>
+</tbody>
+</table>
+<p class="small">This mapping connects "concepts" to "what does this protect us from getting wrong."</p>
+</div>
+
+
+<!-- =========== §2 =========== -->
+<div class="card">
+<h2>2) Star schema vs galaxy / fact constellation</h2>
+
+<div class="grid2">
+<div class="box"><h3>Star schema</h3><p>One central fact table surrounded by dimensions.</p><div class="code">dim_counterparty
+       |
+fact_exposure
+       |
+dim_date / dim_scenario / dim_time_bucket</div><p>Good when the analytics question is centered around one fact.</p></div>
+
+<div class="box blue"><h3>Galaxy schema (a.k.a. fact constellation)</h3><p>Multiple facts share conformed dimensions.</p><div class="code">                dim_counterparty
+                      |
+fact_exposure  fact_mtm  fact_cva  fact_limits  fact_sensitivities</div><p>Needed for CCR because exposure, limits, MtM, CVA and sensitivities live at different grains.</p>
+<p class="small"><b>Naming note:</b> "galaxy schema" and "fact constellation" mean the same thing. Use whichever your audience knows. Industry has drifted slightly toward "galaxy" to avoid confusing "constellation" as a generic word.</p>
+</div>
+</div>
+
+<div class="note-new"><b>Why CCR can't be a single star <span class="new-tag">ENRICHED</span></b><br>
+Exposure lives at <code>counterparty + netting set + time bucket + scenario</code>. MtM lives at <code>trade + valuation date</code>. CS01 lives at <code>trade + risk factor + tenor</code>. These are not the same grain. A single fact table forcing them together would either lose detail or duplicate rows. The galaxy pattern lets each metric live at its true grain, joined by conformed dimensions when consumers ask cross-metric questions.</div>
+</div>
+
+
+<!-- =========== §3 =========== -->
+<div class="card">
+<h2>3) Grain: the non-negotiable rule</h2>
+<div class="callout"><b>Before asking "what can the user do?" first define "what is mathematically valid?"</b></div>
+<table><thead><tr><th>CCR metric</th><th>Natural grain</th><th>Aggregation behavior</th><th>Important warning</th></tr></thead><tbody>
+<tr><td>EE</td><td>counterparty + netting_set + time_bucket + scenario + valuation_date</td><td>Generally SUM, with rules</td><td>Do not slice by product unless allocated.</td></tr>
+<tr><td>PFE</td><td>counterparty + netting_set + time_bucket + scenario + confidence_level + valuation_date</td><td>Non-additive / controlled</td><td>Percentile, not a simple sum.</td></tr>
+<tr><td>Stressed PFE</td><td>PFE grain + stress_scenario_id</td><td>Non-additive / controlled</td><td>Must carry stress scenario and load date.</td></tr>
+<tr><td>MtM</td><td>trade + valuation_date + currency</td><td>SUM</td><td>Current value, not future exposure.</td></tr>
+<tr><td>CVA</td><td>counterparty or netting_set + valuation_date + scenario</td><td>SUM at approved levels</td><td>Expected loss; do not confuse with PFE.</td></tr>
+<tr><td>Trade CS01</td><td>trade + risk_factor + tenor + scenario + valuation_date</td><td>SUM</td><td>Trade price sensitivity.</td></tr>
+<tr><td>CVA CS01</td><td>counterparty/netting_set + risk_factor + tenor + scenario + valuation_date</td><td>SUM</td><td>CVA sensitivity; not the same as trade CS01.</td></tr>
+<tr><td>Limit</td><td>counterparty + facility + limit_type + effective_date</td><td>Do not SUM blindly</td><td>Comparator; define which metric it applies to.</td></tr>
+<tr style="background:#e3fcef;"><td><b>Collateral (IM / VM)</b> <span class="new-tag">NEW</span></td><td>counterparty + agreement + collateral_type + as_of_date</td><td>SUM at agreement level; can roll up to counterparty if no double-counting</td><td><b>IM and VM are different things.</b> IM is upfront margin against potential exposure; VM is daily MtM-driven margin. Don't sum them together as "collateral" without preserving the type distinction.</td></tr>
+<tr style="background:#e3fcef;"><td><b>Notional</b> <span class="new-tag">NEW</span></td><td>trade + product_type + underlying + valuation_date</td><td>SUM at product type or obligor level</td><td>Used for trading-activity reporting (notional by product type, notional by underlying obligor). Never sum across product types as a single number.</td></tr>
+</tbody></table>
+
+<div class="note-correct"><b>Why these two new rows matter <span class="correct-tag">ADDED</span></b><br>
+George's CCR ask explicitly demands <i>"Differentiate between IM and VM"</i> and <i>"Notional by product type"</i> and <i>"Notional by underlying obligor."</i> Without these grain rows in the cheat sheet, anyone reading the document doesn't have the guardrail for the metrics George actually asked for. The collateral row is the most important — IM and VM are conceptually different and frequently confused.</div>
+</div>
+
+
+<!-- =========== §4 =========== -->
+<div class="card">
+<h2>4) Data products and multi-grain design</h2>
+<div class="grid2">
+<div class="box"><h3>Atomic products</h3><ul><li>Exposure product: fact_exposure</li><li>MtM product: fact_mtm</li><li>Sensitivities product: fact_sensitivities</li><li>CVA product: fact_cva and fact_cva_sensitivity</li><li>Limits product: fact_limits</li></ul><p>These preserve source-of-truth grain and drill-down.</p></div>
+
+<div class="box blue"><h3>Curated constellation</h3><p>Counterparty Risk 360 aligns metrics to a common grain.</p><div class="code">grain = counterparty + valuation_date + scenario
+contains = EE, PFE, stressed PFE, MtM, collateral, limit, breach, CVA, CVA CS01</div><p>It is derived, governed and labeled; it does not replace atomic products.</p></div>
+</div>
+
+<div class="callout"><b>Rule:</b> Do not row-join fact_exposure to fact_sensitivities. Aggregate each fact to the requested common grain, then combine.</div>
+
+<h4>Three-way data product taxonomy <span class="new-tag">REFINED</span></h4>
+<p>The atomic vs curated binary is useful, but industry recognises a three-way taxonomy that's more honest:</p>
+<table>
+<thead><tr><th>Type</th><th>Purpose</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><b>Atomic / Source-of-truth</b></td><td>Preserves grain and audit trail. Survives consumption changes.</td><td>fact_exposure, fact_mtm, fact_sensitivities</td></tr>
+<tr><td><b>Curated / 360 / Semantic</b></td><td>Pre-aggregated for a business question at a chosen grain.</td><td>Counterparty Risk 360 (counterparty + valuation_date level)</td></tr>
+<tr><td><b>Reporting / Operational</b></td><td>Consumption-ready for ops or regulatory submissions.</td><td>Daily CCR Exposure feed, Regulatory SA-CCR submission</td></tr>
+</tbody>
+</table>
+
+<div class="note-correct"><b>Important framing point <span class="correct-tag">REFINED</span></b><br>
+Counterparty Risk 360 is a <b>derived constellation product</b> — it sits on top of the four atomic products (Exposure, Valuation, Sensitivity, Limits). If Counterparty 360 is de-funded, the four atomic products keep delivering value. If any of the four atomic products is de-funded, the 360 view breaks. <b>Atomic products are primary; curated products are layered on top.</b></div>
+</div>
+
+
+<!-- =========== §5 =========== -->
+<div class="card">
+<h2>5) Data contracts: relatable definition</h2>
+<div class="callout">A data contract says:<br>
+Here is the number I am giving you.<br>
+Here is exactly what it means.<br>
+Here is the grain where it is true.<br>
+Here is how you can roll it up.<br>
+Here is how you must not use it.<br>
+Here is who owns it.</div>
+
+<table><thead><tr><th>Contract element</th><th>Example for PFE</th></tr></thead><tbody>
+<tr><td><b>Meaning</b></td><td>High-percentile potential future exposure under ordinary simulation assumptions.</td></tr>
+<tr><td><b>Grain</b></td><td>counterparty + netting_set + time_bucket + confidence_level + scenario + valuation_date</td></tr>
+<tr><td><b>Aggregation</b></td><td>Non-additive; use official engine output or approved aggregation.</td></tr>
+<tr><td><b>Allowed dimensions</b></td><td>counterparty, netting_set, time_bucket, scenario, valuation_date.</td></tr>
+<tr><td><b>Blocked / caution</b></td><td>product, trade, blind summation across netting sets.</td></tr>
+<tr><td><b>Quality checks</b></td><td>PFE &gt;= 0; PFE generally &gt;= EE for same grain; reconcile to official CCR report.</td></tr>
+<tr style="background:#e3fcef;"><td><b>Change management</b> <span class="new-tag">NEW</span></td><td>Breaking changes (column removal, type change, grain change) require 60-day notice and consumer sign-off. Additive changes (new optional column) require 14-day notice.</td></tr>
+</tbody></table>
+
+<div class="note-new"><b>Why change management belongs in the contract <span class="new-tag">ENRICHED</span></b><br>
+Without this row, contracts feel like they're about <i>describing</i> the data. The change-management row makes them about <i>committing to</i> the data. Consumers need to know what kind of stability they're getting before they build dependent pipelines.</div>
+</div>
+
+
+<!-- =========== §6 =========== -->
+<div class="card">
+<h2>6) Metric semantics: dbt, Databricks metric views, and Strategy</h2>
+<table>
+<thead><tr><th>Layer/tool</th><th>What it does well</th><th>Limitation / caution</th><th>CCR use</th></tr></thead>
+<tbody>
+<tr><td>dbt Semantic Layer / MetricFlow</td><td>Central YAML definitions for semantic models, measures and metrics; generates SQL and exposes APIs/integrations.</td><td>Downstream BI tools may still need mapping/integration.</td><td>Good for source-of-truth metric definitions, tests, contracts and reusable semantics.</td></tr>
+<tr><td>Databricks metric views</td><td>YAML-defined metric views in Unity Catalog; measures, dimensions, filters and joins; SQL-accessible and reusable across Databricks experiences.</td><td>External BI tools must query the metric view or mirror semantics; not every BI semantic feature is automatically imported.</td><td>Good for governed SQL semantic access to curated CCR metrics.</td></tr>
+<tr><td>MicroStrategy / Strategy semantic model</td><td>Metrics, attributes, facts, hierarchies, level metrics and governed drag/drop UX.</td><td>Meaning is distributed across objects; it does not automatically understand dbt or Databricks metric-view YAML unless integrated/mapped.</td><td>Good for user-facing enforcement: level metrics, attributes, drill paths, curated dossiers.</td></tr>
+</tbody>
+</table>
+
+<h4>Sharpened recommendation <span class="correct-tag">SHARPENED</span></h4>
+<div class="note-correct"><p><b>Industry-converged opinion:</b></p>
+<ul>
+<li><b>Source of truth in dbt or Databricks Metric View</b> — logic lives once, in YAML, in version control, with tests.</li>
+<li><b>Mirror in MicroStrategy</b> — Strategy doesn't auto-import dbt or Databricks YAML; manual mapping is required.</li>
+<li><b>Validate BI outputs against the source</b> — regression tests catch drift between source-of-truth definitions and Strategy implementations.</li>
+</ul>
+<p><b>Strong-form opinion:</b></p>
+<ul>
+<li><b>dbt Metrics is the more mature pattern</b> for source-of-truth metric definitions because (a) it's tool-agnostic, (b) it has the richest test framework, (c) it works across multiple BI tools.</li>
+<li><b>Databricks Metric Views is younger</b> but is the right answer if you're a single-Databricks shop and want to stay in Unity Catalog.</li>
+<li><b>MicroStrategy can never be the source of truth</b> if you have dbt or Databricks. Strategy is always downstream because its semantic model is locked inside the Strategy tool.</li>
+</ul>
+<p><b>If TDS is committed to MicroStrategy:</b> source of truth elsewhere (dbt or Databricks), mirrored in Strategy, with periodic regression tests proving they agree.</p></div>
+</div>
+
+
+<!-- =========== §7 =========== -->
+<div class="card">
+<h2>7) Strategy / MicroStrategy: what is controlled where?</h2>
+<table>
+<thead><tr><th>Object</th><th>Role</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td>Metric</td><td>Controls math</td><td>PFE = MAX(pfe), not SUM(pfe)</td></tr>
+<tr><td>Level metric</td><td>Controls calculation level/grain</td><td>PFE evaluated at netting_set level regardless of report layout</td></tr>
+<tr><td>Attribute</td><td>Controls slicing axis</td><td>Counterparty, netting set, time bucket, scenario</td></tr>
+<tr><td>Hierarchy</td><td>Controls drill/navigation path</td><td>netting set → counterparty → parent → region</td></tr>
+<tr><td>Schema/joins</td><td>Controls valid relationships</td><td>fact_exposure joins to dim_counterparty; avoid row-level fact-to-fact joins</td></tr>
+<tr><td>Security/object exposure</td><td>Controls what users can see and drag</td><td>Hide product attribute for unallocated PFE</td></tr>
+</tbody></table>
+
+<div class="note-correct"><b>Sharpened framing <span class="correct-tag">SHARPENED</span></b><br>
+Hierarchies define <i>what's possible to navigate</i>. Level metrics define <i>what's mathematically valid</i>. The two work together — but if a hierarchy lets a user drill from counterparty → product, the level metric must still refuse to sum PFE at the product level if PFE is not allocatable to product. <b>Hierarchy is a road map; metric level is the traffic rules.</b></div>
+</div>
+
+
+<!-- =========== §8 =========== -->
+<div class="card">
+<h2>8) One "semantics table" strategy</h2>
+<p>To minimize duplication, maintain a central semantics registry table or YAML catalog that can feed documentation, dbt/Databricks model generation, and BI implementation checklists.</p>
+<table>
+<thead><tr><th>Column</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><b>metric_name</b></td><td>EE, PFE, CVA, Trade CS01, CVA CS01</td></tr>
+<tr><td><b>business_definition</b></td><td>Plain-English meaning.</td></tr>
+<tr><td><b>source_fact</b></td><td>fact_exposure, fact_cva, fact_sensitivities.</td></tr>
+<tr><td><b>grain</b></td><td>Level of truth.</td></tr>
+<tr><td><b>aggregation_rule</b></td><td>SUM, MAX, NONE, engine_provided, custom.</td></tr>
+<tr><td><b>allowed_dimensions</b></td><td>Attributes users can safely slice by.</td></tr>
+<tr><td><b>restricted_dimensions</b></td><td>Attributes that require allocation or should be blocked.</td></tr>
+<tr><td><b>quality_tests</b></td><td>Reconciliation and validity checks.</td></tr>
+<tr><td><b>owner</b></td><td>Risk, XVA, model, market data, or platform owner.</td></tr>
+<tr><td><b>bi_mapping</b></td><td>Strategy metric formula, level, exposed attributes.</td></tr>
+<tr style="background:#e3fcef;"><td><b>version / change_history</b> <span class="new-tag">NEW</span></td><td>Semantic version and date of last change. Without versioning, downstream consumers can't tell whether their understanding of a metric is from before or after a redefinition.</td></tr>
+</tbody></table>
+</div>
+
+
+<!-- =========== §9 =========== -->
+<div class="card">
+<h2>9) Final daily-read summary</h2>
+<ul>
+<li>Grain defines truth.</li>
+<li>Aggregation defines math.</li>
+<li>Dimensions define usability.</li>
+<li>Contracts define meaning.</li>
+<li>Semantic layer enforces meaning.</li>
+<li>Databricks/dbt define reusable semantic truth.</li>
+<li>Strategy enforces user-facing behavior.</li>
+<li>Curated constellations support common views.</li>
+<li>Atomic facts preserve drill-down and audit.</li>
+</ul>
+<p class="small"><b>Sources checked:</b> Databricks Unity Catalog metric views documentation; dbt Semantic Layer / MetricFlow documentation; MicroStrategy documentation.</p>
+</div>
+
+
+<!-- =========== §10 =========== -->
+<div class="card">
+<h2>10) Query examples: how semantics and data products work together</h2>
+<p><b>Purpose of this section:</b> show how a user question should be answered through governed data products and semantic rules, instead of unsafe direct fact-to-fact joins.</p>
+
+<h3>10.1 Business question</h3>
+<p>User asks: <i>For counterparty ABC Bank, show total exposure, PFE, stressed PFE, limits, breach flag, MtM, and CS01.</i></p>
+<p>This question touches multiple data products:</p>
+<table>
+<thead><tr><th>User wants</th><th>Data product / fact</th><th>Natural grain</th></tr></thead>
+<tbody>
+<tr><td>EE / PFE / stressed PFE</td><td>Exposure product / fact_exposure</td><td>counterparty + netting_set + time_bucket + scenario + valuation_date</td></tr>
+<tr><td>Limits / breach</td><td>Limits product / fact_limits</td><td>counterparty + facility + limit_type + effective_date</td></tr>
+<tr><td>MtM</td><td>Valuation product / fact_mtm</td><td>trade + valuation_date</td></tr>
+<tr><td>CS01</td><td>Sensitivity product / fact_sensitivities</td><td>trade + risk_factor + tenor + valuation_date</td></tr>
+</tbody></table>
+
+<h3>10.2 Unsafe query pattern — what NOT to do</h3>
+<p>The mistake is to join all fact tables row-by-row and then aggregate. This can duplicate numbers because the facts live at different grains.</p>
+<div class="code">-- BAD PATTERN: direct fact-to-fact joining
+SELECT
+    c.counterparty_name,
+    SUM(e.ee) AS total_ee,
+    SUM(e.pfe) AS total_pfe,
+    SUM(m.mtm_value) AS mtm,
+    SUM(s.sensitivity_value) AS cs01
+FROM fact_exposure e
+JOIN fact_mtm m
+  ON e.counterparty_id = m.counterparty_id
+JOIN fact_sensitivities s
+  ON e.counterparty_id = s.counterparty_id
+JOIN dim_counterparty c
+  ON e.counterparty_id = c.counterparty_id
+WHERE c.counterparty_name = 'ABC Bank'
+GROUP BY c.counterparty_name;</div>
+
+<div class="note"><b>Why this is wrong:</b> fact_exposure may have one row per netting set and time bucket, fact_mtm may have many rows per trade, and fact_sensitivities may have many rows per trade/risk factor/tenor. Joining them directly can multiply rows and overstate metrics.</div>
+
+<h3>10.3 Safe query pattern — aggregate first, then combine</h3>
+<p>The semantic layer should aggregate each data product to the requested common grain first, then combine the summarized results.</p>
+<div class="code">-- GOOD PATTERN: aggregate each product first, then combine
+WITH exposure_summary AS (
+    SELECT
+        counterparty_id,
+        valuation_date,
+        scenario_id,
+        SUM(ee) AS total_ee,
+        MAX(pfe) AS pfe,             -- max across time buckets;
+                                     -- consumers may want a specific bucket
+                                     -- see semantic registry for chosen rule
+        MAX(stressed_pfe) AS stressed_pfe
+    FROM fact_exposure
+    WHERE time_bucket = '5Y'
+    GROUP BY counterparty_id, valuation_date, scenario_id
+),
+limit_summary AS (
+    SELECT
+        counterparty_id,
+        valuation_date,
+        MAX(limit_amount) AS limit_amount
+    FROM fact_limits
+    WHERE limit_type = 'PFE_LIMIT'
+    GROUP BY counterparty_id, valuation_date
+),
+mtm_summary AS (
+    SELECT
+        counterparty_id,
+        valuation_date,
+        SUM(mtm_value_usd) AS total_mtm
+    FROM fact_mtm
+    GROUP BY counterparty_id, valuation_date
+),
+sensitivity_summary AS (
+    SELECT
+        counterparty_id,
+        valuation_date,
+        SUM(sensitivity_value_usd) AS total_cs01
+    FROM fact_sensitivities
+    WHERE sensitivity_type = 'CS01'
+    GROUP BY counterparty_id, valuation_date
+)
+SELECT
+    c.counterparty_name,
+    e.valuation_date,
+    e.total_ee,
+    e.pfe,
+    e.stressed_pfe,
+    l.limit_amount,
+    CASE WHEN e.pfe &gt; l.limit_amount THEN 'BREACH' ELSE 'OK' END AS breach_flag,
+    m.total_mtm,
+    s.total_cs01
+FROM exposure_summary e
+LEFT JOIN limit_summary l
+  ON e.counterparty_id = l.counterparty_id
+ AND e.valuation_date = l.valuation_date
+LEFT JOIN mtm_summary m
+  ON e.counterparty_id = m.counterparty_id
+ AND e.valuation_date = m.valuation_date
+LEFT JOIN sensitivity_summary s
+  ON e.counterparty_id = s.counterparty_id
+ AND e.valuation_date = s.valuation_date
+JOIN dim_counterparty c
+  ON e.counterparty_id = c.counterparty_id
+WHERE c.counterparty_name = 'ABC Bank';</div>
+
+<h3>10.4 What the semantic layer is doing</h3>
+<table>
+<thead><tr><th>Semantic responsibility</th><th>Example rule</th></tr></thead>
+<tbody>
+<tr><td>Choose the correct data product</td><td>Exposure questions use fact_exposure; sensitivity questions use fact_sensitivities.</td></tr>
+<tr><td>Respect grain</td><td>PFE lives at netting_set + time_bucket + scenario + date, not trade grain.</td></tr>
+<tr><td>Apply correct aggregation</td><td>EE can be summed; PFE should not be blindly summed; CS01 can be summed.</td></tr>
+<tr><td>Prevent unsafe slicing</td><td>PFE by product is blocked unless product allocation exists.</td></tr>
+<tr><td>Bridge facts safely</td><td>Aggregate each fact to counterparty + date first, then combine.</td></tr>
+</tbody></table>
+
+<h4>Two clarifications added <span class="new-tag">CLARIFIED</span></h4>
+<div class="note-new"><b>(1) On <code>MAX(pfe)</code> being a semantic choice:</b> The safe query uses <code>MAX(pfe)</code> across time buckets to produce a single point estimate. This is a <i>semantic choice</i>, not a technical one. Some consumers want PFE at a specific time bucket (e.g., 5Y). Some want the max across all buckets. Some want a curve. The choice belongs in the semantic registry — the SQL implements whatever the registry says.<br><br>
+<b>(2) On the breach flag in the SELECT:</b> Breach is a <i>derived metric defined relative to a limit at a specific grain</i> — counterparty + valuation_date in this case. It's computed in the SELECT (not a separate downstream step) so the grain context is preserved. If you computed breach at a different layer, later re-aggregation could silently invalidate it.</div>
+</div>
+
+
+<!-- =========== §10.5 =========== -->
+<div class="card">
+<h2>10.5 Data product discussion — layered architecture <span class="new-tag">REFRAMED v9</span></h2>
+<p>A data product is not just a table. It is a governed package around a business concept. <b>And critically, a "Counterparty 360" or any other 360-style data product is not a single wide table</b> — it is a layered architecture of one summary product plus several atomic drill-down products, orchestrated by a BI tool or semantic layer at consumption time. This section makes that layering explicit.</p>
+
+<h3>Layer 1 — Summary product (one row per counterparty per as-of-date)</h3>
+<table>
+<thead><tr><th>Data product</th><th>Grain</th><th>What it contains</th><th>Type</th></tr></thead>
+<tbody>
+<tr style="background:#e3fcef;"><td><b>Counterparty Risk Summary</b></td><td>counterparty + valuation_date</td><td>Counterparty profile (name, LEI, industry, parent, ratings) + total notional + total MtM + collateral totals (IA / VM / IM) + PFE (max across buckets) + stressed PFE + CVA + limit + breach flag + counts (trades, netting sets)</td><td>Curated / 360 summary</td></tr>
+</tbody>
+</table>
+<p class="small">~30-50 columns wide, 1 row per counterparty per as-of-date. This is what "show me ABC Bank at a glance" queries hit. Aggregations are pre-baked according to documented rules in the contract.</p>
+
+<h3>Layer 2 — Atomic drill-down products (each at native grain)</h3>
+<table>
+<thead><tr><th>Data product</th><th>Core fact table</th><th>Native grain</th><th>What it owns</th><th>Type</th></tr></thead>
+<tbody>
+<tr><td><b>Trades Product</b></td><td>fact_trade</td><td>trade + valuation_date</td><td>Trade list with notional, MtM, product type, underlying, trading desk</td><td>Atomic primary</td></tr>
+<tr><td><b>Exposure Product</b></td><td>fact_exposure</td><td>counterparty + netting_set + time_bucket + scenario + valuation_date</td><td>EE, PFE, stressed PFE, time buckets, scenario rules, exposure lineage</td><td>Atomic primary</td></tr>
+<tr><td><b>Valuation Product</b></td><td>fact_mtm</td><td>trade + valuation_date</td><td>MtM, currency conversion, valuation date, product/trade rollups</td><td>Atomic primary</td></tr>
+<tr><td><b>Sensitivity Product</b></td><td>fact_sensitivities</td><td>trade + risk_factor + tenor + valuation_date</td><td>CS01, IR01, risk factor, tenor, shock size, sensitivity lineage</td><td>Atomic primary</td></tr>
+<tr><td><b>Collateral Product</b></td><td>fact_collateral</td><td>counterparty + agreement + collateral_type + as_of_date</td><td>IA, VM, IM with type distinction; agreement reference</td><td>Atomic primary</td></tr>
+<tr><td><b>Stress Product</b></td><td>fact_stress</td><td>netting_set + scenario + time_bucket + valuation_date</td><td>Stressed exposure under defined scenarios</td><td>Atomic primary</td></tr>
+<tr><td><b>Limits Product</b></td><td>fact_limits</td><td>counterparty + facility + limit_type + effective_date</td><td>Limit amount, limit type, facility, effective date, breach comparator rules</td><td>Atomic primary</td></tr>
+</tbody></table>
+<p class="small">Each at its own grain. Each its own contract, SLA, owner. Linked by counterparty_id (and valuation_date where relevant) — but never row-joined to each other; only aggregated to a common grain when needed.</p>
+
+<h3>Layer 3 — BI / Semantic orchestration (the user experience)</h3>
+<p>When a user types "ABC Bank" into the dashboard, the BI tool (MicroStrategy, Power BI, etc.) does this:</p>
+<ol>
+<li>Loads the <b>Counterparty Risk Summary</b> for that counterparty (Layer 1) — instant, one row, populates the top of the dossier.</li>
+<li>Loads tabs / drill-down panels on demand from <b>Layer 2 atomic products</b>, filtered by counterparty_id — only what the user clicks on.</li>
+<li>Each tab respects the natural grain of its source product. Trades tab shows trade-level rows; Exposure tab shows netting-set-and-bucket rows; Sensitivities tab shows trade-and-risk-factor rows.</li>
+</ol>
+<p>The semantic layer ensures aggregations done within a tab (e.g., "show total CS01 by tenor") respect the rules from the data contract — SUM where additive, MAX/percentile where not.</p>
+
+<div class="note-correct"><b>Funding and dependency implications <span class="correct-tag">CARRIED FORWARD</span></b><br>
+Atomic primary products exist regardless of whether anyone builds the Layer 1 summary. The summary is layered on top of them. Funding decisions should reflect this dependency: <b>fund the atomic products first; the summary is layered work that breaks if any of the underlying atomic products is de-funded.</b> Without atomic products, there's nothing to drill down to from the summary; the dashboard becomes just a top panel with no detail.</div>
+
+<div class="note-new"><b>The wide-table fallacy <span class="new-tag">NEW v9</span></b><br>
+Many people picture a Counterparty 360 as a single wide table — one row per counterparty containing trades, exposures, sensitivities, collateral, all the metrics. <b>This doesn't work.</b> The facts live at different grains; forcing them into one wide row would require either Cartesian-multiplying the data (millions of rows per counterparty inquiry, with all the wrong-aggregation problems that creates) or losing all the trade-level detail. The correct pattern is <b>one summary row + many atomic detail tables, linked by counterparty_id, orchestrated by the BI tool.</b> See §15 for a full worked example.</div>
+
+<h3>10.5.1 Data product ownership — three tiers <span class="new-tag">NEW v10</span></h3>
+
+<p>"Data product" is not one thing — it is three things at three levels, with different owners at each. This resolves the friction that emerges when ownership of conformed cross-app products is ambiguous.</p>
+
+<table>
+<thead><tr><th>Tier</th><th>Example</th><th>Business owner</th><th>Technical owner</th><th>Source / Consulted</th></tr></thead>
+<tbody>
+<tr style="background:#fef6f1;">
+  <td><b>App-level raw</b><br><span class="small">single-app artifact</span></td>
+  <td><code>creditrisk.xvala.exposure_raw</code></td>
+  <td>App team</td>
+  <td>App team</td>
+  <td>—</td>
+</tr>
+<tr style="background:#fff5d6;">
+  <td><b>Atomic primary</b><br><span class="small">conformed across apps within a PG</span></td>
+  <td><code>riskwh.gold.fact_exposure</code> (CCR-wide; spans XVALA + CMOS + REGDS)</td>
+  <td><b>PG Leader (Product Owner)</b></td>
+  <td>DD</td>
+  <td>App teams (Consulted on changes affecting their feeds)</td>
+</tr>
+<tr style="background:#e3fcef;">
+  <td><b>Curated / 360</b><br><span class="small">cross-product within Risk</span></td>
+  <td><code>riskwh.gold.cp_risk_summary</code> (Layer 1 of CP360)</td>
+  <td>DD</td>
+  <td>DD</td>
+  <td>PG Leader (Consulted)</td>
+</tr>
+<tr style="background:#cdeed5;">
+  <td><b>Reporting</b><br><span class="small">regulatory / board</span></td>
+  <td><code>riskwh.gold.report_basel_sa_ccr</code></td>
+  <td>DD + Regulatory function (joint)</td>
+  <td>DD</td>
+  <td>PG Leader, Central (Consulted)</td>
+</tr>
+</tbody>
+</table>
+
+<div class="callout"><b>Why three accountabilities, not one</b><br><br>
+<ul>
+<li>The <b>App team</b> stays accountable for raw data their app produces — the source-of-truth question: "is this number from the app correct?"</li>
+<li>The <b>PG Leader</b> stays accountable for the conformed business definition of cross-app products — the business question: "does this dataset correctly represent CCR exposure across our apps?"</li>
+<li><b>DD</b> stays accountable for technical implementation — contracts, UC tags, semantic layer enforcement, physical artifacts in <code>riskwh.gold</code> — the technical question: "is this implemented correctly and consumable safely?"</li>
+</ul>
+Each role speaks authoritatively to its own dimension. Friction emerges when these get conflated — e.g., when the App team is asked to sign off on the PG-level business definition, or when DD is held accountable for a number being correct at the source.</div>
+</div>
+
+
+<!-- =========== §11 — MODELLING SCHOOLS (NEW) =========== -->
+<div class="card">
+<h2>11) Modelling schools — where each fits in this picture <span class="new-tag">NEW SECTION</span></h2>
+
+<p>The terminology in this cheat sheet sits inside a larger landscape of data modelling schools. Naming them helps situate what we're building and recognise which industry pattern each piece is borrowing from.</p>
+
+<div class="grid2">
+<div class="box"><h3>Inmon — Corporate Information Factory</h3>
+<p>Bill Inmon's enterprise data warehouse model. A normalised, integrated, time-variant warehouse at the centre. Data marts derive from it for specific analytical purposes.</p>
+<p><b>Strengths:</b> coherence, single source of truth, regulatory traceability.</p>
+<p><b>Trade-off:</b> heavy upfront modelling; slow to evolve.</p>
+<p class="small"><b>Where it fits in this cheat sheet:</b> the <i>atomic source-of-truth products</i> (§10.5) are essentially Inmon's normalised warehouse expressed as data products. The PG conformed domain model is a domain-scoped Inmon warehouse.</p>
+</div>
+
+<div class="box blue"><h3>Kimball — Bus Architecture</h3>
+<p>Ralph Kimball's dimensional model. The warehouse <i>is</i> a collection of star schemas with conformed dimensions shared across them. Bottom-up, business-process-aligned.</p>
+<p><b>Strengths:</b> consumability, performance, ease of analysis.</p>
+<p><b>Trade-off:</b> harder to enforce enterprise consistency without conformed-dimension discipline.</p>
+<p class="small"><b>Where it fits in this cheat sheet:</b> the galaxy/constellation pattern (§2) <i>is</i> Kimball — multiple facts sharing conformed dimensions. The grain table (§3) is straight Kimball discipline. <code>star_dim_*</code>, <code>star_fact_*</code>, <code>obt_*</code> naming is Kimball convention.</p>
+</div>
+</div>
+
+<div class="grid2" style="margin-top:14px;">
+<div class="box gold"><h3>Data Mesh — Zhamak Dehghani</h3>
+<p>Domains own their data end-to-end. Data is a product. A federated computational governance plane provides cross-domain alignment.</p>
+<p><b>Strengths:</b> scales with org complexity; aligns ownership with knowledge.</p>
+<p><b>Trade-off:</b> requires mature engineering culture and federated governance discipline.</p>
+<p class="small"><b>Where it fits in this cheat sheet:</b> the <i>data product</i> framing (§4, §10.5) is Mesh's signature contribution. Treating each fact as a contracted, owned, discoverable product comes from Mesh. Without Mesh, "data product" reduces to "table with metadata."</p>
+</div>
+
+<div class="box red"><h3>Lakehouse — Medallion Architecture</h3>
+<p>Databricks' bronze / silver / gold pattern. Raw ingestion, conformed cleaning, consumption-optimised serving — all on the same lakehouse with a unified catalog.</p>
+<p><b>Strengths:</b> single platform for batch + streaming + ML; native support for federation.</p>
+<p><b>Trade-off:</b> requires governance discipline to keep the layers from leaking.</p>
+<p class="small"><b>Where it fits in this cheat sheet:</b> the implementation pattern. Bronze = raw ingestion. Silver = conformed atomic facts (the atomic products from §10.5). Gold = curated products and analytics models (Counterparty 360, star schemas).</p>
+</div>
+</div>
+
+<div class="note-new" style="margin-top:18px;"><b>The TDS Risk synthesis</b><br>
+What we're actually doing combines all four. <b>Architecturally Data Mesh</b> — domain ownership of physical data at PG level; data products as the federation primitive. <b>Internally Inmon</b> — within each PG, the domain model is normalised and conformed. <b>Externally Kimball</b> — the consumption layer (riskwh.gold) uses conformed dimensions and dimensional facts. <b>Implemented on Lakehouse</b> — medallion layout (bronze → silver → gold) within riskwh; app schemas as producer-owned bronze.<br><br>
+<b>One-line summary:</b> Data-mesh-shaped federation, with Kimball-style consumption layers on top of Inmon-style domain models, all running on a Lakehouse — registering up to a federated enterprise CDM.</div>
+</div>
+
+
+<!-- =========== §12 — SURROGATE vs NATURAL KEYS (NEW) =========== -->
+<div class="card">
+<h2>12) Surrogate keys vs natural keys — an honest discussion <span class="new-tag">NEW SECTION</span></h2>
+
+<p>One of the first decisions in dimensional modelling is whether <code>dim_counterparty</code> uses a <b>surrogate key</b> (a synthetic key invented by the warehouse, e.g., <code>counterparty_sk = 1, 2, 3, ...</code>) or a <b>natural key</b> (the identifier that already exists upstream, e.g., <code>counterparty_id = 'LEI-XXXX'</code> issued by an enterprise master data system).</p>
+
+<h3>The industry-standard answer (and why it's the standard)</h3>
+<div class="callout"><b>Industry standard is surrogate keys.</b><br>
+Reason: dimensions evolve over time (counterparty hierarchies restructure, legal entities merge, parent companies acquire subsidiaries). Surrogate keys preserve historical truth across these changes via SCD Type 2 (each version of a counterparty gets its own surrogate key, while the natural key stays the same).</div>
+
+<h3>The case for using counterparty_id natural key directly</h3>
+<p>If <code>counterparty_id</code> is already created upstream by an enterprise master data system, is it stable enough to use directly? Three honest considerations:</p>
+
+<h4>Where natural key works</h4>
+<ul>
+<li>If <code>counterparty_id</code> is <b>stable across the counterparty's lifecycle</b> — never reassigned, never recycled, never changes when the counterparty restructures — you can use it directly.</li>
+<li>For <b>maturity-zero / Stage 1</b>, using natural keys is genuinely faster. You skip the surrogate key dimension build, you skip the SCD Type 2 ETL, you skip teaching consumers about surrogate keys.</li>
+<li><b>LEI (Legal Entity Identifier)</b> is a natural key designed exactly for this — globally unique, stable, regulated, intentionally not recycled. If your <code>counterparty_id</code> is LEI-based, the case for natural keys is much stronger.</li>
+</ul>
+
+<h4>Where natural key breaks down</h4>
+<ul>
+<li><b>Mergers and acquisitions.</b> Counterparty A acquires Counterparty B. What happens to B's <code>counterparty_id</code>? If it's deactivated and B's exposures are reassigned to A, you've lost the historical truth that "this exposure was originally with B." Surrogate keys with SCD Type 2 preserve this; natural keys lose it.</li>
+<li><b>Legal entity restructures.</b> Same parent, different legal entity ID issued. Trades booked against the old entity — do they belong to the old or new entity? With natural keys, this is ambiguous.</li>
+<li><b>Hierarchy changes.</b> Counterparty B was independent in 2024; became a subsidiary of A in 2025. Did B's risk roll up under A or independently in Q1 2025? The answer depends on <code>as_of_date</code>. Natural keys without temporal versioning can't answer this.</li>
+</ul>
+
+<h3>The honest pragmatic answer</h3>
+<div class="note">In Stage 1 with natural keys, you make a calculated trade-off:
+<ul>
+<li>You ship faster (no surrogate key infrastructure)</li>
+<li>You handle simple cases correctly (current state, current hierarchy)</li>
+<li>You break or struggle on SCD-requiring cases (point-in-time historical analysis, restructuring scenarios, regulatory submissions that require historical entity state)</li>
+</ul></div>
+
+<h3>A middle path many banks take</h3>
+<div class="note-new"><b>Natural key with temporal snapshot — the pragmatic middle ground</b><br>
+Use natural keys directly <i>and</i> maintain an <code>as_of_date</code> snapshot for the dimension. So <code>dim_counterparty</code> is keyed on <code>(counterparty_id, as_of_date)</code>. You don't introduce a surrogate key, but you preserve temporal versioning by snapshotting the dimension. SCD Type 2 in spirit, without the surrogate key complexity.<br><br>
+Industry calls this <b>"natural key with temporal snapshot"</b> or <b>"Type 2 without surrogate."</b></div>
+
+<table>
+<thead><tr><th>Property</th><th>Natural key (only)</th><th>Natural key + as_of_date</th><th>Surrogate key (full Kimball)</th></tr></thead>
+<tbody>
+<tr><td>Setup cost</td><td>Lowest</td><td>Low</td><td>Highest</td></tr>
+<tr><td>Time to ship</td><td>Fastest</td><td>Fast</td><td>Slowest</td></tr>
+<tr><td>Historical truth preserved</td><td>No</td><td>Yes (via date snapshot)</td><td>Yes (via SCD Type 2)</td></tr>
+<tr><td>Join complexity</td><td>Simple</td><td>Slightly more (need date matching)</td><td>Most complex (SK lookups everywhere)</td></tr>
+<tr><td>Storage cost</td><td>Lowest</td><td>Medium (dim grows with snapshots)</td><td>Highest (full Type 2 history)</td></tr>
+<tr><td>Handles M&amp;A correctly</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Handles hierarchy restructures</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Regulatory back-testing capable</td><td>No</td><td>Mostly</td><td>Yes</td></tr>
+<tr><td>Consumer learning curve</td><td>Lowest</td><td>Low</td><td>Medium-high</td></tr>
+</tbody>
+</table>
+
+<h3>The recommendation for TDS Stage 1</h3>
+<div class="note-correct"><b>Start with natural keys + as_of_date snapshot.</b><br>
+It's faster than full surrogate keys, but doesn't lose historical truth the way pure natural keys do. If LEI is your counterparty natural key, even better — LEI is purpose-built to be stable.<br><br>
+If, in Stage 2-3, the complexity of historical analysis grows (e.g., regulatory back-testing, M&amp;A scenario analysis), introduce surrogate keys then. The migration is non-trivial but doable.<br><br>
+This is honest. The "industry standard" of surrogate keys is the right answer for a mature, multi-year warehouse. But for maturity zero shipping in 6-9 months, surrogate keys are over-engineering. The middle path (natural key + temporal snapshot) is what most banks would actually do.</div>
+</div>
+
+
+<!-- =========== §13 — SCD, LATE FACTS, REF DATA (NEW) =========== -->
+<div class="card">
+<h2>13) Other concepts a CCR cheat sheet should mention <span class="new-tag">NEW SECTION</span></h2>
+
+<h3>Slowly Changing Dimensions (SCD)</h3>
+<p>Counterparty hierarchy changes over time; legal entity restructures happen. The way the dimension handles change determines what historical questions can be answered.</p>
+<table>
+<thead><tr><th>SCD type</th><th>Behaviour</th><th>Use for CCR</th></tr></thead>
+<tbody>
+<tr><td><b>Type 1</b></td><td>Overwrite — only current state is preserved.</td><td>Reference data with no historical relevance (e.g., country name spelling fix).</td></tr>
+<tr><td><b>Type 2</b></td><td>Add new row with effective dates — full history preserved.</td><td>Counterparty entity, parent hierarchy, industry classification — anything where "what was true on the trade date" matters.</td></tr>
+<tr><td><b>Type 6</b></td><td>Hybrid — current and historical attributes both available on the same row.</td><td>Heavy reporting needs that want both "current parent" and "parent at trade date" without a join.</td></tr>
+</tbody>
+</table>
+<p class="small"><b>For CCR specifically:</b> Type 2 (or natural key + as_of_date — see §12) is essential for counterparty and any classification used in regulatory submissions. Pure Type 1 will fail audit on historical positions.</p>
+
+<h3>Late-arriving facts</h3>
+<p>Exposure data for a date may arrive after the date has passed. Trade amendments correct historical bookings. The temporal mismatch matters for downstream metrics.</p>
+<div class="note">A trade booked on 2026-04-30 but loaded into the warehouse on 2026-05-04 needs to be associated with the dimension state on 2026-04-30, not the state on 2026-05-04. This is why dimensions need temporal versioning — and why facts need both <code>valuation_date</code> (when the metric is true) and <code>load_date</code> (when it landed in the warehouse).</div>
+
+<h3>Reference data vs master data vs transactional data</h3>
+<table>
+<thead><tr><th>Type</th><th>Definition</th><th>Update pattern</th><th>CCR examples</th></tr></thead>
+<tbody>
+<tr><td><b>Reference data</b></td><td>Lookup values; standardised codes; rarely changes.</td><td>Slow; coordinated firmwide updates.</td><td>Currency codes, country codes, product type codes, industry classifications (SIC/NAICS).</td></tr>
+<tr><td><b>Master data</b></td><td>Core business entities maintained centrally.</td><td>Steady; SCD applies.</td><td>Counterparty master, legal entity master, instrument master.</td></tr>
+<tr><td><b>Transactional data</b></td><td>Events, measurements, calculated metrics.</td><td>High volume; append-only or versioned.</td><td>Trades, exposures, MtM, sensitivities, breaches.</td></tr>
+</tbody>
+</table>
+
+<div class="note-new"><b>Why this distinction matters for CCR <span class="new-tag">ENRICHMENT</span></b><br>
+Each type has different contract requirements:
+<ul>
+<li><b>Reference data</b> contracts emphasise stability of code values; consumers can't have codes change meaning silently.</li>
+<li><b>Master data</b> contracts emphasise SCD policy; consumers need to know which type they're getting.</li>
+<li><b>Transactional data</b> contracts emphasise grain and aggregation rules; this is where the bulk of §3-§7 applies.</li>
+</ul>
+Mixing these up — treating reference data with the same governance posture as transactional facts, or vice versa — leads to either over-engineered ref data pipelines or under-governed transaction data.</div>
+</div>
+
+
+<!-- =========== §14 — APPENDIX: FROM RAW DATA TO CONSUMABLE DATA PRODUCT (NEW) =========== -->
+<div class="card">
+<h2>14) Appendix — From raw data to a consumable data product <span class="new-tag">NEW APPENDIX</span></h2>
+
+<p>This appendix exists because the terminology in this space is muddy. People use <i>raw table</i>, <i>governed entity</i>, <i>curated dataset</i>, <i>data product</i>, <i>data contract</i>, and <i>semantic layer</i> interchangeably — but they describe different things, often at different stages of maturity. This appendix walks through them with a concrete CCR example so the differences are unambiguous.</p>
+
+
+<h3>14.1 The most important caveat first</h3>
+
+<div class="note-correct"><b>A data product is not necessarily one table.</b><br>
+This is the single most common misconception in the industry. People hear "data product" and picture a single big wide table.<br><br>
+A data product is <b>a governed unit of data with a contract</b>. That unit can be:
+<ul>
+<li>A single table (e.g., <code>fact_exposure</code>)</li>
+<li>A small set of related tables (e.g., the Exposure product = <code>fact_exposure</code> + <code>dim_netting_set</code> + lineage views)</li>
+<li>A subject area or constellation (e.g., the Counterparty Risk product = exposure + limits + collateral facts joined by conformed dimensions)</li>
+<li>A view or virtual layer over physical tables</li>
+<li>A streaming endpoint, an API, or a feature-store entity</li>
+</ul>
+The <i>shape</i> of a data product is whatever delivers the contracted business meaning. The contract is what makes it a product — not the table count.</div>
+
+
+<h3>14.2 The same data through the canonical stages — worked example <span class="new-tag">ALIGNED TO 6 STAGES (v10)</span></h3>
+
+<p>Take a concrete CCR example: counterparty exposure data generated by XVALA for ABC Bank. Watch how the same underlying data evolves through the six canonical stages, and what the consumer experience looks like at each.</p>
+
+<table>
+<thead><tr><th>Stage</th><th>What exists</th><th>Consumer experience</th><th>Status</th></tr></thead>
+<tbody>
+<tr style="background:#fef6f1;">
+  <td><b>① Raw / Landed</b></td>
+  <td><code>creditrisk.xvala.exposure_dump</code> — schema-typed at ingestion. Cryptic columns (cp_name, ns_id, tb, sc, ee_v, pfe_v, val_dt). No documentation. No owner tag. No SLA. Counterparty as <code>"ABC BANK NA"</code> (XVALA's representation).</td>
+  <td>Business writes deep nested SQL guessing column meaning. Asks XVALA team in Slack what columns mean. Cannot join to CMOS collateral or REGDS positions because counterparty representation differs across apps. Brittle. Slow.</td>
+  <td>Raw landed data. Not a product. Not joinable across apps.</td>
+</tr>
+<tr style="background:#fff5d6;">
+  <td><b>② Conformed</b></td>
+  <td>XVALA's <code>"ABC BANK NA"</code>, CMOS's <code>"ABC Bank N.A."</code>, and REGDS's <code>"X-1023"</code> all resolve to the canonical <code>cp_id = 'CP000123'</code> via <code>dim_counterparty</code>. Same applies to currencies, time buckets, trade IDs, risk factors. Lookup tables and mapping rules in place.</td>
+  <td>Cross-app joins now work. Exposure from XVALA can be joined to collateral from CMOS to regulatory positions from REGDS using <code>cp_id</code>. The numbers reconcile.</td>
+  <td>Conformed. Joinable across apps. Identity resolved.</td>
+</tr>
+<tr style="background:#e3fcef;">
+  <td><b>③ Curated</b></td>
+  <td>Conformed atomic data shaped per the CCR domain model — <code>fact_exposure</code> at counterparty + netting set + bucket + scenario grain; <code>cp_risk_summary</code> at counterparty + valuation_date grain (one row per counterparty per date with PFE = MAX, totals computed, breach flag derived).</td>
+  <td>Business can query a clean star schema or read the summary product directly. Counterparty 360 questions can be answered without re-deriving rollups every time.</td>
+  <td>Curated. Modelled. Ready for analytical use — but no contract yet.</td>
+</tr>
+<tr style="background:#e3fcef; border-left:4px solid #006644;">
+  <td><b>④ Data Product (Governed)</b></td>
+  <td>Same curated data plus a <b>data contract</b>: explicit grain, allowed dimensions, blocked dimensions, aggregation rules per metric (PFE non-additive, EE additive within netting set), quality checks, change-management policy, SLA (daily by 06:00), ownership (PG Leader business + DD technical). Tagged in UC. Registered in Collibra. Versioned.</td>
+  <td>Business knows what they're getting and what stability they have. Can build dependent pipelines safely. Still writes their own SQL but knows the rules they have to respect.</td>
+  <td>Data Product. Governed via contract. Optionally <i>Authoritative</i> (formally designated canonical) and/or <i>Certified</i> (validated for regulated use).</td>
+</tr>
+<tr style="background:#cdeed5; border-left:4px solid #006644;">
+  <td><b>⑤ Semantic Layer</b></td>
+  <td>Metric definitions from the contract enforced at query time — in dbt Metric Views or Databricks Metric Views; mirrored in BI tool. <code>SUM(pfe)</code> across counterparties is refused at runtime; <code>MAX(pfe)</code> is allowed. Same definitions across SQL access and BI access — no drift.</td>
+  <td>Business asks questions in BI tool by drag-and-drop. Cannot write a query that violates grain or aggregation rules — the semantic layer refuses. Self-service is safe by default.</td>
+  <td>Semantic enforcement live. Self-service ready.</td>
+</tr>
+<tr style="background:#b8e0c2; border-left:4px solid #006644;">
+  <td><b>⑥ Analytics</b></td>
+  <td>Dashboards (Counterparty 360 dossier showing ABC Bank: PFE $42.1M, limit $50M, status OK), MicroStrategy reports, ad-hoc exploration, regulatory feeds, model inputs.</td>
+  <td>Business consumes trusted insights with confidence. Right answers, safely, repeatably. The point of all the previous stages.</td>
+  <td>In production use. Decision-ready.</td>
+</tr>
+</tbody>
+</table>
+
+<div class="note-new"><b>Where the value-add lands at each transition</b>
+<ul>
+<li><b>① → ② (Raw → Conformed):</b> <b>cross-app joinability.</b> XVALA, CMOS, REGDS data can now answer questions together. Without this, every consumer reinvents the joins (badly).</li>
+<li><b>② → ③ (Conformed → Curated):</b> <b>analytical shape.</b> Data is modelled for use — facts at the right grain, summaries pre-computed where useful. Without this, every consumer re-derives the same calculations.</li>
+<li><b>③ → ④ (Curated → Data Product):</b> <b>trust and stability via contract.</b> Consumers know the rules, the SLA, the change policy, the owner. They can build on it safely. The contract embeds the semantics.</li>
+<li><b>④ → ⑤ (Data Product → Semantic Layer):</b> <b>safe self-service.</b> Wrong queries become impossible — the semantic layer enforces grain and aggregation rules from the contract. Business uses BI tools without risk.</li>
+<li><b>⑤ → ⑥ (Semantic Layer → Analytics):</b> <b>consumption.</b> The point of all the work — decisions get made on trusted numbers.</li>
+</ul>
+Each transition is a separate piece of work delivering a separate kind of value. Skip a stage and you don't deliver that stage's value.</div>
+
+
+<h3>14.3 Governed vs curated vs conformed — three distinct things</h3>
+
+<p>People use these words interchangeably. They are <b>three distinct concepts</b>, each describing a different aspect of the data.</p>
+
+<table>
+<thead><tr><th>Term</th><th>What it means</th><th>What it implies</th></tr></thead>
+<tbody>
+<tr><td><b>Governed</b></td><td>Subject to rules, ownership, change management, quality controls.</td><td>The verb. <i>Someone is responsible. Rules apply. Changes are managed.</i></td></tr>
+<tr><td><b>Curated</b></td><td>Deliberately shaped, selected, refined for a purpose.</td><td>The artifact characteristic. <i>This dataset has been arranged for a use case.</i></td></tr>
+<tr><td><b>Conformed</b></td><td>Aligned to a shared definition across multiple uses or contexts.</td><td>Cross-context agreement. <i>The same entity, same keys, same hierarchies wherever this data is used.</i></td></tr>
+</tbody>
+</table>
+
+<div class="callout">You can have <b>governed but not curated or conformed</b> — a raw landing zone with ownership and access controls but no shaping and no cross-context alignment. Foundation only.<br><br>
+You can have <b>curated but not conformed</b> — a Counterparty 360 view nicely shaped for credit risk, but using a counterparty definition different from how Liquidity defines counterparty. Locally good; globally inconsistent.<br><br>
+You can have <b>conformed but not curated</b> — a <code>dim_counterparty</code> identical across all PG uses, but the raw entity table without consumption-ready arrangement. Aligned but not yet usable for analytics out of the box.<br><br>
+<b>A data product fit for analytics needs all three:</b> conformed (so cross-product joins work), curated (so it's usable for the analytical question), and governed (so consumers can trust and depend on it).</div>
+
+<div class="note-correct"><b>Why each matters in CCR <span class="correct-tag">CONFORMED ADDED</span></b>
+<ul>
+<li><b>Conformed</b> is what makes <code>dim_counterparty</code> usable across XVALA exposure, CMOS collateral, and REGDS agreement facts. Without conformance, the joins don't work or produce wrong answers.</li>
+<li><b>Curated</b> is what makes the Counterparty 360 view answer George's analytics question without him doing manual work.</li>
+<li><b>Governed</b> is what makes consumers trust that the number won't change meaning between today and tomorrow.</li>
+</ul>
+The cheat sheet calls them out separately because conflating them is the source of recurring confusion in cross-team conversations.</div>
+
+
+<h3>14.4 What the data contract actually does</h3>
+
+<p>The contract is not documentation <i>about</i> the data. The contract is what <i>converts</i> a dataset into a product. Without a contract, you have a table. With a contract, you have a product.</p>
+
+<p>Each section of the contract changes a specific aspect of the data's status:</p>
+
+<table>
+<thead><tr><th>Contract section</th><th>What it changes about the data's status</th><th>Without it...</th></tr></thead>
+<tbody>
+<tr><td><b>Meaning / business definition</b></td><td>Establishes what the data <i>represents</i> in business terms.</td><td>Consumers guess. Two consumers may interpret the same column differently.</td></tr>
+<tr><td><b>Grain</b></td><td>Defines the level at which numbers are mathematically valid.</td><td>Aggregations silently produce wrong answers (e.g., summing PFE across netting sets).</td></tr>
+<tr><td><b>Allowed dimensions</b></td><td>Says which slicings are safe.</td><td>Consumers slice in ways the data doesn't support.</td></tr>
+<tr><td><b>Blocked / cautioned dimensions</b></td><td>Says which slicings will produce wrong results.</td><td>Wrong slicings happen and look correct.</td></tr>
+<tr><td><b>Aggregation rule</b></td><td>Says SUM, MAX, percentile, engine-only, etc.</td><td>Consumers default to SUM. PFE summed = wrong number, presented as fact.</td></tr>
+<tr><td><b>Quality checks</b></td><td>Defines what "valid" means and what tests prove it.</td><td>Bad data flows through silently. No way to know if it's right.</td></tr>
+<tr><td><b>SLA</b></td><td>Commits to refresh frequency, latency, availability.</td><td>Consumers can't plan. May build pipelines on data that arrives unpredictably.</td></tr>
+<tr><td><b>Ownership</b></td><td>Names a responsible party.</td><td>No one to ask. No one accountable for fixes.</td></tr>
+<tr><td><b>Change management</b></td><td>Commits to notice periods for breaking changes.</td><td>Schemas change without warning. Downstream pipelines break.</td></tr>
+<tr><td><b>Versioning</b></td><td>Tags the contract version so consumers know which definition they're reading.</td><td>Definitions drift silently. "PFE" today may not mean "PFE" yesterday.</td></tr>
+</tbody>
+</table>
+
+<div class="note-correct"><b>The contract changes context, not just metadata</b><br>
+Adding a contract is not "adding metadata to a table." It's asserting that the data <i>behaves according to defined rules</i>. The data product status is a <i>commitment</i> by the producer, enforced by the contract, expressed through tooling (Unity Catalog tags, Collibra registration, semantic layer rules), and consumed with confidence by the downstream user.</div>
+
+
+<h3>14.5 Mapping the contract to Unity Catalog</h3>
+
+<p>The contract is a logical artifact. To be enforceable, it has to be expressed in tooling. In Databricks, that means Unity Catalog. Each contract section maps to a UC feature:</p>
+
+<table>
+<thead><tr><th>Contract section</th><th>Unity Catalog feature</th><th>Mechanism</th></tr></thead>
+<tbody>
+<tr><td><b>Meaning / business definition</b></td><td>Table comment, column comment</td><td><code>COMMENT ON TABLE</code>, <code>COMMENT ON COLUMN</code></td></tr>
+<tr><td><b>Grain</b></td><td>Tag + table property</td><td><code>ALTER TABLE ... SET TAGS ('grain' = 'counterparty+netting_set+time_bucket+scenario+date')</code></td></tr>
+<tr><td><b>Allowed dimensions</b></td><td>Tag</td><td><code>SET TAGS ('allowed_dims' = 'counterparty,netting_set,time_bucket,scenario,date')</code></td></tr>
+<tr><td><b>Blocked / cautioned dimensions</b></td><td>Tag</td><td><code>SET TAGS ('blocked_dims' = 'product,trade')</code></td></tr>
+<tr><td><b>Aggregation rule</b></td><td>Tag — referenced by semantic layer</td><td><code>SET TAGS ('aggregation' = 'non_additive_percentile')</code></td></tr>
+<tr><td><b>Quality checks</b></td><td>Constraints; DQ tests; Lakehouse Monitoring</td><td><code>ALTER TABLE ... ADD CONSTRAINT pfe_non_negative CHECK (pfe &gt;= 0)</code> + scheduled DQ tests</td></tr>
+<tr><td><b>SLA</b></td><td>Tag + monitoring</td><td><code>SET TAGS ('refresh_sla' = 'daily_by_06:00_EST', 'availability_target' = '99.5')</code></td></tr>
+<tr><td><b>Ownership</b></td><td>Owner property + tag</td><td><code>ALTER TABLE ... OWNER TO `risk_data_team`</code></td></tr>
+<tr><td><b>Change management</b></td><td>Tag</td><td><code>SET TAGS ('change_policy' = 'breaking_60d_additive_14d')</code></td></tr>
+<tr><td><b>Versioning</b></td><td>Tag</td><td><code>SET TAGS ('contract_version' = '1.2.0', 'last_changed' = '2026-04-15')</code></td></tr>
+<tr><td><b>Product type</b></td><td>Tag (atomic / curated / reporting)</td><td><code>SET TAGS ('product_type' = 'atomic_primary')</code></td></tr>
+<tr><td><b>Catalog registration</b></td><td>Collibra (business catalog) + UC (technical catalog)</td><td>Sync from UC tags to Collibra; bidirectional reference</td></tr>
+</tbody>
+</table>
+
+<div class="note-new"><b>Worked example — Exposure product contract expressed in UC SQL</b>
+<div class="code">-- Make the table itself recognised as a data product
+ALTER TABLE riskwh.gold.fact_exposure SET TAGS (
+  'data_product'         = 'true',
+  'product_name'         = 'CCR Exposure',
+  'product_type'         = 'atomic_primary',
+  'contract_version'     = '1.2.0',
+  'owner_team'           = 'risk_data_platform',
+  'grain'                = 'counterparty+netting_set+time_bucket+scenario+date',
+  'allowed_dims'         = 'counterparty,netting_set,time_bucket,scenario,date',
+  'blocked_dims'         = 'product,trade',
+  'aggregation_pfe'      = 'non_additive_percentile',
+  'aggregation_ee'       = 'sum_with_rules',
+  'refresh_sla'          = 'daily_by_06:00_EST',
+  'change_policy'        = 'breaking_60d_additive_14d',
+  'collibra_ref'         = 'CCR-EXP-001'
+);
+
+-- Business meaning at table level
+COMMENT ON TABLE riskwh.gold.fact_exposure IS
+  'CCR exposure metrics (EE, PFE, stressed PFE) at counterparty + netting set + ' ||
+  'time bucket + scenario grain. Use only the official engine output for PFE; ' ||
+  'do not aggregate PFE across netting sets without approved allocation logic. ' ||
+  'See Collibra CCR-EXP-001 for full contract.';
+
+-- Quality constraint
+ALTER TABLE riskwh.gold.fact_exposure ADD CONSTRAINT pfe_non_negative
+  CHECK (pfe &gt;= 0);
+
+ALTER TABLE riskwh.gold.fact_exposure ADD CONSTRAINT pfe_ge_ee_same_grain
+  CHECK (pfe &gt;= ee);
+
+-- Owner
+ALTER TABLE riskwh.gold.fact_exposure OWNER TO `risk_data_platform`;</div>
+</div>
+
+
+<h3>14.6 The progression — raw to consumption, end to end <span class="new-tag">CANONICAL 6 STAGES (v10)</span></h3>
+
+<p>The data progression is <b>six canonical stages</b>. Each stage builds on the previous; skip a stage and the data isn't ready for what later stages assume. <b>Authoritative</b> and <b>Certified</b> are <i>attributes</i> a Data Product can have — they are not separate stages on this progression.</p>
+
+<table>
+<thead><tr><th>Step</th><th>Stage</th><th>What it adds</th><th>Brief</th></tr></thead>
+<tbody>
+<tr><td>① </td><td><b>Raw / Landed</b></td><td>The data lands, schema-typed at ingestion.</td><td>Risk-generated data lands in the app schema. Schema is applied at ingestion (no JSON blobs left around). Duplicates and obvious quality issues handled in the same job. Bronze in medallion terms. <i>Note: in older 7-stage models, this combined "Raw" and "Cleansed/Standardised" — modern lakehouse ingestion does both at once, so we collapse them here.</i></td></tr>
+<tr><td>② </td><td><b>Conformed</b></td><td>Identity resolution + shared definitions across apps.</td><td>The same real-world thing — same counterparty, same trade, same currency, same time bucket — means the same thing wherever it appears. <b>Example:</b> XVALA records a counterparty as <code>"ABC BANK NA"</code>; CMOS records the same legal entity as <code>"ABC Bank N.A."</code>; REGDS uses internal code <code>"X-1023"</code>. Conformance creates one canonical <code>cp_id = 'CP000123'</code> and maps all three back to it. Now exposure from XVALA can be joined to collateral from CMOS to regulatory positions from REGDS — and the answer is correct. Same applies to currencies, time buckets, risk factors, trade IDs. Silver layer.</td></tr>
+<tr><td>③ </td><td><b>Curated</b></td><td>Shaped per a domain model — modelled, joined, aggregated for analytical use.</td><td>This is where the domain models come in. The conformed data exists at its native grain; curation reshapes it for consumption — aggregating to a summary grain, joining facts across domains, applying business rules (breach flag = 1 if PFE &gt; limit), choosing the dimensional model (star schema vs OBT vs 360). Curation is the act of building the actual data artifact against the model. Gold layer.</td></tr>
+<tr><td>④ </td><td><b>Data Product (Governed)</b></td><td>Curated data + a contract.</td><td>The contract <b>embeds the semantics</b>: grain (what one row means), aggregation rules per metric (additive / non-additive / percentile), allowed and blocked dimensions, SLA, ownership, change policy, version. Tagged in Unity Catalog; registered in Collibra. The data is now a <i>product</i> consumers can depend on. <b>Authoritative</b> and <b>Certified</b> are attributes a product can have — Authoritative means formally designated as canonical for a class of decisions; Certified means validated for regulated use (model inputs, regulatory submissions). These are attributes, not separate stages.</td></tr>
+<tr><td>⑤ </td><td><b>Semantic Layer</b></td><td>Rules from the contract enforced at query time.</td><td>The contract specifies that PFE is non-additive across counterparties. The semantic layer is where that rule stops being documentation and becomes a runtime block: <code>SUM(pfe)</code> across counterparties is refused; <code>MAX(pfe)</code> is allowed. Implemented in dbt Metric Views, Databricks Metric Views, or BI-tool semantic models; ideally one source of truth with the BI tool mirroring it. Star schemas <i>require</i> a separate semantic layer — the schema itself doesn't carry the rules.</td></tr>
+<tr><td>⑥ </td><td><b>Analytics</b></td><td>Consumption.</td><td>Dashboards, MicroStrategy dossiers, ad-hoc exploration, regulatory feeds, model inputs. Right answers, safely, repeatably. The point of the previous five stages.</td></tr>
+</tbody>
+</table>
+
+<div class="note-correct"><b>The progression is not optional — you skip stages at your peril</b>
+<ul>
+<li>Skip ② (Conformed) → cross-product joins don't work; XVALA counterparty doesn't match CMOS counterparty; numbers are wrong silently.</li>
+<li>Skip ③ (Curated) → consumers do the shaping themselves repeatedly; Counterparty 360 gets reinvented per use case; logic isn't shared.</li>
+<li>Skip ④ (Data Product / Governed) → no SLA, no change policy, no accountability; pipelines break unpredictably; consumers can't depend on it.</li>
+<li>Skip ⑤ (Semantic Layer) → consumers write unsafe queries; PFE gets summed; numbers are mathematically meaningless.</li>
+</ul>
+Each stage is a separate piece of work and delivers a separate value. The DD's role is to drive the progression — not just to deliver one stage and call it done.</div>
+
+<div class="note-new"><b>Where each stage typically lives in the lakehouse <span class="new-tag">MEDALLION MAPPING</span></b>
+<ul>
+<li><b>Stage ① — Raw / Landed</b> → Bronze layer (app schemas; CDC landings; raw drops; schema-typed at ingestion)</li>
+<li><b>Stage ② — Conformed</b> → Silver layer (canonical dimensions, mapping tables, identity resolution)</li>
+<li><b>Stage ③ — Curated</b> → Gold layer (star schemas, 360 views, OBT — modelled per the domain model)</li>
+<li><b>Stage ④ — Data Product (Governed)</b> → Gold + UC tags + Collibra registration (the contract wrapper around curated data)</li>
+<li><b>Stage ⑤ — Semantic Layer</b> → On top of Gold (dbt Metrics / Databricks Metric Views / BI-tool mirror)</li>
+<li><b>Stage ⑥ — Analytics</b> → Consumption layer (dashboards, BI tools, regulatory feeds)</li>
+</ul></div>
+
+<div class="callout"><b>What about Trusted / Authoritative / Certified?</b><br><br>
+In v9 these were stages ⑥ on the progression. In v10 they are <b>attributes</b> a Data Product (stage ④) can have, not separate stages. The reasoning:
+<ul>
+<li><b>Governed</b> is binary — a dataset either has a contract or it doesn't.</li>
+<li><b>Trusted</b> is a cultural attribute that builds over time through use; not a milestone.</li>
+<li><b>Authoritative</b> is a formal organisational designation — applied <i>to</i> a Data Product.</li>
+<li><b>Certified</b> is a validation attribute (often regulatory or model-risk) — also applied <i>to</i> a Data Product.</li>
+</ul>
+A new Data Product is <i>governed</i> on day 1. It becomes <i>trusted</i> after months of stable use. It becomes <i>authoritative</i> when a governance body formally designates it. It becomes <i>certified</i> after model risk validates it for regulated use. None of these are stages in the sense of "data flowing forward" — they are properties accumulating on the same artifact.</div>
+
+
+<h3>14.7 The value-add summary — three independent things</h3>
+
+<p>When someone asks <i>"What does a data product give me that a raw table doesn't?"</i> — the honest answer is three things, each of which is independent of the others:</p>
+
+<div class="grid3">
+<div class="box"><h4>1. Reusability</h4>
+<p>A canned query solves one question. A data product is a building block. Build it once, answer many questions.</p>
+<p class="small"><i>Without:</i> every new question reinvents the data wrangling.</p>
+</div>
+
+<div class="box blue"><h4>2. Trust and stability</h4>
+<p>The contract commits to grain, schema stability, change-management notice, quality checks. Consumers can build on top safely.</p>
+<p class="small"><i>Without:</i> pipelines break silently. No one to ask. No SLA.</p>
+</div>
+
+<div class="box gold"><h4>3. Safe self-service</h4>
+<p>The semantic layer enforces grain and aggregation rules. Wrong queries become impossible. BI users get drag-and-drop with guardrails.</p>
+<p class="small"><i>Without:</i> business users write unsafe queries. PFE gets summed. Numbers are wrong, presented as truth.</p>
+</div>
+</div>
+
+<div class="note-new"><b>Three independent value-adds — and the cost of conflating them</b><br>
+A "data product" that gives you only #1 (reusability) without #2 (trust) is just a shared view. A product that gives #1 + #2 without #3 (semantic enforcement) leaves consumers free to make grain mistakes. A product that gives all three is what consumers actually need — and it requires all three workstreams (governance, contracts, semantic layer) to deliver.<br><br>
+<b>Many things called "data products" in industry deliver only one of these three.</b> When designing the TDS Risk data product portfolio, be explicit about which value-adds each product delivers — and which still need work.</div>
+
+
+<h3>14.8 Terminology glossary — bucketed</h3>
+
+<p>The data-warehousing/data-product space has a lot of terminology that overlaps. This glossary buckets every term into the right category and calls out aliases explicitly, so when someone uses one of these words you know exactly what they mean and what bucket it lives in.</p>
+
+<h4>Bucket A — Stage terms (where in the progression)</h4>
+<p>These describe <i>where in the 7-stage progression</i> the data sits.</p>
+<table>
+<thead><tr><th>Term</th><th>Stage</th><th>Meaning</th><th>Aliases / notes</th></tr></thead>
+<tbody>
+<tr><td><b>Raw</b></td><td>①</td><td>Data as it lands. No quality fixes, no shaping.</td><td>Aliases: <i>landed</i>, <i>ingested</i>, <i>bronze</i> (medallion)</td></tr>
+<tr><td><b>Cleansed</b></td><td>②</td><td>Quality issues fixed (duplicates, nulls, format errors).</td><td>Aliases: <i>cleaned</i>, <i>scrubbed</i>, <i>purified</i></td></tr>
+<tr><td><b>Standardised</b></td><td>②</td><td>Values aligned to common formats and taxonomies (ISO codes, etc.).</td><td>Sometimes folded under "cleansed"; technically distinct.</td></tr>
+<tr><td><b>Normalised</b></td><td>② / ③</td><td>Structured to eliminate redundancy (3NF, BCNF). A modelling discipline.</td><td>Different from "standardised" (values) — normalisation is structural.</td></tr>
+<tr><td><b>Reconciled</b></td><td>② / ③</td><td>Discrepancies between sources resolved (e.g., XVALA value vs CMOS-derived value).</td><td>Critical for regulatory data products; less central for analytical-only products.</td></tr>
+<tr><td><b>Conformed</b></td><td>③</td><td>Aligned to a shared definition across multiple uses or contexts. Same entity, same keys, same hierarchies wherever used.</td><td>From Kimball's bus architecture. <i>Not</i> an alias for curated.</td></tr>
+<tr><td><b>Harmonised</b></td><td>③</td><td>Made compatible across systems (e.g., XVALA's <code>cp_id</code> mapped to a single business identifier). The act of getting to conformance.</td><td>Sometimes used as a synonym for conformed; technically harmonisation is the verb, conformance is the result.</td></tr>
+<tr><td><b>Enriched</b></td><td>③</td><td>Augmented with derived attributes or external data (LEI added, industry classification added, parent hierarchy added).</td><td>Different from curated — enrichment <i>adds</i> attributes; curation <i>arranges</i> them.</td></tr>
+<tr><td><b>Curated</b></td><td>④</td><td>Deliberately shaped, joined, denormalised for an analytical purpose.</td><td><i>Not</i> an alias for governed or conformed.</td></tr>
+<tr><td><b>Governed</b></td><td>⑤</td><td>Subject to rules, contract, ownership, change management.</td><td>Status that converts a curated dataset into a data product.</td></tr>
+<tr><td><b>Trusted / Authoritative</b></td><td>⑥</td><td>Formally designated as canonical for a class of decisions.</td><td>Aliases: <i>source-of-truth</i> (sometimes), <i>golden source</i>. Higher tier than just "governed."</td></tr>
+<tr><td><b>Certified</b></td><td>⑥+</td><td>Approved for regulatory use; model-risk reviewed; validated.</td><td>Sub-tier of Trusted. Not all banks distinguish; some treat as alias.</td></tr>
+</tbody>
+</table>
+
+<h4>Bucket B — Status / lifecycle attributes (independent of stage)</h4>
+<p>These are <i>attributes that can apply to any stage</i> — they describe <i>how</i> the data is managed, not where it sits in the progression.</p>
+<table>
+<thead><tr><th>Term</th><th>Meaning</th><th>Aliases / notes</th></tr></thead>
+<tbody>
+<tr><td><b>Discoverable</b></td><td>Findable in the catalog (Unity Catalog, Collibra) with searchable metadata.</td><td>An attribute, not a stage. A data product can exist but not yet be discoverable.</td></tr>
+<tr><td><b>Observable</b></td><td>Monitored — quality, freshness, lineage instrumented in real time.</td><td>Modern data engineering term. Distinct from governed: governed = rules apply; observable = you can <i>see</i> if rules are being met.</td></tr>
+<tr><td><b>Versioned</b></td><td>Has explicit version history — schema, content, contract.</td><td>Critical for reproducibility and regulatory audit.</td></tr>
+<tr><td><b>Lineage-tracked</b></td><td>Upstream and downstream relationships explicitly captured.</td><td>Often a sub-aspect of observable; called out separately because it's specifically about provenance.</td></tr>
+</tbody>
+</table>
+
+<h4>Bucket C — Usage / deployment attributes</h4>
+<p>These describe <i>how the data is made available</i> for consumption — they apply on top of any stage.</p>
+<table>
+<thead><tr><th>Term</th><th>Meaning</th><th>Aliases / notes</th></tr></thead>
+<tbody>
+<tr><td><b>Federated</b></td><td>Available across platforms via federation (e.g., CDM in Cloudera/Dremio readable from Databricks via Iceberg federation, without copying).</td><td>Distinct from co-located. Doesn't change what stage the data is at — only how consumers reach it.</td></tr>
+<tr><td><b>Materialised</b></td><td>Physically stored as a result table (vs computed on-demand).</td><td>A performance/cost choice, not a stage.</td></tr>
+<tr><td><b>Virtual</b></td><td>Computed at query time as a view; no physical storage of the result.</td><td>Opposite of materialised.</td></tr>
+<tr><td><b>Replicated</b></td><td>Physically copied to another location for performance or sovereignty.</td><td>Different from federated (federated = not copied).</td></tr>
+<tr><td><b>Streaming-enabled</b></td><td>Available with low-latency updates via change feed or streaming reads.</td><td>Applies to high-velocity data products.</td></tr>
+<tr><td><b>API-exposed</b></td><td>Available via REST/gRPC API in addition to (or instead of) SQL.</td><td>Common for operational/real-time data products.</td></tr>
+<tr><td><b>Deprecated</b></td><td>End-of-life signalled; consumers should migrate.</td><td>A lifecycle endpoint. Every data product needs a deprecation policy as much as a creation policy.</td></tr>
+</tbody>
+</table>
+
+<h4>Bucket D — Aliases that mean the same thing</h4>
+<p>When two terms genuinely mean the same thing in industry, they should be treated as aliases.</p>
+<table>
+<thead><tr><th>Term</th><th>Alias for</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><b>Source of truth</b></td><td>Trusted / Authoritative (loosely)</td><td>"Source of truth" is colloquial; "authoritative" is the formal term. Often used interchangeably.</td></tr>
+<tr><td><b>Golden source</b></td><td>Trusted / Authoritative (in financial services)</td><td>Common in banking; means the same as authoritative.</td></tr>
+<tr><td><b>Single version of truth (SVOT)</b></td><td>Conformed (loosely) + Authoritative</td><td>Marketing term that combines two real concepts; not technically precise.</td></tr>
+<tr><td><b>Cleansed / cleaned / scrubbed / purified</b></td><td>Cleansed</td><td>All used interchangeably; "cleansed" is the most common.</td></tr>
+<tr><td><b>Galaxy schema / fact constellation</b></td><td>Galaxy schema</td><td>Same architectural pattern; see §2.</td></tr>
+<tr><td><b>Bronze / Silver / Gold</b></td><td>Medallion layers</td><td>Lakehouse/Databricks-specific naming for stages ① / ② + ③ / ④ + ⑤ respectively.</td></tr>
+<tr><td><b>Conformed dimension / shared dimension / common dimension</b></td><td>Conformed dimension</td><td>"Shared" and "common" are colloquial; "conformed" is the Kimball term.</td></tr>
+<tr><td><b>Master data / reference data</b></td><td>Different things — see §13</td><td>Often confused but distinct. Master = entities (counterparty); Reference = lookup codes (currency).</td></tr>
+</tbody>
+</table>
+
+<div class="note-correct"><b>Why bucket the terminology this way <span class="correct-tag">PRACTICAL</span></b>
+<ul>
+<li><b>Bucket A (stages)</b> answers: <i>"Where is this data in the progression?"</i></li>
+<li><b>Bucket B (status attributes)</b> answers: <i>"How is this data managed?"</i></li>
+<li><b>Bucket C (usage attributes)</b> answers: <i>"How is this data made available?"</i></li>
+<li><b>Bucket D (aliases)</b> prevents two terms being treated as if they're different concepts when they're the same thing.</li>
+</ul>
+When someone says "we have a federated, observable, governed, conformed, curated data product" — they're saying the data is at stage ⑤ in the progression (governed/data product), arranged in stages ③ and ④ (conformed and curated), with status attributes (observable) and usage attributes (federated). All four can be true simultaneously and describe different things.</div>
+
+</div>
+
+
+
+<!-- =========== §15 — WORKED EXAMPLE: GEORGE'S CCR ASK (NEW) =========== -->
+<div class="card">
+<h2>15) Worked example — George's CCR analytics ask <span class="new-tag">NEW SECTION v9</span></h2>
+
+<p>This section walks through a real, concrete request and shows how the layered architecture from §10.5 actually serves it. It is the longest worked example in this cheat sheet because the request is the most realistic — it touches almost every concept in the document.</p>
+
+<h3>15.1 The request — what George wants</h3>
+<p>George (Group Manager, Counterparty Credit Risk) wants a single counterparty inquiry experience. He types <i>ABC Bank</i> and expects to see:</p>
+<ul>
+<li>Counterparty profile — name, LEI, industry classification (NBFI / Bank / Hedge Fund / Corporate / SSA / FMTA), parent entity, ratings</li>
+<li>Trade list at trade grain — with MtM, notional, product type, underlying, trading desk</li>
+<li>Exposure metrics — EE, PFE, stressed PFE — with drill-down by netting set, time bucket, scenario</li>
+<li>Sensitivities — CS01 by trade, by risk factor, by tenor</li>
+<li>Collateral — IA, VM, IM (differentiated), by agreement</li>
+<li>Stress testing — exposure under defined stress scenarios</li>
+<li>Limits and breach status — comparator against PFE</li>
+<li>CVA and CVA CS01 — at counterparty grain</li>
+<li>Trending — YTD, QoQ, MoM, DoD movement on the headline metrics</li>
+<li>Watchlist signals — top exposures, breach proximity, day-over-day movers</li>
+</ul>
+
+<h3>15.2 The grain mapping — what each piece naturally lives at</h3>
+<p>Before designing anything, map every requested item to its natural grain. This is the single most important step.</p>
+<table>
+<thead><tr><th>What George wants</th><th>Natural grain</th><th>Approx. rows per counterparty</th><th>Aggregation behaviour</th></tr></thead>
+<tbody>
+<tr><td>Counterparty profile</td><td>counterparty (1 row)</td><td>1</td><td>N/A — descriptive</td></tr>
+<tr><td>Trade list with MtM</td><td>trade + valuation_date</td><td>hundreds to thousands</td><td>SUM (notional, MtM)</td></tr>
+<tr><td>Trade-level sensitivities</td><td>trade + risk_factor + tenor + valuation_date</td><td>thousands to tens of thousands</td><td>SUM (CS01)</td></tr>
+<tr><td>Exposure (EE / PFE)</td><td>counterparty + netting_set + time_bucket + scenario + valuation_date</td><td>hundreds</td><td>EE: SUM with rules; PFE: non-additive percentile</td></tr>
+<tr><td>Stressed exposure (per scenario)</td><td>netting_set + scenario + time_bucket + valuation_date</td><td>hundreds to thousands</td><td>Non-additive; controlled aggregation</td></tr>
+<tr><td>Collateral (IA / VM / IM)</td><td>counterparty + agreement + collateral_type + as_of_date</td><td>tens</td><td>SUM at agreement level; preserve type distinction</td></tr>
+<tr><td>CVA, CVA CS01</td><td>counterparty + valuation_date (CVA); + risk_factor + tenor (CVA CS01)</td><td>1 to hundreds</td><td>SUM at approved levels</td></tr>
+<tr><td>Limits and breach</td><td>counterparty + facility + limit_type + effective_date</td><td>tens</td><td>Comparator; do not sum</td></tr>
+<tr><td>Trending (YTD/QoQ/MoM/DoD)</td><td>counterparty + valuation_date series</td><td>365 (one year of daily snapshots)</td><td>Time-series operations on summary metrics</td></tr>
+</tbody></table>
+
+<h3>15.3 The wide-table fallacy — why "one big CP_360 table" doesn't work</h3>
+
+<div class="note-correct"><b>The natural temptation</b><br>
+The first instinct is: "let's build one wide table — Counterparty 360 — that has everything George wants in it. One row per counterparty. Easy to query, easy to dashboard."<br><br>
+This doesn't work. Here's why, in concrete terms.</div>
+
+<p>If you tried to build a single CP_360 wide table, you'd have to choose one grain for the table. Three options exist; all are bad.</p>
+
+<table>
+<thead><tr><th>Choice of grain</th><th>What happens</th><th>Why it fails</th></tr></thead>
+<tbody>
+<tr><td><b>Trade-level</b><br>(trade + valuation_date)</td><td>Each row is a trade. Exposure metrics (which live at netting-set grain) get duplicated across every trade in the netting set. Collateral (which lives at agreement grain) gets duplicated across every trade in the agreement.</td><td>Summing PFE across the table multiplies it by the number of trades per netting set. Summing collateral multiplies it by the number of trades per agreement. <b>The numbers are wrong — silently and badly.</b></td></tr>
+<tr><td><b>Netting-set-level</b><br>(counterparty + netting_set + valuation_date)</td><td>Each row is a netting set. Loses trade-level detail. Sensitivities (per trade, per risk factor) can no longer be represented. CS01 can no longer be sliced by tenor or risk factor.</td><td>George loses the trade and sensitivity drill-down he explicitly asked for. The "see trades for ABC Bank" experience is broken.</td></tr>
+<tr><td><b>Counterparty-level</b><br>(counterparty + valuation_date)</td><td>Each row is one counterparty per date. Loses netting-set, trade, sensitivity, scenario detail entirely. Just a summary.</td><td>The "summary" is genuinely useful (this is Layer 1, in fact) — but it isn't a 360. It's just a summary, with no drill-down. George can see "ABC Bank, total PFE = $40M" but can't answer "which netting set, which scenario, which trade is driving that?"</td></tr>
+</tbody>
+</table>
+
+<div class="callout"><b>The conclusion</b><br>
+There is no single grain that supports George's full ask. Therefore there is no single wide table that can be CP_360. <b>The "360" is necessarily a layered architecture, not a wide table.</b></div>
+
+<h3>15.4 The correct architecture — three layers</h3>
+
+<p>The architecture that actually serves George's ask:</p>
+
+<table>
+<thead><tr><th>Layer</th><th>What it is</th><th>Grain</th><th>What lives here</th></tr></thead>
+<tbody>
+<tr style="background:#e3fcef;"><td><b>Layer 1 — Summary</b></td><td>One curated data product: <code>cp_risk_summary</code></td><td>counterparty + valuation_date (1 row per CP per date)</td><td>Pre-aggregated headline metrics: profile, total notional, total MtM, IA/VM/IM totals, PFE (max across buckets), CVA, limit, breach flag, trade count, top movers</td></tr>
+<tr style="background:#fff5d6;"><td><b>Layer 2 — Atomic drill-down products</b></td><td>Seven atomic products: trades, exposure, valuation, sensitivities, collateral, stress, limits</td><td>Each at native grain (see §15.2 table)</td><td>Full detail at each grain. Linked by counterparty_id (and as appropriate, valuation_date, netting_set_id, agreement_id)</td></tr>
+<tr style="background:#deebff;"><td><b>Layer 3 — BI orchestration</b></td><td>The dashboard / dossier in MicroStrategy (or other BI tool)</td><td>N/A — orchestration layer, not a data layer</td><td>Lays out summary panel + tabs that drill into Layer 2 atomic products. Filters everything by selected counterparty.</td></tr>
+</tbody>
+</table>
+
+<h3>15.5 The user experience that delivers George's ask</h3>
+
+<p>George opens the dossier, types <i>ABC Bank</i>. The BI tool does this:</p>
+
+<ol>
+<li><b>Loads Layer 1 instantly.</b> One row from <code>cp_risk_summary</code> populates the top of the dossier — name, profile, headline metrics, breach status, trend sparklines.</li>
+<li><b>Renders tabs.</b> Trades / Exposure / Sensitivities / Collateral / Stress / Limits / CVA. Each tab is initially empty (lazy-loaded).</li>
+<li><b>User clicks Trades tab.</b> BI loads <code>fact_trade WHERE counterparty_id = 'ABC'</code> — gets ~500 trade rows. Shows them in a grid with MtM, notional, product, underlying.</li>
+<li><b>User clicks Exposure tab.</b> BI loads <code>fact_exposure WHERE counterparty_id = 'ABC'</code> — gets ~200 rows (netting-set × time-bucket × scenario). Shows EE/PFE chart and table.</li>
+<li><b>User clicks Sensitivities tab.</b> BI loads <code>fact_sensitivities WHERE counterparty_id = 'ABC'</code> — gets ~5,000 rows. Pre-aggregates by risk_factor + tenor in the chart; allows drill to trade level on demand.</li>
+<li><b>User clicks Collateral tab.</b> BI loads <code>fact_collateral WHERE counterparty_id = 'ABC'</code> — gets ~10 rows. Shows IA/VM/IM split by agreement.</li>
+<li><b>User clicks Stress tab.</b> BI loads <code>fact_stress WHERE counterparty_id = 'ABC'</code> — gets ~300 rows (scenario × netting-set × bucket). Shows stressed exposure under each scenario.</li>
+<li><b>User clicks Limits tab.</b> BI loads <code>fact_limits WHERE counterparty_id = 'ABC'</code> — gets ~5 rows. Shows limits and current utilisation.</li>
+</ol>
+
+<div class="note-new"><b>Why this works <span class="new-tag">KEY POINT</span></b>
+<ul>
+<li>Each tab loads only what the user asks for — no Cartesian explosion.</li>
+<li>Each tab respects the natural grain of its source — no wrong aggregations.</li>
+<li>The user perceives one unified "ABC Bank" experience — the orchestration is the magic.</li>
+<li>The summary loads in milliseconds; the detail loads only when needed.</li>
+<li>Each Layer 2 product can be developed, governed, and SLA'd independently.</li>
+</ul></div>
+
+<h3>15.6 Specific worked grains and aggregations</h3>
+
+<p>Three concrete examples of how the semantic layer enforces correct behaviour across the layered architecture:</p>
+
+<h4>Example A — Total PFE for ABC Bank</h4>
+<p><b>From Layer 1:</b> <code>SELECT pfe FROM cp_risk_summary WHERE counterparty_id = 'ABC' AND valuation_date = '2026-05-04';</code> returns one number — the pre-baked MAX across time buckets and netting sets, computed according to the documented rule. Fast, simple, contracted.</p>
+<p><b>From Layer 2:</b> If the user wants to see PFE by netting set or by time bucket, the Exposure tab queries <code>fact_exposure</code> at native grain and the semantic layer enforces the rules — for instance, refusing to sum PFE across netting sets without approved allocation.</p>
+
+<h4>Example B — Collateral by type for ABC Bank</h4>
+<p><b>From Layer 1:</b> Headline shows <code>total_ia</code>, <code>total_vm</code>, <code>total_im</code> separately. The contract makes the type distinction explicit; never combined into a single "collateral" number.</p>
+<p><b>From Layer 2:</b> Collateral tab queries <code>fact_collateral</code> showing breakdown by agreement and type. Aggregations done in the tab respect the type distinction.</p>
+
+<h4>Example C — CS01 by tenor for ABC Bank</h4>
+<p><b>From Layer 1:</b> Total CS01 (summed across trades and tenors) appears as a headline number.</p>
+<p><b>From Layer 2:</b> Sensitivities tab queries <code>fact_sensitivities</code>. Chart aggregates SUM(CS01) by tenor — semantic layer permits this because CS01 is additive. Tab also supports drill to trade-and-risk-factor level.</p>
+
+<h3>15.7 Where the cheat-sheet concepts land in this example</h3>
+
+<table>
+<thead><tr><th>Cheat-sheet concept</th><th>Where it shows up in George's ask</th></tr></thead>
+<tbody>
+<tr><td><b>Grain (§3)</b></td><td>The grain mapping table in §15.2 is the foundation. Without it, the wide-table fallacy is inevitable.</td></tr>
+<tr><td><b>Galaxy schema (§2)</b></td><td>The seven Layer 2 atomic products together form a galaxy — multiple facts sharing conformed dimensions (counterparty, netting_set, agreement, valuation_date).</td></tr>
+<tr><td><b>Conformed dimensions (§14.3)</b></td><td>For drill-down to work, every Layer 2 product must agree on what counterparty_id means, what netting_set_id means, what agreement_id means.</td></tr>
+<tr><td><b>Three-way data product taxonomy (§4)</b></td><td>cp_risk_summary is curated/360. The seven Layer 2 products are atomic primary. There may also be a regulatory/operational version (e.g., daily SA-CCR feed) — a third type.</td></tr>
+<tr><td><b>Data contracts (§5)</b></td><td>Each of the eight products needs a contract. The summary's contract documents which aggregations are pre-baked (e.g., "PFE = MAX across time buckets, scenarios using max envelope rule").</td></tr>
+<tr><td><b>Semantic layer (§6)</b></td><td>Enforces aggregation rules within each tab. Refuses unsafe operations (e.g., summing PFE across netting sets without allocation).</td></tr>
+<tr><td><b>Safe vs unsafe queries (§10.2 vs §10.3)</b></td><td>The aggregate-then-combine pattern from §10.3 is exactly what each tab's queries do — never row-joining facts at different grains.</td></tr>
+</tbody>
+</table>
+
+<div class="note-correct"><b>Bottom line for George <span class="correct-tag">SUMMARY</span></b><br>
+George's "show me ABC Bank" ask cannot be served by a single wide table. It requires:
+<ul>
+<li>One curated <b>summary</b> data product at counterparty grain (Layer 1)</li>
+<li>Seven <b>atomic</b> data products at their native grains (Layer 2)</li>
+<li>A BI <b>orchestration</b> layer that ties them together as a single user experience (Layer 3)</li>
+</ul>
+This is the architecturally correct pattern. It also happens to be how every counterparty risk dashboard at every major bank is built. The summary loads instantly; the drill-down is on demand; the grain is preserved end to end.</div>
+</div>
+
+
+
+<div class="card">
+<h2>v9 changes summary</h2>
+<p>v9 preserves all v8 content. §10.5 reframed to layered Counterparty 360 architecture (summary + 7 atomic + BI orchestration). New §15 — full worked example for George's CCR ask, including the wide-table fallacy and the three-layer pattern.</p>
+<table>
+<thead><tr><th>#</th><th>Section</th><th>Change</th><th>Type</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>§1</td><td>Added governance role table for each concept</td><td>Enriched (v6)</td></tr>
+<tr><td>2</td><td>§2</td><td>Renamed to "galaxy schema (a.k.a. fact constellation)"; added "why CCR can't be a single star"</td><td>Refined (v6)</td></tr>
+<tr><td>3</td><td>§3</td><td>Added Collateral (IM/VM) grain row</td><td>Added — important (v6)</td></tr>
+<tr><td>4</td><td>§3</td><td>Added Notional grain row</td><td>Added (v6)</td></tr>
+<tr><td>5</td><td>§4</td><td>Added three-way data product taxonomy (atomic / curated / reporting)</td><td>Refined (v6)</td></tr>
+<tr><td>6</td><td>§5</td><td>Added change-management row to contract template</td><td>Enriched (v6)</td></tr>
+<tr><td>7</td><td>§6</td><td>Sharpened recommendation — dbt/Databricks as source of truth, MicroStrategy as downstream</td><td>Sharpened (v6)</td></tr>
+<tr><td>8</td><td>§7</td><td>Sharpened "hierarchy is road map; metric level is traffic rules"</td><td>Sharpened (v6)</td></tr>
+<tr><td>9</td><td>§8</td><td>Added version / change_history column to semantics registry</td><td>Enriched (v6)</td></tr>
+<tr><td>10</td><td>§10</td><td>Added clarifications on MAX(pfe) as semantic choice and breach flag in SELECT</td><td>Clarified (v6)</td></tr>
+<tr><td>11</td><td>§10.5</td><td>Added type column distinguishing atomic primary from curated derived</td><td>Refined (v6)</td></tr>
+<tr><td>12</td><td>§11</td><td>Modelling schools (Inmon, Kimball, Mesh, Lakehouse) and TDS Risk synthesis</td><td>NEW (v6)</td></tr>
+<tr><td>13</td><td>§12</td><td>Surrogate keys vs natural keys, including pragmatic middle path</td><td>NEW (v6)</td></tr>
+<tr><td>14</td><td>§13</td><td>SCD types, late-arriving facts, reference vs master vs transactional data</td><td>NEW (v6)</td></tr>
+<tr><td>15</td><td>§14</td><td>Appendix — From raw data to a consumable data product. Four-stage walkthrough; governed vs curated; what the contract actually does; data-product-is-not-a-single-table caveat; UC tag mapping with worked SQL example; raw → semantic progression; three independent value-adds.</td><td>NEW (v7)</td></tr>
+<tr><td>16</td><td>§14.3</td><td>Expanded to cover three concepts: governed vs curated vs <b>conformed</b>. Now treats them as three distinct things, not two.</td><td>EXPANDED (v8)</td></tr>
+<tr><td>17</td><td>§14.6</td><td>Expanded from 5 stages to <b>7 stages</b>: Raw → Cleansed/Standardised → Conformed/Enriched → Curated → Data Product (Governed) → Trusted/Authoritative → Semantic Layer. Includes medallion mapping for each stage.</td><td>EXPANDED (v8)</td></tr>
+<tr><td>18</td><td>§14.8</td><td>Terminology glossary bucketed: Bucket A (stage terms), Bucket B (status/lifecycle attributes), Bucket C (usage/deployment attributes), Bucket D (aliases that mean the same thing).</td><td>NEW (v8)</td></tr>
+<tr style="background:#e3fcef;"><td>19</td><td>§10.5</td><td>Reframed to layered Counterparty 360 architecture: Layer 1 (curated summary, 1 row per CP per date), Layer 2 (7 atomic drill-down products at native grain), Layer 3 (BI orchestration). Adds the wide-table fallacy callout.</td><td><b>REFRAMED (v9)</b></td></tr>
+<tr style="background:#e3fcef;"><td>20</td><td>§15</td><td>Full worked example for George's CCR ask. Includes: the request mapped to natural grain; why a wide CP_360 table doesn't work (three failed grain choices); the correct three-layer architecture; the user-experience walkthrough; three concrete grain examples (PFE, collateral, CS01); mapping back to all the concepts in the cheat sheet.</td><td><b>NEW (v9)</b></td></tr>
+</tbody>
+</table>
+</div>
+
+<p style="font-size:11px; color:#5b675f; margin-top:24px; font-style:italic; text-align:center;">
+v9 of CCR Analytics Semantic Modeling cheat sheet · v8 content preserved · §10.5 reframed to layered architecture · §15 added — full George worked example · For ongoing daily reference and onboarding
+</p>
+
+</body>
+</html>

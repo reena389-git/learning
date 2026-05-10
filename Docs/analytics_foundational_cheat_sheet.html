@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Foundational Risk Analytics Learning Layer</title>
+<style>
+  :root {
+    --green:#174d2e;
+    --mid:#2f7a4e;
+    --light:#eef8f1;
+    --blue:#eaf0ff;
+    --gold:#fff7dd;
+    --red:#fff1f1;
+    --ink:#1f2d24;
+  }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background:#f5faf7;
+    color:var(--ink);
+    margin:0;
+    padding:28px;
+    line-height:1.5;
+  }
+  h1 { color:var(--green); margin:0 0 6px; font-size:30px; }
+  h2 { color:#20653d; margin-top:30px; border-bottom:2px solid #d8eadf; padding-bottom:6px; }
+  h3 { color:var(--green); margin-bottom:8px; }
+  .subtitle { color:#52645a; margin-bottom:22px; }
+  .card {
+    background:white;
+    border:1px solid #cfe3d6;
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 3px 12px rgba(0,0,0,.06);
+    margin-bottom:24px;
+  }
+  .callout {
+    background:var(--blue);
+    border-left:6px solid #6b8fd6;
+    padding:14px;
+    border-radius:10px;
+    margin:12px 0;
+  }
+  .warning {
+    background:var(--red);
+    border-left:6px solid #c77d7d;
+    padding:14px;
+    border-radius:10px;
+    margin:12px 0;
+  }
+  .note {
+    background:#fff9e8;
+    border-left:5px solid #d9a441;
+    padding:12px;
+    border-radius:8px;
+    margin:12px 0;
+  }
+  .code {
+    background:#f7fbf8;
+    border:1px solid #cde0d3;
+    border-radius:12px;
+    padding:14px;
+    font-family:'Courier New', monospace;
+    white-space:pre-wrap;
+    overflow:auto;
+    font-size:13px;
+  }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .box {
+    border:2px solid #5aa879;
+    border-radius:14px;
+    padding:14px;
+    background:#f8fffa;
+  }
+  .blue { border-color:#6b8fd6; background:#f6f9ff; }
+  .gold { border-color:#d9a441; background:#fffaf0; }
+  table {
+    border-collapse:collapse;
+    width:100%;
+    font-size:13px;
+    background:white;
+    margin:12px 0;
+  }
+  th { background:#dff1e5; color:#173b25; }
+  th, td {
+    border:1px solid #b9d8c4;
+    padding:8px;
+    text-align:left;
+    vertical-align:top;
+  }
+  .small { font-size:12px; color:#5b675f; }
+  @media print {
+    body { background:white; padding:12px; }
+    .card { box-shadow:none; page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Foundational Risk Analytics Learning Layer</h1>
+<div class="subtitle">
+A simple, connected learning document for explaining analytics concepts before going into deeper CCR implementation.
+</div>
+
+<div class="card">
+<h2>1. Purpose</h2>
+<p>This document explains modern analytics concepts using a simplified risk example. It is not meant to teach complex quantitative finance. It is meant to help readers understand why analytics needs grain, data products, semantic rules, and governed self-service.</p>
+
+<div class="callout">
+<b>Teaching sequence:</b><br>
+Economic intuition → analytics intuition → architecture realization.
+</div>
+</div>
+
+<div class="card">
+<h2>2. The Simple Business Story</h2>
+
+<p>Imagine a bank trades with a counterparty called <b>ABC Bank</b>. If markets move, the value of those trades can change. If the trade becomes valuable to us, ABC Bank may owe us money. That amount is called <b>exposure</b>.</p>
+
+<table>
+<tr><th>Counterparty</th><th>Trade Value Today</th><th>Plain-English Meaning</th></tr>
+<tr><td>ABC Bank</td><td>$2M</td><td>If ABC Bank defaulted today, we may have $2M at risk.</td></tr>
+</table>
+
+<div class="note">
+<b>Intuition:</b> Exposure is not just a number. It is a measure of how much we could lose if the counterparty fails to pay us.
+</div>
+</div>
+
+<div class="card">
+<h2>3. Exposure Changes Through Time</h2>
+
+<p>Markets move every day. Interest rates, FX rates, credit spreads, and volatility can all change. So exposure can become larger or smaller in the future.</p>
+
+<table>
+<tr><th>Counterparty</th><th>Future Time</th><th>Exposure</th></tr>
+<tr><td>ABC Bank</td><td>Today</td><td>$2M</td></tr>
+<tr><td>ABC Bank</td><td>1 Year</td><td>$4M</td></tr>
+<tr><td>ABC Bank</td><td>3 Years</td><td>$1M</td></tr>
+<tr><td>ABC Bank</td><td>5 Years</td><td>$0.5M</td></tr>
+</table>
+
+<div class="callout">
+This time-based view is called an <b>exposure profile</b>.
+</div>
+</div>
+
+<div class="card">
+<h2>4. First Analytics Concept: Grain</h2>
+
+<p><b>Grain</b> means: what one row represents.</p>
+
+<table>
+<tr><th>Dataset</th><th>One Row Represents</th><th>Grain</th></tr>
+<tr><td>Exposure profile</td><td>Exposure for one counterparty at one future time point</td><td>counterparty + future time</td></tr>
+<tr><td>Sensitivity dataset</td><td>Sensitivity for one counterparty to one risk factor</td><td>counterparty + risk factor</td></tr>
+</table>
+
+<div class="note">
+If you do not understand grain, you can write a query that looks correct but gives the wrong number.
+</div>
+</div>
+
+<div class="card">
+<h2>5. A Different Dataset: Sensitivities</h2>
+
+<p>Now imagine the business asks: <b>what causes exposure to move?</b></p>
+
+<p>The answer is: <b>risk factors</b>.</p>
+
+<table>
+<tr><th>Counterparty</th><th>Risk Factor</th><th>Sensitivity</th></tr>
+<tr><td>ABC Bank</td><td>Interest Rates</td><td>$40K</td></tr>
+<tr><td>ABC Bank</td><td>Credit Spreads</td><td>$80K</td></tr>
+<tr><td>ABC Bank</td><td>FX</td><td>$15K</td></tr>
+</table>
+
+<p>One row represents sensitivity for one counterparty to one risk factor.</p>
+</div>
+
+<div class="card">
+<h2>6. Why Analytics Breaks: The Bad Join</h2>
+
+<h3>Exposure Dataset</h3>
+<table>
+<tr><th>Counterparty</th><th>Future Time</th><th>Exposure</th></tr>
+<tr><td>ABC Bank</td><td>1 Year</td><td>$4M</td></tr>
+</table>
+
+<h3>Sensitivity Dataset</h3>
+<table>
+<tr><th>Counterparty</th><th>Risk Factor</th><th>Sensitivity</th></tr>
+<tr><td>ABC Bank</td><td>Interest Rates</td><td>$40K</td></tr>
+<tr><td>ABC Bank</td><td>Credit Spreads</td><td>$80K</td></tr>
+</table>
+
+<h3>Incorrect Direct Join</h3>
+<table>
+<tr><th>Counterparty</th><th>Future Time</th><th>Exposure</th><th>Risk Factor</th></tr>
+<tr><td>ABC Bank</td><td>1 Year</td><td>$4M</td><td>Interest Rates</td></tr>
+<tr><td>ABC Bank</td><td>1 Year</td><td>$4M</td><td>Credit Spreads</td></tr>
+</table>
+
+<div class="warning">
+The exposure row has been duplicated. If the user sums exposure, the answer becomes $8M instead of $4M.
+</div>
+
+<div class="callout">
+<b>Correct rule:</b> Aggregate each dataset at the right grain first, then combine.
+</div>
+</div>
+
+<div class="card">
+<h2>7. Additive vs Non-Additive Metrics</h2>
+
+<table>
+<tr><th>Metric Type</th><th>Can It Be Summed?</th><th>Example</th></tr>
+<tr><td>Additive</td><td>Yes</td><td>Sales amount, quantity, current exposure</td></tr>
+<tr><td>Non-additive</td><td>No, or only under controlled rules</td><td>Averages, percentages, percentiles, PFE</td></tr>
+</table>
+
+<h3>Why PFE Is Non-Additive</h3>
+<p><b>PFE</b> means <b>Potential Future Exposure</b>. It answers: “How large could exposure become in a bad but plausible future?”</p>
+
+<table>
+<tr><th>Counterparty</th><th>PFE</th><th>Meaning</th></tr>
+<tr><td>ABC Bank</td><td>$9M</td><td>High-percentile future exposure estimate</td></tr>
+<tr><td>XYZ Fund</td><td>$7M</td><td>High-percentile future exposure estimate</td></tr>
+</table>
+
+<div class="warning">
+PFE is a percentile-style risk estimate. Percentiles cannot be casually added like cash balances because the underlying future exposure distributions may overlap, offset, or behave differently under market scenarios.
+</div>
+
+<div class="note">
+Better wording: PFE is <b>non-additive</b> and requires <b>controlled aggregation rules</b>. Sometimes a curated metric may use MAX, sometimes a risk engine recomputation is required, and sometimes the metric must remain at its original grain.
+</div>
+</div>
+
+<div class="card">
+<h2>8. What Is a Data Product?</h2>
+
+<p>A data product is a trusted reusable analytical dataset with rules, ownership, and intended use.</p>
+
+<table>
+<tr><th>Capability</th><th>Why It Matters</th></tr>
+<tr><td>Defined grain</td><td>Prevents misuse</td></tr>
+<tr><td>Approved metrics</td><td>Creates consistency</td></tr>
+<tr><td>Ownership</td><td>Creates accountability</td></tr>
+<tr><td>Quality checks</td><td>Improves trust</td></tr>
+<tr><td>Usage guidance</td><td>Helps consumers use it safely</td></tr>
+</table>
+
+<h3>Example: Counterparty Exposure Product</h3>
+<table>
+<tr><th>Counterparty</th><th>Official Exposure</th><th>Official PFE</th><th>Region</th></tr>
+<tr><td>ABC Bank</td><td>$4M</td><td>$9M</td><td>North America</td></tr>
+</table>
+
+<div class="callout">
+The product already applies approved calculations, standardized identifiers, trusted dimensions, and governed aggregation logic.
+</div>
+</div>
+
+<div class="card">
+<h2>9. What Is a Semantic Layer?</h2>
+
+<p>A semantic layer is a safety layer between raw data and business questions.</p>
+
+<div class="grid2">
+<div class="box">
+<h3>Without Semantic Layer</h3>
+<ul>
+<li>Every team writes SQL differently</li>
+<li>Filters differ</li>
+<li>Aggregation differs</li>
+<li>Dashboards conflict</li>
+<li>Users reconcile manually</li>
+</ul>
+</div>
+<div class="box blue">
+<h3>With Semantic Layer</h3>
+<ul>
+<li>Official metrics are named</li>
+<li>Aggregation rules are applied</li>
+<li>Unsafe slicing is blocked or warned</li>
+<li>Users self-serve safely</li>
+<li>Numbers reconcile</li>
+</ul>
+</div>
+</div>
+
+<p>Example business question:</p>
+<div class="code">Show official exposure by region.</div>
+
+<p>The semantic layer applies the approved calculation, filters, trusted dimensions, and aggregation rules.</p>
+</div>
+
+<div class="card">
+<h2>10. Data Product with Built-In Semantics vs Star Schema with Semantics to Implement</h2>
+
+<p>This is an important distinction.</p>
+
+<div class="grid2">
+<div class="box gold">
+<h3>A. Data Product with Built-In Semantics</h3>
+<p>The product is already packaged for a business use case.</p>
+<ul>
+<li>Metric names are business-friendly</li>
+<li>Default filters are applied</li>
+<li>Aggregation rules are embedded</li>
+<li>Unsafe detail is hidden or separated</li>
+<li>Consumers use it directly</li>
+</ul>
+
+<table>
+<tr><th>Counterparty</th><th>Official Exposure</th><th>Official PFE</th></tr>
+<tr><td>ABC Bank</td><td>$4M</td><td>$9M</td></tr>
+</table>
+
+<p><b>Best for:</b> common business questions, dashboards, executive views, governed consumption.</p>
+</div>
+
+<div class="box">
+<h3>B. Star Schema with Semantics to Implement</h3>
+<p>The star schema provides flexible analytical structure, but rules still need to be implemented in a semantic or BI layer.</p>
+<ul>
+<li>Facts and dimensions are available</li>
+<li>Users can slice flexibly</li>
+<li>Metric behavior must be defined</li>
+<li>BI tool must enforce levels and aggregation</li>
+<li>More powerful, but easier to misuse</li>
+</ul>
+
+<div class="code">fact_exposure
+  joins dim_counterparty
+  joins dim_time_bucket
+  joins dim_scenario</div>
+
+<p><b>Best for:</b> flexible exploration, governed self-service, reusable analytical modeling.</p>
+</div>
+</div>
+
+<h3>Practical Difference</h3>
+<table>
+<tr><th>Question</th><th>Data Product Answer</th><th>Star Schema Answer</th></tr>
+<tr><td>Who defines PFE behavior?</td><td>Already packaged in product</td><td>Defined in semantic / BI layer</td></tr>
+<tr><td>Can user misuse grain?</td><td>Less likely</td><td>Possible unless guarded</td></tr>
+<tr><td>Flexibility</td><td>Lower</td><td>Higher</td></tr>
+<tr><td>Governance burden</td><td>Product owner</td><td>Semantic / BI model owner</td></tr>
+</table>
+
+<div class="note">
+A good architecture usually needs both: curated data products for common business questions and star schemas for controlled analytical exploration.
+</div>
+</div>
+
+<div class="card">
+<h2>11. Why Wide Tables Fail</h2>
+
+<p>Many organizations try to create one giant table with everything in it. This often fails because different measures live at different grains.</p>
+
+<table>
+<tr><th>Metric</th><th>Natural Grain</th></tr>
+<tr><td>Exposure</td><td>counterparty + future time</td></tr>
+<tr><td>Sensitivities</td><td>counterparty + risk factor</td></tr>
+<tr><td>Stress exposure</td><td>counterparty + stress scenario + future time</td></tr>
+<tr><td>Limits</td><td>counterparty + facility</td></tr>
+</table>
+
+<div class="warning">
+One giant table forces incompatible grains together. That creates duplicated rows, broken aggregation, and unclear ownership.
+</div>
+
+<p>Better pattern:</p>
+<div class="code">Atomic products → governed dimensions → semantic layer → trusted analytics</div>
+</div>
+
+<div class="card">
+<h2>12. Final Mental Model</h2>
+
+<div class="code">Applications generate calculations.
+
+Analytics products industrialize meaning.
+
+Star schemas organize facts and dimensions.
+
+Semantic layers enforce safe usage.
+
+Business users consume trusted reusable insights.</div>
+
+<div class="callout">
+The goal is not simply more dashboards. The goal is trusted, reusable analytics that scales across the organization.
+</div>
+</div>
+
+</body>
+</html>

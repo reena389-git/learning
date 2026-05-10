@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>CCR Analytics — Requirements, Gaps, Enrichments, Refactor (8 May 2026)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root{
+    --ink: #1a1a1a;
+    --ink-soft: #4a4a4a;
+    --paper: #faf8f3;
+    --paper-warm: #f3efe5;
+    --rule: #d9d3c4;
+    --accent: #7a3b1f;
+    --accent-soft: #c47a4a;
+    --flag: #b8431f;
+    --flag-bg: #fbeae0;
+    --good: #2d5e3a;
+    --good-bg: #e6efe1;
+    --neutral: #4d5d6c;
+    --neutral-bg: #e6ecf1;
+    --code-bg: #efeadc;
+    --highlight: #fff4c4;
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--paper); color: var(--ink); font-family:'Inter Tight', sans-serif; font-size: 15px; line-height: 1.6; }
+
+  .page{ max-width: 1000px; margin: 0 auto; padding: 56px 64px 96px; }
+
+  h1, h2, h3, h4{ font-family:'Fraunces', serif; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+  h1{ font-size: 38px; line-height: 1.1; margin: 0 0 8px; font-weight: 700; }
+  h2{ font-size: 26px; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); }
+  h3{ font-size: 19px; margin: 28px 0 10px; color: var(--accent); }
+  h4{ font-size: 15px; margin: 18px 0 8px; font-family:'Inter Tight', sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); }
+
+  .meta{ color: var(--ink-soft); font-size: 13px; margin: 0 0 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .lede{ font-family:'Fraunces', serif; font-size: 18px; line-height: 1.55; color: var(--ink-soft); border-left: 3px solid var(--accent); padding: 6px 0 6px 18px; margin: 22px 0 36px; font-style: italic; }
+
+  p{ margin: 0 0 12px; }
+
+  .req-block{
+    background: var(--paper-warm);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+  .req-block.flag{ border-left: 4px solid var(--flag); background: var(--flag-bg); }
+  .req-block.good{ border-left: 4px solid var(--good); background: var(--good-bg); }
+  .req-block.neutral{ border-left: 4px solid var(--neutral); background: var(--neutral-bg); }
+
+  .req-num{
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 10px;
+    vertical-align: 2px;
+    letter-spacing: 0.06em;
+  }
+  .req-title{ font-weight: 600; font-size: 16px; }
+
+  .req-section{
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dotted var(--rule);
+    font-size: 14px;
+  }
+  .req-section-label{
+    display: block;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 13px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .req-section p{ color: var(--ink); }
+  .req-section b{ color: var(--ink); }
+
+  table{ width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13.5px; }
+  th, td{ text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th{ background: var(--paper); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); }
+  td.col-name{ font-weight: 500; width: 28%; }
+  td.col-bad{ color: var(--flag); font-family: 'Inter Tight', monospace; }
+  td.col-good{ color: var(--good); }
+
+  code, .mono{ font-family: 'JetBrains Mono', monospace; background: var(--code-bg); padding: 1px 6px; border-radius: 3px; font-size: 13px; }
+
+  .callout{
+    border: 1px dashed var(--accent);
+    background: #fff9f0;
+    padding: 16px 20px;
+    border-radius: 4px;
+    margin: 18px 0;
+    font-size: 14px;
+  }
+  .callout-title{ font-family:'Fraunces', serif; font-style: italic; font-weight: 600; color: var(--accent); margin-bottom: 6px; font-size: 15px; }
+
+  ul.clean{ padding-left: 22px; margin: 8px 0 12px; }
+  ul.clean li{ margin: 5px 0; }
+
+  .toc{ background: var(--paper-warm); border: 1px solid var(--rule); padding: 18px 24px; border-radius: 6px; margin: 24px 0 36px; font-size: 14px; }
+  .toc b{ font-family:'Fraunces', serif; font-weight: 600; }
+  .toc ol{ margin: 8px 0 0; padding-left: 22px; }
+  .toc li{ margin: 4px 0; }
+  .toc a{ color: var(--ink); text-decoration: none; }
+  .toc a:hover{ color: var(--accent); }
+
+  .layer-stack{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin: 20px 0;
+  }
+  .layer{
+    background: var(--paper-warm);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 14px 20px;
+    font-size: 14px;
+  }
+  .layer .ltitle{ font-family:'Fraunces', serif; font-weight: 600; color: var(--accent); display:block; margin-bottom:4px; }
+  .layer .ldesc{ color: var(--ink-soft); font-size: 13.5px; }
+
+  .pill{ display:inline-block; background:#efeadc; border:1px solid var(--rule); padding:3px 10px; border-radius:3px; font-size:13px; margin:3px 4px 3px 0; }
+
+  .exposure-stack{
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .exposure-stack .label{ display: inline-block; width: 240px; color: var(--ink-soft); }
+  .exposure-stack .val{ color: var(--ink); }
+  .exposure-stack .calc{ color: var(--accent); font-style: italic; font-family: 'Fraunces', serif; }
+
+  .footer-note{ margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--rule); color: var(--ink-soft); font-size: 13px; font-style: italic; }
+
+  .tag{ display: inline-block; background: var(--ink); color: var(--paper); font-size: 10px; padding: 2px 8px; border-radius: 3px; letter-spacing: 0.08em; text-transform: uppercase; vertical-align: 2px; margin-left: 8px; }
+  .tag.flag{ background: var(--flag); }
+  .tag.good{ background: var(--good); }
+  .tag.neutral{ background: var(--neutral); }
+
+  /* Dashboard image styles */
+  .dashboard-image{
+    margin: 14px 0;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .dashboard-image img{
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .dashboard-image .caption{
+    padding: 8px 14px;
+    background: var(--paper-warm);
+    border-top: 1px solid var(--rule);
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-style: italic;
+    font-family: 'Fraunces', serif;
+  }
+  .dashboard-image .caption b{
+    font-style: normal;
+    font-family: 'Inter Tight', sans-serif;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 10.5px;
+    margin-right: 6px;
+  }
+
+  .data-needs{
+    background: #fff;
+    border-left: 3px solid var(--neutral);
+    padding: 12px 18px;
+    margin: 12px 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .data-needs .dn-title{
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 600;
+    color: var(--neutral);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .data-needs ul{ padding-left: 18px; margin: 4px 0; font-size: 13.5px; }
+  .data-needs li{ margin: 3px 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <p class="meta">CCR Analytics · Requirements capture · 8 May 2026 session</p>
+  <h1>CCR Analytics — Requirements, Gaps, Enrichments, Refactor</h1>
+  <p class="lede">Detailed working notes from the 8 May 2026 session in which George Karahotzitis walked us through the GMC PowerBI CCR_Analytics_Report. Every requirement is stated explicitly. Every gap is named. Every enrichment is described. Every required data source is identified. Sample numerical examples are illustrative; sample data shapes are indicative.</p>
+
+  <div class="toc">
+    <b>Contents</b>
+    <ol>
+      <li><a href="#context">Context — what the dashboard is and isn't</a></li>
+      <li><a href="#reqs">Section 1 — Explicit requirements</a></li>
+      <li><a href="#gaps">Section 2 — Gaps in the current dashboard</a></li>
+      <li><a href="#enrichments">Section 3 — Enrichments and enhancements requested</a></li>
+      <li><a href="#refactor">Section 4 — The refactor: from canned reports to dimensional model</a></li>
+      <li><a href="#data-domains">Section 5 — Data sources and domains required</a></li>
+      <li><a href="#close">Closing thread</a></li>
+    </ol>
+  </div>
+
+  <h2 id="context">Context — what the dashboard is and isn't</h2>
+
+  <p>The CCR_Analytics_Report in PowerBI is a <b>visualization shell over pre-computed SCREAM reports</b>. SCREAM (the Credit Risk System, "CRS") produces canned reports with all aggregations, limit roll-ups, utilisations, exposure metrics, and breach flags <i>already calculated</i>. PowerBI does not aggregate, join, or recompute — it renders what SCREAM hands it. Every limitation surfaced in this document traces back to that single architectural fact.</p>
+
+  <div class="dashboard-image">
+    <img src="images/legal_name_view_overview.jpg" alt="Overall Legal Name View structure showing left navigation pages, CPTY filter, Limit and Utilization chart, CCR Line Details, Trade Details, Party Details">
+    <div class="caption"><b>Reference</b>The Legal Name View page in the CCR_Analytics_Report — the central daily working view. Left rail: 20+ pages. Top: CPTY filter (counterparty wildcard search), Limit & Utilisation chart, Current Exposure mini-chart. Middle: CCR Line Details. Lower: Trade Details and Party Details panels. Most other pages in the dashboard are variants or specialisations of this core layout.</div>
+  </div>
+
+  <p>The dashboard has 20+ tabs:</p>
+
+  <ul class="clean">
+    <li>Counterparty exposure views (Legal Name View, ULT_Parent View, TDLegal Entity View, Clients Legal Name View)</li>
+    <li>Country-of-risk views (CountryOfRisk View, Hist Treasury Exposure)</li>
+    <li>Jurisdictional monitoring (ISRAELI_Notional_Monitoring)</li>
+    <li>FX/PnL daily delta attribution (FXNotionalDeltaPnL_G, FXNotionalDeltaPnL_S)</li>
+    <li>Product-specific views (REPO_Client_Mapping, IR/CCS Term TDBK, Hedge Fund Manager Portfolio, Haircut Adj Report, HFund TopView Limit, TOP 20 NIG Exposures)</li>
+    <li>Regulatory (CAIRO 2 - Facility Exposure, CAIRO 4 - FI Peer Comparison)</li>
+    <li>Operational (FilterOfReportLines, SampleDayLightReport, ExceededONLY View, REPO_Client_Mapping, Data Check)</li>
+  </ul>
+
+  <p>George opened the session by acknowledging that the build has <b>materially helped</b> the GMC team — work that previously took hours of manual assembly is now visualised. His framing throughout was constructive: <i>"this works, here's what's still painful, here's what I wish it could do."</i></p>
+
+  <h2 id="reqs">Section 1 — Explicit requirements</h2>
+
+  <h3 id="r1">R1 — Decompose into dimensions; filter across multiple dimensions to narrow and widen</h3>
+
+  <div class="req-block">
+    <p><span class="req-num">R1</span><span class="req-title">The dashboard must support tabbed dimensional navigation — narrow scope by chaining dimension selections, widen by removing them.</span></p>
+
+    <div class="req-section">
+      <span class="req-section-label">What he showed</span>
+      <p>Today the dashboard has a flat list of 20+ pages on the left rail. Each page has its own filter chrome. Switching analytical context (e.g. from "exposure by counterparty" to "exposure by region then counterparty") means opening a different page or hand-applying filters. The report layout is fixed; the user can only operate within whatever slicing the page designer chose.</p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">What he asked for</span>
+      <p>Tabs across the top of the dashboard representing dimensions:</p>
+      <p><span class="pill">Counterparty</span><span class="pill">Country of Risk</span><span class="pill">Region</span><span class="pill">Desk</span><span class="pill">Booking Entity</span><span class="pill">Industry</span><span class="pill">Product</span><span class="pill">Line Type</span><span class="pill">Tenor Bucket</span></p>
+      <p>Click a tab to <i>narrow</i> the working scope, then click the next tab to narrow further. Example he gave: <i>"It is Central America, then counterparty there"</i> — i.e. select region first, then drill into counterparties within that region. The same mechanism widens — un-select a dimension to broaden the view back out.</p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">The litmus-test question</span>
+      <p>George asked: <i>"Show me all my contingent lines that are running hot in the 1-2 year bucket regardless of counterparty."</i> Today this requires a different SCREAM report. In a dimensional model it is a one-line filter — Line Type = CONT, Tenor Bucket = 1-2Y, sort by utilisation. <b>Resolving this question is the test that the refactor is complete.</b></p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">Data needs</span>
+      <div class="data-needs">
+        <span class="dn-title">Conformed dimension tables (Silver layer)</span>
+        <ul>
+          <li><code>dim_counterparty</code> — with parent / agent / ultimate parent hierarchy, internal CP_CODE, legal name, Bloomberg ticker, INTERNAL flag</li>
+          <li><code>dim_country</code> — country code, country of risk classification, regulatory regime tags</li>
+          <li><code>dim_region</code> — region code, region grouping, market close timing</li>
+          <li><code>dim_industry</code> — NAICS / GICS / TDS internal industry taxonomy</li>
+          <li><code>dim_desk</code> — desk code, desk name, asset class, location</li>
+          <li><code>dim_booking_entity</code> — entity code (TDBK, TDGF, TDEU, TDSC, TDSE, TDSU, TBNA, TCAX), entity name, jurisdiction</li>
+          <li><code>dim_product</code> — proper product taxonomy: Equity Swap, Vanilla IRS, FX Forward, CAP, Asian Commodity Option, Repo, etc.</li>
+          <li><code>dim_line</code> — line ID, line type (CONT, C2C, committed/uncommitted, daylight), line purpose (CP, HC), owning entity, governing policy, product scope</li>
+          <li><code>dim_tenor_bucket</code> — bucket ID, label (N-MTM, 0-3M, 3M-1Y, 1-2Y, 2-5Y, 5-10Y, 10-50Y), maturity boundaries</li>
+          <li><code>dim_currency</code> — currency code, reporting flag (USD/CAD primary)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="r2">R2 — Decompose exposure properly: limits, MTM, direct, indirect, default risk</h3>
+
+  <div class="req-block">
+    <p><span class="req-num">R2</span><span class="req-title">Exposure must be surfaced as five distinct concepts, simultaneously, joined to whichever counterparty / country / dimension is in scope.</span></p>
+
+    <div class="req-section">
+      <span class="req-section-label">What he showed</span>
+      <p>The Current Exposure bar chart on the upper right of Legal Name View shows one number per currency (e.g. RBC: ~2,116M USD). This is the <b>limit utilisation</b> — how much of TDS's approved credit capacity is being consumed.</p>
+    </div>
+
+    <div class="dashboard-image">
+      <img src="images/rbc_legal_name_view.jpg" alt="RBC Legal Name View - Current Exposure on the upper right shows a single utilization number">
+      <div class="caption"><b>Current state</b>The Current Exposure mini-chart on the upper right shows limit utilisation only — one bar per currency. No MTM, no collateral mitigant, no direct/indirect split, no default risk number.</div>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">What he asked for</span>
+      <p>Exposure decomposed into five concepts:</p>
+      <table>
+        <thead><tr><th>Concept</th><th>What it answers</th></tr></thead>
+        <tbody>
+          <tr><td><b>Limits</b></td><td>How much approved credit capacity does TDS have for this counterparty? Broken by line, by tenor bucket, by currency.</td></tr>
+          <tr><td><b>MTM (current exposure)</b></td><td>What's TDS's economic exposure to this counterparty right now — replacement cost if they default today?</td></tr>
+          <tr><td><b>Direct exposure</b></td><td>Exposure arising from trades TDS has <i>with</i> this counterparty.</td></tr>
+          <tr><td><b>Indirect exposure</b></td><td>Exposure to this counterparty even when not the direct trading party — as collateral provider, security issuer, parent / guarantor, related entity, agent. (NVIDIA example: not a counterparty, but appears as collateral.)</td></tr>
+          <tr><td><b>Default risk</b></td><td>If the counterparty actually defaults, what does TDS actually lose? Gross MTM minus collateral held (with haircuts), plus PFE add-on.</td></tr>
+        </tbody>
+      </table>
+      <p>The full stack:</p>
+      <div class="exposure-stack">
+        <span class="label">Limit (capacity)</span><span class="val">5,000M USD</span><br>
+        <span class="label">↳ Limit Utilisation</span><span class="val">2,116M USD</span><span class="calc"> ← what shows on the chart today</span><br><br>
+        <span class="label">Direct MTM exposure</span><span class="val">142M USD</span><span class="calc"> (Type 2 — economic, not capacity)</span><br>
+        <span class="label">+ Indirect exposure</span><span class="val">28M USD</span><span class="calc"> (NVIDIA-style — collateral / issuer paths)</span><br>
+        <span class="label">= Total Gross Exposure</span><span class="val">170M USD</span><br>
+        <span class="label">− Collateral held</span><span class="val">(98M) USD</span><span class="calc"> (IM + VM, haircut-adjusted)</span><br>
+        <span class="label">= Net Exposure</span><span class="val">72M USD</span><br>
+        <span class="label">+ PFE add-on</span><span class="val">12M USD</span><span class="calc"> (potential future exposure)</span><br>
+        <span class="label">= Default Risk Exposure</span><span class="val">84M USD</span><span class="calc"> ← what TDS actually loses on default</span>
+      </div>
+      <p><b>Today the dashboard shows row 2 only (limit utilisation).</b> George wants all rows surfaced. This is the most consequential ask in the session because it reshapes the headline measure of CCR.</p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">Data needs</span>
+      <div class="data-needs">
+        <span class="dn-title">Fact tables required (Silver/Gold layer)</span>
+        <ul>
+          <li><code>fact_limit</code> — line_id, value_date, tenor_bucket, currency, approved_limit. Source: SCREAM line tables.</li>
+          <li><code>fact_limit_utilization</code> — line_id, value_date, tenor_bucket, currency, utilisation, availability, max_usage. Source: SCREAM utilisation tables.</li>
+          <li><code>fact_mtm</code> — trade_id, value_date, mtm_value, mtm_currency. Source: valuation engines (RCAPS, XVALA), or upstream booking systems (CALYPSO, MUREX, SOPHIS).</li>
+          <li><code>fact_collateral</code> — counterparty_id, agreement_id, value_date, collateral_type (IM/VM), asset_id (the actual security/cash posted), gross_value, haircut_pct, net_value. Source: CMOS / Colline.</li>
+          <li><code>fact_pfe</code> — counterparty_id or netting_set_id, value_date, horizon, confidence_level, pfe_value (standard and stressed). Source: RCS.</li>
+          <li><code>fact_indirect_exposure</code> — derived view joining collateral + securities reference + relationship hierarchy to identify all paths from a non-trading party to TDS exposure.</li>
+        </ul>
+      </div>
+      <div class="data-needs">
+        <span class="dn-title">Computation required</span>
+        <ul>
+          <li>Default Risk = SUM(MTM) - SUM(Collateral × (1 - Haircut)) + PFE_add_on. Computed in Gold layer / analytics view.</li>
+          <li>Direct vs Indirect classification on the indirect exposure view: must distinguish whether the searched party is the trading counterparty (direct) or appears via another path (indirect: collateral provider, issuer, parent, related, agent).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="r3">R3 — Counterparty wildcard search must extend to indirect parties</h3>
+
+  <div class="req-block">
+    <p><span class="req-num">R3</span><span class="req-title">The CPTY search must surface any party that creates exposure to TDS — direct trading counterparties AND indirect parties (collateral providers, security issuers, parents/guarantors).</span></p>
+
+    <div class="req-section">
+      <span class="req-section-label">What he showed</span>
+      <p>The CPTY filter on the left of Legal Name View is a wildcard search drilling counterparty legal name down to credit lines. Today it returns only entities that appear in SCREAM's counterparty list — i.e. direct trading counterparties.</p>
+    </div>
+
+    <div class="dashboard-image">
+      <img src="images/royal_bank_search.jpg" alt="Royal Bank search showing CPTY wildcard filter and the variants returned (RBC, RBC MPR, RBC Capital Markets LLC as Agent, Royal Brock Retirement Living)">
+      <div class="caption"><b>Current state</b>Searching "royal b" returns four trading-counterparty matches under SCREAM's known list. There is no way to also surface, e.g., parties that appear only as collateral providers under CSAs.</div>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">What he asked for</span>
+      <p>The search must extend to:</p>
+      <ul class="clean">
+        <li><b>Collateral providers</b> — any party whose collateral TDS holds, even if TDS does not trade with them. <b>The NVIDIA example:</b> NVIDIA is not a TDS counterparty. NVIDIA appears as collateral posted under various CSA agreements with hedge funds. Searching "NVIDIA" today returns nothing; it must return the indirect-exposure view.</li>
+          <li><b>Indirect exposure paths for a known counterparty</b> — when he searches JPMC, today he sees direct exposure (TDS↔JPMC trades). He also wants <b>indirect</b> JPMC exposure surfaced: where JPMC has posted collateral, where JPMC is the issuer of securities held as collateral, where JPMC is parent/guarantor of an entity TDS trades with.</li>
+      </ul>
+      <p>This requirement is tightly coupled to R2 — you cannot show indirect exposure without first being able to search for indirect parties.</p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">Data needs</span>
+      <div class="data-needs">
+        <span class="dn-title">Tables required</span>
+        <ul>
+          <li><code>dim_party</code> (extends <code>dim_counterparty</code>) — universe of all parties that could have any role: trading counterparty, collateral provider, security issuer, guarantor. Single search-able party master.</li>
+          <li><code>dim_security</code> — for any security held as collateral or referenced in a trade: ticker, ISIN, CUSIP, issuer_party_id, asset class, country.</li>
+          <li><code>dim_party_relationship</code> — links between parties: parent_party_id, child_party_id, relationship_type (parent, subsidiary, guarantor, agent, related_entity), effective_dates.</li>
+          <li><code>fact_collateral</code> — must carry both <i>posting_party_id</i> (who posted) AND <i>asset_id</i> (the security or cash posted) — so the issuer can be derived via <code>dim_security.issuer_party_id</code>.</li>
+          <li>A Gold-layer view <code>v_party_exposure_paths</code> that for any party_id returns: direct trades, collateral postings (as provider), securities held (as issuer), related-party exposure (via relationship table).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="r4">R4 — Country-of-risk as a first-class, parameterizable dimension</h3>
+
+  <div class="req-block">
+    <p><span class="req-num">R4</span><span class="req-title">Country-of-risk views must be parameter-driven, not page-per-country. Selecting any country must render the equivalent monitoring view for that country.</span></p>
+
+    <div class="req-section">
+      <span class="req-section-label">What he showed</span>
+      <p>The Israeli Notional Monitoring page is hard-coded for Israel: Bank Hapoalim, Bank Leumi, Israel Discount Bank with strike notional / net notional limit / remaining capacity (split index vs non-index), daily M2M deltas, notional exposure breakdown by index ticker.</p>
+    </div>
+
+    <div class="dashboard-image">
+      <img src="images/israeli_notional.jpg" alt="Israeli Notional Monitoring page - hard-coded for Israel">
+      <div class="caption"><b>Current state</b>The Israeli Notional Monitoring page. Three Israeli banks are hard-coded as rows. Notional limits, M2M deltas, and exposure breakdown by index ticker. There is no way to select another country; supporting another regime requires building a separate page.</div>
+    </div>
+
+    <p>Compare with the Hist Treasury Exposure page, which is correctly parameterised — country slicer (Australia, Austria, Azerbaijan, Belgium, Bermuda visible) with drill into Central Bank Treasury, Commercial Bank Fronting Risk, Trade Finance, Treasury, Corporate Treasury, FI Inventory categories:</p>
+
+    <div class="dashboard-image">
+      <img src="images/hist_treasury_country.jpg" alt="Hist Treasury Exposure - parameterised country page with Austria expanded">
+      <div class="caption"><b>Reference / aspirational</b>The Hist Treasury Exposure page demonstrates parameterised country-of-risk drilling. Country slicer on the left (selectable). Austria expanded into 10 sub-categories. The Israeli notional view should work this way.</div>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">What he asked for</span>
+      <p>One generic country-of-risk view. Pick country. The page renders:</p>
+      <ul class="clean">
+        <li>Limits applicable to that country's regime</li>
+        <li>Exposure breakdown by counterparty type (Central Bank, Commercial Bank, Sovereign, Corporate)</li>
+        <li>Notional monitoring (where regulators impose notional limits — Israel today, possibly others in future)</li>
+        <li>Concentration metrics</li>
+        <li>Time-series of country-specific exposures</li>
+      </ul>
+      <p>The Israeli page becomes one parameterisation of this generic view. New regimes are added by extending the dimension data, not by building new pages.</p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">Data needs</span>
+      <div class="data-needs">
+        <span class="dn-title">Tables required</span>
+        <ul>
+          <li><code>dim_country</code> — extended with <i>regulatory_regime_tags</i> (e.g. "notional_limit_imposed", "concentration_threshold", etc.)</li>
+          <li><code>dim_country_limit_type</code> — taxonomy of limit categories applicable per country (Central Bank Treasury, Commercial Bank Fronting Risk, Trade Finance, Sovereign Direct, etc.)</li>
+          <li><code>fact_country_limit</code> — country_id, limit_type_id, value_date, gross_max_exposure, 0_3mo_usage, 3mo_country_limit, 1yr_country_limit, etc.</li>
+          <li><code>fact_notional_monitoring</code> — country_id, party_id, value_date, asset_class (index/non-index), strike_notional, net_notional_limit, remaining_capacity, daily_m2m_delta, m2m_t0, m2m_t-1</li>
+          <li><code>fact_notional_breakdown</code> — country_id, party_id, instrument_id (e.g. SPTR.IDX, GDDUE15.IDX, NDDUWI.IDX), value_date, strike_notional, current_notional</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="r5">R5 — Flexible, user-selectable columns</h3>
+
+  <div class="req-block">
+    <p><span class="req-num">R5</span><span class="req-title">Column visibility must adapt to context — either automatically based on what's in scope, or via a user-controlled column picker.</span></p>
+
+    <div class="req-section">
+      <span class="req-section-label">What he showed</span>
+      <p>The Trade Details panel has a fixed column set — Value Date, Book, C Line, Counterparty Code, Deal ID, Deal Type, Desk, Trade Date, Maturity Date, Source System, Version, Years To Maturity, Deal M2M Currency, Deal M2M, Principal 1, Principal 2, C2C Charge, etc. These columns were modeled for OTC derivatives.</p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">The complaint</span>
+      <p>When SFT trades, manual adjustments, IM postings, or other non-derivative bookings flow through, the data lands in semantically wrong columns — or the right columns are missing entirely.</p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">What he asked for</span>
+      <p>Two complementary mechanisms:</p>
+      <ul class="clean">
+        <li><b>Context-sensitivity:</b> column set adapts based on the trade types in scope. Derivatives in scope → derivative columns surface. SFT in scope → SFT columns surface. IM in scope → collateral-relevant columns surface.</li>
+        <li><b>Column picker:</b> a side panel (right-hand side) where the user explicitly picks columns to show / hide. Saved as user preference.</li>
+      </ul>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">Data needs</span>
+      <div class="data-needs">
+        <span class="dn-title">Model required</span>
+        <ul>
+          <li>The trade fact must be designed wide enough to carry asset-class-specific attributes — or alternatively, a normalized model where common attributes sit on <code>fact_trade</code> and asset-class-specific attributes sit on satellite tables (<code>fact_trade_derivative_attrs</code>, <code>fact_trade_sft_attrs</code>, <code>fact_trade_collateral_attrs</code>) joined via trade_id.</li>
+          <li>UI metadata: per-asset-class column relevance config — which columns to show by default, which to suppress.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="r6">R6 — IM / Adjustment / Deal Type conformance</h3>
+
+  <div class="req-block">
+    <p><span class="req-num">R6</span><span class="req-title">"IM," "Adjustment," and similar values must not appear in the Deal Type column. Product, booking purpose, and lifecycle event are three different concepts and require three different fields.</span></p>
+
+    <div class="req-section">
+      <span class="req-section-label">What he showed</span>
+      <p>On the Alyeska Master Fund row, the Trade Details panel includes an entry where Deal Type = <code>IM</code>, sitting alongside Deal Type = <code>Equity Swap</code>, <code>CAP</code>, <code>Asian Commodity Option</code>, <code>Commodity Forward</code>.</p>
+    </div>
+
+    <div class="dashboard-image">
+      <img src="images/alyeska_im_in_dealtype.jpg" alt="Alyeska Master Fund Trade Details with IM appearing under Deal Type alongside Equity Swap rows">
+      <div class="caption"><b>Current state — data conformance defect</b>Alyeska Trade Details. Multiple rows show Deal Type = <code>Equity Swap</code> (correctly representing an instrument). The bottom row shows Deal Type = <code>IM</code> with Book = <code>TCIM_IMBOOK</code>, Deal ID = <code>USDCASH00006D1</code>, Desk = <code>IMDESK</code>. The row identifies itself as IM-related four different ways and never identifies the underlying product it collateralises.</div>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">His specific question</span>
+      <p><i>"Why is IM appearing under Deal Type? Should the underlying product not be there instead?"</i></p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">Why this matters</span>
+      <p>IM is not a financial instrument. IM is a <b>booking purpose</b> — the row exists to represent an Initial Margin posting against an underlying portfolio. Equity Swap is a product. Putting both in the same column conflates two different conceptual axes. The Deal Type column is being asked to hold three different kinds of values:</p>
+      <table>
+        <thead><tr><th>Value</th><th>What it actually classifies</th><th>Where it should live</th></tr></thead>
+        <tbody>
+          <tr><td>Equity Swap, Vanilla IRS, FX Forward, CAP, Option</td><td>Product / instrument type</td><td class="col-good">dim_product</td></tr>
+          <tr><td>IM, VM</td><td>Booking purpose</td><td class="col-good">dim_trade_purpose / dim_collateral_type</td></tr>
+          <tr><td>Adjustment, Reversal, Novation</td><td>Lifecycle event</td><td class="col-good">dim_lifecycle_event</td></tr>
+        </tbody>
+      </table>
+      <p>The same critique applies to <b>"Adjustment"</b> appearing as a Deal Type for manual booking corrections (visible on the Zymer rows: <code>MANUAL_ASG</code>, <code>MANUAL_GED TDBLN EUCEDOPT</code>, <code>MANUAL_LME-AH</code>). Adjustment is a lifecycle action, not an instrument. The underlying product is being lost.</p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">What "IM" should look like properly modelled</span>
+      <table>
+        <thead><tr><th>Field</th><th>Today (flat)</th><th>Tomorrow (dimensional)</th></tr></thead>
+        <tbody>
+          <tr><td>Deal Type</td><td><code>IM</code></td><td><code>Cash Collateral</code></td></tr>
+          <tr><td>Trade Purpose</td><td>(none)</td><td><code>Initial Margin</code></td></tr>
+          <tr><td>Collateral Type</td><td>(none)</td><td><code>IM</code></td></tr>
+          <tr><td>Underlying Portfolio</td><td>(none — lost)</td><td><code>ALYA_C2C Equity Swap Book</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">Data needs</span>
+      <div class="data-needs">
+        <span class="dn-title">Conformed dimensions required</span>
+        <ul>
+          <li><code>dim_product</code> — instrument types only (Equity Swap, IRS, FX Forward, Cash Collateral, etc.)</li>
+          <li><code>dim_trade_purpose</code> — Risk-Taking, Hedge, Initial Margin, Variation Margin, Adjustment-Reversal</li>
+          <li><code>dim_collateral_type</code> — IM, VM, fee, premium</li>
+          <li><code>dim_lifecycle_event</code> — New, Active, Amended, Cancelled, Adjusted, Novated, Reversed, Expired</li>
+        </ul>
+        <span class="dn-title">Fact table changes</span>
+        <ul>
+          <li><code>fact_trade</code> — must carry FKs to <i>all four</i> dimensions above. The trade can simultaneously be (Equity Swap, Risk-Taking, New) or (Cash Collateral, Initial Margin, New). Today these distinctions are squashed.</li>
+          <li><code>fact_trade</code> — must carry <code>underlying_portfolio_id</code> for IM rows so they link back to the trades they collateralise.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="r7">R7 — Risk movement attribution across all asset classes</h3>
+
+  <div class="req-block">
+    <p><span class="req-num">R7</span><span class="req-title">The dashboard must show "where today's risk lives" across all asset classes — not just FX. The same six-panel attribution paradigm visible on the FX page must extend to Equities, Rates, Credit, and Commodities.</span></p>
+
+    <div class="req-section">
+      <span class="req-section-label">George's underlying principle</span>
+      <p>"Even though the OTC market is big, it's not really the volume that is important at times. It's really important to see where the risk lies. There's high volatility for FX rates or for equities. We need to be able to get that view to see which asset types or where is that high volatility being felt — and being able to drill down on it."</p>
+      <p>In credit risk, <b>volume is not risk</b>. A counterparty with 10,000 trades may not be material today; a counterparty with 5 large positions in a moving asset class may dominate today's PnL. The dashboard should surface the latter, not the former.</p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">What he showed (the working FX prototype)</span>
+      <p>The FXNotionalDeltaPnL_G page demonstrates exactly this approach — but only for FX.</p>
+    </div>
+
+    <div class="dashboard-image">
+      <img src="images/fx_pnl_attribution.jpg" alt="FX risk attribution dashboard with six panels showing Entity View, Top 10 PnL Movement waterfall, FX Rate Heat Map, and detailed counterparty/CCY decomposition">
+      <div class="caption"><b>Reference / aspirational</b>The FX risk attribution page. Six panels: (1) Entity View by booking entity with Long/Short/Net/Gross MTM Impact; (2) Top 10 PnL Movement waterfall; (3) FX Rate heat map by currency × time horizon (DoD/W1W/W2W/MoM/QoQ); (4) Top counterparty contributors with NetImpact in dollars; (5) CCY decomposition by entity; (6) CCY pair view. Slicers: NIG/IG and PnL Impact close region (London) vs Last close region (Toronto).</div>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">What he asked for — generalise the paradigm</span>
+      <p>The same six-panel structure, parameterised by asset class:</p>
+      <table>
+        <thead><tr><th>Asset class</th><th>Sensitivity types</th><th>Market moves to watch</th></tr></thead>
+        <tbody>
+          <tr><td><b>FX</b> ✓ today</td><td>FX Delta, FX Vega</td><td>CCY pair % moves; FX vol surfaces</td></tr>
+          <tr><td><b>Equities</b></td><td>Equity Delta, Equity Vega, Dividend sensitivity</td><td>Index level moves (S&amp;P, NDX, TSX, NIKKEI, FTSE); single-stock prices; equity vol surfaces</td></tr>
+          <tr><td><b>Rates</b></td><td>DV01, Key-rate DV01s, Rate Vega, Convexity</td><td>Yield curve shifts by tenor and currency; basis swap spreads; swaption vol surfaces</td></tr>
+          <tr><td><b>Credit</b></td><td>CS01, Jump-to-Default, Credit Vega</td><td>Single-name CDS spreads; index spreads (CDX IG/HY, iTraxx Main/Crossover); credit vol</td></tr>
+          <tr><td><b>Commodities</b></td><td>Commodity Delta, Commodity Vega, Calendar spread sensitivity</td><td>Spot prices (oil, gas, metals, ags); forward curves; commodity vol</td></tr>
+        </tbody>
+      </table>
+      <p>Volatility is not a separate asset class — vega appears within each. The five real asset classes are FX, Equities, Rates, Credit, Commodities.</p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">Why credit movement is especially important to highlight</span>
+      <p>Credit is where market-implied risk and counterparty risk converge. <b>If a counterparty's own CDS spread widens significantly, that's the market signalling perceived deterioration of its creditworthiness.</b> A counterparty whose CDS spread doubles in a week may be heading toward distress — even if internal rating hasn't been downgraded. So Credit attribution gives two outputs: PnL impact from spread moves, AND a counterparty deterioration early-warning list.</p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">Data needs</span>
+      <div class="data-needs">
+        <span class="dn-title">New fact / dim required — these are NEW data domains the analytics layer doesn't have today</span>
+        <ul>
+          <li><code>fact_sensitivities</code> — trade_id, valuation_date, market_factor_id, sensitivity_type (delta, dv01, cs01, vega, etc.), sensitivity_value, currency. <b>One row per trade per market factor per sensitivity type.</b> Source: valuation engines (RCAPS, XVALA), or pre-computed in source systems (CALYPSO, MUREX, SOPHIS). Refreshed daily; possibly intraday for fast-moving books.</li>
+          <li><code>dim_market_factor</code> — factor_id, factor_type (FX rate / equity index / single stock / yield curve point / CDS spread / commodity spot / implied vol point), asset_class (FX/Equity/Rates/Credit/Commodity), factor_description, currency, region.</li>
+          <li><code>fact_market_data</code> — factor_id, date, eod_value, intraday_value, change_dod, change_wow, change_mom, change_qoq. Source: Bloomberg, Refinitiv, internal market data hub.</li>
+        </ul>
+        <span class="dn-title">Computation required (Gold layer)</span>
+        <ul>
+          <li><code>v_pnl_attribution</code> — joins fact_sensitivities × fact_market_data, computes <code>pnl_impact = sensitivity × market_move</code> per trade per factor, aggregates to counterparty / desk / book / asset class.</li>
+          <li>Concentration metrics — for any aggregation level, what % of impact is concentrated in the top 1, top 5, top 10 contributors.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="r8">R8 — Bring CMOS / Colline data into the analytics view alongside SCREAM</h3>
+
+  <div class="req-block">
+    <p><span class="req-num">R8</span><span class="req-title">Collateral data (CMOS / Colline) must be joined to the SCREAM exposure data so that margin call status, IM/VM detail, and dispute tracking sit alongside exposure in one navigable surface.</span></p>
+
+    <div class="req-section">
+      <span class="req-section-label">What he showed</span>
+      <p>A daily Outlook email — <i>"Margin Call Summary - COB May 07, 2026 - Green"</i> from Atanas Daskalov, distributed to ~30 recipients. Three charts: Number of Margin Calls (current 530), Gross Margin Call vs DXY Index (current $2.09 Bn), Expected and Actual Net Margin (USD MM bars).</p>
+    </div>
+
+    <div class="dashboard-image">
+      <img src="images/margin_call_email.jpg" alt="Daily Margin Call Summary email with three chart pairs">
+      <div class="caption"><b>Current state</b>Daily margin call summary email. Sent at COB to ~30 recipients. Subject line traffic-light status (Green today). Three chart pairs — number of calls, gross margin call vs DXY index, expected vs actual net margin. <b>This data is not in the dashboard.</b></div>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">The complaint</span>
+      <p>This collateral picture lives in an email digest because Colline / CMOS data is not in the dashboard. He has to open his inbox to see it. He cannot drill from "DXY moved 1.5%" to "which counterparties drove the largest margin calls." The whole digest is point-in-time and not queryable.</p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">What he asked for</span>
+      <p>Colline / CMOS data brought into the same dashboard so he can pivot fluidly between exposure (from SCREAM) and collateral / margin call detail (from Colline). His framing: <i>"Colline has much richer datasets, which can add a lot more value."</i> Colline carries the OTC derivative collateral; prime brokerage collateral lives elsewhere (Softek) — separate question. <b>Note this requirement is also a prerequisite for computing default risk in R2 — without the collateral join you cannot net exposure.</b></p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">Data needs</span>
+      <div class="data-needs">
+        <span class="dn-title">Tables required from CMOS / Colline pipeline</span>
+        <ul>
+          <li><code>fact_collateral_balance</code> — counterparty_id, agreement_id, value_date, asset_id, posting_party (TDS or counterparty), collateral_type (IM/VM), gross_value, haircut_pct, net_value</li>
+          <li><code>fact_margin_call</code> — call_id, value_date, call_time, counterparty_id, agreement_id, called_amount, direction (issued/received), expected_settlement_date, actual_settlement_date, status (open/settled/disputed)</li>
+          <li><code>fact_margin_dispute</code> — dispute_id, value_date, counterparty_id, disputed_amount, reason_code, age_days, resolution_status</li>
+          <li><code>dim_csa_agreement</code> — agreement_id, counterparty_id, threshold, mta (minimum transfer amount), eligible_collateral_types, governing_law</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="r9">R9 — Tenor-bucketed limits and utilisation in dual reporting currencies</h3>
+
+  <div class="req-block">
+    <p><span class="req-num">R9</span><span class="req-title">The maturity-bucket structure (N-MTM, 0-3M, 3M-1Y, 1-2Y, 2-5Y, 5-10Y, 10-50Y) must be preserved in any future analytics view. USD and CAD must be available simultaneously, not as an either-or toggle.</span></p>
+
+    <div class="req-section">
+      <span class="req-section-label">What he showed</span>
+      <p>The Limit and Utilisation chart on the Legal Name View — bars by tenor bucket (CAD N-MTM, CAD 0-3M, CAD 3M-1Y, CAD 1-2Y, CAD 2-5Y, CAD 5-10Y, CAD 10-50Y, USD 0-3M, USD 3M-1Y, ..., USD 10-50Y) showing limit (green) vs utilisation (yellow). The CCR Line Details table extends this with Min Availability and Max Usage columns across the same tenor grid.</p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">Data needs</span>
+      <div class="data-needs">
+        <span class="dn-title">Conformance required</span>
+        <ul>
+          <li><code>dim_tenor_bucket</code> with consistent grain across <i>every</i> measure — limit, utilisation, availability, max usage, MTM, PFE</li>
+          <li>Currency dimension as an attribute on every fact, not as a flattened-into-column-name pattern (today: "CAD 0-3M" is one column. Properly: tenor_bucket=0-3M, currency=CAD, value=X)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="r10">R10 — Excess flag / breach surface visible across the working view</h3>
+
+  <div class="req-block">
+    <p><span class="req-num">R10</span><span class="req-title">Breach indicators (Excess Flag = Y, dispute charges, negative availability) must persist in the working view across all dimensional cuts. Breaches must not require navigating to a separate report tab.</span></p>
+
+    <div class="req-section">
+      <span class="req-section-label">What he showed</span>
+      <p>The Excess Flag column at the start of CCR Line Details. Breach rows render in pink. On the Zymer Gjonbalaj page, two lines flagged Y (BAN2_EBL, GAMP_C2C). On the RBC page, the Dispute Charge column highlighted $8.96M in pink.</p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">Data needs</span>
+      <div class="data-needs">
+        <span class="dn-title">Required</span>
+        <ul>
+          <li>Excess flag must be a derived measure available at every aggregation level — counterparty, country, region, desk, line, tenor bucket — not just at the line grain</li>
+          <li>Conditional formatting rules in the BI semantic model so any visualisation rendering availability or utilisation can show breach colouring without per-page configuration</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="r11">R11 — Party Details as working dimensions, not static panel</h3>
+
+  <div class="req-block">
+    <p><span class="req-num">R11</span><span class="req-title">Counterparty attributes (Internal Rating, Country Risk, Industry Rating, Moody's, S&amp;P) must be available as filterable dimensions across every view, not appear only as a static panel below the trade detail.</span></p>
+
+    <div class="req-section">
+      <span class="req-section-label">What he showed</span>
+      <p>The Party Details panel at the bottom of Legal Name View — CP_CODE, CP_NAME, LEGAL_NAME, BLOOMBERG_TICKER, INTERNAL flag, CREDIT_TYPE (CRPCAM), COUNTRY_RISK (CAN, USA), INDUSTRY_RATING, INTERNAL_RATING (1A through 5C), MOODYS_RATING, SANDP_RATING, COMP_SECURED.</p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">What he asked for</span>
+      <p>These are not optional metadata. Internal Rating drives limit determination. Country Risk drives jurisdictional rules. Industry classification drives concentration analysis. They must be filterable / groupable dimensions across all views.</p>
+      <p>Note: today INDUSTRY_RATING column is present but largely unpopulated. <b>The column exists; the data does not.</b> Industry classification is one of the original 12 GMC requirements and cannot be delivered without sourcing the data.</p>
+    </div>
+
+    <div class="req-section">
+      <span class="req-section-label">Data needs</span>
+      <div class="data-needs">
+        <span class="dn-title">Required</span>
+        <ul>
+          <li><code>dim_counterparty</code> with all party attributes as proper dimension fields</li>
+          <li>Industry classification source — likely from KYC / counterparty onboarding system. <b>Currently missing.</b></li>
+          <li>Rating snapshot history — <code>fact_counterparty_rating</code> with effective date, rating, source (internal, Moody's, S&amp;P, Fitch), so historical rating can be queried at any past date</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="gaps">Section 2 — Gaps in the current dashboard</h2>
+
+  <p>Organised by root cause. Some gaps are issues George raised explicitly; others became apparent walking through the screens.</p>
+
+  <h3>2.1 Gaps rooted in SCREAM's report structure</h3>
+
+  <div class="req-block flag">
+    <p><span class="req-title">G1 — The dashboard is rigid because SCREAM is rigid.<span class="tag flag">Root cause</span></span></p>
+    <p>Every limitation traces back to one fact: PowerBI is rendering pre-computed SCREAM reports without re-shaping them. Aggregations are done. Roll-ups are done. The data arrives flat and pre-joined. PowerBI cannot offer flexibility the source data does not contain. <i>"These dashboards are simply depicting whatever data was in those reports. So it is pretty rigid."</i></p>
+  </div>
+
+  <div class="req-block flag">
+    <p><span class="req-title">G2 — Exposure shown as one number — no decomposition.</span></p>
+    <p>The Current Exposure bar chart shows limit utilisation only. There is no separation of MTM vs default risk, no surfacing of collateral as a mitigant, no direct vs indirect path, no PFE add-on. The headline measure of CCR is collapsed to a single dimension when it has at least five.</p>
+  </div>
+
+  <div class="req-block flag">
+    <p><span class="req-title">G3 — Deal Type column conflates three different conceptual axes.</span></p>
+    <p>Product types (Equity Swap, CAP, Forward), booking purposes (IM), and lifecycle events (Adjustment) all appear in the same column. By collapsing them, the dashboard cannot answer questions like <i>"show me all my equity-swap-related exposure including the IM that backs it"</i> or <i>"show me all my IM postings broken down by underlying product."</i></p>
+  </div>
+
+  <div class="req-block flag">
+    <p><span class="req-title">G4 — Trade Details columns are derivatives-shaped — non-derivative bookings land mis-aligned.</span></p>
+    <p>When SFT trades, manual adjustments, IM bookings, or other non-derivative records flow through, attributes land in mismatched columns. Manual adjustment rows (<code>MANUAL_ASG</code>, <code>MANUAL_GED TDBLN EUCEDOPT</code>, <code>MANUAL_LME-AH</code>) lose the underlying product. IM rows say "IM" four ways and identify nothing about what they collateralise. SFT trade economics don't fit the derivative column structure.</p>
+  </div>
+
+  <h3>2.2 Gaps rooted in missing data integration</h3>
+
+  <div class="req-block flag">
+    <p><span class="req-title">G5 — No CMOS / Colline integration — collateral lives in email.</span></p>
+    <p>The daily margin call digest is an Outlook email. Margin call counts, gross margin call amounts vs DXY index, expected vs actual net margin — all of this exists as static charts pasted into a daily distribution. It is not queryable, drillable, or joinable to the SCREAM exposure data sitting one tab away. <b>Without this join, default risk cannot be computed (R2).</b></p>
+  </div>
+
+  <div class="req-block flag">
+    <p><span class="req-title">G6 — No way to search non-trading counterparties (collateral providers, issuers).</span></p>
+    <p>The CPTY filter is sourced from SCREAM's counterparty list — only direct trading counterparties. Parties that appear as collateral providers (NVIDIA), security issuers, related entities (parent / guarantor), or agents are not searchable. There is no indirect-exposure surface.</p>
+  </div>
+
+  <div class="req-block flag">
+    <p><span class="req-title">G7 — Industry classification field present but unpopulated.</span></p>
+    <p>The Party Details panel has an INDUSTRY_RATING column. On most rows captured in the screens it is blank. Industry classification is one of George's original 12 requirements and a critical concentration-risk dimension. The column exists; the data does not.</p>
+  </div>
+
+  <div class="req-block flag">
+    <p><span class="req-title">G8 — No sensitivities data joined into the analytics view.</span></p>
+    <p>The FX page demonstrates that risk attribution is possible — but only because FX sensitivities (FX deltas) appear to be available in some form. Equity, rates, credit, and commodity sensitivities are not surfaced. Without sensitivities, risk movement attribution across asset classes is not possible.</p>
+  </div>
+
+  <div class="req-block flag">
+    <p><span class="req-title">G9 — No conformed market data domain.</span></p>
+    <p>FX rate moves are visible in the FX page heat map. Equity index moves, yield curve shifts, CDS spread changes, and commodity price moves are not in the dashboard at all. Without market data as a conformed dimension joined to sensitivities, the recipe for risk movement attribution cannot be applied.</p>
+  </div>
+
+  <h3>2.3 Gaps rooted in page-per-view design</h3>
+
+  <div class="req-block flag">
+    <p><span class="req-title">G10 — Hard-coded country pages instead of a country-driven view.</span></p>
+    <p>The Israeli Notional Monitoring page is the canonical example. Israel got its own bespoke page rather than being folded into the parameterised structure already demonstrated by Hist Treasury Exposure. This will not scale to other regulatory regimes.</p>
+  </div>
+
+  <div class="req-block flag">
+    <p><span class="req-title">G11 — Flat 20+ tab navigation — no dimensional composition.</span></p>
+    <p>Today the user picks a page, then applies filters within it. There is no way to compose a view by chaining dimension selections (Region → Country → Counterparty → Desk). Every distinct slice requires either a different page or hand-managing multiple slicers.</p>
+  </div>
+
+  <div class="req-block flag">
+    <p><span class="req-title">G12 — No user control over column visibility.</span></p>
+    <p>The trade and party detail tables expose every column, every time. There is no column picker, no context-sensitivity, no user-saved column preferences.</p>
+  </div>
+
+  <h3>2.4 Architectural gap</h3>
+
+  <div class="req-block flag">
+    <p><span class="req-title">G13 — Static, point-in-time. No re-aggregation, no re-computation, no cross-source joins.</span></p>
+    <p>Because SCREAM produces canned reports with all calculations baked in, the dashboard cannot:</p>
+    <ul class="clean">
+      <li>Re-aggregate to a level not pre-computed by SCREAM (e.g. roll up by industry sector if SCREAM didn't compute that)</li>
+      <li>Apply user-defined filters that change the aggregation grain</li>
+      <li>Compute period comparisons (DoD, WoW, MoM) that SCREAM didn't pre-stage</li>
+      <li>Join to data outside SCREAM's report scope (CMOS, market data, sensitivities, party reference data)</li>
+      <li>Answer cross-counterparty questions like <i>"all my contingent lines running hot in the 1-2yr bucket"</i></li>
+    </ul>
+    <p>Every "more dynamic" thing George wants requires moving from <b>report consumption</b> to <b>model consumption</b>.</p>
+  </div>
+
+  <h2 id="enrichments">Section 3 — Enrichments and enhancements requested</h2>
+
+  <p>Forward-looking improvements — what the next version of the dashboard should do, beyond fixing the current gaps. Many of these naturally fall out of the data refactor described in Section 4.</p>
+
+  <div class="req-block good">
+    <p><span class="req-title">E1 — Tabbed dimensional composition at the top of the dashboard.</span></p>
+    <p>Top-of-page tabs: <span class="pill">Counterparty</span><span class="pill">Country</span><span class="pill">Region</span><span class="pill">Desk</span><span class="pill">Booking Entity</span><span class="pill">Industry</span><span class="pill">Product</span><span class="pill">Line Type</span><span class="pill">Tenor</span> — user clicks a tab to enter a dimension, selects a value, working scope narrows. Subsequent tabs operate within that narrowed scope. Un-select to widen.</p>
+  </div>
+
+  <div class="req-block good">
+    <p><span class="req-title">E2 — Five-way exposure decomposition surfaced together.</span></p>
+    <p>Whenever a counterparty / country / region is in scope, surface all five exposure concepts: Limits · MTM · Direct · Indirect · Default Risk. Drill from any number to its underlying composition.</p>
+  </div>
+
+  <div class="req-block good">
+    <p><span class="req-title">E3 — Direct + indirect exposure search — pivot on any party.</span></p>
+    <p>Search any party. The result shows: all direct trades with that party, all collateral they have posted, all securities they have issued that TDS holds as collateral, any related-party exposure. One unified search.</p>
+  </div>
+
+  <div class="req-block good">
+    <p><span class="req-title">E4 — Country-of-risk dashboard, parameterised.</span></p>
+    <p>One generic page. Pick country. The page renders the appropriate monitoring for that country. Israel becomes a parameterisation; new regimes are dimension extensions, not new pages.</p>
+  </div>
+
+  <div class="req-block good">
+    <p><span class="req-title">E5 — Context-sensitive columns + user column picker.</span></p>
+    <p>Column set adapts based on the trade types in scope, plus a column picker for explicit user control with saved preferences.</p>
+  </div>
+
+  <div class="req-block good">
+    <p><span class="req-title">E6 — Margin call view brought inline (Colline / CMOS integrated).</span></p>
+    <p>The daily margin call summary moves out of email and into the dashboard. Live, drillable, joined to counterparty exposure.</p>
+  </div>
+
+  <div class="req-block good">
+    <p><span class="req-title">E7 — Risk movement attribution for all five asset classes.</span></p>
+    <p>The FX page paradigm replicated for Equities, Rates, Credit, Commodities. "Where is today's risk being felt" answerable across any asset class.</p>
+  </div>
+
+  <div class="req-block good">
+    <p><span class="req-title">E8 — Period-comparison framework generalised.</span></p>
+    <p>The DoD / WoW / MoM / QoQ pattern from the FX page becomes a general capability across all measures (exposure, PFE, limit utilisation, sensitivities).</p>
+  </div>
+
+  <div class="req-block good">
+    <p><span class="req-title">E9 — Direct-from-source data, not pre-aggregated reports.</span></p>
+    <p>Replace the SCREAM-canned-report dependency with direct consumption of SCREAM's underlying trade / position / limit data, conformed in Databricks, joined to CMOS, market data, and sensitivities. The dashboard becomes a model consumer, not a report consumer.</p>
+  </div>
+
+  <h2 id="refactor">Section 4 — The refactor: from canned reports to dimensional model</h2>
+
+  <p>The arc of George's session is: <i>the BI tool is doing fine; the limitations are in the data shape it's being given</i>. Realising the enrichments above requires refactoring from <b>report-fed dashboard</b> to <b>model-fed analytics layer</b>.</p>
+
+  <div class="callout">
+    <p class="callout-title">The core principle</p>
+    <p>Today: SCREAM produces flat reports → PowerBI renders them. Tomorrow: SCREAM (and Colline, CMOS, valuation engines, market data, reference data) feed a conformed Silver layer in Databricks → an analytics view (Gold) joins facts to dimensions → BI tool (PowerBI, Strategy, anything) queries dimensionally. The BI tool is interchangeable; the model is the asset.</p>
+  </div>
+
+  <h3>4.1 The four-layer architecture</h3>
+
+  <div class="layer-stack">
+    <div class="layer">
+      <span class="ltitle">Layer 1 — Conformed dimensions</span>
+      <span class="ldesc">The "who and what." <code>dim_party</code> (with parent / agent / ultimate parent hierarchy, internal/external attributes), <code>dim_country</code>, <code>dim_industry</code>, <code>dim_region</code>, <code>dim_desk</code>, <code>dim_booking_entity</code>, <code>dim_currency</code>, <code>dim_tenor_bucket</code>, <code>dim_product</code>, <code>dim_trade_purpose</code>, <code>dim_lifecycle_event</code>, <code>dim_collateral_type</code>, <code>dim_agreement</code>, <code>dim_line</code>, <code>dim_security</code>, <code>dim_market_factor</code>, <code>dim_party_relationship</code>.</span>
+    </div>
+    <div class="layer">
+      <span class="ltitle">Layer 2 — Risk-app and source facts</span>
+      <span class="ldesc">The "how much" — outputs of the risk computation systems and source booking systems, brought in <i>before</i> they get flattened into reports. <code>fact_trade</code>, <code>fact_mtm</code>, <code>fact_limit</code>, <code>fact_limit_utilization</code>, <code>fact_collateral_balance</code>, <code>fact_margin_call</code>, <code>fact_margin_dispute</code>, <code>fact_sensitivities</code>, <code>fact_pfe</code>, <code>fact_market_data</code>, <code>fact_country_limit</code>, <code>fact_notional_monitoring</code>, <code>fact_counterparty_rating</code>.</span>
+    </div>
+    <div class="layer">
+      <span class="ltitle">Layer 3 — CCR analytics view (Gold)</span>
+      <span class="ldesc">The integration layer. Joins all dimensions to all facts in a way that supports the dimensional composition George wants. Direct exposure (counterparty → trades → MTM) and indirect exposure (party as collateral provider, issuer, related party) sit in the same view. Default risk computed as <code>gross_mtm − collateral_haircut_adjusted + pfe_addon</code>. PnL attribution computed as <code>sensitivity × market_move</code>, aggregated to counterparty / desk / asset class. Tenor-bucketed measures, period-comparison fields (DoD, WoW, MoM, QoQ) computed once, available to any consumer. <b>This is the layer that doesn't fully exist today.</b></span>
+    </div>
+    <div class="layer">
+      <span class="ltitle">Layer 4 — BI consumption</span>
+      <span class="ldesc">The rendering tier. Dashboards, drill paths, filters, conditional formatting, column pickers, tabbed dimensional navigation. The "easy part" — but only after Layers 1–3 exist. The BI tool is interchangeable. George's "tabs on top," "column picker," "context-sensitive columns" features get implemented here — they all become straightforward when the underlying model is dimensional.</span>
+    </div>
+  </div>
+
+  <h3>4.2 The trade-type taxonomy refactor</h3>
+
+  <p>The IM-in-Deal-Type problem is the canonical example of what conformance means.</p>
+
+  <table>
+    <thead><tr><th>Today (flat)</th><th>Tomorrow (dimensional)</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>Deal Type = IM</code></td>
+        <td>
+          <code>dim_product = Cash Collateral</code><br>
+          <code>dim_trade_purpose = Initial Margin</code><br>
+          <code>dim_collateral_type = IM</code><br>
+          <code>underlying_portfolio = ALYA_C2C Equity Swap Book</code>
+        </td>
+      </tr>
+      <tr>
+        <td><code>Deal Type = Adjustment</code></td>
+        <td>
+          <code>dim_product = (the underlying product, inherited)</code><br>
+          <code>dim_lifecycle_event = Adjustment</code><br>
+          <code>adjustment_reason = (manual override, reversal, etc.)</code><br>
+          <code>parent_trade_id = (link to original trade)</code>
+        </td>
+      </tr>
+      <tr>
+        <td><code>Deal Type = Equity Swap</code></td>
+        <td>
+          <code>dim_product = Equity Swap</code><br>
+          <code>dim_trade_purpose = Risk-Taking</code><br>
+          <code>dim_lifecycle_event = New / Active</code><br>
+          (no change in meaning — just no longer ambiguous)
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>4.3 The integration sequence</h3>
+
+  <p>A defensible sequence:</p>
+
+  <ol>
+    <li><b>Foundation</b> — establish the conformed dimensions in Databricks Silver. <code>dim_party</code>, <code>dim_country</code>, <code>dim_product</code>, <code>dim_trade_purpose</code>, <code>dim_tenor_bucket</code>, <code>dim_line</code>, <code>dim_security</code>, <code>dim_party_relationship</code>.</li>
+    <li><b>Replace SCREAM-as-report with SCREAM-as-source</b> — pipeline SCREAM's underlying trade and limit tables into Silver, conformed to the new dimensions. Re-platform the Legal Name View against the new model.</li>
+    <li><b>Add Colline / CMOS</b> — pipeline collateral data, integrate margin call detail. Email digest goes away. Default risk becomes computable.</li>
+    <li><b>Solve the trade-type taxonomy</b> — fix Deal Type. Separate product from purpose from lifecycle.</li>
+    <li><b>Generalise country-of-risk</b> — collapse Israeli and other jurisdictional pages into one parameterised view.</li>
+    <li><b>Add sensitivities pipeline</b> — bring valuation-engine outputs into Silver. Enables risk movement attribution for FX (replicating today's view dimensionally) and lays the groundwork for the other asset classes.</li>
+    <li><b>Add market data domain</b> — pipeline external market data into Silver as a conformed dimension. Joins with sensitivities to enable risk attribution.</li>
+    <li><b>Extend risk attribution to Equities, Rates, Credit, Commodities</b> — replicate the FX page paradigm, parameterised by asset class.</li>
+    <li><b>Rebuild the BI front-end</b> — tabbed dimensional navigation, column picker, context-sensitive columns. Smallest piece of work and only meaningful after the above is in place.</li>
+  </ol>
+
+  <h2 id="data-domains">Section 5 — Data sources and domains required</h2>
+
+  <p>Consolidated view of every data source the analytics layer must integrate to deliver the requirements above.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Source / Domain</th>
+        <th>What it provides</th>
+        <th>Required for which requirements</th>
+        <th>Status today</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>SCREAM (CRS)</b></td>
+        <td>Trade ledger, line definitions, limit tables, utilisation snapshots, breach flags. Today consumed as canned reports; needs to be consumed as underlying source tables.</td>
+        <td>R1, R2 (limits), R9, R10</td>
+        <td>Canned reports only. Need source-level access.</td>
+      </tr>
+      <tr>
+        <td><b>CMOS / Colline</b></td>
+        <td>Collateral postings (IM and VM), margin call activity, dispute tracking, CSA agreement data.</td>
+        <td>R2 (default risk), R3 (collateral provider search), R8</td>
+        <td>Not in dashboard. Pipeline required.</td>
+      </tr>
+      <tr>
+        <td><b>RCAPS / XVALA (valuation engines)</b></td>
+        <td>Daily MTM at trade and netting-set grain. Per-trade sensitivities (FX delta, equity delta, DV01, CS01, vega).</td>
+        <td>R2 (MTM), R7 (sensitivities)</td>
+        <td>FX sensitivities partially present. Other asset classes not surfaced.</td>
+      </tr>
+      <tr>
+        <td><b>RCS</b></td>
+        <td>Standard and stressed PFE.</td>
+        <td>R2 (PFE add-on for default risk)</td>
+        <td>Not in dashboard.</td>
+      </tr>
+      <tr>
+        <td><b>SENTOR</b></td>
+        <td>Aggregated sensitivities. Cross-trade and netting-set sensitivities.</td>
+        <td>R7</td>
+        <td>Not in dashboard.</td>
+      </tr>
+      <tr>
+        <td><b>Market data (Bloomberg / Refinitiv / internal hub)</b></td>
+        <td>External prices: FX rates, equity index levels, single-stock prices, yield curves, CDS spreads, commodity spots, implied vol surfaces. With multiple time horizons (EOD, intraday, DoD/WoW/MoM/QoQ changes).</td>
+        <td>R7 (the "what moved today" half of the recipe)</td>
+        <td>FX rates partially present (in the FX page heat map). Other domains not in dashboard.</td>
+      </tr>
+      <tr>
+        <td><b>Counterparty / KYC reference data</b></td>
+        <td>Party master, ratings, country of risk, industry classification, parent/subsidiary/guarantor relationships.</td>
+        <td>R3 (relationships), R4 (country), R11 (party attributes)</td>
+        <td>Partially in dashboard. Industry classification largely empty. Relationship data not surfaced.</td>
+      </tr>
+      <tr>
+        <td><b>Securities reference data</b></td>
+        <td>Security master with issuer linkages, asset class, country, ISIN/CUSIP. Required to derive issuer for any security held as collateral.</td>
+        <td>R3 (indirect exposure via issuer)</td>
+        <td>Not in dashboard.</td>
+      </tr>
+      <tr>
+        <td><b>Index composition data</b></td>
+        <td>Constituents and weights for major indices (S&amp;P 500, NDX, TSX, etc.). Required to derive single-name exposure from index swaps.</td>
+        <td>R3 (NVIDIA-via-index path)</td>
+        <td>Not in dashboard.</td>
+      </tr>
+      <tr>
+        <td><b>Source booking systems (CALYPSO, MUREX, SOPHIS, MUCM, etc.)</b></td>
+        <td>Trade-level economic detail beyond what SCREAM extracts. Asset-class-specific attributes for SFT, prime, structured products.</td>
+        <td>R5 (column flexibility), R6 (lifecycle events)</td>
+        <td>Some bookings flow through SCREAM; richer detail not surfaced.</td>
+      </tr>
+      <tr>
+        <td><b>Manual adjustments</b></td>
+        <td>Operational corrections, reversals, novations entered by hand. Today appearing as <code>MANUAL_ASG</code> etc. with lost product context.</td>
+        <td>R6 (lifecycle events)</td>
+        <td>Present but mis-classified.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 id="close">Closing thread</h2>
+
+  <p>The most important sentence Reena observed during the session: <i>"Since these are all canned reports from which data has been read, these dashboards are simply depicting whatever data was in those reports. So it is pretty rigid."</i> That's the diagnosis. George showed us a working PowerBI build that has materially helped his team — and every limitation he raised is a limitation of <b>the data being fed to PowerBI</b>, not of PowerBI itself.</p>
+
+  <p>The corollary: changing BI tool does not solve the rigidity. Strategy, Tableau, AI/BI Genie — all would inherit the same constraints if pointed at the same SCREAM canned reports. The leverage is upstream. Build the conformed dimensional model in Databricks once; serve any BI tool from it. The dashboard George wants — dynamic, dimensionally composable, joinable across CMOS and SCREAM, parameterisable by country, surfacing all five exposure concepts, attributing risk movement across all asset classes — is not a different dashboard. It's the same dashboard sitting on a fundamentally different data layer.</p>
+
+  <p class="footer-note">Captured by Reena Cheema · CCR Analytics session with George Karahotzitis · 8 May 2026 · For internal working discussion. Sample numerical examples are illustrative; sample data shapes are indicative.</p>
+
+</div>
+</body>
+</html>

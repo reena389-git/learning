@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>CCR Explainer — Lines, Exposure, Margin Calls, Risk Movement</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root{
+    --ink: #1a1a1a;
+    --ink-soft: #4a4a4a;
+    --paper: #faf8f3;
+    --paper-warm: #f3efe5;
+    --rule: #d9d3c4;
+    --accent: #7a3b1f;
+    --accent-soft: #c47a4a;
+    --flag: #b8431f;
+    --flag-bg: #fbeae0;
+    --good: #2d5e3a;
+    --good-bg: #e6efe1;
+    --neutral: #4d5d6c;
+    --neutral-bg: #e6ecf1;
+    --code-bg: #efeadc;
+    --highlight: #fff4c4;
+    --def-bg: #f0ece0;
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--paper); color: var(--ink); font-family:'Inter Tight', sans-serif; font-size: 15px; line-height: 1.62; }
+
+  .page{ max-width: 940px; margin: 0 auto; padding: 56px 64px 96px; }
+
+  h1, h2, h3, h4{ font-family:'Fraunces', serif; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+  h1{ font-size: 36px; line-height: 1.1; margin: 0 0 8px; font-weight: 700; }
+  h2{ font-size: 24px; margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); }
+  h3{ font-size: 18px; margin: 28px 0 10px; color: var(--accent); }
+  h4{ font-size: 14.5px; margin: 18px 0 8px; font-family:'Inter Tight', sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); }
+
+  .meta{ color: var(--ink-soft); font-size: 13px; margin: 0 0 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .lede{ font-family:'Fraunces', serif; font-size: 17px; line-height: 1.55; color: var(--ink-soft); border-left: 3px solid var(--accent); padding: 4px 0 4px 18px; margin: 22px 0 32px; font-style: italic; }
+
+  p{ margin: 0 0 12px; }
+
+  code, .mono{ font-family: 'JetBrains Mono', monospace; background: var(--code-bg); padding: 1px 6px; border-radius: 3px; font-size: 13px; }
+
+  table{ width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13.5px; }
+  th, td{ text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th{ background: var(--paper-warm); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); }
+  td.num, th.num{ text-align: right; font-family: 'JetBrains Mono', monospace; }
+  tr.breach td{ background: var(--flag-bg); }
+  tr.breach td:first-child{ color: var(--flag); font-weight: 700; }
+  tr.total td{ font-weight: 700; border-top: 2px solid var(--ink); background: var(--paper-warm); }
+
+  ul.clean{ padding-left: 22px; margin: 8px 0 12px; }
+  ul.clean li{ margin: 4px 0; }
+
+  .definition{
+    background: var(--def-bg);
+    border-left: 4px solid var(--neutral);
+    padding: 10px 16px;
+    margin: 12px 0;
+    border-radius: 0 4px 4px 0;
+    font-size: 14px;
+  }
+  .definition .term{
+    display: block;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .example{
+    background: var(--paper-warm);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 18px 22px;
+    margin: 16px 0;
+  }
+  .example-title{
+    font-family:'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-size: 15px;
+  }
+
+  .callout{
+    border: 1px dashed var(--accent);
+    background: #fff9f0;
+    padding: 14px 20px;
+    border-radius: 4px;
+    margin: 18px 0;
+    font-size: 14px;
+  }
+  .callout-title{ font-family:'Fraunces', serif; font-style: italic; font-weight: 600; color: var(--accent); margin-bottom: 4px; font-size: 15px; }
+
+  .key-table{ background: var(--paper-warm); border-radius: 6px; border: 1px solid var(--rule); padding: 12px 18px; margin: 14px 0; font-size: 14px; }
+  .key-table .row{ display: grid; grid-template-columns: 220px 1fr; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--rule); }
+  .key-table .row:last-child{ border-bottom: none; }
+  .key-table .term{ font-family:'JetBrains Mono', monospace; font-size: 13px; color: var(--accent); }
+
+  .toc{ background: var(--paper-warm); border: 1px solid var(--rule); padding: 16px 22px; border-radius: 6px; margin: 24px 0 36px; font-size: 14px; }
+  .toc b{ font-family:'Fraunces', serif; font-weight: 600; }
+  .toc ol{ margin: 8px 0 0; padding-left: 22px; }
+  .toc li{ margin: 4px 0; }
+  .toc a{ color: var(--ink); text-decoration: none; }
+  .toc a:hover{ color: var(--accent); }
+
+  .stack-calc{
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 16px 22px;
+    margin: 14px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.9;
+  }
+  .stack-calc .label{ display: inline-block; min-width: 270px; color: var(--ink-soft); }
+  .stack-calc .val{ color: var(--ink); font-weight: 500; }
+  .stack-calc .calc{ color: var(--accent); font-style: italic; font-family: 'Fraunces', serif; font-weight: 400; }
+  .stack-calc .total{ border-top: 2px solid var(--ink); padding-top: 6px; margin-top: 6px; font-weight: 700; }
+  .stack-calc .neg{ color: var(--flag); }
+
+  .recipe{
+    background: #fff;
+    border: 2px solid var(--accent);
+    border-radius: 6px;
+    padding: 18px 22px;
+    margin: 16px 0;
+  }
+  .recipe-title{
+    font-family:'Fraunces', serif;
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .recipe ol{ padding-left: 22px; margin: 8px 0; }
+  .recipe ol li{ margin: 6px 0; }
+
+  .footer-note{ margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--rule); color: var(--ink-soft); font-size: 13px; font-style: italic; }
+
+  .hl{ background: var(--highlight); padding: 1px 4px; border-radius: 2px; }
+
+  .scenario-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
+  .scenario-card{ background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 18px; }
+  .scenario-card h4{ margin-top: 0; color: var(--accent); border-bottom: 1px solid var(--rule); padding-bottom: 6px; }
+
+  .formula{
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.7;
+    text-align: center;
+  }
+
+  /* Dashboard image styles */
+  .dashboard-image{
+    margin: 18px 0;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--paper-warm);
+  }
+  .dashboard-image img{
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .dashboard-image .caption{
+    padding: 8px 14px;
+    background: var(--paper-warm);
+    border-top: 1px solid var(--rule);
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-style: italic;
+    font-family: 'Fraunces', serif;
+  }
+  .dashboard-image .caption b{
+    font-style: normal;
+    font-family: 'Inter Tight', sans-serif;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 10.5px;
+    margin-right: 6px;
+  }
+
+  .dashboard-section{
+    border: 1px solid var(--accent-soft);
+    background: #fffaf3;
+    border-radius: 6px;
+    padding: 16px 22px;
+    margin: 24px 0;
+  }
+  .dashboard-section-label{
+    display: inline-block;
+    background: var(--accent);
+    color: var(--paper);
+    font-size: 10.5px;
+    padding: 3px 10px;
+    border-radius: 3px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <p class="meta">CCR Learning Guide · Addendum · For novice and seasoned readers alike</p>
+  <h1>Credit Lines, Exposure, Margin Calls, and Risk Movement Attribution</h1>
+  <p class="lede">A walkthrough of the core mechanics of counterparty credit risk management. Each part introduces the concepts in plain language, defines every term the first time it appears, then illustrates with a worked example. Where helpful, examples are grounded in screenshots from the GMC team's CCR_Analytics_Report (Power BI) reviewed on 8 May 2026 — but every concept is explained independently of that dashboard so the document stands on its own.</p>
+
+  <div class="toc">
+    <b>Contents</b>
+    <ol>
+      <li><a href="#part1">Part 1 — Credit lines and exposure decomposition</a></li>
+      <li><a href="#part2">Part 2 — The daily margin call digest</a></li>
+      <li><a href="#part3">Part 3 — Risk movement attribution: from notionals to "where the day's risk lives"</a></li>
+      <li><a href="#glossary">Glossary</a></li>
+    </ol>
+  </div>
+
+  <h2 id="part1">Part 1 — Credit lines and exposure decomposition</h2>
+
+  <h3>1.1 What we mean by "counterparty credit risk"</h3>
+
+  <div class="definition">
+    <span class="term">Counterparty</span>
+    Any external entity that a bank has a financial relationship with — a bank (RBC, JPMC), a hedge fund (Citadel, Alyeska), a corporation (Apple, NVIDIA), a pension fund, a sovereign government, a clearing house. Anyone the bank could be owed money by, or could owe money to, as a result of trades or financing arrangements.
+  </div>
+
+  <div class="definition">
+    <span class="term">Counterparty Credit Risk (CCR)</span>
+    The risk that a counterparty fails to meet its obligations before the final settlement of a trade, and that the bank loses money as a result. Different from issuer credit risk (where you lose money if a bond defaults) and lending credit risk (where you lose money if a loan goes bad). CCR is specifically about counterparties to derivative, repo, securities lending, and other bilateral trade relationships.
+  </div>
+
+  <h3>1.2 What a credit "line" actually is</h3>
+
+  <p>A <b>credit line</b> is an approved tranche of exposure capacity that a bank has granted (or carved out) for a specific counterparty under a specific set of rules. It is the <b>unit at which credit limits live</b>.</p>
+
+  <div class="definition">
+    <span class="term">Limit</span>
+    The maximum amount of exposure (measured in dollars or another currency) that the bank is willing to have to a counterparty under a particular line. Set by the credit committee based on the counterparty's creditworthiness, the type of business, and the regulatory regime.
+  </div>
+
+  <p>When a credit officer approves doing business with a counterparty, the approval doesn't say <i>"trade up to $X total."</i> It says <i>"trade up to $X under these conditions, up to $Y under those conditions, up to $Z under those other conditions."</i> Each of those is a separate line.</p>
+
+  <div class="callout">
+    <p class="callout-title">The mental model</p>
+    <p>A counterparty doesn't have <i>one</i> credit limit. They have a <b>portfolio of lines</b>, each governing a different slice of the credit relationship. Some lines cover specific products (only interest rate swaps, only repo). Some cover specific tenors (only short-dated). Some are contingent on legal agreements being in place. Some are committed; some are uncommitted. The lines collectively define <i>what the bank will and won't do</i> with that counterparty.</p>
+  </div>
+
+  <h3>1.3 Why so many lines per counterparty?</h3>
+
+  <p>Because credit risk is not one-dimensional. The risk of doing a 30-year interest rate swap with a counterparty is different from the risk of doing a 1-week FX forward. The risk in CAD is different from USD. The risk under a netting agreement is different from no agreement. So credit limits are sliced finely:</p>
+
+  <ul class="clean">
+    <li><b>By product</b> — separate lines for derivatives, repo, FX, securities lending, structured products</li>
+    <li><b>By tenor</b> (maturity bucket) — short-dated vs long-dated typically have different appetite</li>
+    <li><b>By currency</b> — USD vs CAD vs other</li>
+    <li><b>By line type</b> — committed vs uncommitted, contingent vs unconditional, daylight vs overnight</li>
+    <li><b>By booking entity</b> — different legal entities of the bank (TD Bank, TD Securities, TD Europe) have their own credit risk appetite</li>
+    <li><b>By purpose</b> — counterparty (CP) lines vs haircut (HC) lines vs treasury lines</li>
+  </ul>
+
+  <p>One large counterparty (a major bank, a major hedge fund manager) easily has dozens of lines. An <b>agent</b> — a single legal entity that acts as the booking face for many underlying funds — can carry tens of thousands.</p>
+
+  <div class="definition">
+    <span class="term">Agent / Agent block</span>
+    A legal entity that books trades on behalf of many underlying clients (typically funds). The bank trades with the agent but the credit risk really sits with each underlying client. Hedge fund prime brokers, investment managers, and certain trust entities all use this structure. Bank North Summit Client (Zymer Gjonbalaj) is one such agent.
+  </div>
+
+  <h3>1.4 What a credit line "looks like" in data</h3>
+
+  <p>For each line, the bank tracks:</p>
+
+  <table>
+    <thead><tr><th>Attribute</th><th>What it captures</th></tr></thead>
+    <tbody>
+      <tr><td><b>Line identifier</b></td><td>A coded name identifying the line uniquely</td></tr>
+      <tr><td><b>Line type</b></td><td>Contingent, Cleared-to-Cleared, Committed, Uncommitted, Daylight, etc.</td></tr>
+      <tr><td><b>Booking entity</b></td><td>Which legal entity of the bank the line belongs to</td></tr>
+      <tr><td><b>Currency</b></td><td>The currency the limit is denominated in (USD, CAD, etc.)</td></tr>
+      <tr><td><b>Limit (per tenor bucket)</b></td><td>Maximum approved exposure, broken across maturity buckets (0-3mo, 3-12mo, 1-2Y, 2-5Y, 5-10Y, 10-50Y)</td></tr>
+      <tr><td><b>Utilisation (per tenor bucket)</b></td><td>Capacity currently consumed by trades</td></tr>
+      <tr><td><b>Min Availability</b></td><td>Limit minus utilisation. Negative numbers indicate breaches.</td></tr>
+      <tr><td><b>Max Usage</b></td><td>Peak utilisation observed historically — the high-water mark</td></tr>
+      <tr><td><b>Excess Flag</b></td><td>Y/N indicator that the line is over its limit somewhere</td></tr>
+      <tr><td><b>Worst Rating Of Associated Clients</b></td><td>For agent lines covering many funds, the worst credit rating among them</td></tr>
+      <tr><td><b>Dispute Charge</b></td><td>Open, unresolved disputed margin amount on this line</td></tr>
+    </tbody>
+  </table>
+
+  <h3>1.5 How line names are typically encoded</h3>
+
+  <p>Bank credit systems use coded line names that pack identity, ownership and type into one string. A typical convention:</p>
+
+  <div class="key-table">
+    <div class="row"><span class="term">[purpose]_[booking_entity]_[counterparty/facility code]_[line_type]</span><span>e.g. <code>CP_(TDBK)_(RBCM_DBL)</code> = Counterparty line, TD Bank booking entity, RBC Markets, Daylight type.</span></div>
+  </div>
+
+  <p>Once decoded, the line name is self-describing. You know what the line is for, who owns it on the bank side, who it covers on the client side, and what type it is.</p>
+
+  <div class="dashboard-section">
+    <span class="dashboard-section-label">Dashboard Worked Example — RBC</span>
+
+    <p>The screenshot below shows the same concepts realised in a Power BI report. Royal Bank of Canada (RBC) is selected as the counterparty. The chart at top right is titled <b>"ROYAL BANK OF CANADA with 7 Lines Aggregated"</b> meaning RBC has 7 distinct credit lines approved. The CCR Line Details table below lists them.</p>
+
+    <div class="dashboard-image">
+      <img src="images/rbc_legal_name_view.jpg" alt="RBC Legal Name View showing 7 lines, limits and utilisation by tenor bucket, dispute charge highlighted">
+      <div class="caption"><b>Example dashboard</b>RBC counterparty view. Top right: 7 lines aggregated in a Limit & Utilisation chart by tenor bucket (CAD and USD side by side). Middle: CCR Line Details listing each line. The pink-highlighted $8,957,190 in the Dispute Charge column is an open, unresolved disputed margin amount on the haircut line.</div>
+    </div>
+
+    <p>Reading the screenshot:</p>
+    <ul class="clean">
+      <li>RBC has 7 lines — one Haircut line (<code>HC_(TDBK)_(RBCM)</code>) and six Counterparty lines, all of type C2C (Cleared-to-Cleared).</li>
+      <li>All lines rated 1C (high investment-grade).</li>
+      <li>Most are USD-denominated; one is CAD.</li>
+      <li>No Excess Flag = Y → no breaches today.</li>
+      <li>One open dispute on the haircut line: <span class="hl">$8.96M</span> — the bank thinks it's owed $8.96M of margin from RBC that hasn't been collected.</li>
+      <li>Total availability across all 7 lines in the 0-3mo bucket: $780M USD-equivalent. New short-dated trades up to that amount can still be done.</li>
+    </ul>
+  </div>
+
+  <h3>1.6 What a breach looks like</h3>
+
+  <p>A line is in breach when its utilisation has exceeded its limit in any tenor bucket. In data terms, the Min Availability for that bucket goes negative. In dashboards, breaches are typically highlighted in colour (often pink or red) and surfaced with an Excess Flag = Y.</p>
+
+  <p>Breaches require same-day attention because they signal that more credit exposure has been taken on than was authorised. The cause may be:</p>
+
+  <ul class="clean">
+    <li><b>New trades that pushed the line over</b> — operational/control issue</li>
+    <li><b>Market moves that increased the value of existing exposure</b> — natural fluctuation</li>
+    <li><b>Counterparty credit deterioration that triggered an automatic limit reduction</b> — risk-off signal</li>
+    <li><b>Data quality issues</b> — a misclassification or stale feed</li>
+  </ul>
+
+  <p>The credit officer's first task on seeing a breach is to identify which of these caused it, then take the appropriate action (reduce position, request waiver, escalate).</p>
+
+  <div class="dashboard-section">
+    <span class="dashboard-section-label">Dashboard Worked Example — Agent block with breaches</span>
+
+    <p>This screenshot shows an extreme version of the agent-block pattern: <b>11,840 lines aggregated</b> under one agent (Bank North Summit Client). Two of the visible lines are flagged Y in the Excess Flag column — both rendered in pink — and show negative Min Availability values indicating breaches.</p>
+
+    <div class="dashboard-image">
+      <img src="images/zymer_breaches.jpg" alt="Zymer Gjonbalaj agent block view with 11,840 lines aggregated and two pink-highlighted breach rows">
+      <div class="caption"><b>Example dashboard</b>11,840 underlying client lines aggregated under one agent. Two breaches visible in pink: <code>BAN2_EBL</code> with -$700M availability in 3-12mo bucket, and <code>GAMP_C2C</code> with -$364M availability in 0-3mo bucket. Note also the Trade Details panel below shows multiple "Adjustment" rows — manual postings — discussed in section 1.10.</div>
+    </div>
+
+    <p>Reading the breaches:</p>
+    <ul class="clean">
+      <li><code>BAN2_EBL</code>: rating 1A (excellent credit quality), Min Availability 3-12mo = -$700M. Breach is on line sizing, not credit deterioration. Likely a high-quality client who has grown their book.</li>
+      <li><code>GAMP_C2C</code>: rating 5C (very weak credit quality), Min Availability 0-3mo = -$364M. Combines a breach <i>with</i> credit deterioration — both pressures simultaneously. More urgent.</li>
+    </ul>
+  </div>
+
+  <h3>1.7 Tenor buckets — why maturity matters</h3>
+
+  <p>Credit appetite varies with maturity. A bank may be very willing to do a 1-week trade but not a 10-year one with the same counterparty, because:</p>
+
+  <ul class="clean">
+    <li>The longer the maturity, the more time for things to go wrong</li>
+    <li>The longer the maturity, the larger the potential value swings (more time for market moves to accumulate)</li>
+    <li>The longer the maturity, the harder to exit the position cheaply if needed</li>
+  </ul>
+
+  <p>So limits and utilisation are tracked separately for each maturity bucket. The standard buckets used in practice are:</p>
+
+  <table>
+    <thead><tr><th>Bucket</th><th>Covers maturities</th></tr></thead>
+    <tbody>
+      <tr><td>N-MTM</td><td>Negative MTM positions (already in the money to the bank, considered low risk for further deterioration)</td></tr>
+      <tr><td>0-3mo</td><td>Up to 3 months</td></tr>
+      <tr><td>3-12mo</td><td>3 months to 1 year</td></tr>
+      <tr><td>1-2Y</td><td>1 to 2 years</td></tr>
+      <tr><td>2-5Y</td><td>2 to 5 years</td></tr>
+      <tr><td>5-10Y</td><td>5 to 10 years</td></tr>
+      <tr><td>10-50Y</td><td>10 to 50 years</td></tr>
+    </tbody>
+  </table>
+
+  <p>A trade with a 4-year maturity hits the 2-5Y bucket. Limits and utilisation are tracked in each bucket independently — a counterparty could be at limit in 2-5Y while having lots of room in 0-3mo.</p>
+
+  <h3>1.8 Why "exposure" is not one number</h3>
+
+  <p>The word "exposure" is used loosely in everyday conversation, but in CCR it has at least <b>five distinct meanings</b>. Each answers a different question. Each is a different number. Conflating them leads to bad decisions.</p>
+
+  <table>
+    <thead><tr><th>Concept</th><th>Question it answers</th></tr></thead>
+    <tbody>
+      <tr><td><b>Limit / Capacity</b></td><td>How much business is the bank approved to do with this counterparty?</td></tr>
+      <tr><td><b>Limit Utilisation</b></td><td>How much of that approved capacity is currently being consumed?</td></tr>
+      <tr><td><b>Mark-to-Market (MTM)</b></td><td>What is today's economic value of the bank's positions with this counterparty? Same as the replacement cost if they defaulted right now.</td></tr>
+      <tr><td><b>Direct Exposure</b></td><td>Exposure arising from trades the bank has <i>with</i> this counterparty.</td></tr>
+      <tr><td><b>Indirect Exposure</b></td><td>Exposure to this counterparty even when they are not the direct trading party — they appear as collateral provider, security issuer, parent, related entity, or agent.</td></tr>
+      <tr><td><b>Default Risk Exposure</b></td><td>What the bank actually loses if the counterparty defaults — gross MTM minus collateral held (with haircuts), plus PFE add-on for forward-looking risk.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="definition">
+    <span class="term">Mark-to-Market (MTM)</span>
+    Today's market value of a trade. If the bank entered a trade at $100M and today's market value is $108M, the MTM is $108M, and the bank is "in the money" by $8M. If the counterparty defaulted right now, the bank would need to replace the trade at the current market price — that replacement cost is the loss exposure.
+  </div>
+
+  <div class="definition">
+    <span class="term">Initial Margin (IM)</span>
+    Collateral posted up-front when a trade is executed, sized to cover potential future losses if the counterparty defaults before the next margin call. Think of it as a security deposit.
+  </div>
+
+  <div class="definition">
+    <span class="term">Variation Margin (VM)</span>
+    Collateral exchanged daily (sometimes intra-day) to cover changes in MTM. If a trade moves $10M in the bank's favour today, the counterparty posts $10M VM to the bank. Daily settling-up of paper gains and losses.
+  </div>
+
+  <div class="definition">
+    <span class="term">Haircut</span>
+    A discount applied to collateral value to account for the risk that the collateral itself loses value during liquidation. $100M of stock posted as collateral might be valued at $85M after a 15% haircut.
+  </div>
+
+  <div class="definition">
+    <span class="term">Potential Future Exposure (PFE)</span>
+    A modelled estimate of how much exposure could grow over a future time horizon (e.g. 1 year), at a given confidence level (e.g. 95th or 99th percentile). Forward-looking — captures "how bad could this realistically get."
+  </div>
+
+  <h3>1.9 Worked exposure decomposition</h3>
+
+  <p>To make these five concepts concrete, here is how they relate for a single counterparty. Numbers are illustrative.</p>
+
+  <div class="stack-calc">
+    <span class="label">CAPACITY (limits):</span><br>
+    <span class="label">  Approved Limit (sum of all lines)</span><span class="val">5,000M USD</span><br>
+    <span class="label">  Limit Utilisation</span><span class="val">2,116M USD</span><br>
+    <span class="label">  Available Capacity</span><span class="val">2,884M USD</span><br>
+    <br>
+    <span class="label">ECONOMIC EXPOSURE (today's MTM):</span><br>
+    <span class="label">  Direct MTM (counterparty trades)</span><span class="val">142M USD</span><br>
+    <span class="label">  + Indirect MTM (as collateral, issuer)</span><span class="val">28M USD</span><br>
+    <span class="label total">  = Total Gross Exposure</span><span class="val total">170M USD</span><br>
+    <br>
+    <span class="label">MITIGATION (collateral):</span><br>
+    <span class="label">  IM held (haircut-adjusted)</span><span class="val neg">(45M) USD</span><br>
+    <span class="label">  VM held (haircut-adjusted)</span><span class="val neg">(53M) USD</span><br>
+    <span class="label total">  = Net Exposure</span><span class="val total">72M USD</span><br>
+    <br>
+    <span class="label">FORWARD-LOOKING:</span><br>
+    <span class="label">  + PFE add-on (1-year, 95th percentile)</span><span class="val">12M USD</span><br>
+    <span class="label total">  = DEFAULT RISK EXPOSURE</span><span class="val total">84M USD</span><br>
+  </div>
+
+  <div class="example">
+    <p class="example-title">Reading this stack</p>
+    <p>The counterparty is using $2.1Bn of $5Bn approved capacity — plenty of room. Today's economic MTM is $142M direct plus $28M indirect = $170M gross. Of that, $98M is covered by collateral, so net exposure is $72M. Adding a 1-year PFE buffer of $12M, default risk is $84M.</p>
+    <p><b>If this counterparty defaulted tomorrow, the bank's actual loss exposure is $84M, not $2.1Bn.</b> The 25× difference between limit utilisation and default risk is exactly why one number isn't enough.</p>
+  </div>
+
+  <h3>1.10 The IM / Adjustment / Deal Type problem — a data quality lens</h3>
+
+  <p>Some bank systems collapse multiple distinct concepts into one column. A common pattern: a column called "Deal Type" ends up holding three different kinds of values:</p>
+
+  <table>
+    <thead><tr><th>Value</th><th>What it actually classifies</th><th>Where it should live</th></tr></thead>
+    <tbody>
+      <tr><td>Equity Swap, IRS, FX Forward, CAP, Option</td><td>Product / instrument type</td><td>Product dimension</td></tr>
+      <tr><td>IM, VM</td><td>Booking purpose (collateral posting)</td><td>Trade purpose dimension</td></tr>
+      <tr><td>Adjustment, Reversal, Novation</td><td>Lifecycle event</td><td>Lifecycle event dimension</td></tr>
+    </tbody>
+  </table>
+
+  <p>This is a data conformance issue, not a UI problem. <b>IM is not a financial instrument — it is a booking purpose</b>, marking that the row exists to represent an Initial Margin posting against an underlying portfolio. Equity Swap is a product. Putting them in the same column conflates two different conceptual axes. The same critique applies to "Adjustment," which is a lifecycle action operating on an existing trade — not an instrument type.</p>
+
+  <p>When this conflation happens, certain analytical questions become impossible to answer cleanly:</p>
+
+  <ul class="clean">
+    <li><i>"Show me all my equity-swap-related exposure including the IM that backs it"</i> — fails because IM rows don't carry the underlying product</li>
+    <li><i>"Show me my IM postings broken down by underlying product"</i> — fails for the same reason</li>
+    <li><i>"Show me all adjustments grouped by what they adjusted"</i> — fails because the underlying product is lost</li>
+  </ul>
+
+  <div class="dashboard-section">
+    <span class="dashboard-section-label">Dashboard Worked Example — IM appearing as Deal Type</span>
+
+    <p>The screenshot below shows the issue concretely. The Trade Details panel includes a row where Deal Type = <code>IM</code>, sitting alongside rows where Deal Type = Equity Swap. The IM row is from an Initial Margin book (<code>TCIM_IMBOOK</code>) with a Deal ID showing it is a USD cash entry (<code>USDCASH00006D1</code>) and a Desk labelled <code>IMDESK</code>. The row identifies itself as IM-related four different ways, and never identifies what underlying product it is collateralising.</p>
+
+    <div class="dashboard-image">
+      <img src="images/alyeska_im_in_dealtype.jpg" alt="Alyeska Master Fund Trade Details showing IM appearing under Deal Type">
+      <div class="caption"><b>Example dashboard</b>Trade Details for Alyeska Master Fund. The bottom-most visible row has Deal Type = <code>IM</code> while the rows above show Deal Type = <code>Equity Swap</code>. The IM row's Book is <code>TCIM_IMBOOK</code>, its Desk is <code>IMDESK</code>, and its Deal ID is <code>USDCASH00006D1</code>. The underlying product being collateralised is not represented anywhere on the row.</div>
+    </div>
+
+    <p>Properly modelled, this row should look like:</p>
+    <table>
+      <thead><tr><th>Field</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Product</td><td>Cash Collateral</td></tr>
+        <tr><td>Trade Purpose</td><td>Initial Margin</td></tr>
+        <tr><td>Collateral Type</td><td>IM</td></tr>
+        <tr><td>Underlying Portfolio</td><td>ALYA_C2C Equity Swap Book</td></tr>
+      </tbody>
+    </table>
+    <p>Each of these answers a different question and lives on a different axis.</p>
+  </div>
+
+  <h3>1.11 Direct vs indirect exposure — a worked example</h3>
+
+  <p>A counterparty exposure picture is incomplete without indirect paths. Even when the bank does not trade directly with an entity, it can still be exposed to that entity's deterioration through several paths:</p>
+
+  <div class="scenario-grid">
+    <div class="scenario-card">
+      <h4>Path 1: Issuer of posted collateral</h4>
+      <p>A counterparty posts the entity's stock or bonds as collateral. If the entity's value drops, the collateral value drops, and net exposure to the counterparty rises.</p>
+    </div>
+    <div class="scenario-card">
+      <h4>Path 2: Issuer of repo collateral</h4>
+      <p>The bank's repo book holds the entity's bonds as collateral. If the entity defaults, the collateral becomes worthless and counterparty exposure increases.</p>
+    </div>
+    <div class="scenario-card">
+      <h4>Path 3: Index or basket exposure</h4>
+      <p>Equity derivatives referencing an index that includes the entity (S&amp;P 500, Nasdaq-100, etc.) carry exposure proportional to the entity's index weight. NVIDIA at ~9% of NDX gives any counterparty holding NDX swaps an indirect NVIDIA exposure.</p>
+    </div>
+    <div class="scenario-card">
+      <h4>Path 4: Parent or guarantor</h4>
+      <p>If the entity is parent or guarantor of a counterparty the bank trades with, deterioration of the parent implies deterioration of the subsidiary — even though the subsidiary is the legal counterparty.</p>
+    </div>
+  </div>
+
+  <p>NVIDIA is the canonical example. Most banks do not trade with NVIDIA. But searching "NVIDIA" should reveal:</p>
+
+  <table>
+    <thead><tr><th>Path</th><th>Via counterparty</th><th>Exposure type</th><th class="num">Indirect Exposure</th></tr></thead>
+    <tbody>
+      <tr><td>Collateral</td><td>Citadel LP</td><td>NVIDIA stock posted as IM</td><td class="num">450M USD</td></tr>
+      <tr><td>Collateral</td><td>Millennium</td><td>NVIDIA stock posted as VM</td><td class="num">280M USD</td></tr>
+      <tr><td>Repo collateral</td><td>JP Morgan</td><td>NVIDIA bonds held against repo</td><td class="num">120M USD</td></tr>
+      <tr><td>Index exposure</td><td>Two Sigma</td><td>NDX equity swap (NVIDIA ~9% weight)</td><td class="num">180M USD</td></tr>
+      <tr class="total"><td colspan="3">Total Indirect Exposure to NVIDIA</td><td class="num">1,030M USD</td></tr>
+    </tbody>
+  </table>
+
+  <p>A 30% drop in NVIDIA's stock would impair $220M of the collateral value and move the equity swap mark materially. Without indirect exposure search, a credit officer learns this only by checking each counterparty manually.</p>
+
+  <h2 id="part2">Part 2 — The daily margin call digest</h2>
+
+  <h3>2.1 What a margin call is and why they happen</h3>
+
+  <div class="definition">
+    <span class="term">Margin Call</span>
+    A demand from one party to another to post additional collateral. When the value of the trade portfolio (MTM) moves against a counterparty, the party in-the-money calls for more collateral to bring the trade back to a covered position. Margin calls happen daily, sometimes multiple times per day for volatile portfolios.
+  </div>
+
+  <p>Margin calls are the daily plumbing of bilateral derivative trading. As MTM swings, collateral flows to keep the in-the-money side covered. A bank typically issues hundreds of margin calls per day across its counterparty book and receives hundreds back. The activity is governed by Credit Support Annexes (CSAs) attached to ISDA Master Agreements, which specify thresholds, minimum transfer amounts, eligible collateral types, and dispute procedures.</p>
+
+  <h3>2.2 The daily margin call digest — a typical structure</h3>
+
+  <p>Most banks produce a daily summary of margin call activity, distributed by email to credit, operations, and front-office staff. The digest typically includes:</p>
+
+  <ul class="clean">
+    <li><b>Subject line traffic-light status</b> — Green / Yellow / Red, indicating whether today's activity is normal, elevated, or concerning</li>
+    <li><b>Volume metrics</b> — number of calls issued, gross dollar amount</li>
+    <li><b>Driver context</b> — what's making today busy or quiet (often paired with a market volatility measure)</li>
+    <li><b>Collection effectiveness</b> — expected vs actual margin received, surfacing disputes and operational breaks</li>
+  </ul>
+
+  <div class="definition">
+    <span class="term">COB (Close of Business)</span>
+    The end of the trading day for a region. "COB May 7" means data is captured as of the end of business on that date, after all margin calls have been issued and processed.
+  </div>
+
+  <div class="definition">
+    <span class="term">Gross Margin Call Amount</span>
+    The total dollar value of all margin calls issued today, summed across every counterparty and every direction (calls the bank made on others, plus calls others made on the bank). "Gross" means before netting offsetting amounts.
+  </div>
+
+  <div class="definition">
+    <span class="term">Expected vs Actual Net Margin</span>
+    "Expected" = what the bank calculated it should receive net (calls in minus calls out) based on the day's MTM. "Actual" = what came through as cash settlement. The gap = disputes, delays, partial payments, or operational issues.
+  </div>
+
+  <h3>2.3 The DXY relationship — why FX volatility matters here</h3>
+
+  <div class="definition">
+    <span class="term">DXY (US Dollar Index)</span>
+    A market index that measures the value of the US Dollar against a basket of six major foreign currencies — Euro (57.6%), Japanese Yen (13.6%), British Pound (11.9%), Canadian Dollar (9.1%), Swedish Krona (4.2%), Swiss Franc (3.6%). Rising DXY = USD strengthening; falling DXY = USD weakening. Big DXY moves indicate broad dollar-vs-rest-of-world FX dislocation.
+  </div>
+
+  <p>Margin call activity is closely linked to FX volatility. When the dollar moves sharply against other currencies:</p>
+
+  <ul class="clean">
+    <li>Cross-currency derivative books reprice → MTM shifts → margin calls follow</li>
+    <li>FX forwards and swaps revalue → margin calls follow</li>
+    <li>Even non-FX trades (rates, commodities) booked across currency pairs carry FX exposure that triggers calls</li>
+  </ul>
+
+  <p>So a chart that pairs <i>gross margin call amount</i> with <i>absolute % change in DXY</i> over time shows whether today's margin activity is being driven by FX volatility. If the two series spike together, FX is the driver. If margin calls spike on a quiet FX day, something else is going on (rates, equities, single-name credit, idiosyncratic moves).</p>
+
+  <div class="dashboard-section">
+    <span class="dashboard-section-label">Dashboard Worked Example — Daily Margin Call Digest</span>
+
+    <p>Below is an example of a daily margin call digest email. Sent at end of day after margin calls have been issued and processed. Subject line carries the traffic-light status: <i>"Margin Call Summary — COB May 07, 2026 — Green"</i>. Distributed to ~30 recipients across credit, ops, and front office.</p>
+
+    <div class="dashboard-image">
+      <img src="images/margin_call_email.jpg" alt="Daily margin call summary email showing three chart pairs: number of calls, gross margin call vs DXY, and expected vs actual net margin">
+      <div class="caption"><b>Example digest</b>Three chart pairs stacked vertically. Each pair has a time-series chart on the left (~18 months of history) and a green KPI tile on the right (today's headline). Pair 1: Number of margin calls (530 today, normal range 500-700). Pair 2: Gross margin call ($2.09Bn today) overlaid with DXY index % change. Pair 3: Expected vs Actual net margin (red bars = collection shortfalls, black bars = met or exceeded).</div>
+    </div>
+
+    <p>Reading the three pairs:</p>
+    <ul class="clean">
+      <li><b>Number of Margin Calls (530 today)</b> — middle of the normal 500-700 range. Spikes in the historical chart correspond to days with major market moves.</li>
+      <li><b>Gross Margin Call vs DXY ($2.09Bn today)</b> — the analytically interesting chart. Visual correlation between the two lines confirms FX volatility is a major driver of margin call activity.</li>
+      <li><b>Expected vs Actual Net Margin</b> — red bars indicate days the bank received less margin than calculated. Persistent red would signal a collection problem (disputes, late payments, settlement breaks).</li>
+    </ul>
+
+    <p>This kind of digest is operationally valuable but trapped in email. It is not queryable, not drillable, not joinable to the underlying counterparty exposure data. A credit officer cannot click on the DXY-driven spike to see <i>which counterparties</i> generated the largest calls that day.</p>
+  </div>
+
+  <h2 id="part3">Part 3 — Risk movement attribution: from notionals to "where the day's risk lives"</h2>
+
+  <p>This is the most important section conceptually. The first two parts covered <i>capacity</i> (lines and limits) and <i>operational flow</i> (margin calls). This part covers <i>risk identification</i> — how to figure out where the day's risk is actually coming from, regardless of where the trade volume sits.</p>
+
+  <div class="callout">
+    <p class="callout-title">The principle: in credit risk, volume is not risk</p>
+    <p>The OTC derivatives market is enormous by trade volume. But trade count tells you nothing about where the bank is actually exposed today. A million stable trades in vanilla products may carry less risk than a hundred trades in a volatile asset class. <b>What matters is where the day's risk is actually moving</b> — which asset class is hot, which counterparties are exposed to that movement, and what the resulting dollar impact is.</p>
+  </div>
+
+  <h3>3.1 What "risk movement" means and what data it requires</h3>
+
+  <p>Risk movement is the change in portfolio value attributable to market moves over a given window (typically one day). Computing it requires three pieces of data joined together:</p>
+
+  <ol>
+    <li><b>Per-trade sensitivities</b> — for each trade, how much its value changes if a particular market input moves by 1 unit</li>
+    <li><b>Market data moves</b> — for each market input, how much it actually moved in the window of interest</li>
+    <li><b>Multiplication and aggregation</b> — sensitivity × market move = trade-level dollar PnL impact, then summed up the dimensional hierarchy</li>
+  </ol>
+
+  <h3>3.2 What a sensitivity is</h3>
+
+  <div class="definition">
+    <span class="term">Sensitivity</span>
+    A per-trade number that says: "if this market input moves by 1 unit, the value of this trade changes by $X." Computed by valuation engines by repricing the trade with the input perturbed slightly and observing the value change.
+  </div>
+
+  <p>Sensitivities have specific names depending on what input they measure:</p>
+
+  <table>
+    <thead><tr><th>Sensitivity</th><th>Measures</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><b>Delta</b></td><td>Sensitivity to a 1% (or 1 unit) move in the underlying price</td><td>An equity option's value change per 1% move in the underlying stock</td></tr>
+      <tr><td><b>FX Delta</b></td><td>Sensitivity to a 1% move in an FX rate</td><td>A USD/CAD forward's value change per 1% USD/CAD move</td></tr>
+      <tr><td><b>DV01 (Dollar Value of 01)</b></td><td>Sensitivity to a 1 basis point (0.01%) move in interest rates</td><td>An interest rate swap's value change per 0.01% rate move</td></tr>
+      <tr><td><b>CS01 (Credit Spread 01)</b></td><td>Sensitivity to a 1 basis point move in credit spreads</td><td>A CDS or bond's value change per 0.01% spread move</td></tr>
+      <tr><td><b>Vega</b></td><td>Sensitivity to a 1% change in implied volatility</td><td>An option's value change per 1% vol move</td></tr>
+    </tbody>
+  </table>
+
+  <p>Sensitivities are <b>directional</b> — they have signs. A trade can have positive delta (gains when underlying rises) or negative delta (gains when underlying falls). When a bank holds many trades, the firm's <b>net</b> sensitivity to a given market factor is the sum of the per-trade sensitivities — and that net number tells you how the whole portfolio reacts to that factor moving.</p>
+
+  <div class="example">
+    <p class="example-title">Tiny example — net FX delta</p>
+    <p>A bank has three USD/CAD trades:</p>
+    <ul class="clean">
+      <li>Trade A: long USD/CAD, FX delta = +$200K per 1% CAD weakening</li>
+      <li>Trade B: short USD/CAD, FX delta = −$150K per 1% CAD weakening</li>
+      <li>Trade C: long USD/CAD, FX delta = +$80K per 1% CAD weakening</li>
+    </ul>
+    <p><b>Net FX delta to USD/CAD = +$200K − $150K + $80K = +$130K per 1% CAD weakening.</b></p>
+    <p>If CAD weakens 1% today, this little book gains $130K. If CAD weakens 0.43%, the book gains 0.43 × $130K = <b>$55,900</b>.</p>
+  </div>
+
+  <h3>3.3 The recipe for "this asset class is hot today"</h3>
+
+  <p>Here is the precise mechanic for computing which asset class is the biggest risk contributor on any given day.</p>
+
+  <div class="recipe">
+    <p class="recipe-title">Recipe — How "asset class X is hot today" is computed</p>
+    <ol>
+      <li><b>Take the sensitivity inventory</b> for asset class X. For every trade with any sensitivity to factors in asset class X, pull the per-trade sensitivities (delta, vega, DV01, CS01, etc.) from the valuation engines.</li>
+      <li><b>Take today's market moves</b> for those factors. From the market data feed, get today's % change (or basis-point change) for every relevant factor — every FX pair, every yield curve point, every credit spread, every commodity price, every implied vol surface point.</li>
+      <li><b>Multiply per trade per factor</b>: <code>PnL impact = sensitivity × market move</code>. This produces a dollar PnL contribution for each (trade, factor) combination.</li>
+      <li><b>Aggregate to asset class</b>: sum all PnL impacts across trades and factors that belong to asset class X. The result is the total dollar PnL impact attributable to asset class X today.</li>
+      <li><b>Compare across asset classes</b>: rank by absolute dollar impact. The asset class producing the largest impact is "hottest" today.</li>
+    </ol>
+  </div>
+
+  <p>The same recipe works at every level of granularity:</p>
+
+  <ul class="clean">
+    <li>Filter to one counterparty → "is this counterparty heavily exposed to FX moves today?"</li>
+    <li>Filter to one book or desk → "is this book carrying a lot of rate risk?"</li>
+    <li>Filter to one currency pair → "how much of today's pain came from JPY?"</li>
+    <li>Filter to one tenor bucket → "is the 10-year part of the rates curve where the action is?"</li>
+  </ul>
+
+  <p>Beyond magnitude, two further dimensions matter for the "is this risky" judgement:</p>
+
+  <ul class="clean">
+    <li><b>Concentration</b> — even a small dollar impact is risky if it's concentrated in one counterparty or one book. $20M spread across 500 counterparties is far less concerning than $20M concentrated in one.</li>
+    <li><b>Direction</b> — is the impact a gain or a loss? Is it diversifying existing exposure or compounding it?</li>
+  </ul>
+
+  <h3>3.4 Worked example — running the recipe end-to-end</h3>
+
+  <h4>Step 1 — Sensitivity inventory (per-trade FX deltas)</h4>
+
+  <table>
+    <thead><tr><th>Trade</th><th>Counterparty</th><th>FX Pair</th><th class="num">Notional</th><th class="num">FX Delta (USD per 1% pair move)</th></tr></thead>
+    <tbody>
+      <tr><td>FX-001</td><td>RBC</td><td>USD/CAD</td><td class="num">500M</td><td class="num">+5,000,000</td></tr>
+      <tr><td>FX-002</td><td>JPMC</td><td>USD/JPY</td><td class="num">300M</td><td class="num">+3,000,000</td></tr>
+      <tr><td>FX-003</td><td>Alyeska</td><td>USD/KRW</td><td class="num">120M</td><td class="num">+1,200,000</td></tr>
+      <tr><td>FX-004</td><td>Citadel</td><td>USD/EUR</td><td class="num">800M</td><td class="num">+8,000,000</td></tr>
+      <tr><td>FX-005</td><td>RBC</td><td>USD/GBP</td><td class="num">200M</td><td class="num">+2,000,000</td></tr>
+      <tr><td>FX-006</td><td>JPMC</td><td>USD/CAD</td><td class="num">−250M</td><td class="num">−2,500,000</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Step 2 — Today's market moves</h4>
+
+  <table>
+    <thead><tr><th>FX Pair</th><th class="num">% Change DoD</th><th class="num">% Change W1W</th><th class="num">% Change MoM</th></tr></thead>
+    <tbody>
+      <tr><td>USD/CAD</td><td class="num">−0.43%</td><td class="num">−0.16%</td><td class="num">+1.40%</td></tr>
+      <tr><td>USD/JPY</td><td class="num">−0.22%</td><td class="num">+0.29%</td><td class="num">+1.88%</td></tr>
+      <tr><td>USD/KRW</td><td class="num">−0.83%</td><td class="num">+2.13%</td><td class="num">+2.17%</td></tr>
+      <tr><td>USD/EUR</td><td class="num">−0.02%</td><td class="num">+0.41%</td><td class="num">+0.80%</td></tr>
+      <tr><td>USD/GBP</td><td class="num">−0.06%</td><td class="num">+0.30%</td><td class="num">+1.61%</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Step 3 — Multiply per trade (using DoD moves)</h4>
+
+  <table>
+    <thead><tr><th>Trade</th><th>FX Pair</th><th class="num">Delta (USD)</th><th class="num">DoD %</th><th class="num">PnL Impact</th></tr></thead>
+    <tbody>
+      <tr><td>FX-001 (RBC)</td><td>USD/CAD</td><td class="num">+5,000,000</td><td class="num">−0.43%</td><td class="num">−2,150,000</td></tr>
+      <tr><td>FX-002 (JPMC)</td><td>USD/JPY</td><td class="num">+3,000,000</td><td class="num">−0.22%</td><td class="num">−660,000</td></tr>
+      <tr><td>FX-003 (Alyeska)</td><td>USD/KRW</td><td class="num">+1,200,000</td><td class="num">−0.83%</td><td class="num">−996,000</td></tr>
+      <tr><td>FX-004 (Citadel)</td><td>USD/EUR</td><td class="num">+8,000,000</td><td class="num">−0.02%</td><td class="num">−160,000</td></tr>
+      <tr><td>FX-005 (RBC)</td><td>USD/GBP</td><td class="num">+2,000,000</td><td class="num">−0.06%</td><td class="num">−120,000</td></tr>
+      <tr><td>FX-006 (JPMC)</td><td>USD/CAD</td><td class="num">−2,500,000</td><td class="num">−0.43%</td><td class="num">+1,075,000</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Step 4 — Aggregate</h4>
+
+  <div class="stack-calc">
+    <span class="label">Total FX PnL impact today</span><span class="val neg">−$3,011,000 USD</span><br>
+    <span class="label">  By counterparty:</span><br>
+    <span class="label">    RBC</span><span class="val neg">−$2,270,000</span><span class="calc"> ← biggest loss contributor</span><br>
+    <span class="label">    JPMC</span><span class="val">+$415,000</span><span class="calc"> ← long+short net offset</span><br>
+    <span class="label">    Alyeska</span><span class="val neg">−$996,000</span><br>
+    <span class="label">    Citadel</span><span class="val neg">−$160,000</span><br>
+    <span class="label">  By currency pair:</span><br>
+    <span class="label">    USD/CAD</span><span class="val neg">−$1,075,000</span><br>
+    <span class="label">    USD/KRW</span><span class="val neg">−$996,000</span><span class="calc"> ← largest impact relative to notional</span><br>
+    <span class="label">    USD/JPY</span><span class="val neg">−$660,000</span><br>
+    <span class="label">    USD/GBP</span><span class="val neg">−$120,000</span><br>
+    <span class="label">    USD/EUR</span><span class="val neg">−$160,000</span>
+  </div>
+
+  <div class="example">
+    <p class="example-title">Reading the result</p>
+    <p>FX produced a $3M net loss across this small book today. <b>RBC was the biggest single counterparty contributor</b> at −$2.27M, primarily through the USD/CAD position. <b>USD/KRW</b> was the most impactful pair relative to notional — only $120M of notional, but it moved −0.83% generating nearly $1M in losses, the steepest move-per-notional ratio of the day.</p>
+    <p>Notice that the largest <i>notional</i> position (Citadel's $800M USD/EUR) was barely a contributor today because EUR didn't move. <b>Volume was not risk today</b>. KRW was the risk; KRW had small notional but big movement.</p>
+  </div>
+
+  <h3>3.5 Generalising across the five asset classes</h3>
+
+  <div class="callout">
+    <p class="callout-title">Note on terminology</p>
+    <p><b>Volatility is not an asset class — it's a risk dimension within each asset class.</b> Every asset class has options on it, so every asset class has a vol component (FX vol, equity vol, rate vol, credit vol, commodity vol). The five real asset classes are FX, Equities, Rates, Credit, and Commodities. Within each, you watch directional moves (delta), volatility moves (vega), and asset-class-specific dimensions (curve shape for rates, term structure for credit, etc.).</p>
+  </div>
+
+  <p>The same recipe extends to every asset class. Here is the full set:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Asset class</th>
+        <th>Sensitivity types</th>
+        <th>Market moves to watch</th>
+        <th>Example "heat" question</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>FX</b></td>
+        <td>FX Delta (per 1% pair move), FX Vega (per 1% vol move)</td>
+        <td>Daily % moves in CCY pairs (USD/CAD, USD/JPY, EUR/USD); implied vol surfaces by pair</td>
+        <td>"Which counterparties are most exposed to today's KRW weakness?"</td>
+      </tr>
+      <tr>
+        <td><b>Equities</b></td>
+        <td>Equity Delta (per 1% underlying move), Equity Vega, Dividend sensitivity</td>
+        <td>Index level moves (S&amp;P, NDX, TSX, NIKKEI, FTSE); single-stock prices for big names; equity vol surfaces</td>
+        <td>"Which counterparties are most exposed to today's NDX drop?"</td>
+      </tr>
+      <tr>
+        <td><b>Rates</b></td>
+        <td>DV01 (per 1bp parallel shift), Key-rate DV01s, Rate Vega, Convexity</td>
+        <td>Yield curve shifts by tenor and currency; basis swap spreads; swaption vol surfaces</td>
+        <td>"Which books are most exposed to today's 10-year USD curve steepening?"</td>
+      </tr>
+      <tr>
+        <td><b>Credit</b></td>
+        <td>CS01 (per 1bp credit spread move), Jump-to-Default exposure, Credit Vega</td>
+        <td>Single-name CDS spreads; index spreads (CDX IG, CDX HY, iTraxx Main, iTraxx Crossover); credit vol</td>
+        <td>"Which counterparties had their own credit spreads blow out today?"</td>
+      </tr>
+      <tr>
+        <td><b>Commodities</b></td>
+        <td>Commodity Delta (per 1% spot move), Commodity Vega, Calendar spread sensitivity</td>
+        <td>Spot prices (oil — WTI, Brent; gas — Henry Hub, NBP; gold; agriculturals); forward curves; commodity vol</td>
+        <td>"Which books are most exposed to today's oil spike?"</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>Why credit spread movement is especially important</h4>
+
+  <p>Credit is the asset class where market-implied risk and counterparty risk converge. <b>If a counterparty's own CDS spread widens significantly today, that's the market signalling perceived deterioration of that counterparty's creditworthiness.</b> A counterparty whose CDS spread doubles in a week may be heading toward distress — even if their internal rating hasn't been downgraded yet.</p>
+
+  <p>Applying the recipe to Credit gives two valuable outputs:</p>
+  <ul class="clean">
+    <li><b>PnL impact from spread moves</b> — how much value did the credit-sensitive book gain or lose today</li>
+    <li><b>Counterparty deterioration signal</b> — which counterparties' own spreads are widening (early-warning list for the credit officer)</li>
+  </ul>
+
+  <h3>3.6 Concentration and direction — the other two halves of "risky"</h3>
+
+  <p>Magnitude is necessary but not sufficient. Two further questions matter:</p>
+
+  <ul class="clean">
+    <li><b>Concentration:</b> Is the impact spread across many positions or concentrated in a few? $50M of loss spread across 500 trades and 100 counterparties is normal portfolio behaviour. $50M concentrated in one counterparty's one position is a single-name event needing immediate attention.</li>
+    <li><b>Direction relative to existing exposure:</b> Is today's move in the same direction as your existing exposure (compounding) or opposite (offsetting)? A 1% loss on a position you were already worried about is more meaningful than the same loss on a position you intended to lose money on as a hedge.</li>
+  </ul>
+
+  <h3>3.7 Data sources required</h3>
+
+  <p>Risk movement attribution requires two data domains beyond the trade ledger and reference data that most CCR systems already have:</p>
+
+  <h4>Sensitivities — first-class fact</h4>
+
+  <p>Sensitivities are not a nice-to-have. Without per-trade sensitivities, the multiplication step in the recipe cannot happen. Without that, you only have notionals — which (as the worked example shows) tell you nothing about where the risk lives.</p>
+
+  <div class="formula">
+    fact_sensitivities (trade_id, valuation_date, market_factor_id, sensitivity_type, sensitivity_value, ccy)
+  </div>
+
+  <p>One row per trade per market factor per sensitivity type. Source: valuation engines or pre-computed in source trading systems. Refreshed daily; possibly intra-day for fast-moving books.</p>
+
+  <h4>Market data — conformed external data domain</h4>
+
+  <p>The "what moved today" half of the recipe lives outside the bank entirely. FX rates, equity index levels, single-stock prices, yield curves, CDS spreads, commodity prices, implied vol surfaces — all sourced from external market data vendors (Bloomberg, Refinitiv, etc.) or internal market data hubs. These need to be in the analytics layer with consistent date and time keys, joinable to sensitivities at the trade or netting-set grain.</p>
+
+  <div class="formula">
+    dim_market_factor (factor_id, factor_type, asset_class, factor_description)<br>
+    fact_market_data (factor_id, date, eod_value, intraday_value, change_dod, change_wow, change_mom, change_qoq)
+  </div>
+
+  <p>Where <code>factor_type</code> covers everything: FX rate, equity index level, single-stock price, yield curve point, CDS spread, commodity spot, implied vol point.</p>
+
+  <div class="dashboard-section">
+    <span class="dashboard-section-label">Dashboard Worked Example — FX Risk Attribution Page</span>
+
+    <p>The screenshot below shows what the recipe looks like when implemented for one asset class (FX). This is a daily PnL attribution dashboard: when FX rates move overnight, the page shows how much the portfolio moved, which entities and counterparties drove the move, and which currency pairs contributed.</p>
+
+    <div class="dashboard-image">
+      <img src="images/fx_pnl_attribution.jpg" alt="FX risk attribution dashboard with six panels: Entity View, Top 10 PnL Movement waterfall, FX Rate Heat Map, Top Contributor by counterparty, CCY Decomposition, and CCY Pair View">
+      <div class="caption"><b>Example dashboard</b>FX PnL attribution page. Six panels arranged top-to-bottom and left-to-right. Top left: Entity View (Long, Short, Net, Gross MTM Impact by booking entity). Top middle: Top 10 PnL Movement waterfall. Top right: FX Rate Heat Map (CAD, JPY, GBP, EUR, KRW, RON, NOK, ZAR with EOD/IntrD rates and DoD/W1W/W2W/MoM/QoQ % changes). Middle: Top Contributor by Counterparty showing which trades drove today's PnL. Bottom: CCY Decomposition by entity, and CCY Pair View showing each currency pair's contribution.</div>
+    </div>
+
+    <p>The slicers at the top right (PnL Impact FX Close Region: LON, Last FX Close Region: TOR) confirm this page is computing PnL <i>between London close and Toronto close</i> — an intra-day attribution between two market regions.</p>
+
+    <p>What is striking about this page — and why it's worth singling out as a template — is what is <i>not</i> on it:</p>
+    <ul class="clean">
+      <li>No trade volume</li>
+      <li>No counts of trades</li>
+      <li>No lists of all positions</li>
+    </ul>
+    <p>The page surfaces the trades that <b>contributed most to PnL</b>. A counterparty with 10,000 trades may not appear if those trades didn't move; a counterparty with 5 large positions may dominate because those positions moved hard. <b>This is the principle from section 3.0 made concrete: volume is not risk.</b></p>
+
+    <p>The same six-panel structure can be replicated for every other asset class. Replace "FX Rate Heat Map" with "Yield Curve Move Heat Map" for Rates, or "CDS Spread Heat Map" for Credit, or "Index/Stock Heat Map" for Equities. The skeleton — sensitivities × market moves → entity and counterparty attribution → currency or pair decomposition — is identical. Only the asset-class-specific market data and sensitivity types change.</p>
+  </div>
+
+  <h2 id="glossary">Glossary</h2>
+
+  <div class="key-table">
+    <div class="row"><span class="term">Agent</span><span>A legal entity that books trades on behalf of many underlying clients. Common for prime brokers, investment managers, certain trust entities.</span></div>
+    <div class="row"><span class="term">Asset class</span><span>A category of financial product. The five major asset classes are FX, Equities, Rates, Credit, and Commodities. Volatility is a risk dimension within each, not a separate asset class.</span></div>
+    <div class="row"><span class="term">Attribution</span><span>Decomposing a number (like daily PnL) into the components that caused it.</span></div>
+    <div class="row"><span class="term">Basis point (bp)</span><span>1 basis point = 0.01%. Used in rates and credit because moves there are typically small.</span></div>
+    <div class="row"><span class="term">CCR</span><span>Counterparty Credit Risk. Risk that a counterparty fails to meet obligations before settlement.</span></div>
+    <div class="row"><span class="term">CDS (Credit Default Swap)</span><span>An insurance-like contract that pays out if a reference entity defaults. CDS spreads are a market-implied measure of credit risk.</span></div>
+    <div class="row"><span class="term">COB (Close of Business)</span><span>End of trading day for a region.</span></div>
+    <div class="row"><span class="term">Counterparty</span><span>Any external entity a bank has a financial relationship with.</span></div>
+    <div class="row"><span class="term">CP / HC line</span><span>CP = Counterparty line (covers trade exposure). HC = Haircut line (covers collateral haircut risk).</span></div>
+    <div class="row"><span class="term">CS01</span><span>Sensitivity to a 1bp credit spread move.</span></div>
+    <div class="row"><span class="term">CSA (Credit Support Annex)</span><span>An agreement appended to an ISDA Master that governs collateral exchange — thresholds, minimum transfer amounts, eligible collateral types, dispute procedures.</span></div>
+    <div class="row"><span class="term">Default Risk</span><span>What the bank actually loses on default = Gross MTM − collateral (haircut-adjusted) + PFE add-on.</span></div>
+    <div class="row"><span class="term">Delta</span><span>Sensitivity to a 1% (or 1 unit) move in the underlying.</span></div>
+    <div class="row"><span class="term">Direct exposure</span><span>Exposure from trades the bank has with the counterparty.</span></div>
+    <div class="row"><span class="term">Dispute Charge</span><span>Open, unresolved disputed margin amount. Credit risk because the bank thinks it should have collected and hasn't.</span></div>
+    <div class="row"><span class="term">DV01</span><span>"Dollar Value of 01" — sensitivity to a 1bp parallel shift in interest rates.</span></div>
+    <div class="row"><span class="term">DXY</span><span>US Dollar Index — measures USD strength against a basket of major currencies.</span></div>
+    <div class="row"><span class="term">Excess Flag</span><span>Y/N indicator that a line is over its limit. Pink rows in many dashboards.</span></div>
+    <div class="row"><span class="term">Exposure</span><span>How much the bank could lose because of a counterparty. Has at least five distinct meanings — capacity, MTM, direct, indirect, default risk.</span></div>
+    <div class="row"><span class="term">Gross Margin Call</span><span>Total dollar value of all margin calls today, summed across counterparties and directions, before netting.</span></div>
+    <div class="row"><span class="term">Haircut</span><span>Discount applied to collateral value to account for liquidation risk.</span></div>
+    <div class="row"><span class="term">IM (Initial Margin)</span><span>Collateral posted up-front. Security deposit.</span></div>
+    <div class="row"><span class="term">Indirect exposure</span><span>Exposure to a counterparty when they're not the direct trading party — as collateral provider, issuer, parent, related entity.</span></div>
+    <div class="row"><span class="term">ISDA Master Agreement</span><span>Standard bilateral framework agreement governing OTC derivatives between two counterparties.</span></div>
+    <div class="row"><span class="term">Limit</span><span>Maximum approved exposure under a line.</span></div>
+    <div class="row"><span class="term">Line</span><span>Approved tranche of credit capacity for a counterparty under specific rules.</span></div>
+    <div class="row"><span class="term">Line Type</span><span>Classification — Contingent (CONT), Cleared-to-Cleared (C2C), committed/uncommitted, daylight, etc.</span></div>
+    <div class="row"><span class="term">Margin Call</span><span>Demand to post additional collateral, triggered by adverse MTM moves.</span></div>
+    <div class="row"><span class="term">Market data</span><span>External price/rate/spread information needed to compute risk movement.</span></div>
+    <div class="row"><span class="term">MTM (Mark-to-Market)</span><span>Today's market value of a trade.</span></div>
+    <div class="row"><span class="term">Net Exposure</span><span>Gross MTM exposure minus collateral held (haircut-adjusted).</span></div>
+    <div class="row"><span class="term">Notional</span><span>Face value of a derivative contract. Measures contract size, not value or risk.</span></div>
+    <div class="row"><span class="term">PFE (Potential Future Exposure)</span><span>Modelled estimate of how much exposure could grow over a future horizon at a given confidence level.</span></div>
+    <div class="row"><span class="term">PnL (Profit and Loss)</span><span>Change in value over a period.</span></div>
+    <div class="row"><span class="term">Sensitivity</span><span>Per-trade number — how much a trade's value changes when a market input moves by 1 unit.</span></div>
+    <div class="row"><span class="term">Tenor bucket</span><span>Maturity grouping: 0-3mo, 3-12mo, 1-2Y, 2-5Y, 5-10Y, 10-50Y.</span></div>
+    <div class="row"><span class="term">Traffic-light status</span><span>Daily Green/Yellow/Red indicator of collateral health.</span></div>
+    <div class="row"><span class="term">Utilisation</span><span>Capacity currently consumed by trades.</span></div>
+    <div class="row"><span class="term">Vega</span><span>Sensitivity to a 1% change in implied volatility.</span></div>
+    <div class="row"><span class="term">VM (Variation Margin)</span><span>Collateral exchanged daily to cover MTM changes.</span></div>
+  </div>
+
+  <p class="footer-note">CCR Learning Guide addendum · Concepts illustrated where appropriate by screenshots from the GMC team's CCR_Analytics_Report (Power BI), 8 May 2026 review · Sample numerical examples are illustrative.</p>
+
+</div>
+</body>
+</html>
