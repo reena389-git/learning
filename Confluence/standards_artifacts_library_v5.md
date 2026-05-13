@@ -23,6 +23,7 @@ Business raises a Jira intake → routes to PG owner → PG owner converses with
 | **G** | Abbreviations Dictionary | Standard short-form abbreviations for physical and short names | PG Leaders (additions) · Risk Data (technical) | Excel | Linked: `abbreviations_dictionary.xlsx` |
 | **H** | Semantic Layer Definition Template | dbt / Databricks Metric Views YAML template | Risk Data | Markdown / YAML spec | Linked: `semantic_layer_template.md` |
 | **I** | Consumer Registry Schema | Schema for `risk_governance.consumer_registry` | Risk Data | Confluence section | Embedded below — Section I |
+| **J** | Change Management Surfaces | How contract, Confluence, and UC tags carry change information | Risk Data | Confluence section | Embedded below — Section J |
 
 ---
 
@@ -292,5 +293,69 @@ The consumer registry is one of four consumer-tracking mechanisms. See the Intak
 | Query-log lineage | UC audit logs capture actual usage |
 | Consumer registry (this) | Persistent consumers (dashboards, models, feeds) declare their producer dependencies |
 | AD-group inheritance | BI tool AD group membership + registered dashboard = implicit subscription chain |
+
+---
+
+## J. Change Management Surfaces
+
+Change information for a data product lives in three surfaces. Each plays a distinct role.
+
+| Surface | Role | Carries |
+|---------|------|---------|
+| **Contract YAML** (Git) | Authoritative source of truth | `contract_version`, `change_policy`, full `change_history` block (every version, every change) |
+| **Confluence product page** | Human-facing view | Same change history rendered for non-engineers; product summary; consumer list; links to dashboards |
+| **Unity Catalog tags** | Catalog signal — quick read | `contract_version`, `contract_ref`, `change_policy`, `last_change_date` |
+
+The contract YAML is authored first. The Confluence page and UC tags are populated from it.
+
+### Tags on the table
+
+Four tags carry change information in UC. Each is queryable from `system.information_schema.column_tags` and `table_tags`.
+
+| Tag | Example | Updated |
+|-----|---------|---------|
+| `contract_version` | `1.2.0` | Each release |
+| `contract_ref` | `https://td.atlassian.net/wiki/.../data-product-ccr-exposure` | Once at creation; rarely changes |
+| `change_policy` | `breaking_60d_additive_14d` | Once; only changes if policy is overridden per product |
+| `last_change_date` | `2026-04-12` | Each release |
+
+### The `change_history` block in the contract
+
+Every contract YAML carries a `change_history` block. Each entry captures:
+
+- `version` (semver)
+- `date` (when the change went live)
+- `type` (breaking / additive / editorial / initial)
+- `notice_given` (date the change was announced — for breaking & additive)
+- `summary` (plain-language description)
+- `impact` (what consumers need to do)
+- `approved_by` (PG and Risk Data signoffs)
+- `notification_sent` and `notification_channel` (audit of who was told and when)
+
+Entries are prepended — most recent first. The list grows over the product's lifetime.
+
+See the Data Contract Template for the full structure.
+
+### The Confluence product page
+
+One page per data product. Lives in the Risk Data Confluence space. Page name follows the convention `Data Product — <name>`.
+
+Each page contains:
+
+- **Summary** — one paragraph describing the product
+- **Current state** — version, owner, refresh, classification (mirrors the UC tags)
+- **Change History** — one section per version, anchored for direct linking (e.g., `...#v1.2.0`)
+- **Links out** — contract YAML in Git, Collibra entry, consuming dashboards
+
+The UC tag `contract_ref` points to the page. When `contract_ref` is set to a specific anchor (e.g., `...#v1.2.0`), a reader is taken directly to the most recent change.
+
+### Workflow per release
+
+1. New entry prepended to `change_history` in the contract YAML; commit to Git
+2. Confluence product page updated (manually for now; auto-generated later as the function scales)
+3. UC tags re-applied: `contract_version` and `last_change_date` updated; `contract_ref` updated if pointing to a specific version anchor
+4. Notification sent to the consumer email group (`business_email_group`)
+
+The contract drives everything. UC and Confluence are derived. `last_change_date` is the queryable convenience that answers the most common consumer question: *"is this fresh?"*
 
 ---
