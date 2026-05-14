@@ -1,0 +1,193 @@
+# =============================================================================
+# DATA CONTRACT TEMPLATE — v5
+# =============================================================================
+# Lives in: risk-warehouse/contracts/<capability>/<product_id>.yaml
+# Source of truth: this YAML in Git.
+#
+# Changes from v4:
+#   - reference_dependencies: declared upstream reference data (FX, taxonomy,
+#     calendar, etc.) with conformed / not-conformed status. Surfaces
+#     architectural choices that would otherwise be invisible.
+#   - composability: explicit declaration of safe joins and known
+#     reconciliation requirements with other products.
+#   - currency_handling: native vs pre-converted, FX source, FX date.
+#     Makes irreversible producer choices explicit.
+#   - known_issues: declared gaps with severity and target resolution.
+# =============================================================================
+
+product:
+  product_id: collateralized_funding_view
+  product_name: "Collateralized Funding View"
+  contract_version: 1.0.0
+  contract_last_changed: 2026-05-13
+  status: active
+
+  capability: liquidity_funding_risk
+  archetype: derived
+  table_shape: materialized_view
+
+  producer_app: null
+  producer_domain: liquidity
+
+  business_owner: pg_liquidity_funding
+  technical_owner: risk_data_platform
+  steward_email: risk-data-collateralized-funding@td.com
+
+references:
+  contract_yaml_url: https://github.com/td/risk-warehouse/blob/main/contracts/liquidity_funding_risk/collateralized_funding_view.yaml
+  confluence_product_page: https://td.atlassian.net/wiki/spaces/RISK/.../collateralized-funding-view
+  collibra_ref: LFR-CFV-001
+  requirements_doc: https://td.atlassian.net/wiki/spaces/RISK/.../cfv-intake
+  change_request_tracking: https://td.atlassian.net/jira/projects/RISKDATA/board
+
+description:
+  business_description: |
+    Daily view of liquidity buffer adjusted for collateral encumbrance.
+  column_descriptions:
+    business_date: "Business date the view represents"
+    currency: "ISO 4217 currency code"
+    # ...
+
+grain:
+  grain_short: business_date+currency
+  grain_description: |
+    One row per business date per currency.
+
+dimensions:
+  allowed:
+    - business_date
+    - currency
+  blocked:
+    - counterparty
+    - book
+
+measures:
+  - name: hqla_amount
+    aggregation: additive
+    safe_aggregation:
+      - currency
+    unit: native_currency
+  # ...
+
+# =============================================================================
+# REFERENCE DEPENDENCIES  ← new in v5
+# =============================================================================
+# Declared upstream reference data that this product depends on. Each entry
+# states the source AND whether it is conformed against the risk core layer.
+# Non-conformed dependencies are warning signs for cross-product composition.
+# =============================================================================
+reference_dependencies:
+  fx_rate:
+    source: blended_midas_lamp
+    conformed: true                       # sourced from core.fx_rate
+    note: |
+      This product applies a conformed FX rate via core.fx_rate (when populated).
+      Upstream products use different FX sources (MIDAS for CMOS, LAMP for ALFA);
+      the derived product reconciles them at join time.
+
+  asset_classification:
+    source: core.asset_type
+    conformed: true
+    note: |
+      Asset taxonomy is the conformed risk-domain classification, not the
+      producer-native codes from CMOS or ALFA. Cross-reference tables in
+      core_model map producer-native codes to the conformed taxonomy.
+
+  business_calendar:
+    source: risk_calendar
+    conformed: true
+
+  country_code:
+    source: iso_3166
+    conformed: true
+
+# =============================================================================
+# COMPOSABILITY  ← new in v5
+# =============================================================================
+# Explicit statement of which other products this one can be safely joined
+# with, and which require reconciliation. Not exhaustive but covers the
+# known cases. Consumers should review this before joining cross-product.
+# =============================================================================
+composability:
+  safely_joinable_with:
+    - product_id: counterparty_master
+      join_on: counterparty_id
+    - product_id: csa
+      join_on: csa_id
+
+  reconciliation_required_with: []        # Empty for this derived product —
+                                          # it already reconciles its inputs.
+
+  reconciliation_resolved_for:
+    - upstream_pair: [collateral_exposure, lcr_buffer]
+      issues_resolved:
+        - "FX source: MIDAS (CMOS) vs LAMP (ALFA) — reconciled via core.fx_rate"
+        - "Asset taxonomy: cmos_native vs alfa_native — reconciled via core.asset_type"
+
+# =============================================================================
+# CURRENCY HANDLING  ← new in v5
+# =============================================================================
+currency_handling:
+  native_currency_carried: true           # native_currency and native_amount columns present
+  pre_converted_to_reporting: true        # usd-equivalent columns also present
+  reporting_currency: USD
+  fx_source_used: core.fx_rate            # conformed source (this is a derived product)
+  fx_rate_date: business_date             # T (same-day rate)
+  recommendation: |
+    For cross-source analysis, this product's reporting-currency columns are
+    safe because the conversion uses core.fx_rate. For consumer-side override,
+    native_amount and native_currency columns are preserved.
+
+# =============================================================================
+# KNOWN ISSUES  ← new in v5
+# =============================================================================
+known_issues: []                          # None at present for this product
+
+# =============================================================================
+# OPERATIONAL, CLASSIFICATION, LINEAGE, QUALITY, CHANGE HISTORY
+# =============================================================================
+sla:
+  refresh_frequency: daily
+  refresh_sla: daily_by_07:00_EST
+  freshness_alert_after: 08:00_EST
+
+change_policy:
+  breaking_change_notice_days: 60
+  additive_change_notice_days: 14
+  deprecation_notice_days: 90
+  notification_channel: risk-data-collateralized-funding@td.com
+
+classification:
+  data_classification: confidential
+  pii_present: false
+
+lineage:
+  upstream_products:
+    - product_id: lcr_buffer
+      version: ">=1.3"
+    - product_id: collateral_exposure
+      version: ">=2.0"
+
+consumer_registry:
+  type: databricks_table
+  location: risk_governance.consumer_registry
+  filter: "product_id = 'collateralized_funding_view'"
+
+quality:
+  constraints:
+    - name: amounts_non_negative
+      check: hqla_amount >= 0 AND pledged_collateral_amount >= 0
+
+  tests:
+    - name: row_count_within_band
+      schedule: daily
+      threshold: "±10% vs prior business day"
+
+change_history:
+  - version: 1.0.0
+    date: 2026-05-13
+    type: initial
+    summary: "Initial contracted release of Collateralized Funding View."
+    approved_by:
+      - pg_liquidity_funding
+      - risk_data_platform
