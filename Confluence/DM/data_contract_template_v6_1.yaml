@@ -1,0 +1,283 @@
+# =============================================================================
+# DATA CONTRACT TEMPLATE — v6.1
+# =============================================================================
+# Lives in: risk-warehouse/contracts/<capability>/<product_id>.yaml
+# Source of truth: this YAML in Git. UC tags and Collibra entries are derived
+# from this file.
+#
+# Changes from v6:
+#   - exploration.metric_view → semantic_view (tool-agnostic)
+#   - EXPLORATION block notes rewritten in plain language
+#   - UC tag references: contract.ref → contract.url, collibra.ref → collibra.url,
+#     refresh.freq → refresh.frequency, semantic.product_ref → semantic.product_path,
+#     semantic.metric_view → semantic.present, semantic.view_type → semantic.config_type
+#
+# Changes from v5:
+#   - Pointer headers added to ALL derivable blocks (not just three).
+#     Each block now states the upstream source artifact it composes from.
+#     Where no upstream source exists, the block is marked AUTHORED IN CONTRACT.
+#   - product_name renamed to display_name in YAML (projects to UC as contract.alias,
+#     multi-value). Captures current display name + historical names.
+#   - New exploration block with pointers to the Metric View and sample queries
+#     (queries themselves live with the semantic-layer documentation, not embedded).
+# =============================================================================
+
+product:
+  # ---------------------------------------------------------------------------
+  # Identity
+  # SOURCE: Naming Convention Standard (Section F output) → automated
+  # ---------------------------------------------------------------------------
+  product_id: collateralized_funding_view              # stable slug; never changes
+  display_name:                                        # multi-value → UC tag contract.alias
+    - "Collateralized Funding View"                    # current
+    - "Collateralized Liquidity View"                  # historical
+  contract_version: 1.0.0
+  contract_last_changed: 2026-05-13
+  status: active                                       # draft | active | deprecated | sunset
+
+  # ---------------------------------------------------------------------------
+  # Classification
+  # SOURCE: Author + capability dictionary
+  # AUTHORED IN CONTRACT
+  # ---------------------------------------------------------------------------
+  capability: liquidity_funding_risk
+  archetype: derived                                   # foundational | derived | consumer_aligned
+  table_shape: materialized_view                       # → UC tag shape
+
+  # ---------------------------------------------------------------------------
+  # Producer
+  # SOURCE: App-layer UC tags (inherited via CI for foundational products)
+  # ---------------------------------------------------------------------------
+  producer_app: null                                   # null for derived products spanning multiple apps
+  producer_domain: liquidity                           # → UC tag source.domain (inherited)
+
+  # ---------------------------------------------------------------------------
+  # Ownership
+  # SOURCE: Intake form + App-layer UC tags
+  # AUTHORED IN CONTRACT (by Data Product Owner)
+  # ---------------------------------------------------------------------------
+  business_owner: pg_liquidity_funding                 # → UC tag owner.business
+  technical_owner: risk_data_platform                  # → UC tag owner.technical
+  steward_email: risk-data-collateralized-funding@td.com  # → UC tag owner.email
+
+# =============================================================================
+# REFERENCES — all external cross-links in one place
+# SOURCE: CI auto-generates; manual override possible
+# =============================================================================
+references:
+  contract_yaml_url: https://github.com/td/risk-warehouse/blob/main/contracts/liquidity_funding_risk/collateralized_funding_view.yaml
+  confluence_product_page: https://td.atlassian.net/wiki/spaces/RISK/.../collateralized-funding-view
+  collibra_ref: LFR-CFV-001
+  requirements_doc: https://td.atlassian.net/wiki/spaces/RISK/.../cfv-intake
+  change_request_tracking: https://td.atlassian.net/jira/projects/RISKDATA/board
+
+# =============================================================================
+# DESCRIPTION
+# SOURCE: Intake form + Data Product Owner authoring
+# AUTHORED IN CONTRACT
+# =============================================================================
+description:
+  business_description: |
+    Daily view of liquidity buffer adjusted for collateral encumbrance.
+    Joins LCR Buffer (Liquidity) with Collateral Exposure (CMOS).
+
+  column_descriptions:                                 # → UC column COMMENTs
+    business_date: "Business date the view represents (T)"
+    currency: "ISO 4217 currency code"
+
+# =============================================================================
+# GRAIN
+# SOURCE: Semantic Layer (Metric View — measures and dimensions imply grain)
+# Author updates Metric View first; this block reflects what the Metric View
+# declares. CI can validate consistency.
+# =============================================================================
+grain:
+  grain_short: business_date+currency                  # → UC tag contract.grain
+  grain_description: |
+    One row per business date per currency.
+
+# =============================================================================
+# DIMENSIONS
+# SOURCE: Semantic Layer (Metric View dimensions block)
+# Metric View is authoritative; this block is for contract-level visibility.
+# =============================================================================
+dimensions:
+  allowed:
+    - business_date
+    - currency
+  blocked:
+    - counterparty
+    - book
+
+# =============================================================================
+# MEASURES
+# SOURCE: Semantic Layer (Metric View measures block)
+# Metric View is the authoritative source for aggregation rules and units.
+# When measure semantics change, update the Metric View first;
+# this block should be kept aligned (CI can verify).
+# =============================================================================
+measures:
+  - name: hqla_amount
+    aggregation: additive
+    safe_aggregation:
+      - currency
+    unit: native_currency
+  # ... etc
+
+# =============================================================================
+# REFERENCE DEPENDENCIES — new in v5
+# SOURCE: Author (with input from upstream products)
+# AUTHORED IN CONTRACT
+# Declares upstream reference data (FX, asset taxonomy, calendar) with
+# conformed status. Non-conformed dependencies are warning signs.
+# =============================================================================
+reference_dependencies:
+  fx_rate:
+    source: core.fx_rate
+    conformed: true
+  asset_classification:
+    source: core.asset_type
+    conformed: true
+  business_calendar:
+    source: risk_calendar
+    conformed: true
+
+# =============================================================================
+# COMPOSABILITY — new in v5
+# SOURCE: Author + cross-product analysis
+# AUTHORED IN CONTRACT
+# =============================================================================
+composability:
+  safely_joinable_with:
+    - product_id: counterparty_master
+      join_on: counterparty_id
+  reconciliation_required_with: []
+  reconciliation_resolved_for:
+    - upstream_pair:
+        - collateral_exposure
+        - lcr_buffer
+      issues_resolved:
+        - "FX source: MIDAS vs LAMP → reconciled via core.fx_rate"
+        - "Asset taxonomy: cmos_native vs alfa_native → reconciled via core.asset_type"
+
+# =============================================================================
+# CURRENCY HANDLING — new in v5
+# SOURCE: Author + Metric View
+# AUTHORED IN CONTRACT
+# =============================================================================
+currency_handling:
+  native_currency_carried: true
+  pre_converted_to_reporting: true
+  reporting_currency: USD
+  fx_source_used: core.fx_rate
+  fx_rate_date: business_date
+
+# =============================================================================
+# KNOWN ISSUES — new in v5
+# SOURCE: Author + Engineering
+# AUTHORED IN CONTRACT
+# =============================================================================
+known_issues: []
+
+# =============================================================================
+# OPERATIONAL — SLA & change policy
+# SOURCE: Intake form + Data Product Owner authoring
+# AUTHORED IN CONTRACT
+# =============================================================================
+sla:
+  refresh_frequency: daily                             # → UC tag refresh.frequency
+  refresh_sla: daily_by_07:00_EST                      # → UC tag refresh.sla
+  freshness_alert_after: 08:00_EST
+
+change_policy:
+  breaking_change_notice_days: 60
+  additive_change_notice_days: 14
+  deprecation_notice_days: 90
+  notification_channel: risk-data-collateralized-funding@td.com
+
+# =============================================================================
+# CLASSIFICATION
+# SOURCE: App-layer UC tags (inherited via CI) + CDO policy
+# Inherits: source.app, source.domain, class.sensitivity, class.pii from upstream.
+# Highest-of-upstream rule for sensitivity (most restrictive wins).
+# =============================================================================
+classification:
+  data_classification: confidential                    # → UC tag class.sensitivity
+  pii_present: false                                   # → UC tag class.pii
+
+# =============================================================================
+# LINEAGE
+# SOURCE:
+#   upstream_products  ← Author declares; CI verifies against UC observed lineage
+#   upstream_tables    ← UC observed lineage (system.access.table_lineage)
+#   downstream         ← Consumer Registry (auto-populated at view time)
+# =============================================================================
+lineage:
+  upstream_products:
+    - product_id: lcr_buffer
+      version: ">=1.3"
+    - product_id: collateral_exposure
+      version: ">=2.0"
+
+  upstream_tables:
+    - risk_warehouse.products.lcr_buffer
+    - risk_warehouse.products.collateral_exposure
+
+# =============================================================================
+# CONSUMERS — referenced, not embedded
+# SOURCE: Consumer Registry (Section I — risk_governance.consumer_registry)
+# =============================================================================
+consumer_registry:
+  type: databricks_table
+  location: risk_governance.consumer_registry
+  filter: "product_id = 'collateralized_funding_view'"
+
+# =============================================================================
+# QUALITY
+# SOURCE:
+#   constraints  ← Erwin / PowerDesigner (CHECK constraints exported)
+#                  + Author (additional business rules)
+#   tests        ← Lakehouse Monitoring + Author
+# =============================================================================
+quality:
+  constraints:
+    - name: amounts_non_negative
+      check: hqla_amount >= 0 AND pledged_collateral_amount >= 0
+    - name: pledged_not_exceed_hqla
+      check: pledged_collateral_amount <= hqla_amount
+
+  tests:
+    - name: row_count_within_band
+      schedule: daily
+      threshold: "±10% vs prior business day"
+
+# =============================================================================
+# EXPLORATION — new in v6 (renamed in v6.1)
+# Points to the semantic-layer configuration that declares how this product
+# should be queried (measures, dimensions, aggregations, joins).
+#
+# Today: a configuration file maintained alongside the product.
+# Future: catalog-native object when the platform supports it. Current
+# direction is Databricks Metric Views, but the standard does not commit
+# to any specific tool — could be dbt, MicroStrategy, etc.
+#
+# Sample queries themselves live on Confluence; this is just the pointer.
+# =============================================================================
+exploration:
+  semantic_view: <path or URL to the semantic-layer configuration>
+  sample_queries: <URL to the Confluence page with sample queries>
+
+# =============================================================================
+# CHANGE HISTORY
+# SOURCE: Jira / Git history (automated entry on each release)
+# =============================================================================
+change_history:
+  - version: 1.0.0
+    date: 2026-05-13
+    type: initial
+    summary: "Initial contracted release of Collateralized Funding View."
+    approved_by:
+      - pg_liquidity_funding
+      - risk_data_platform
+    notification_sent: 2026-05-13
+    jira_ticket: RISKDATA-5001
