@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strategy / Mosaic — Modelling Concepts Reference</title>
+<style>
+  :root {
+    --ink: #1e2a38;
+    --muted: #5b6b7d;
+    --line: #d4dce5;
+    --blue: #2e5c8a;
+    --blue-soft: #eaf1f8;
+    --green: #2f8f5b;
+    --green-soft: #e7f4ec;
+    --amber: #b9772a;
+    --amber-soft: #fbf0e0;
+    --red: #b23b3b;
+    --red-soft: #f9e8e8;
+    --fact: #3a6ea5;
+    --dim: #4a8c6a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: #ffffff;
+    color: var(--ink);
+    font-family: "Segoe UI", Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 48px 32px 80px; }
+  header.doc {
+    border-bottom: 3px solid var(--blue);
+    padding-bottom: 20px;
+    margin-bottom: 8px;
+  }
+  h1 { font-size: 28px; color: var(--blue); margin: 0 0 6px; }
+  .sub { color: var(--muted); font-size: 15px; }
+  h2 {
+    font-size: 21px; color: var(--blue);
+    margin: 44px 0 14px; padding-bottom: 6px;
+    border-bottom: 1px solid var(--line);
+  }
+  h3 { font-size: 16.5px; color: var(--ink); margin: 26px 0 8px; }
+  p { margin: 10px 0; }
+  .lead { font-size: 15px; }
+  ul { margin: 10px 0; padding-left: 22px; }
+  li { margin: 5px 0; }
+  code {
+    background: #f1f4f7; border: 1px solid var(--line);
+    border-radius: 3px; padding: 1px 5px; font-size: 13px;
+    font-family: "Consolas", monospace;
+  }
+  .toc {
+    background: var(--blue-soft); border: 1px solid var(--line);
+    border-radius: 8px; padding: 18px 24px; margin: 24px 0;
+  }
+  .toc h3 { margin-top: 0; }
+  .toc ol { margin: 6px 0; padding-left: 22px; }
+  .toc a { color: var(--blue); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .fig {
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 20px; margin: 18px 0; background: #fcfdfe;
+  }
+  .fig-cap {
+    font-size: 13px; color: var(--muted); margin-top: 10px;
+    text-align: center; font-style: italic;
+  }
+  .callout {
+    border-left: 4px solid var(--blue); background: var(--blue-soft);
+    padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;
+    font-size: 14.5px;
+  }
+  .callout.key { border-left-color: var(--green); background: var(--green-soft); }
+  .callout.warn { border-left-color: var(--amber); background: var(--amber-soft); }
+  .callout.stop { border-left-color: var(--red); background: var(--red-soft); }
+  .callout b { color: inherit; }
+  table {
+    border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px;
+  }
+  th {
+    background: var(--blue); color: #fff; text-align: left;
+    padding: 9px 12px; font-weight: 600;
+  }
+  td { border: 1px solid var(--line); padding: 9px 12px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f7f9fb; }
+  .pill {
+    display: inline-block; padding: 1px 9px; border-radius: 11px;
+    font-size: 12px; font-weight: 600;
+  }
+  .pill.add { background: var(--green-soft); color: var(--green); }
+  .pill.semi { background: var(--amber-soft); color: var(--amber); }
+  .pill.non { background: var(--red-soft); color: var(--red); }
+  .two-col { display: flex; gap: 18px; flex-wrap: wrap; }
+  .col {
+    flex: 1; min-width: 240px; border: 1px solid var(--line);
+    border-radius: 8px; padding: 14px 18px;
+  }
+  .col.good { background: var(--green-soft); border-color: #bfe0cc; }
+  .col.bad { background: var(--red-soft); border-color: #e6c4c4; }
+  .col h4 { margin: 0 0 8px; font-size: 14.5px; }
+  svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+  .legend { font-size: 12.5px; color: var(--muted); text-align: center; margin-top: 8px; }
+  footer.doc {
+    margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line);
+    font-size: 12.5px; color: var(--muted); text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <h1>Strategy / Mosaic — Modelling Concepts Reference</h1>
+  <div class="sub">Working notes from the CCR Collateral model build &middot; Reena &middot; 18 May 2026</div>
+</header>
+
+<p class="lead">This document captures the modelling concepts worked through while debugging the
+<b>TD Collateral Exposure and Margin Agreements</b> model in Strategy (Mosaic). It moves from
+the physical layer (table joins) up through the logical layer (attributes, forms, hierarchies)
+to the consumption layer (drill-down). Each section pairs a plain explanation with a diagram.</p>
+
+<div class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#s1">The two layers: joins vs. hierarchies</a></li>
+    <li><a href="#s2">Fact&ndash;dimension joins &mdash; how they are really made</a></li>
+    <li><a href="#s3">Linking, unlinking, and the <code>(N)</code> numbering</a></li>
+    <li><a href="#s4">Attribute relationships &mdash; the parent-child hierarchy</a></li>
+    <li><a href="#s5">Forms &mdash; aliases of one attribute</a></li>
+    <li><a href="#s6">Aggregation &mdash; how values roll up a hierarchy</a></li>
+    <li><a href="#s7">Drill-down &mdash; the three types</a></li>
+    <li><a href="#s8">One-page summary</a></li>
+  </ol>
+</div>
+
+<!-- ============================================ -->
+<h2 id="s1">1 &nbsp; The two layers: joins vs. hierarchies</h2>
+
+<p>The single biggest source of confusion in this build was treating two different things as
+if they were one. Mosaic has <b>two separate structural layers</b>, configured in two
+different places, doing two different jobs.</p>
+
+<div class="fig">
+<svg viewBox="0 0 820 300" font-family="Segoe UI, Arial" font-size="13">
+  <!-- Physical layer box -->
+  <rect x="20" y="30" width="370" height="240" rx="10" fill="#eaf1f8" stroke="#2e5c8a" stroke-width="1.5"/>
+  <text x="205" y="56" text-anchor="middle" font-size="15" font-weight="700" fill="#2e5c8a">PHYSICAL LAYER &mdash; Joins</text>
+  <text x="205" y="76" text-anchor="middle" font-size="11.5" fill="#5b6b7d">set in the Tables canvas</text>
+  <!-- tables -->
+  <rect x="55" y="100" width="120" height="56" rx="6" fill="#fff" stroke="#3a6ea5" stroke-width="1.5"/>
+  <text x="115" y="124" text-anchor="middle" font-weight="600" fill="#3a6ea5">star_fact_</text>
+  <text x="115" y="140" text-anchor="middle" font-weight="600" fill="#3a6ea5">collateral_exp</text>
+  <rect x="235" y="100" width="120" height="56" rx="6" fill="#fff" stroke="#4a8c6a" stroke-width="1.5"/>
+  <text x="295" y="124" text-anchor="middle" font-weight="600" fill="#4a8c6a">star_dim_</text>
+  <text x="295" y="140" text-anchor="middle" font-weight="600" fill="#4a8c6a">counterparty</text>
+  <line x1="175" y1="128" x2="235" y2="128" stroke="#2e5c8a" stroke-width="2"/>
+  <circle cx="175" cy="128" r="4" fill="#2e5c8a"/><circle cx="235" cy="128" r="4" fill="#2e5c8a"/>
+  <text x="205" y="120" text-anchor="middle" font-size="11" fill="#5b6b7d">join on</text>
+  <text x="205" y="178" text-anchor="middle" font-size="11.5" fill="#1e2a38">"Which tables can be queried together?"</text>
+  <text x="205" y="196" text-anchor="middle" font-size="11.5" fill="#1e2a38">Produces the SQL <tspan font-family="Consolas" font-size="11">JOIN</tspan></text>
+  <text x="205" y="232" text-anchor="middle" font-size="11" fill="#5b6b7d">Made by: one attribute mapped to a column</text>
+  <text x="205" y="248" text-anchor="middle" font-size="11" fill="#5b6b7d">on both tables + a lookup table</text>
+
+  <!-- Logical layer box -->
+  <rect x="430" y="30" width="370" height="240" rx="10" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.5"/>
+  <text x="615" y="56" text-anchor="middle" font-size="15" font-weight="700" fill="#2f8f5b">LOGICAL LAYER &mdash; Hierarchy</text>
+  <text x="615" y="76" text-anchor="middle" font-size="11.5" fill="#5b6b7d">set in the Relationships tab</text>
+  <!-- hierarchy nodes -->
+  <rect x="545" y="96" width="140" height="30" rx="15" fill="#fff" stroke="#2f8f5b" stroke-width="1.5"/>
+  <text x="615" y="115" text-anchor="middle" font-weight="600" fill="#2f8f5b">Ultimate Parent</text>
+  <line x1="615" y1="126" x2="615" y2="146" stroke="#2f8f5b" stroke-width="2"/>
+  <rect x="545" y="146" width="140" height="30" rx="15" fill="#fff" stroke="#2f8f5b" stroke-width="1.5"/>
+  <text x="615" y="165" text-anchor="middle" font-weight="600" fill="#2f8f5b">Counterparty</text>
+  <text x="615" y="206" text-anchor="middle" font-size="11.5" fill="#1e2a38">"What is a level, and which sits above which?"</text>
+  <text x="615" y="224" text-anchor="middle" font-size="11.5" fill="#1e2a38">Drives roll-up &amp; drill</text>
+  <text x="615" y="252" text-anchor="middle" font-size="11" fill="#5b6b7d">Made by: declaring parent / child</text>
+</svg>
+<div class="fig-cap">Figure 1 &mdash; Two independent layers. Getting one right tells Mosaic nothing about the other.</div>
+</div>
+
+<div class="callout key">
+<b>The rule to remember:</b> Joins say <i>which tables can be combined</i>. The hierarchy says
+<i>what a level means and which level is above which</i>. They are set in different places and
+do not cascade &mdash; a perfect set of joins will not populate the Relationships tab, and a
+perfect hierarchy will not create a join.
+</div>
+
+<!-- ============================================ -->
+<h2 id="s2">2 &nbsp; Fact&ndash;dimension joins &mdash; how they are really made</h2>
+
+<p>A join between a fact table and a dimension table is <b>not drawn manually</b> in Mosaic.
+It <b>emerges automatically</b> when one logical attribute is mapped to a matching column on
+both tables, and a lookup table is designated.</p>
+
+<div class="fig">
+<svg viewBox="0 0 820 280" font-family="Segoe UI, Arial" font-size="12.5">
+  <!-- the attribute -->
+  <rect x="310" y="20" width="200" height="44" rx="22" fill="#eaf1f8" stroke="#2e5c8a" stroke-width="2"/>
+  <text x="410" y="40" text-anchor="middle" font-weight="700" fill="#2e5c8a">Attribute:</text>
+  <text x="410" y="56" text-anchor="middle" font-weight="700" fill="#2e5c8a">Counterparty Code</text>
+
+  <!-- fact table -->
+  <rect x="70" y="150" width="220" height="100" rx="8" fill="#fff" stroke="#3a6ea5" stroke-width="1.5"/>
+  <rect x="70" y="150" width="220" height="26" rx="8" fill="#3a6ea5"/>
+  <text x="180" y="168" text-anchor="middle" fill="#fff" font-weight="600">star_fact_collateral_exposure</text>
+  <text x="84" y="196" fill="#1e2a38" font-family="Consolas" font-size="11.5">counterparty_code</text>
+  <rect x="79" y="186" width="148" height="16" fill="none" stroke="#2e5c8a" stroke-dasharray="3 2"/>
+  <text x="84" y="218" fill="#9aa7b4" font-family="Consolas" font-size="11.5">as_of_date, mtm ...</text>
+  <text x="180" y="240" text-anchor="middle" font-size="10.5" fill="#5b6b7d">many rows per counterparty</text>
+
+  <!-- dim table -->
+  <rect x="530" y="150" width="220" height="100" rx="8" fill="#fff" stroke="#4a8c6a" stroke-width="1.5"/>
+  <rect x="530" y="150" width="220" height="26" rx="8" fill="#4a8c6a"/>
+  <text x="640" y="168" text-anchor="middle" fill="#fff" font-weight="600">star_dim_counterparty &nbsp;&#128273;</text>
+  <text x="544" y="196" fill="#1e2a38" font-family="Consolas" font-size="11.5">counterparty_code</text>
+  <rect x="539" y="186" width="148" height="16" fill="none" stroke="#2e5c8a" stroke-dasharray="3 2"/>
+  <text x="544" y="218" fill="#9aa7b4" font-family="Consolas" font-size="11.5">legal_name, rating ...</text>
+  <text x="640" y="240" text-anchor="middle" font-size="10.5" fill="#5b6b7d">one row per counterparty (LOOKUP)</text>
+
+  <!-- mapping lines -->
+  <line x1="360" y1="64" x2="180" y2="186" stroke="#2e5c8a" stroke-width="1.8"/>
+  <line x1="460" y1="64" x2="640" y2="186" stroke="#2e5c8a" stroke-width="1.8"/>
+  <text x="250" y="120" text-anchor="middle" font-size="10.5" fill="#5b6b7d" transform="rotate(-30 250 120)">maps to</text>
+  <text x="570" y="120" text-anchor="middle" font-size="10.5" fill="#5b6b7d" transform="rotate(30 570 120)">maps to</text>
+
+  <!-- emergent join -->
+  <line x1="290" y1="200" x2="530" y2="200" stroke="#b9772a" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <text x="410" y="192" text-anchor="middle" font-size="11.5" font-weight="700" fill="#b9772a">JOIN emerges automatically</text>
+</svg>
+<div class="fig-cap">Figure 2 &mdash; One attribute spanning both tables + a lookup table = the join. You never draw the orange line; it is a consequence.</div>
+</div>
+
+<h3>The four conditions for a correct join</h3>
+<ul>
+  <li><b>One unified attribute</b> &mdash; a single <code>Counterparty Code</code>, not fragments.</li>
+  <li><b>Mapped to the key column on every relevant table</b> &mdash; fact and all dimensions.</li>
+  <li><b>A lookup table is set</b> &mdash; the clean dimension (<code>star_dim_counterparty</code>),
+      one row per counterparty. This is the master source for the attribute's values.</li>
+  <li><b>Correct form type</b> &mdash; a string code (<code>BCCU</code>, <code>GSCO</code>) must be
+      type <b>Text</b>. Typed as Number, string codes fail to resolve and show blank.</li>
+</ul>
+
+<div class="callout warn">
+<b>Lesson from this build:</b> the exposure grid smeared (Bank of China's row showing JPMorgan's
+code) because the attribute's key mapping pointed at the wrong table &mdash; an entity-resolution
+OBT table rather than the clean <code>star_dim_counterparty</code> dimension. Fixing the lookup
+table fixed the smear.
+</div>
+
+<!-- ============================================ -->
+<h2 id="s3">3 &nbsp; Linking, unlinking, and the <code>(N)</code> numbering</h2>
+
+<p>The <code>(N)</code> numbers were a running source of confusion because the same-looking
+suffix means two completely different things.</p>
+
+<table>
+  <tr><th>What you see</th><th>What it means</th><th>Action</th></tr>
+  <tr>
+    <td><code>(1)</code> next to a <i>table mapping</i></td>
+    <td>A harmless form / mapping-count indicator. Still <b>one</b> attribute.</td>
+    <td>Ignore it.</td>
+  </tr>
+  <tr>
+    <td><code>(2)</code> as part of an <i>attribute name</i></td>
+    <td>A genuinely <b>separate</b> attribute object. Mosaic auto-renamed it because the name
+        was already taken &mdash; a real duplicate / fragment.</td>
+    <td>Merge it back (see below).</td>
+  </tr>
+</table>
+
+<h3>Three menu options &mdash; very different effects</h3>
+
+<div class="fig">
+<svg viewBox="0 0 820 260" font-family="Segoe UI, Arial" font-size="12.5">
+  <!-- Add to existing -->
+  <text x="137" y="28" text-anchor="middle" font-weight="700" fill="#2f8f5b">Add to Existing Attributes</text>
+  <circle cx="80" cy="80" r="16" fill="#fff" stroke="#9aa7b4" stroke-width="1.5"/>
+  <circle cx="195" cy="80" r="16" fill="#fff" stroke="#9aa7b4" stroke-width="1.5"/>
+  <path d="M96 80 L179 80" stroke="#2f8f5b" stroke-width="2.5" marker-end="url(#arrG)"/>
+  <circle cx="195" cy="80" r="26" fill="none" stroke="#2f8f5b" stroke-width="2"/>
+  <text x="137" y="120" text-anchor="middle" font-size="11" fill="#2f8f5b" font-weight="600">MERGES &mdash; folds a stray</text>
+  <text x="137" y="135" text-anchor="middle" font-size="11" fill="#2f8f5b" font-weight="600">mapping into one attribute</text>
+  <text x="137" y="158" text-anchor="middle" font-size="10.5" fill="#5b6b7d">Use this to repair fragmentation</text>
+
+  <!-- Release from linking -->
+  <text x="410" y="28" text-anchor="middle" font-weight="700" fill="#b23b3b">Release from linking</text>
+  <circle cx="380" cy="80" r="26" fill="none" stroke="#b23b3b" stroke-width="2"/>
+  <circle cx="380" cy="80" r="16" fill="#fff" stroke="#9aa7b4" stroke-width="1.5"/>
+  <path d="M400 80 L455 80" stroke="#b23b3b" stroke-width="2.5" marker-end="url(#arrR)"/>
+  <circle cx="475" cy="80" r="16" fill="#fff" stroke="#b23b3b" stroke-width="1.5"/>
+  <text x="475" y="84" text-anchor="middle" font-size="10" fill="#b23b3b">(2)</text>
+  <text x="410" y="120" text-anchor="middle" font-size="11" fill="#b23b3b" font-weight="600">SPLITS &mdash; detaches a mapping</text>
+  <text x="410" y="135" text-anchor="middle" font-size="11" fill="#b23b3b" font-weight="600">into a new separate attribute</text>
+  <text x="410" y="158" text-anchor="middle" font-size="10.5" fill="#5b6b7d">Fragments the model &mdash; avoid</text>
+
+  <!-- Set as lookup -->
+  <text x="680" y="28" text-anchor="middle" font-weight="700" fill="#2e5c8a">Set as Lookup Table</text>
+  <circle cx="650" cy="80" r="16" fill="#fff" stroke="#9aa7b4" stroke-width="1.5"/>
+  <circle cx="710" cy="80" r="16" fill="#eaf1f8" stroke="#2e5c8a" stroke-width="2.5"/>
+  <text x="710" y="84" text-anchor="middle" font-size="13">&#128273;</text>
+  <text x="680" y="120" text-anchor="middle" font-size="11" fill="#2e5c8a" font-weight="600">DESIGNATES the master</text>
+  <text x="680" y="135" text-anchor="middle" font-size="11" fill="#2e5c8a" font-weight="600">source table for values</text>
+  <text x="680" y="158" text-anchor="middle" font-size="10.5" fill="#5b6b7d">No link / unlink effect</text>
+
+  <defs>
+    <marker id="arrG" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0 0 L8 4 L0 8 z" fill="#2f8f5b"/></marker>
+    <marker id="arrR" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0 0 L8 4 L0 8 z" fill="#b23b3b"/></marker>
+  </defs>
+</svg>
+<div class="fig-cap">Figure 3 &mdash; The three menu options. Two manage linking in opposite directions; one is unrelated.</div>
+</div>
+
+<div class="callout stop">
+<b>"Release from linking" did the opposite of what was wanted.</b> It fragmented a unified
+attribute into a separate <code>Counterparty Code (2)</code>. To repair: either <b>Undo</b>, or
+<b>rename</b> the <code>(2)</code> back to the original name &mdash; Mosaic detects the name
+collision and asks "link the attributes?" &rarr; answer <b>Yes</b>. Renaming to an existing
+name is Mosaic's built-in re-link trigger.
+</div>
+
+<!-- ============================================ -->
+<h2 id="s4">4 &nbsp; Attribute relationships &mdash; the parent-child hierarchy</h2>
+
+<p>The Relationships tab defines how attributes relate to <i>each other</i> as a hierarchy of
+<b>levels</b>. It is declared by the modeller, not discovered by profiling the data.</p>
+
+<h3>What declaring a relationship drives</h3>
+<table>
+  <tr><th>Driver</th><th>What it gives you</th></tr>
+  <tr><td>Alignment</td><td>Code and Name sit correctly on the same grid row &mdash; no smearing.</td></tr>
+  <tr><td>Aggregation</td><td>Metrics roll up to the level of the attributes on the grid.</td></tr>
+  <tr><td>Drill</td><td>The expand / collapse path follows the declared parent-child chain.</td></tr>
+  <tr><td>Efficient SQL</td><td>Mosaic can query the lookup table directly for higher-level views.</td></tr>
+</table>
+
+<div class="callout">
+<b>Declared, not profiled.</b> Mosaic may <i>suggest</i> relationships at import (light structural
+inspection), and profiling / Validation can <i>verify</i> the data obeys a declared relationship
+&mdash; but the relationship itself is an assertion of the intended business structure. Modelling
+to a 10-row sample would bake in accidents of the current data.
+</div>
+
+<h3>Cardinality &mdash; and why there is no "1:1"</h3>
+<p>The relationship menu offers <b>One-to-Many</b>, <b>Many-to-One</b>, <b>Many-to-Many</b> &mdash;
+but <b>no 1:1</b>. This is deliberate. A parent-child relationship is about hierarchy
+<i>levels</i>. If two attributes are genuinely 1:1 they are not two levels &mdash; they are the
+<b>same level</b>, two attributes describing the same thing. Those should be modelled as
+<b>forms</b> (Section 5), not as a hierarchy link.</p>
+
+<div class="fig">
+<svg viewBox="0 0 820 250" font-family="Segoe UI, Arial" font-size="12.5">
+  <!-- hierarchy: different levels -->
+  <text x="205" y="26" text-anchor="middle" font-weight="700" fill="#2f8f5b">Different levels &rarr; hierarchy (1:N)</text>
+  <rect x="125" y="46" width="160" height="32" rx="16" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.5"/>
+  <text x="205" y="66" text-anchor="middle" font-weight="600" fill="#2f8f5b">Ultimate Parent</text>
+  <line x1="205" y1="78" x2="205" y2="100" stroke="#2f8f5b" stroke-width="2"/>
+  <text x="222" y="93" font-size="10.5" fill="#5b6b7d">1 : N</text>
+  <rect x="125" y="100" width="160" height="32" rx="16" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.5"/>
+  <text x="205" y="120" text-anchor="middle" font-weight="600" fill="#2f8f5b">Counterparty</text>
+  <line x1="205" y1="132" x2="205" y2="154" stroke="#2f8f5b" stroke-width="2"/>
+  <text x="222" y="147" font-size="10.5" fill="#5b6b7d">1 : N</text>
+  <rect x="125" y="154" width="160" height="32" rx="16" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.5"/>
+  <text x="205" y="174" text-anchor="middle" font-weight="600" fill="#2f8f5b">Trade</text>
+  <text x="205" y="212" text-anchor="middle" font-size="11" fill="#5b6b7d">One parent has many children.</text>
+  <text x="205" y="228" text-anchor="middle" font-size="11" fill="#5b6b7d">Use a parent-child relationship.</text>
+
+  <line x1="410" y1="40" x2="410" y2="210" stroke="#d4dce5" stroke-width="1.5"/>
+
+  <!-- forms: same level -->
+  <text x="615" y="26" text-anchor="middle" font-weight="700" fill="#2e5c8a">Same level (1:1) &rarr; forms</text>
+  <rect x="515" y="86" width="200" height="60" rx="10" fill="#eaf1f8" stroke="#2e5c8a" stroke-width="2"/>
+  <text x="615" y="110" text-anchor="middle" font-weight="700" fill="#2e5c8a">Legal Entity</text>
+  <text x="615" y="128" text-anchor="middle" font-size="10.5" fill="#5b6b7d">one attribute</text>
+  <rect x="500" y="60" width="80" height="24" rx="6" fill="#fff" stroke="#2e5c8a"/>
+  <text x="540" y="76" text-anchor="middle" font-size="10.5" fill="#2e5c8a">ID form</text>
+  <rect x="575" y="50" width="90" height="24" rx="6" fill="#fff" stroke="#2e5c8a"/>
+  <text x="620" y="66" text-anchor="middle" font-size="10.5" fill="#2e5c8a">Name form</text>
+  <rect x="655" y="60" width="90" height="24" rx="6" fill="#fff" stroke="#2e5c8a"/>
+  <text x="700" y="76" text-anchor="middle" font-size="10.5" fill="#2e5c8a">LEI form</text>
+  <line x1="540" y1="84" x2="575" y2="92" stroke="#2e5c8a" stroke-width="1.3"/>
+  <line x1="620" y1="74" x2="615" y2="86" stroke="#2e5c8a" stroke-width="1.3"/>
+  <line x1="700" y1="84" x2="660" y2="92" stroke="#2e5c8a" stroke-width="1.3"/>
+  <text x="615" y="178" text-anchor="middle" font-size="11" fill="#5b6b7d">Three descriptors of one thing.</text>
+  <text x="615" y="194" text-anchor="middle" font-size="11" fill="#5b6b7d">Use forms, not a relationship.</text>
+</svg>
+<div class="fig-cap">Figure 4 &mdash; 1:N belongs in the hierarchy; 1:1 belongs in forms. There is no 1:1 in the relationship menu by design.</div>
+</div>
+
+<!-- ============================================ -->
+<h2 id="s5">5 &nbsp; Forms &mdash; aliases of one attribute</h2>
+
+<p>An <b>attribute</b> is a <i>thing</i> (Legal Entity). A <b>form</b> is a <i>way of expressing
+that thing</i>. One attribute can carry several forms &mdash; an ID form, a name form, an LEI
+form &mdash; all the same row, the same grain, just different descriptive columns.</p>
+
+<div class="callout key">
+<b>Forms are aliases of each other.</b> Because they belong to one attribute, forms always
+align perfectly on a grid &mdash; there is no join to get wrong, no smearing possible. You can
+display one form, another, or several side by side.
+</div>
+
+<h3>A form is a clean column &mdash; not a concatenation</h3>
+<div class="two-col">
+  <div class="col good">
+    <h4>&#10003; Correct &mdash; LEI as its own form</h4>
+    <p style="font-size:13.5px;margin:6px 0;">Form expression = the bare column
+    <code>lei_code</code>. Type Text. Result: a clean, separately sortable, separately
+    filterable LEI form sitting alongside the Name form.</p>
+  </div>
+  <div class="col bad">
+    <h4>&#10007; Wrong &mdash; concatenated string</h4>
+    <p style="font-size:13.5px;margin:6px 0;">An expression like
+    <code>'(' + lei_code + ') ' + name</code> mashes two facts into one value. You lose the
+    ability to sort or filter by LEI alone. This defeats the purpose of a form.</p>
+  </div>
+</div>
+<p>If the combined <code>(LEI-GS-001) Goldman Sachs</code> look is wanted, it is achieved by
+<b>displaying two forms together on a grid</b> &mdash; a presentation choice &mdash; never by
+baking a concatenation into one form. Light single-value cleanup (<code>TRIM</code>,
+<code>UPPER</code>) inside a form is fine; combining two different things is not.</p>
+
+<!-- ============================================ -->
+<h2 id="s6">6 &nbsp; Aggregation &mdash; how values roll up a hierarchy</h2>
+
+<p>When a value at one level rolls up to its parent, the parent's value is
+<b>re-computed from its children</b> &mdash; not copied. <i>How</i> it is computed depends on
+the measure. This is the heart of the semantic layer.</p>
+
+<div class="fig">
+<svg viewBox="0 0 820 270" font-family="Segoe UI, Arial" font-size="12.5">
+  <!-- parent -->
+  <rect x="300" y="24" width="220" height="46" rx="10" fill="#eaf1f8" stroke="#2e5c8a" stroke-width="2"/>
+  <text x="410" y="44" text-anchor="middle" font-weight="700" fill="#2e5c8a">Ultimate Parent: Goldman Sachs Group</text>
+  <text x="410" y="61" text-anchor="middle" font-size="11.5" fill="#2e5c8a">Exposure = 97.8M &nbsp;(SUM of children)</text>
+  <!-- lines -->
+  <line x1="340" y1="70" x2="200" y2="120" stroke="#2e5c8a" stroke-width="1.6"/>
+  <line x1="480" y1="70" x2="620" y2="120" stroke="#2e5c8a" stroke-width="1.6"/>
+  <!-- children -->
+  <rect x="100" y="120" width="200" height="44" rx="9" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.5"/>
+  <text x="200" y="139" text-anchor="middle" font-weight="600" fill="#2f8f5b">Goldman Sachs &amp; Co LLC</text>
+  <text x="200" y="156" text-anchor="middle" font-size="11" fill="#2f8f5b">Exposure = 56.8M</text>
+  <rect x="520" y="120" width="200" height="44" rx="9" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.5"/>
+  <text x="620" y="139" text-anchor="middle" font-weight="600" fill="#2f8f5b">Goldman Sachs Intl</text>
+  <text x="620" y="156" text-anchor="middle" font-size="11" fill="#2f8f5b">Exposure = 41.0M</text>
+  <text x="410" y="200" text-anchor="middle" font-size="12" fill="#1e2a38">Roll-up = re-aggregate the children by the measure's rule.</text>
+  <text x="410" y="220" text-anchor="middle" font-size="12" fill="#1e2a38">For exposure the rule is SUM &mdash; but it is not SUM for everything.</text>
+  <text x="410" y="248" text-anchor="middle" font-size="11" fill="#5b6b7d">56.8M + 41.0M = 97.8M</text>
+</svg>
+<div class="fig-cap">Figure 5 &mdash; The parent value is computed from its children. The function used is the measure's aggregation rule.</div>
+</div>
+
+<h3>Three aggregation classes &mdash; every measure is one of these</h3>
+<table>
+  <tr><th>Class</th><th>Behaviour</th><th>Examples</th></tr>
+  <tr>
+    <td><span class="pill add">Additive</span></td>
+    <td>SUM across <b>every</b> dimension &mdash; counterparty, time, product, all valid.</td>
+    <td>Notional, collateral posted, call amount</td>
+  </tr>
+  <tr>
+    <td><span class="pill semi">Semi-additive</span></td>
+    <td>SUM across most dimensions, but <b>not across time</b> &mdash; across dates take the
+        LATEST or an average (a balance, not a flow).</td>
+    <td>Exposure / MtM balance, collateral balance, threshold / limit</td>
+  </tr>
+  <tr>
+    <td><span class="pill non">Non-additive</span></td>
+    <td>Never summed. Must be <b>re-computed from components</b> at every level.</td>
+    <td>Ratios &amp; %, threshold breach, weighted averages, most sensitivities</td>
+  </tr>
+</table>
+
+<div class="callout warn">
+<b>The trap:</b> a dashboard that sums a ratio across child rows, or sums exposure across days,
+produces numbers that look plausible and are wrong. The semantic layer's job is to declare,
+for every measure, which class it is &mdash; and configure Strategy accordingly (aggregation
+function; simple vs. compound metric; per-dimension behaviour). Non-additive measures are built
+as <b>compound metrics</b> &mdash; formulas over base metrics &mdash; so they re-compute correctly
+at whatever level is on the grid.
+</div>
+
+<!-- ============================================ -->
+<h2 id="s7">7 &nbsp; Drill-down &mdash; the three types</h2>
+
+<p>"Drill-down" is not one feature. Three distinct mechanisms, with different setup and
+different data needs.</p>
+
+<div class="fig">
+<svg viewBox="0 0 820 330" font-family="Segoe UI, Arial" font-size="12">
+  <!-- Type 1 -->
+  <rect x="20" y="20" width="250" height="290" rx="10" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.5"/>
+  <text x="145" y="44" text-anchor="middle" font-weight="700" fill="#2f8f5b">1 &mdash; Hierarchy drill</text>
+  <text x="145" y="62" text-anchor="middle" font-size="10.5" fill="#5b6b7d">expand / collapse</text>
+  <rect x="55" y="80" width="180" height="26" rx="6" fill="#fff" stroke="#2f8f5b"/>
+  <text x="68" y="97" font-size="11" fill="#2f8f5b">&#9662; Ultimate Parent</text>
+  <rect x="75" y="112" width="160" height="24" rx="6" fill="#fff" stroke="#2f8f5b"/>
+  <text x="88" y="128" font-size="11" fill="#2f8f5b">&#9662; Counterparty</text>
+  <rect x="95" y="142" width="140" height="24" rx="6" fill="#fff" stroke="#2f8f5b"/>
+  <text x="108" y="158" font-size="11" fill="#2f8f5b">Trade</text>
+  <text x="145" y="200" text-anchor="middle" font-size="11" fill="#1e2a38" font-weight="600">Follows the declared</text>
+  <text x="145" y="216" text-anchor="middle" font-size="11" fill="#1e2a38" font-weight="600">parent-child hierarchy</text>
+  <text x="145" y="246" text-anchor="middle" font-size="10.5" fill="#5b6b7d">Setup: automatic once the</text>
+  <text x="145" y="261" text-anchor="middle" font-size="10.5" fill="#5b6b7d">relationship exists</text>
+  <text x="145" y="288" text-anchor="middle" font-size="10.5" fill="#2f8f5b" font-weight="600">Needs: the hierarchy</text>
+
+  <!-- Type 2 -->
+  <rect x="285" y="20" width="250" height="290" rx="10" fill="#eaf1f8" stroke="#2e5c8a" stroke-width="1.5"/>
+  <text x="410" y="44" text-anchor="middle" font-weight="700" fill="#2e5c8a">2 &mdash; Page-link drill</text>
+  <text x="410" y="62" text-anchor="middle" font-size="10.5" fill="#5b6b7d">summary &rarr; detail page</text>
+  <rect x="320" y="80" width="180" height="40" rx="6" fill="#fff" stroke="#2e5c8a"/>
+  <text x="410" y="96" text-anchor="middle" font-size="10.5" fill="#2e5c8a">Summary grid</text>
+  <text x="410" y="111" text-anchor="middle" font-size="10" fill="#5b6b7d">Goldman &mdash; 97.8M</text>
+  <path d="M410 120 L410 150" stroke="#2e5c8a" stroke-width="2" marker-end="url(#arrB2)"/>
+  <text x="468" y="139" font-size="9.5" fill="#b9772a">passes filter</text>
+  <rect x="320" y="150" width="180" height="50" rx="6" fill="#fff" stroke="#2e5c8a"/>
+  <text x="410" y="167" text-anchor="middle" font-size="10.5" fill="#2e5c8a">Trade detail page</text>
+  <text x="410" y="182" text-anchor="middle" font-size="10" fill="#5b6b7d">filtered to Goldman's</text>
+  <text x="410" y="194" text-anchor="middle" font-size="10" fill="#5b6b7d">individual trades</text>
+  <text x="410" y="232" text-anchor="middle" font-size="11" fill="#1e2a38" font-weight="600">Deliberately configured</text>
+  <text x="410" y="248" text-anchor="middle" font-size="10.5" fill="#5b6b7d">a link between two visuals,</text>
+  <text x="410" y="263" text-anchor="middle" font-size="10.5" fill="#5b6b7d">carrying the counterparty filter</text>
+  <text x="410" y="288" text-anchor="middle" font-size="10.5" fill="#2e5c8a" font-weight="600">Needs: trade-grain data</text>
+
+  <!-- Type 3 -->
+  <rect x="550" y="20" width="250" height="290" rx="10" fill="#fbf0e0" stroke="#b9772a" stroke-width="1.5"/>
+  <text x="675" y="44" text-anchor="middle" font-weight="700" fill="#b9772a">3 &mdash; Drill to rows</text>
+  <text x="675" y="62" text-anchor="middle" font-size="10.5" fill="#5b6b7d">show underlying data</text>
+  <rect x="585" y="84" width="180" height="30" rx="6" fill="#fff" stroke="#b9772a"/>
+  <text x="675" y="103" text-anchor="middle" font-size="10.5" fill="#b9772a">right-click &rarr; show data</text>
+  <path d="M675 114 L675 138" stroke="#b9772a" stroke-width="2" marker-end="url(#arrA3)"/>
+  <rect x="585" y="138" width="180" height="54" rx="6" fill="#fff" stroke="#b9772a"/>
+  <text x="675" y="156" text-anchor="middle" font-size="10" fill="#5b6b7d">raw source rows</text>
+  <text x="675" y="170" text-anchor="middle" font-size="10" fill="#5b6b7d">behind the number</text>
+  <text x="675" y="184" text-anchor="middle" font-size="10" fill="#5b6b7d">&mdash; audit / trace</text>
+  <text x="675" y="232" text-anchor="middle" font-size="11" fill="#1e2a38" font-weight="600">Mostly automatic</text>
+  <text x="675" y="248" text-anchor="middle" font-size="10.5" fill="#5b6b7d">an audit / verification</text>
+  <text x="675" y="263" text-anchor="middle" font-size="10.5" fill="#5b6b7d">action, not navigation</text>
+  <text x="675" y="288" text-anchor="middle" font-size="10.5" fill="#b9772a" font-weight="600">Needs: nothing special</text>
+
+  <defs>
+    <marker id="arrB2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0 0 L8 4 L0 8 z" fill="#2e5c8a"/></marker>
+    <marker id="arrA3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0 0 L8 4 L0 8 z" fill="#b9772a"/></marker>
+  </defs>
+</svg>
+<div class="fig-cap">Figure 6 &mdash; Three drill mechanisms. Type 1 walks a hierarchy; Type 2 navigates between visuals; Type 3 exposes source rows.</div>
+</div>
+
+<h3>Hierarchy drill vs. page-link drill &mdash; the key contrast</h3>
+<table>
+  <tr><th></th><th>Hierarchy drill (Type 1)</th><th>Page-link drill (Type 2)</th></tr>
+  <tr><td>Mechanism</td><td>Expand / collapse along declared levels</td><td>Navigate from one visual to another, carrying a filter</td></tr>
+  <tr><td>Setup</td><td>Automatic &mdash; emerges from the parent-child relationship</td><td>Deliberate &mdash; you configure the link and the filter it passes</td></tr>
+  <tr><td>Stays</td><td>On the same grid</td><td>Moves to a different page / visual</td></tr>
+  <tr><td>Data need</td><td>The hierarchy declared</td><td>Trade-grain data to land on</td></tr>
+  <tr><td>Validation tab</td><td>Shows it statically (grouped grid, all expanded)</td><td>Not shown &mdash; interactivity is a dossier feature</td></tr>
+</table>
+
+<div class="callout">
+<b>On the page-link drill:</b> "link" does <i>not</i> mean a manually drawn join. The data still
+connects through the shared <code>Counterparty Code</code> attribute. The deliberate part is
+configuring a <i>navigation link</i> between two visualizations and choosing the filter context
+it carries. And it only works if trade-level rows actually exist &mdash; if the fact table's
+grain is counterparty-per-date, there may be no trade detail to drill into, and trade-grain
+data would need to be sourced or generated first.
+</div>
+
+<div class="callout warn">
+<b>Drill safety depends on aggregation (Section 6).</b> Drilling is just moving between levels.
+If a measure's aggregation rule is wrong, every drilled number is wrong. Correct aggregation
+semantics are the precondition for trustworthy drill-down.
+</div>
+
+<!-- ============================================ -->
+<h2 id="s8">8 &nbsp; One-page summary</h2>
+
+<table>
+  <tr><th>Concept</th><th>What it is</th><th>Where it lives</th></tr>
+  <tr><td>Join</td><td>Physical table-to-table connection</td><td>Tables canvas &mdash; emerges from one attribute mapped to both tables + lookup table</td></tr>
+  <tr><td>Lookup table</td><td>The master source table for an attribute's values</td><td>Set per attribute; should be the clean dimension</td></tr>
+  <tr><td>Linking / <code>(2)</code></td><td>Whether table mappings are unified or fragmented</td><td>"Add to Existing" merges; "Release from linking" splits</td></tr>
+  <tr><td>Attribute relationship</td><td>Parent-child hierarchy between levels</td><td>Relationships tab &mdash; declared by the modeller</td></tr>
+  <tr><td>Form</td><td>An alias / descriptor of one attribute (ID, name, LEI)</td><td>Forms tab &mdash; used for 1:1 same-level descriptors</td></tr>
+  <tr><td>Aggregation class</td><td>Additive / semi-additive / non-additive</td><td>Metric definition &mdash; declared per measure</td></tr>
+  <tr><td>Hierarchy drill</td><td>Expand / collapse along the hierarchy</td><td>Dossier &mdash; automatic from the relationship</td></tr>
+  <tr><td>Page-link drill</td><td>Summary &rarr; detail navigation with a filter</td><td>Dossier &mdash; deliberately configured</td></tr>
+</table>
+
+<div class="callout key">
+<b>The thread running through all of it:</b> the model is a layered structure &mdash; physical
+joins at the bottom, a logical hierarchy and forms in the middle, aggregation semantics and
+drill behaviour at the top. Each layer is configured in its own place and rests on the one
+below. The data is just what currently flows through that structure; the structure itself is
+declared, deliberately, by the modeller.
+</div>
+
+<h3>Open items &mdash; carried to the next stage</h3>
+<ul>
+  <li><b>Schema &amp; grain</b> &mdash; the grain of <code>star_fact_collateral_exposure</code>
+      (one row per <i>what</i>?) determines whether the counterparty&rarr;trade page-link drill
+      is buildable now or needs trade-level data generated.</li>
+  <li><b>Semantic-layer specification</b> &mdash; every CCR measure classified additive /
+      semi-additive / non-additive, with its Strategy configuration.</li>
+  <li><b>Full hierarchy map</b> &mdash; every parent-child relationship and cardinality declared
+      from the schema, rather than discovered one menu at a time.</li>
+  <li><b>Form type check</b> &mdash; confirm <code>Counterparty Code</code> and
+      <code>LEI</code> form types are Text, not Number.</li>
+</ul>
+
+<footer class="doc">
+  Strategy / Mosaic Modelling Concepts Reference &mdash; TD Collateral Exposure POC &mdash;
+  prepared as a working reference, 18 May 2026
+</footer>
+
+</div>
+</body>
+</html>
