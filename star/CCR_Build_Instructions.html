@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCR POC — Mosaic Model &amp; Dashboard Build Instructions</title>
+<style>
+  :root{--ink:#1e2a38;--muted:#5b6b7d;--line:#d4dce5;--blue:#2e5c8a;--blue-soft:#eaf1f8;
+    --green:#2f8f5b;--green-soft:#e7f4ec;--amber:#b9772a;--amber-soft:#fbf0e0;--red:#b23b3b;--red-soft:#f9e8e8;}
+  *{box-sizing:border-box;}
+  body{background:#fff;color:var(--ink);font-family:"Segoe UI",Arial,sans-serif;line-height:1.62;margin:0;}
+  .wrap{max-width:980px;margin:0 auto;padding:46px 34px 80px;}
+  header.doc{border-bottom:3px solid var(--blue);padding-bottom:18px;margin-bottom:6px;}
+  h1{font-size:26px;color:var(--blue);margin:0 0 5px;}
+  .sub{color:var(--muted);font-size:14.5px;}
+  h2{font-size:20px;color:var(--blue);margin:40px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--line);}
+  h3{font-size:16px;color:var(--ink);margin:24px 0 8px;}
+  p{margin:9px 0;}
+  ul,ol{margin:9px 0;padding-left:24px;}
+  li{margin:6px 0;}
+  code{background:#f1f4f7;border:1px solid var(--line);border-radius:3px;padding:1px 5px;font-size:12.5px;font-family:Consolas,monospace;}
+  .step{counter-increment:step;}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:13px;}
+  th{background:var(--blue);color:#fff;text-align:left;padding:8px 11px;}
+  td{border:1px solid var(--line);padding:8px 11px;vertical-align:top;}
+  tr:nth-child(even) td{background:#f7f9fb;}
+  .callout{border-left:4px solid var(--blue);background:var(--blue-soft);padding:11px 15px;margin:14px 0;border-radius:0 6px 6px 0;font-size:14px;}
+  .callout.key{border-left-color:var(--green);background:var(--green-soft);}
+  .callout.warn{border-left-color:var(--amber);background:var(--amber-soft);}
+  .callout.stop{border-left-color:var(--red);background:var(--red-soft);}
+  .fig{border:1px solid var(--line);border-radius:8px;padding:18px;margin:16px 0;background:#fcfdfe;}
+  .fig-cap{font-size:12.5px;color:var(--muted);margin-top:9px;text-align:center;font-style:italic;}
+  svg{display:block;margin:0 auto;max-width:100%;height:auto;}
+  .phase{background:var(--blue);color:#fff;font-weight:700;font-size:13px;padding:5px 12px;border-radius:5px;display:inline-block;margin:8px 0;}
+  ol.steps{counter-reset:s;list-style:none;padding-left:0;}
+  ol.steps>li{counter-increment:s;position:relative;padding:8px 0 8px 44px;border-bottom:1px solid #eef2f5;}
+  ol.steps>li::before{content:counter(s);position:absolute;left:0;top:8px;width:30px;height:30px;
+    background:var(--blue-soft);color:var(--blue);border:1.5px solid var(--blue);border-radius:50%;
+    text-align:center;line-height:28px;font-weight:700;font-size:13px;}
+  footer.doc{margin-top:50px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);text-align:center;}
+  .tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:600;}
+  .tag.m{background:var(--blue-soft);color:var(--blue);}
+  .tag.d{background:var(--green-soft);color:var(--green);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <h1>CCR POC — Mosaic Model &amp; Dashboard Build Instructions</h1>
+  <div class="sub">TD Collateral Exposure POC &middot; full build guide for the direct/indirect exposure dashboard &middot; 18 May 2026</div>
+</header>
+
+<p>This guide takes you from loaded data to a finished, demo-ready dashboard. It has two halves:
+<span class="tag m">MODEL</span> work done in the Strategy/Mosaic data model, and
+<span class="tag d">DASHBOARD</span> work done in the dossier. Do the model first &mdash;
+the dashboard depends on it.</p>
+
+<h2>0 &nbsp; The story this dashboard tells</h2>
+
+<div class="fig">
+<svg viewBox="0 0 860 280" font-family="Segoe UI, Arial" font-size="12">
+  <rect x="320" y="20" width="220" height="46" rx="9" fill="#eaf1f8" stroke="#2e5c8a" stroke-width="2"/>
+  <text x="430" y="40" text-anchor="middle" font-weight="700" fill="#2e5c8a">Exposure by Counterparty</text>
+  <text x="430" y="56" text-anchor="middle" font-size="10.5" fill="#5b6b7d">two measures: Direct | Indirect</text>
+  <!-- split -->
+  <path d="M380 66 L210 110" stroke="#2f8f5b" stroke-width="2" marker-end="url(#g)"/>
+  <path d="M480 66 L650 110" stroke="#b9772a" stroke-width="2" marker-end="url(#a)"/>
+  <!-- direct -->
+  <rect x="90" y="110" width="240" height="44" rx="8" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.8"/>
+  <text x="210" y="129" text-anchor="middle" font-weight="700" fill="#2f8f5b">DIRECT exposure</text>
+  <text x="210" y="145" text-anchor="middle" font-size="10" fill="#5b6b7d">risk if the counterparty defaults</text>
+  <path d="M210 154 L210 196" stroke="#2f8f5b" stroke-width="2" marker-end="url(#g)"/>
+  <text x="300" y="178" font-size="10" fill="#5b6b7d">drill</text>
+  <rect x="70" y="196" width="280" height="56" rx="8" fill="#fff" stroke="#2f8f5b" stroke-width="1.5"/>
+  <text x="210" y="216" text-anchor="middle" font-weight="600" fill="#2f8f5b">Trades by Asset Class / Product</text>
+  <text x="210" y="232" text-anchor="middle" font-size="10" fill="#5b6b7d">subtotals sum to direct exposure</text>
+  <text x="210" y="245" text-anchor="middle" font-size="10" fill="#5b6b7d">InterestRate | Credit | Equity | FX</text>
+  <!-- indirect -->
+  <rect x="530" y="110" width="240" height="44" rx="8" fill="#fbf0e0" stroke="#b9772a" stroke-width="1.8"/>
+  <text x="650" y="129" text-anchor="middle" font-weight="700" fill="#b9772a">INDIRECT exposure</text>
+  <text x="650" y="145" text-anchor="middle" font-size="10" fill="#5b6b7d">risk in the collateral we hold</text>
+  <path d="M650 154 L650 196" stroke="#b9772a" stroke-width="2" marker-end="url(#a)"/>
+  <text x="740" y="178" font-size="10" fill="#5b6b7d">drill</text>
+  <rect x="510" y="196" width="280" height="56" rx="8" fill="#fff" stroke="#b9772a" stroke-width="1.5"/>
+  <text x="650" y="216" text-anchor="middle" font-weight="600" fill="#b9772a">Issuers by Type / Rating</text>
+  <text x="650" y="232" text-anchor="middle" font-size="10" fill="#5b6b7d">Sovereign | Agency | Corporate</text>
+  <text x="650" y="245" text-anchor="middle" font-size="10" fill="#5b6b7d">AAA | AA+ | AA ...</text>
+  <defs>
+    <marker id="g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#2f8f5b"/></marker>
+    <marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#b9772a"/></marker>
+  </defs>
+</svg>
+<div class="fig-cap">The dashboard: pick a counterparty, see two parallel measures, drill each down its own path.</div>
+</div>
+
+<p><b>Direct exposure</b> is what TD loses if the counterparty itself defaults &mdash; it
+decomposes into the underlying trades. <b>Indirect exposure</b> is the risk in the collateral the
+counterparty has posted &mdash; it decomposes into the issuers of that collateral. The two are
+<b>separate measures, never added together</b>; they answer two different risk questions.</p>
+
+<h2>1 &nbsp; Data — what to load</h2>
+
+<table>
+  <tr><th>Table</th><th>Action</th><th>Rows</th></tr>
+  <tr><td>Base tables (counterparty, agreement, date, csa_type, eligibility, fact)</td><td>Keep what you have loaded</td><td>&mdash;</td></tr>
+  <tr><td>star_dim_legal_entity</td><td>Keep what you have (with ultimate parent columns)</td><td>~19</td></tr>
+  <tr><td>star_dim_trade</td><td>Run <code>trade_data.sql</code> &mdash; loads trades with reconciling exposure contributions</td><td>58</td></tr>
+  <tr><td>star_fact_issuer_exposure</td><td>Run the issuer section from the earlier <code>synthetic_data_v2.sql</code></td><td>48</td></tr>
+</table>
+
+<div class="callout key">
+<b>trade_data.sql</b> adds one column to <code>star_dim_trade</code>:
+<code>trade_exposure_contribution</code>. Per agreement, the trades' contributions sum
+<b>exactly</b> to that counterparty's direct exposure on 2026-03-31. This is what makes the
+direct-exposure drill reconcile. The verify query at the end of the script proves it.
+</div>
+
+<div class="callout warn">
+The dashboard reconciles direct exposure <b>as of 2026-03-31</b> (the latest date). When you build
+the direct-exposure visuals, filter the exposure measure to that date so the headline number and
+the trade breakdown match. This is a deliberate point-in-time simplification &mdash; standard for
+an exposure snapshot view.
+</div>
+
+<!-- ============ MODEL ============ -->
+<h2>2 &nbsp; <span class="tag m">MODEL</span> &nbsp;Build the data model in Mosaic</h2>
+
+<p class="phase">PHASE A — Add the tables</p>
+<ol class="steps">
+  <li>Open the model. <b>Tables</b> tab &rarr; <b>Import / Add tables</b>. Add
+      <code>star_dim_trade</code> and <code>star_fact_issuer_exposure</code> if not already present.
+      Confirm <code>star_dim_legal_entity</code> is in the model too.</li>
+  <li>The model should now have: the fact, counterparty, agreement, csa_type, date,
+      collateral_eligibility, legal_entity, trade, and issuer_exposure tables.</li>
+</ol>
+
+<p class="phase">PHASE B — Fix the joins (the attribute spans the tables)</p>
+<ol class="steps">
+  <li><b>Counterparty Code</b> &mdash; confirm it is ONE attribute, mapped to
+      <code>counterparty_code</code> on every table that has it (fact, counterparty, agreement,
+      legal_entity, issuer_exposure). Form type <b>Text</b>. Lookup table =
+      <code>star_dim_counterparty</code>.</li>
+  <li><b>Agreement</b> &mdash; one attribute, mapped to <code>agreement_id</code> on the fact,
+      agreement, trade, and collateral_eligibility tables. Lookup table =
+      <code>star_dim_agreement</code>. This is the join that connects trades to the rest.</li>
+  <li><b>As-Of Date</b> &mdash; mapped to <code>as_of_date</code> on the fact, date, and
+      issuer_exposure tables. Lookup = <code>star_dim_date</code>.</li>
+  <li>Check the Tables canvas: every table should connect through these shared attributes. No
+      table floating unconnected.</li>
+</ol>
+
+<div class="callout">
+<b>Why trades connect:</b> <code>star_dim_trade</code> has no <code>counterparty_code</code> &mdash;
+it has <code>agreement_id</code>. The path is trade &rarr; agreement &rarr; counterparty. As long
+as the Agreement attribute spans both the trade table and the agreement table, the counterparty
+filter flows down to trades automatically.
+</div>
+
+<p class="phase">PHASE C — Declare the hierarchies (Relationships tab)</p>
+<ol class="steps">
+  <li><b>Counterparty hierarchy.</b> Open Counterparty Code &rarr; Relationships. Add as a
+      <b>child</b>: Agreement. Open Agreement &rarr; Relationships, add as a child: Trade
+      (the Trade attribute, keyed on <code>trade_key</code>).</li>
+  <li><b>Ultimate Parent.</b> On the legal entity attributes: Ultimate Parent Name is the parent
+      of Legal Entity Name. (Ultimate parent is self-referencing inside
+      <code>star_dim_legal_entity</code> &mdash; one legal entity row IS the parent of others.)</li>
+  <li><b>Counterparty descriptors.</b> Counterparty Code is parent of Counterparty Legal Name,
+      Counterparty Rating, Organisation Type, Regulatory Regime (1:N each).</li>
+  <li><b>Time hierarchy.</b> Year &rarr; Quarter &rarr; Month &rarr; As-Of Date, each parent of
+      the next. Clear any warning on the time hierarchy.</li>
+  <li><b>Issuer attributes.</b> No hierarchy needed &mdash; Issuer Name, Issuer Type, Issuer
+      Rating are descriptive attributes on the issuer_exposure table. Just confirm they exist as
+      attributes after import.</li>
+</ol>
+
+<p class="phase">PHASE D — Create the metrics</p>
+<p>Use <b>Create Metric</b> for each. Set the aggregation function as shown.</p>
+<table>
+  <tr><th>Metric</th><th>Definition</th><th>Aggregation</th></tr>
+  <tr><td>Direct Exposure</td><td><code>Sum(base_total_exposure)</code> from the fact</td><td>Sum across counterparty/agreement. Semi-additive over time &mdash; for the snapshot view, filter to 2026-03-31.</td></tr>
+  <tr><td>Indirect Exposure</td><td><code>Sum(indirect_exposure)</code> from star_fact_issuer_exposure</td><td>Sum across counterparty/issuer. Filter to 2026-03-31 to match.</td></tr>
+  <tr><td>Trade Exposure Contribution</td><td><code>Sum(trade_exposure_contribution)</code> from star_dim_trade</td><td>Sum. This rolls up by asset class / product and reconciles to Direct Exposure.</td></tr>
+  <tr><td>Trade Count</td><td><code>Count(trade_key)</code></td><td>Count.</td></tr>
+  <tr><td>Collateral Value</td><td><code>Sum(collateral_value)</code> from issuer_exposure</td><td>Sum.</td></tr>
+</table>
+
+<p class="phase">PHASE E — Derived attributes for the drill breakdowns</p>
+<ol class="steps">
+  <li><b>Asset Class.</b> <code>product_type_isda</code> looks like
+      <code>InterestRate:IRSwap</code>. Create a derived attribute <b>Asset Class</b> =
+      the text before the colon (<code>Substring</code> / <code>Split</code> on
+      <code>product_type_isda</code>). Values: InterestRate, Credit, Equity, ForeignExchange.</li>
+  <li>Keep <b>Product Type</b> as the full <code>product_type_isda</code> &mdash; this is the
+      second drill level under Asset Class.</li>
+  <li>Declare Asset Class as the <b>parent</b> of Product Type in the Relationships tab, so the
+      direct-exposure drill can go Asset Class &rarr; Product Type.</li>
+</ol>
+
+<p class="phase">PHASE F — Validate &amp; publish</p>
+<ol class="steps">
+  <li><b>Validation</b> tab. Probe 1: Counterparty Code + Direct Exposure (filter date 2026-03-31)
+      &mdash; numbers vary per counterparty, no smear.</li>
+  <li>Probe 2: Asset Class + Trade Exposure Contribution for one counterparty &mdash; the asset
+      classes should sum to that counterparty's Direct Exposure.</li>
+  <li>Probe 3: Counterparty Code + Indirect Exposure &mdash; only the 5 counterparties with
+      collateral schedules show a value; that is correct.</li>
+  <li>Connection mode: ensure the model is set to <b>Live</b> (not imported cube) so the
+      live-update demo works.</li>
+  <li><b>Publish.</b></li>
+</ol>
+
+<!-- ============ DASHBOARD ============ -->
+<h2>3 &nbsp; <span class="tag d">DASHBOARD</span> &nbsp;Build the dossier</h2>
+
+<p>Three pages: a summary, a direct-exposure drill, an indirect-exposure drill. The summary links
+to the other two.</p>
+
+<p class="phase">PAGE 1 — Counterparty Exposure Summary</p>
+<ol class="steps">
+  <li>New dossier, new grid visualization. Title it <b>Counterparty Exposure Summary</b>.</li>
+  <li><b>Rows:</b> Ultimate Parent Name, then Counterparty Legal Name (gives the merged-cell
+      parent grouping).</li>
+  <li><b>Metrics:</b> Direct Exposure, Indirect Exposure &mdash; two columns, side by side.</li>
+  <li>Add a <b>filter</b> on As-Of Date, default to 2026-03-31, so both measures show the snapshot
+      consistently.</li>
+  <li>Conditional formatting (optional): highlight Direct Exposure cells above a threshold in
+      red &mdash; reuses the pattern from the training model.</li>
+  <li>This page is the entry point. The two measures sit here as parallel columns; the audience
+      reads "for each counterparty, here is direct and here is indirect."</li>
+</ol>
+
+<p class="phase">PAGE 2 — Direct Exposure: Trades</p>
+<ol class="steps">
+  <li>New page. Grid visualization titled <b>Direct Exposure by Trade</b>.</li>
+  <li><b>Rows:</b> Asset Class, then Product Type (nested &mdash; the hierarchy you declared).</li>
+  <li><b>Metrics:</b> Trade Exposure Contribution, Trade Count.</li>
+  <li>Add an As-Of Date filter fixed to 2026-03-31 (so it reconciles to Page 1).</li>
+  <li>This page expects a <b>Counterparty filter passed in</b> from Page 1 &mdash; configured next.</li>
+</ol>
+
+<p class="phase">PAGE 3 — Indirect Exposure: Issuers</p>
+<ol class="steps">
+  <li>New page. Grid visualization titled <b>Indirect Exposure by Issuer</b>.</li>
+  <li><b>Rows:</b> Issuer Type, then Issuer Name (and Issuer Rating as a second form/column).</li>
+  <li><b>Metrics:</b> Indirect Exposure, Collateral Value.</li>
+  <li>As-Of Date filter fixed to 2026-03-31.</li>
+  <li>This page also expects the Counterparty filter passed from Page 1.</li>
+</ol>
+
+<p class="phase">WIRING — the contextual-link drills</p>
+<ol class="steps">
+  <li>On Page 1, right-click the grid &rarr; <b>Create Contextual Link</b> (or Select Target
+      Visualizations, depending on the menu).</li>
+  <li>Create a link from the <b>Direct Exposure</b> measure / counterparty row to <b>Page 2</b>.
+      Configure it to <b>pass the selected Counterparty</b> as the filter. Now clicking a
+      counterparty's direct exposure jumps to Page 2 showing only that counterparty's trades.</li>
+  <li>Create a second link from the <b>Indirect Exposure</b> measure to <b>Page 3</b>, also
+      passing the selected Counterparty.</li>
+  <li>Test: on Page 1 click Goldman's Direct Exposure &rarr; Page 2 shows Goldman's trades by
+      asset class, and the asset-class subtotals sum to Goldman's direct exposure number.
+      Click Indirect &rarr; Page 3 shows the issuers behind Goldman's collateral.</li>
+</ol>
+
+<div class="callout key">
+<b>The reconciliation moment.</b> On Page 1, note Goldman's Direct Exposure (e.g. 41,500,000).
+Drill to Page 2. The Trade Exposure Contribution column, summed across asset classes, equals
+41,500,000. That "it adds up" moment is the strongest part of the demo &mdash; it shows the
+breakdown is real, not decorative.
+</div>
+
+<h2>4 &nbsp; The two live demos</h2>
+
+<p class="phase">Live update</p>
+<ol class="steps">
+  <li>Before the audience: on Page 1, show Goldman's Direct Exposure.</li>
+  <li>In Databricks, run the live-update statement (from <code>synthetic_data_v2.sql</code> &sect;4):
+      it raises event <code>EVT-005-0331</code> to 75,000,000.</li>
+  <li>Refresh the dossier. Goldman's Direct Exposure updates on screen &mdash; because the model
+      is Live.</li>
+</ol>
+
+<p class="phase">Data masking</p>
+<ol class="steps">
+  <li>Setup once before the demo: run the masking section (<code>synthetic_data_v2.sql</code>
+      &sect;5) &mdash; creates the control table, the <code>mask_lei</code> function, applies the
+      mask to <code>lei_code</code>. It starts masked.</li>
+  <li>Put <b>LEI Code</b> as a column on a grid (Page 3, or a small grid on Page 1). It shows
+      <code>XXX-MASKED</code>.</li>
+  <li>Live: run <code>UPDATE demo_mask_control SET masking_on = false</code>. Refresh the dossier
+      &mdash; real LEI codes appear.</li>
+  <li>Run the same UPDATE with <code>true</code> to re-mask. One statement each way, fully under
+      your control.</li>
+</ol>
+
+<h2>5 &nbsp; Pre-demo checklist</h2>
+<ul>
+  <li>Trade data loaded; verify query shows all VM agreements reconcile.</li>
+  <li>Model published, connection mode = Live.</li>
+  <li>All three pages built; both contextual links pass the Counterparty filter.</li>
+  <li>As-Of Date filter = 2026-03-31 on every page.</li>
+  <li>Masking applied and starting in the masked state.</li>
+  <li>Live-update and unmask statements open in a Databricks SQL tab, ready to run.</li>
+  <li>Walk the full path once: summary &rarr; direct drill &rarr; back &rarr; indirect drill.</li>
+</ul>
+
+<div class="callout warn">
+<b>Honest note on the data.</b> <code>star_fact_issuer_exposure</code>,
+<code>demo_mask_control</code>, and the <code>trade_exposure_contribution</code> column are POC
+scaffolding &mdash; not part of the governed schema, and the trade contributions are a clean
+point-in-time simplification of true netting math. Fine for a POC demo; flag them as such if
+asked, and have them governed properly before anything goes further.
+</div>
+
+<footer class="doc">
+  CCR POC &mdash; Mosaic Model &amp; Dashboard Build Instructions &mdash; 18 May 2026
+</footer>
+
+</div>
+</body>
+</html>
