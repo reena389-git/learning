@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Three Models for Risk Data — Canonical, Analytical, Semantic</title>
+<style>
+  :root {
+    --ink: #1e2a38;
+    --muted: #5b6b7d;
+    --line: #d4dce5;
+    --blue: #2e5c8a;
+    --blue-soft: #eaf1f8;
+    --green: #2f8f5b;
+    --green-soft: #e7f4ec;
+    --amber: #b9772a;
+    --amber-soft: #fbf0e0;
+    --red: #b23b3b;
+    --red-soft: #f9e8e8;
+    --panel: #f7f9fb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: #ffffff; color: var(--ink);
+    font-family: "Segoe UI", Arial, sans-serif;
+    line-height: 1.6; margin: 0; padding: 0;
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 40px 32px 60px; }
+
+  /* Document header */
+  header.doc {
+    border-bottom: 3px solid var(--blue);
+    padding-bottom: 18px; margin-bottom: 8px;
+  }
+  header.doc h1 { font-size: 28px; color: var(--blue); margin: 0 0 6px; }
+  header.doc .sub { color: var(--muted); font-size: 14.5px; }
+
+  /* Page sections */
+  .page {
+    page-break-before: always;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 32px;
+    margin: 36px 0;
+    background: #fff;
+  }
+  .page:first-of-type { page-break-before: auto; }
+
+  .page-tag {
+    display: inline-block;
+    background: var(--blue); color: #fff;
+    padding: 3px 12px; border-radius: 12px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+  .page h2 {
+    font-size: 24px; color: var(--blue);
+    margin: 0 0 6px;
+  }
+  .page .strap {
+    color: var(--muted); font-size: 14.5px; font-style: italic;
+    margin: 0 0 22px;
+  }
+
+  /* Section heads inside a page */
+  h3 {
+    font-size: 15px; color: var(--ink);
+    text-transform: uppercase; letter-spacing: 0.6px;
+    margin: 28px 0 8px; padding-bottom: 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  p { margin: 8px 0; font-size: 14.5px; }
+
+  ul { margin: 8px 0 14px; padding-left: 22px; }
+  li { margin: 4px 0; font-size: 14.5px; }
+
+  code {
+    background: #f1f4f7; border: 1px solid var(--line);
+    border-radius: 3px; padding: 1px 5px; font-size: 13px;
+    font-family: "Consolas", monospace;
+  }
+
+  /* Figure containers */
+  .fig {
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 18px; margin: 18px 0; background: #fcfdfe;
+  }
+  .fig-cap {
+    font-size: 12.5px; color: var(--muted); margin-top: 10px;
+    text-align: center; font-style: italic;
+  }
+  svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+
+  /* Callouts */
+  .callout {
+    border-left: 4px solid var(--blue); background: var(--blue-soft);
+    padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;
+    font-size: 14px;
+  }
+  .callout.key { border-left-color: var(--green); background: var(--green-soft); }
+  .callout.warn { border-left-color: var(--amber); background: var(--amber-soft); }
+  .callout b { color: inherit; }
+
+  /* "Why this matters" panels */
+  .matters {
+    background: var(--green-soft);
+    border: 1px solid #bfe0cc;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 22px 0 6px;
+  }
+  .matters h4 {
+    margin: 0 0 8px; font-size: 14px; color: var(--green);
+    text-transform: uppercase; letter-spacing: 0.6px;
+  }
+  .matters ul { margin: 4px 0 0; }
+  .matters li { font-size: 14px; }
+
+  /* Two-column compare blocks */
+  .two-col { display: flex; gap: 16px; flex-wrap: wrap; margin: 14px 0; }
+  .col {
+    flex: 1; min-width: 240px;
+    border: 1px solid var(--line);
+    border-radius: 8px; padding: 12px 16px;
+    background: var(--panel);
+  }
+  .col h5 { margin: 0 0 6px; font-size: 13.5px; color: var(--ink); }
+  .col p { margin: 4px 0; font-size: 13.5px; }
+
+  /* Tables */
+  table {
+    border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13.5px;
+  }
+  th {
+    background: var(--blue); color: #fff; text-align: left;
+    padding: 8px 11px; font-weight: 600;
+  }
+  td { border: 1px solid var(--line); padding: 7px 11px; vertical-align: top; }
+  tr:nth-child(even) td { background: var(--panel); }
+
+  footer.doc {
+    margin-top: 40px; padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-size: 12px; color: var(--muted); text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <h1>Three Models for Risk Data &mdash; and the Conformance That Holds Them Together</h1>
+  <div class="sub">Canonical · Analytical · Semantic · Conformance &mdash; what each one does, and why your reports are only the beginning</div>
+</header>
+
+<p style="font-size:14.5px; color:var(--muted); margin-top:20px;">
+This note is for the risk application teams &mdash; CCR, Market Risk, Valuation Services, RCS, Product Control,
+and the others currently producing risk metrics. Today, each app calculates results and publishes them as
+reports or extracts. Those reports are valuable, but they are a small fraction of what a complete risk data
+architecture requires. This document lays out three models &mdash; <b>Canonical</b>, <b>Analytical</b>, and
+<b>Semantic</b> &mdash; that the data needs to be expressed in, plus a fourth layer, <b>Conformance</b>, which
+is the discipline that binds the physical world to the logical model.
+</p>
+
+<p style="font-size:14.5px; color:var(--muted);">
+The example used throughout is <b>CCR / Collateral</b> &mdash; counterparty exposure, agreements, trades, collateral &mdash;
+but the same three-model structure applies to every risk sub-domain.
+</p>
+
+
+<!-- ============================================================ -->
+<!-- PAGE 1: CANONICAL                                            -->
+<!-- ============================================================ -->
+<section class="page">
+  <span class="page-tag">PAGE 1 OF 4</span>
+  <h2>The Canonical Risk Data Model</h2>
+  <p class="strap">The logical model of risk concepts &mdash; independent of any one app, report, or platform.</p>
+
+  <h3>What it is</h3>
+  <p>
+    The canonical model describes <b>risk as a set of business entities and the relationships between them</b>.
+    It is a logical model &mdash; normalised, 3NF or close to it &mdash; that answers the question:
+    "what are the things in this domain, and how do they relate?"
+  </p>
+  <p>
+    For CCR / Collateral, the entities are concepts like <code>Counterparty</code>, <code>Agreement</code>,
+    <code>Netting Set</code>, <code>Trade</code>, <code>Collateral Position</code>, <code>Issuer</code>,
+    <code>Exposure Measurement</code>. Each entity has its own attributes and a defined relationship to
+    other entities (a Counterparty has many Agreements; an Agreement governs many Netting Sets; etc.).
+  </p>
+
+  <h3>What it is not</h3>
+  <p>
+    The canonical model is <b>not a physical database</b>, not a report layout, not an app's internal schema,
+    and not a star schema for BI. It is the shared logical definition that every physical implementation
+    refers back to. Two different apps may store Counterparty data in physically different shapes, but if
+    both are conformant with the canonical model, they mean the same thing when they say "counterparty
+    credit rating" or "ultimate parent."
+  </p>
+
+  <h3>Diagram</h3>
+
+  <div class="fig">
+  <svg viewBox="0 0 920 470" font-family="Segoe UI, Arial" font-size="12">
+    <defs>
+      <marker id="arrCan" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+        <path d="M0 0 L9 4.5 L0 9 z" fill="#2e5c8a"/>
+      </marker>
+    </defs>
+
+    <!-- Title strip -->
+    <text x="460" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#2e5c8a">
+      Risk Canonical Model — CCR / Collateral excerpt
+    </text>
+    <text x="460" y="40" text-anchor="middle" font-size="11" fill="#5b6b7d">
+      Entities and their relationships, defined independently of any app
+    </text>
+
+    <!-- Entity boxes -->
+    <!-- Counterparty -->
+    <rect x="40" y="80" width="170" height="78" rx="6" fill="#fff" stroke="#2e5c8a" stroke-width="1.6"/>
+    <text x="125" y="100" text-anchor="middle" font-weight="700" fill="#2e5c8a">Counterparty</text>
+    <line x1="50" y1="108" x2="200" y2="108" stroke="#d4dce5"/>
+    <text x="55" y="124" font-size="11" fill="#1e2a38">counterparty_id (PK)</text>
+    <text x="55" y="138" font-size="11" fill="#5b6b7d">name, lei, rating</text>
+    <text x="55" y="152" font-size="11" fill="#5b6b7d">legal_entity_id (FK)</text>
+
+    <!-- Legal Entity -->
+    <rect x="40" y="200" width="170" height="64" rx="6" fill="#fff" stroke="#2e5c8a" stroke-width="1.6"/>
+    <text x="125" y="220" text-anchor="middle" font-weight="700" fill="#2e5c8a">Legal Entity</text>
+    <line x1="50" y1="228" x2="200" y2="228" stroke="#d4dce5"/>
+    <text x="55" y="244" font-size="11" fill="#1e2a38">legal_entity_id (PK)</text>
+    <text x="55" y="258" font-size="11" fill="#5b6b7d">name, jurisdiction</text>
+
+    <!-- Agreement -->
+    <rect x="270" y="80" width="170" height="92" rx="6" fill="#fff" stroke="#2e5c8a" stroke-width="1.6"/>
+    <text x="355" y="100" text-anchor="middle" font-weight="700" fill="#2e5c8a">Agreement</text>
+    <line x1="280" y1="108" x2="430" y2="108" stroke="#d4dce5"/>
+    <text x="285" y="124" font-size="11" fill="#1e2a38">agreement_id (PK)</text>
+    <text x="285" y="138" font-size="11" fill="#5b6b7d">counterparty_id (FK)</text>
+    <text x="285" y="152" font-size="11" fill="#5b6b7d">csa_type, threshold</text>
+    <text x="285" y="166" font-size="11" fill="#5b6b7d">margin_type</text>
+
+    <!-- Netting Set -->
+    <rect x="500" y="80" width="170" height="78" rx="6" fill="#fff" stroke="#2e5c8a" stroke-width="1.6"/>
+    <text x="585" y="100" text-anchor="middle" font-weight="700" fill="#2e5c8a">Netting Set</text>
+    <line x1="510" y1="108" x2="660" y2="108" stroke="#d4dce5"/>
+    <text x="515" y="124" font-size="11" fill="#1e2a38">netting_set_id (PK)</text>
+    <text x="515" y="138" font-size="11" fill="#5b6b7d">agreement_id (FK)</text>
+    <text x="515" y="152" font-size="11" fill="#5b6b7d">scope_rules</text>
+
+    <!-- Trade -->
+    <rect x="730" y="80" width="170" height="92" rx="6" fill="#fff" stroke="#2e5c8a" stroke-width="1.6"/>
+    <text x="815" y="100" text-anchor="middle" font-weight="700" fill="#2e5c8a">Trade</text>
+    <line x1="740" y1="108" x2="890" y2="108" stroke="#d4dce5"/>
+    <text x="745" y="124" font-size="11" fill="#1e2a38">trade_id (PK)</text>
+    <text x="745" y="138" font-size="11" fill="#5b6b7d">netting_set_id (FK)</text>
+    <text x="745" y="152" font-size="11" fill="#5b6b7d">product_type, notional</text>
+    <text x="745" y="166" font-size="11" fill="#5b6b7d">maturity, currency</text>
+
+    <!-- Exposure Measurement -->
+    <rect x="270" y="240" width="170" height="92" rx="6" fill="#fff" stroke="#2e5c8a" stroke-width="1.6"/>
+    <text x="355" y="260" text-anchor="middle" font-weight="700" fill="#2e5c8a">Exposure Measurement</text>
+    <line x1="280" y1="268" x2="430" y2="268" stroke="#d4dce5"/>
+    <text x="285" y="284" font-size="11" fill="#1e2a38">exposure_id (PK)</text>
+    <text x="285" y="298" font-size="11" fill="#5b6b7d">netting_set_id (FK)</text>
+    <text x="285" y="312" font-size="11" fill="#5b6b7d">as_of_date</text>
+    <text x="285" y="326" font-size="11" fill="#5b6b7d">measure_type, value</text>
+
+    <!-- Collateral Position -->
+    <rect x="500" y="240" width="170" height="92" rx="6" fill="#fff" stroke="#2e5c8a" stroke-width="1.6"/>
+    <text x="585" y="260" text-anchor="middle" font-weight="700" fill="#2e5c8a">Collateral Position</text>
+    <line x1="510" y1="268" x2="660" y2="268" stroke="#d4dce5"/>
+    <text x="515" y="284" font-size="11" fill="#1e2a38">position_id (PK)</text>
+    <text x="515" y="298" font-size="11" fill="#5b6b7d">agreement_id (FK)</text>
+    <text x="515" y="312" font-size="11" fill="#5b6b7d">issuer_id (FK)</text>
+    <text x="515" y="326" font-size="11" fill="#5b6b7d">value, haircut</text>
+
+    <!-- Issuer -->
+    <rect x="730" y="240" width="170" height="78" rx="6" fill="#fff" stroke="#2e5c8a" stroke-width="1.6"/>
+    <text x="815" y="260" text-anchor="middle" font-weight="700" fill="#2e5c8a">Issuer</text>
+    <line x1="740" y1="268" x2="890" y2="268" stroke="#d4dce5"/>
+    <text x="745" y="284" font-size="11" fill="#1e2a38">issuer_id (PK)</text>
+    <text x="745" y="298" font-size="11" fill="#5b6b7d">type, rating</text>
+    <text x="745" y="312" font-size="11" fill="#5b6b7d">jurisdiction</text>
+
+    <!-- Relationship lines with cardinality labels -->
+    <!-- Counterparty -> Legal Entity -->
+    <line x1="125" y1="158" x2="125" y2="200" stroke="#2e5c8a" stroke-width="1.4" marker-end="url(#arrCan)"/>
+    <text x="135" y="180" font-size="10" fill="#b9772a">N : 1</text>
+
+    <!-- Counterparty -> Agreement -->
+    <line x1="210" y1="118" x2="270" y2="118" stroke="#2e5c8a" stroke-width="1.4" marker-end="url(#arrCan)"/>
+    <text x="225" y="113" font-size="10" fill="#b9772a">1 : N</text>
+
+    <!-- Agreement -> Netting Set -->
+    <line x1="440" y1="118" x2="500" y2="118" stroke="#2e5c8a" stroke-width="1.4" marker-end="url(#arrCan)"/>
+    <text x="455" y="113" font-size="10" fill="#b9772a">1 : N</text>
+
+    <!-- Netting Set -> Trade -->
+    <line x1="670" y1="118" x2="730" y2="118" stroke="#2e5c8a" stroke-width="1.4" marker-end="url(#arrCan)"/>
+    <text x="685" y="113" font-size="10" fill="#b9772a">1 : N</text>
+
+    <!-- Netting Set -> Exposure Measurement -->
+    <line x1="555" y1="158" x2="400" y2="240" stroke="#2e5c8a" stroke-width="1.4" marker-end="url(#arrCan)"/>
+    <text x="430" y="200" font-size="10" fill="#b9772a">1 : N (over time)</text>
+
+    <!-- Agreement -> Collateral Position -->
+    <line x1="370" y1="172" x2="555" y2="240" stroke="#2e5c8a" stroke-width="1.4" marker-end="url(#arrCan)"/>
+    <text x="430" y="220" font-size="10" fill="#b9772a">1 : N</text>
+
+    <!-- Collateral Position -> Issuer -->
+    <line x1="670" y1="280" x2="730" y2="280" stroke="#2e5c8a" stroke-width="1.4" marker-end="url(#arrCan)"/>
+    <text x="685" y="275" font-size="10" fill="#b9772a">N : 1</text>
+
+    <!-- Legend bottom -->
+    <rect x="40" y="380" width="860" height="64" rx="6" fill="#f7f9fb" stroke="#d4dce5"/>
+    <text x="55" y="400" font-size="11" font-weight="700" fill="#1e2a38">Notes</text>
+    <text x="55" y="416" font-size="11" fill="#5b6b7d">• Each box is an entity with attributes; primary keys in bold, foreign keys reference other entities.</text>
+    <text x="55" y="430" font-size="11" fill="#5b6b7d">• Cardinality on each line (1:N, N:1) defines how entities relate. This is independent of how any one app stores the data.</text>
+  </svg>
+  <div class="fig-cap">Figure 1 — Canonical entities and their relationships for the CCR / Collateral sub-domain</div>
+  </div>
+
+  <h3>What it gives you</h3>
+  <ul>
+    <li><b>A shared language.</b> When CCR, XVA, and Collateral Management all say "Counterparty," they mean the same thing &mdash; same identifier, same parent hierarchy, same rating fields.</li>
+    <li><b>A stable spine.</b> The canonical model changes slowly. Apps and reports change quickly. Anchoring to the canonical model means downstream consumers aren't disrupted every time an app changes its internal schema.</li>
+    <li><b>A target for integration.</b> Data from multiple apps can be conformed to canonical entities, enabling cross-app analytics that aren't possible when each app's data sits in its own silo.</li>
+  </ul>
+
+  <h3>Where your reports fit</h3>
+  <p>
+    Most reports today are <b>not</b> conformant with a canonical model &mdash; they are app-specific outputs with
+    app-specific names, structures, and definitions. The canonical model is the target shape these outputs need
+    to be aligned to over time, so consumers (analytics, regulatory reporting, business users) can combine
+    them without re-discovering definitions every time.
+  </p>
+
+  <div class="matters">
+    <h4>Why this matters</h4>
+    <ul>
+      <li>Without a canonical model, every consumer of risk data has to learn each app's vocabulary separately, and reconciliation across apps becomes manual.</li>
+      <li>The canonical model is the <b>only</b> layer where cross-app integration semantics can be defined once. Skipping it pushes that work into every analytics product downstream.</li>
+      <li>This is logical, not physical. It does not require migrating any system. It is a reference others align to.</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- PAGE 2: ANALYTICAL                                           -->
+<!-- ============================================================ -->
+<section class="page">
+  <span class="page-tag">PAGE 2 OF 4</span>
+  <h2>The Analytical (Star) Model</h2>
+  <p class="strap">Risk metrics organised for slicing, aggregating, and combining — built from your reports.</p>
+
+  <h3>What it is</h3>
+  <p>
+    The analytical model takes the <b>measures your risk apps produce</b> and organises them into a star schema
+    optimised for analytical queries. It has two parts:
+  </p>
+  <ul>
+    <li><b>Fact tables</b> &mdash; one or more, each holding measures at a specific grain. For CCR, a fact might be <code>fact_exposure_daily</code> at the grain of <i>netting set &times; date</i>, holding measures like base exposure, PFE, and EAD.</li>
+    <li><b>Dimension tables</b> &mdash; descriptive context that surrounds the facts: counterparty, agreement, trade, date, currency, asset class, etc. Each dimension is wide and denormalised for query speed.</li>
+  </ul>
+
+  <h3>What "grain" means and why it matters</h3>
+  <p>
+    Every fact table has a <b>grain</b> &mdash; the level at which one row of data corresponds to one event or
+    measurement. For exposure, the grain is typically <i>netting set &times; date</i>: one row per netting set per
+    measurement date. The grain is set by the risk app when it calculates the measure; it cannot be reconstructed
+    later if it is not declared.
+  </p>
+  <p>
+    Once the grain is declared, downstream analytics can aggregate <i>up</i> from it (e.g., sum to counterparty
+    level) but never <i>down</i> (you cannot recover trade-level exposure from a netting-set-level fact, because
+    the netting calculation has already been applied). The grain is a contract.
+  </p>
+
+  <h3>Where your reports fit</h3>
+  <p>
+    Your reports today carry measures and grain &mdash; but typically without declaring either explicitly. A report
+    titled "Counterparty Exposure by Region" implicitly defines:
+  </p>
+  <ul>
+    <li>A measure (counterparty exposure) with an unstated aggregation rule</li>
+    <li>A grain (typically counterparty &times; date) that the user must infer</li>
+    <li>A set of dimensions (counterparty, region, date) embedded as columns</li>
+  </ul>
+  <p>
+    The analytical model formalises all three: measure, grain, dimensions. Your report becomes a <b>fact table
+    plus its surrounding dimensions</b>, with each part declared explicitly.
+  </p>
+
+  <h3>Diagram</h3>
+
+  <div class="fig">
+  <svg viewBox="0 0 920 470" font-family="Segoe UI, Arial" font-size="12">
+    <defs>
+      <marker id="arrSt" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+        <path d="M0 0 L9 4.5 L0 9 z" fill="#2f8f5b"/>
+      </marker>
+    </defs>
+
+    <text x="460" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#2f8f5b">
+      Analytical Star Model — CCR Exposure
+    </text>
+    <text x="460" y="40" text-anchor="middle" font-size="11" fill="#5b6b7d">
+      Fact at the centre, dimensions around it — built from the report output
+    </text>
+
+    <!-- Fact in centre -->
+    <rect x="345" y="180" width="230" height="130" rx="8" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="2"/>
+    <text x="460" y="202" text-anchor="middle" font-weight="700" fill="#2f8f5b">fact_exposure_daily</text>
+    <line x1="355" y1="210" x2="565" y2="210" stroke="#bfe0cc"/>
+    <text x="365" y="226" font-size="10.5" fill="#5b6b7d" font-style="italic">grain: netting_set × date</text>
+    <text x="365" y="244" font-size="11" fill="#1e2a38">netting_set_id (FK)</text>
+    <text x="365" y="258" font-size="11" fill="#1e2a38">counterparty_id (FK)</text>
+    <text x="365" y="272" font-size="11" fill="#1e2a38">as_of_date (FK)</text>
+    <text x="365" y="288" font-size="11" fill="#b9772a">base_exposure (measure)</text>
+    <text x="365" y="302" font-size="11" fill="#b9772a">pfe, ead, threshold_breach</text>
+
+    <!-- Dimensions around the fact -->
+    <!-- dim_counterparty (top-left) -->
+    <rect x="60" y="80" width="170" height="76" rx="6" fill="#fff" stroke="#2f8f5b" stroke-width="1.4"/>
+    <text x="145" y="100" text-anchor="middle" font-weight="700" fill="#2f8f5b">dim_counterparty</text>
+    <line x1="70" y1="108" x2="220" y2="108" stroke="#d4dce5"/>
+    <text x="75" y="124" font-size="11" fill="#1e2a38">counterparty_id (PK)</text>
+    <text x="75" y="138" font-size="11" fill="#5b6b7d">name, lei, rating</text>
+    <text x="75" y="152" font-size="11" fill="#5b6b7d">legal_entity, parent</text>
+
+    <!-- dim_agreement (top-centre) -->
+    <rect x="380" y="80" width="170" height="64" rx="6" fill="#fff" stroke="#2f8f5b" stroke-width="1.4"/>
+    <text x="465" y="100" text-anchor="middle" font-weight="700" fill="#2f8f5b">dim_agreement</text>
+    <line x1="390" y1="108" x2="540" y2="108" stroke="#d4dce5"/>
+    <text x="395" y="124" font-size="11" fill="#1e2a38">agreement_id (PK)</text>
+    <text x="395" y="138" font-size="11" fill="#5b6b7d">csa_type, threshold</text>
+
+    <!-- dim_netting_set (top-right) -->
+    <rect x="700" y="80" width="170" height="64" rx="6" fill="#fff" stroke="#2f8f5b" stroke-width="1.4"/>
+    <text x="785" y="100" text-anchor="middle" font-weight="700" fill="#2f8f5b">dim_netting_set</text>
+    <line x1="710" y1="108" x2="860" y2="108" stroke="#d4dce5"/>
+    <text x="715" y="124" font-size="11" fill="#1e2a38">netting_set_id (PK)</text>
+    <text x="715" y="138" font-size="11" fill="#5b6b7d">agreement_id, scope</text>
+
+    <!-- dim_date (bottom-centre) -->
+    <rect x="380" y="360" width="170" height="64" rx="6" fill="#fff" stroke="#2f8f5b" stroke-width="1.4"/>
+    <text x="465" y="380" text-anchor="middle" font-weight="700" fill="#2f8f5b">dim_date</text>
+    <line x1="390" y1="388" x2="540" y2="388" stroke="#d4dce5"/>
+    <text x="395" y="404" font-size="11" fill="#1e2a38">as_of_date (PK)</text>
+    <text x="395" y="418" font-size="11" fill="#5b6b7d">year, quarter, month</text>
+
+    <!-- dim_currency (bottom-left) -->
+    <rect x="60" y="360" width="170" height="64" rx="6" fill="#fff" stroke="#2f8f5b" stroke-width="1.4"/>
+    <text x="145" y="380" text-anchor="middle" font-weight="700" fill="#2f8f5b">dim_currency</text>
+    <line x1="70" y1="388" x2="220" y2="388" stroke="#d4dce5"/>
+    <text x="75" y="404" font-size="11" fill="#1e2a38">currency_code (PK)</text>
+    <text x="75" y="418" font-size="11" fill="#5b6b7d">name, region</text>
+
+    <!-- dim_product_type (bottom-right) -->
+    <rect x="700" y="360" width="170" height="64" rx="6" fill="#fff" stroke="#2f8f5b" stroke-width="1.4"/>
+    <text x="785" y="380" text-anchor="middle" font-weight="700" fill="#2f8f5b">dim_product</text>
+    <line x1="710" y1="388" x2="860" y2="388" stroke="#d4dce5"/>
+    <text x="715" y="404" font-size="11" fill="#1e2a38">product_type (PK)</text>
+    <text x="715" y="418" font-size="11" fill="#5b6b7d">asset_class, isda_class</text>
+
+    <!-- Lines from dimensions to fact -->
+    <line x1="230" y1="118" x2="345" y2="205" stroke="#2f8f5b" stroke-width="1.4"/>
+    <line x1="465" y1="144" x2="465" y2="180" stroke="#2f8f5b" stroke-width="1.4"/>
+    <line x1="700" y1="118" x2="575" y2="205" stroke="#2f8f5b" stroke-width="1.4"/>
+    <line x1="230" y1="388" x2="345" y2="290" stroke="#2f8f5b" stroke-width="1.4"/>
+    <line x1="465" y1="360" x2="465" y2="310" stroke="#2f8f5b" stroke-width="1.4"/>
+    <line x1="700" y1="388" x2="575" y2="290" stroke="#2f8f5b" stroke-width="1.4"/>
+  </svg>
+  <div class="fig-cap">Figure 2 — Star schema for CCR exposure. The fact carries measures at a declared grain; dimensions provide slicing context.</div>
+  </div>
+
+  <h3>From reports to facts &mdash; the translation</h3>
+  <table>
+    <tr><th>Report concept</th><th>Star model concept</th></tr>
+    <tr><td>Report title (e.g. "CCR Daily Exposure")</td><td>Identifies which fact table the data belongs in</td></tr>
+    <tr><td>Numeric columns (exposure, PFE, EAD)</td><td>Measures on the fact</td></tr>
+    <tr><td>Granularity row (per counterparty per date)</td><td>Fact grain &mdash; declared explicitly</td></tr>
+    <tr><td>Descriptive columns (rating, region)</td><td>Dimension attributes</td></tr>
+    <tr><td>Implicit aggregation in totals row</td><td>Declared aggregation rule on each measure</td></tr>
+  </table>
+
+  <div class="matters">
+    <h4>Why this matters</h4>
+    <ul>
+      <li>A star model lets the business combine, slice, and drill across measures &mdash; capabilities a flat report cannot provide.</li>
+      <li>Once grain and aggregation rules are declared, the same measure can be safely viewed at counterparty level, parent level, or jurisdiction level without re-running the calculation.</li>
+      <li>Multiple risk apps' outputs can be combined into a unified analytical layer only if each is modelled this way &mdash; with grain and dimensions declared. Reports alone cannot be combined safely.</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- PAGE 3: SEMANTIC                                             -->
+<!-- ============================================================ -->
+<section class="page">
+  <span class="page-tag">PAGE 3 OF 4</span>
+  <h2>The Semantic Layer</h2>
+  <p class="strap">Governed definitions in the BI tool — declared once, used by every dashboard.</p>
+
+  <h3>What it is</h3>
+  <p>
+    The semantic layer sits in the BI tool (Strategy / Mosaic, Power BI, Tableau, or equivalent). It is where
+    the analytical model is <b>declared as metadata for consumption</b>: which fields are dimensions vs measures,
+    how each measure aggregates, which attributes form hierarchies, and what drill paths are valid.
+  </p>
+  <p>
+    It does not store data. It sits on top of the analytical model and tells the BI tool how to interpret the
+    data when generating queries.
+  </p>
+
+  <h3>The four things it declares</h3>
+  <div class="two-col">
+    <div class="col">
+      <h5>1 &mdash; Measure aggregation rules</h5>
+      <p>Every measure is tagged with its rule: Sum, Avg, Max, weighted average, semi-additive (sums over some dimensions but not others), etc. This determines what number the dashboard returns at any chosen grouping.</p>
+    </div>
+    <div class="col">
+      <h5>2 &mdash; Attribute hierarchies</h5>
+      <p>Parent-child relationships between attributes: Trade rolls up to Netting Set rolls up to Agreement rolls up to Counterparty. Declares safe drill paths and constrains join behaviour.</p>
+    </div>
+    <div class="col">
+      <h5>3 &mdash; Join paths</h5>
+      <p>Which physical joins connect which tables, and which path the BI tool should use when a query needs to traverse multiple tables. Avoids ambiguity when multiple paths exist.</p>
+    </div>
+    <div class="col">
+      <h5>4 &mdash; Compound metrics</h5>
+      <p>Derived measures that depend on others &mdash; coverage ratios, weighted averages, regulatory ratios. Defined as formulas so they recompute correctly at any grouping the user chooses.</p>
+    </div>
+  </div>
+
+  <h3>Diagram</h3>
+
+  <div class="fig">
+  <svg viewBox="0 0 920 420" font-family="Segoe UI, Arial" font-size="12">
+    <defs>
+      <marker id="arrSem" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+        <path d="M0 0 L9 4.5 L0 9 z" fill="#b9772a"/>
+      </marker>
+    </defs>
+
+    <text x="460" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#b9772a">
+      Semantic Layer — declared once, used by every dashboard
+    </text>
+
+    <!-- Bottom: analytical model -->
+    <rect x="40" y="320" width="840" height="70" rx="8" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.6"/>
+    <text x="460" y="342" text-anchor="middle" font-weight="700" fill="#2f8f5b">Analytical Star Model (page 2)</text>
+    <text x="460" y="360" text-anchor="middle" font-size="11" fill="#5b6b7d">fact_exposure_daily · dim_counterparty · dim_agreement · dim_netting_set · dim_date · ...</text>
+    <text x="460" y="378" text-anchor="middle" font-size="10.5" fill="#5b6b7d" font-style="italic">Physical tables in Databricks</text>
+
+    <!-- Middle: semantic layer -->
+    <rect x="40" y="160" width="840" height="130" rx="8" fill="#fbf0e0" stroke="#b9772a" stroke-width="1.8"/>
+    <text x="460" y="184" text-anchor="middle" font-weight="700" fill="#b9772a">Semantic Layer (in BI tool)</text>
+    <text x="460" y="202" text-anchor="middle" font-size="11" fill="#5b6b7d" font-style="italic">Metadata only — no data stored here</text>
+
+    <!-- Four cards inside semantic layer -->
+    <rect x="60" y="216" width="190" height="62" rx="5" fill="#fff" stroke="#b9772a"/>
+    <text x="155" y="234" text-anchor="middle" font-size="11" font-weight="700" fill="#b9772a">Aggregation rules</text>
+    <text x="155" y="250" text-anchor="middle" font-size="10" fill="#5b6b7d">Sum / Avg / Max</text>
+    <text x="155" y="264" text-anchor="middle" font-size="10" fill="#5b6b7d">semi-additive logic</text>
+
+    <rect x="265" y="216" width="190" height="62" rx="5" fill="#fff" stroke="#b9772a"/>
+    <text x="360" y="234" text-anchor="middle" font-size="11" font-weight="700" fill="#b9772a">Hierarchies</text>
+    <text x="360" y="250" text-anchor="middle" font-size="10" fill="#5b6b7d">Trade → Netting Set</text>
+    <text x="360" y="264" text-anchor="middle" font-size="10" fill="#5b6b7d">→ Agreement → CP</text>
+
+    <rect x="470" y="216" width="190" height="62" rx="5" fill="#fff" stroke="#b9772a"/>
+    <text x="565" y="234" text-anchor="middle" font-size="11" font-weight="700" fill="#b9772a">Join paths</text>
+    <text x="565" y="250" text-anchor="middle" font-size="10" fill="#5b6b7d">which physical join</text>
+    <text x="565" y="264" text-anchor="middle" font-size="10" fill="#5b6b7d">resolves which query</text>
+
+    <rect x="675" y="216" width="190" height="62" rx="5" fill="#fff" stroke="#b9772a"/>
+    <text x="770" y="234" text-anchor="middle" font-size="11" font-weight="700" fill="#b9772a">Compound metrics</text>
+    <text x="770" y="250" text-anchor="middle" font-size="10" fill="#5b6b7d">Coverage %, weighted</text>
+    <text x="770" y="264" text-anchor="middle" font-size="10" fill="#5b6b7d">avg, regulatory ratios</text>
+
+    <!-- Top: dashboards -->
+    <rect x="40" y="55" width="200" height="70" rx="6" fill="#eaf1f8" stroke="#2e5c8a" stroke-width="1.4"/>
+    <text x="140" y="76" text-anchor="middle" font-weight="700" fill="#2e5c8a">CCR Dashboard</text>
+    <text x="140" y="94" text-anchor="middle" font-size="10.5" fill="#5b6b7d">exposure by counterparty</text>
+    <text x="140" y="108" text-anchor="middle" font-size="10.5" fill="#5b6b7d">drill to trades</text>
+
+    <rect x="260" y="55" width="200" height="70" rx="6" fill="#eaf1f8" stroke="#2e5c8a" stroke-width="1.4"/>
+    <text x="360" y="76" text-anchor="middle" font-weight="700" fill="#2e5c8a">Collateral Dashboard</text>
+    <text x="360" y="94" text-anchor="middle" font-size="10.5" fill="#5b6b7d">indirect exposure</text>
+    <text x="360" y="108" text-anchor="middle" font-size="10.5" fill="#5b6b7d">issuer coverage</text>
+
+    <rect x="480" y="55" width="200" height="70" rx="6" fill="#eaf1f8" stroke="#2e5c8a" stroke-width="1.4"/>
+    <text x="580" y="76" text-anchor="middle" font-weight="700" fill="#2e5c8a">Regulatory Report</text>
+    <text x="580" y="94" text-anchor="middle" font-size="10.5" fill="#5b6b7d">capital, thresholds</text>
+    <text x="580" y="108" text-anchor="middle" font-size="10.5" fill="#5b6b7d">jurisdiction views</text>
+
+    <rect x="700" y="55" width="180" height="70" rx="6" fill="#eaf1f8" stroke="#2e5c8a" stroke-width="1.4"/>
+    <text x="790" y="76" text-anchor="middle" font-weight="700" fill="#2e5c8a">Ad-hoc Analytics</text>
+    <text x="790" y="94" text-anchor="middle" font-size="10.5" fill="#5b6b7d">analyst exploration</text>
+    <text x="790" y="108" text-anchor="middle" font-size="10.5" fill="#5b6b7d">self-serve queries</text>
+
+    <!-- Arrows: analytical → semantic → dashboards -->
+    <line x1="460" y1="320" x2="460" y2="295" stroke="#b9772a" stroke-width="1.6" marker-end="url(#arrSem)"/>
+    <line x1="140" y1="160" x2="140" y2="130" stroke="#b9772a" stroke-width="1.6" marker-end="url(#arrSem)"/>
+    <line x1="360" y1="160" x2="360" y2="130" stroke="#b9772a" stroke-width="1.6" marker-end="url(#arrSem)"/>
+    <line x1="580" y1="160" x2="580" y2="130" stroke="#b9772a" stroke-width="1.6" marker-end="url(#arrSem)"/>
+    <line x1="790" y1="160" x2="790" y2="130" stroke="#b9772a" stroke-width="1.6" marker-end="url(#arrSem)"/>
+  </svg>
+  <div class="fig-cap">Figure 3 — The semantic layer is the governed metadata bridge between physical tables and every consuming dashboard.</div>
+  </div>
+
+  <h3>Why not put this logic in every dashboard?</h3>
+  <p>
+    This is the question that determines whether the semantic layer adds value or sits idle. Without it, every
+    dashboard author has to encode aggregation rules, hierarchies, and join logic in their own dashboard. That
+    logic drifts over time. Two dashboards reporting the same metric end up with different numbers because
+    each author made slightly different choices.
+  </p>
+  <p>
+    The semantic layer centralises these decisions <b>once</b>. Every dashboard built on top inherits the same
+    rules. Definitions are governed in one place, not redefined per report.
+  </p>
+
+  <h3>Where your reports fit</h3>
+  <p>
+    Your reports today are an early version of the semantic layer &mdash; they encode <i>some</i> definitions, but in
+    the report itself rather than in a governed layer. The semantic layer takes those definitions, makes them
+    explicit, gives them governance, and exposes them to every consuming dashboard rather than just the one
+    report.
+  </p>
+
+  <div class="matters">
+    <h4>Why this matters</h4>
+    <ul>
+      <li>Without a semantic layer, dashboard numbers drift. Different reports compute the same metric differently. Reconciliation becomes a regular activity.</li>
+      <li>The semantic layer is the only place where complex aggregation rules (semi-additivity, weighted averages, regulatory ratios) can be declared once and trusted everywhere.</li>
+      <li>It is also where drill paths and governance live &mdash; meaning users can self-serve safely rather than being limited to pre-built reports.</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- PAGE 4: CONFORMANCE                                          -->
+<!-- ============================================================ -->
+<section class="page">
+  <span class="page-tag">PAGE 4 OF 4</span>
+  <h2>Conformance &mdash; making the data actually comparable</h2>
+  <p class="strap">A logical model only delivers value if its physical instances genuinely conform — in structure, content, and source.</p>
+
+  <h3>What conformance really means</h3>
+  <p>
+    A logical model defines an entity &mdash; <code>Counterparty</code>, <code>Security</code>, <code>Trade</code> &mdash;
+    once, with one definition of every attribute. The physical world represents that entity many times:
+    a JSON message in a TMS feed, an XML payload from a vendor, a flattened object table in Databricks,
+    a row in a CCR fact table. <b>Conformance</b> is the discipline that ensures every physical instance
+    is genuinely an instance of the same logical entity &mdash; not just structurally, but in what its values
+    actually mean.
+  </p>
+  <p>
+    Conformance is not "the column names match." Column names matching is necessary but not sufficient.
+    Two systems can both have a <code>counterparty_rating</code> column and still be holding fundamentally
+    different things if one is sourcing Moody's and the other S&amp;P, or if one is daily-refreshed and the
+    other is point-in-time. The conformance question is: <i>can a consumer combine these two values and
+    trust the result?</i>
+  </p>
+
+  <h3>Three forms of conformance failure</h3>
+
+  <div class="two-col">
+    <div class="col">
+      <h5>1 &mdash; Structural conformance</h5>
+      <p>The physical instance does not match the logical entity's structure. Attributes missing, types wrong,
+      relationships not enforced. This is the surface layer and the easiest to detect &mdash; schema validation
+      catches most of it.</p>
+    </div>
+    <div class="col">
+      <h5>2 &mdash; Content conformance</h5>
+      <p>Structure is fine, but values are not comparable across sources. Different vendors, different scales,
+      different timing, different fallback rules. Two columns share a name but do not share a meaning.
+      Silent failure &mdash; nothing breaks; numbers are simply wrong.</p>
+    </div>
+    <div class="col">
+      <h5>3 &mdash; Encoded-content conformance</h5>
+      <p>A single column carries multiple distinct concepts bundled together &mdash; colon-separated, slash-separated,
+      free-text. The data is un-parsed and therefore un-conformed. Consumers must reverse-engineer the encoding
+      every time, often inconsistently.</p>
+    </div>
+  </div>
+
+  <h3>Examples grounded in current state</h3>
+
+  <p><b>Example 1 &mdash; Encoded content: <code>product_type_isda</code></b></p>
+  <p>
+    The exposure data we have today carries a field like <code>"InterestRate:IRSwap"</code> &mdash; one column
+    holding both asset class (InterestRate) and product type (IRSwap), separated by a colon. To slice
+    exposure by asset class, every downstream consumer has to parse the string. Some get it right. Some get
+    it wrong. The logical model would represent these as <i>two distinct attributes</i>: <code>asset_class</code>
+    and <code>product_type</code>, each governed, each independently usable. Splitting it is a conformance
+    operation, not a cosmetic one.
+  </p>
+
+  <p><b>Example 2 &mdash; Content conformance: counterparty ratings</b></p>
+  <p>
+    A vendor extract carries a ratings field with values like <code>"A1/A+/A"</code> &mdash; multiple agency
+    ratings bundled with no attribution. Which is Moody's, which is S&amp;P, which is Fitch? Is the order
+    consistent across rows? Is the order consistent across vendors? Two downstream apps making decisions on
+    this field can both be reading "A" and treating it as the same thing, when in fact one is using Moody's
+    and the other S&amp;P. The logical model would carry separate, named ratings per agency. Until the data
+    is split and attributed, it is not conformed.
+  </p>
+
+  <p><b>Example 3 &mdash; Source conformance: CUSIP on a trade</b></p>
+  <p>
+    A trade booked in a TMS system carries a CUSIP. But where did the CUSIP come from? If Security Master
+    held the instrument, the TMS likely pulled it from there. If Security Master didn't have it yet, the
+    trader entered it by hand &mdash; possibly correctly, possibly not. The same column name (<code>cusip</code>)
+    means very different things in those two cases. Two trades, identical in the database, with completely
+    different data lineage and reliability. Conformance requires knowing not just <i>what</i> the value is
+    but <i>where it came from</i>.
+  </p>
+
+  <p><b>Example 4 &mdash; Hierarchy versions: asset class classification</b></p>
+  <p>
+    Security Master holds an asset-class classification &mdash; but it holds multiple hierarchies, version A and
+    version B, because the business looks at the same instruments through different lenses (regulatory view
+    vs. trading desk view, for example). Both are valid. Both are "the" asset class according to whoever's
+    asking. Conformance requires declaring <i>which hierarchy</i> each consumer is using and binding to it
+    explicitly &mdash; not silently picking one.
+  </p>
+
+  <h3>Diagram</h3>
+
+  <div class="fig">
+  <svg viewBox="0 0 920 470" font-family="Segoe UI, Arial" font-size="12">
+    <defs>
+      <marker id="arrConf" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+        <path d="M0 0 L9 4.5 L0 9 z" fill="#b9772a"/>
+      </marker>
+      <marker id="arrConfBlue" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+        <path d="M0 0 L9 4.5 L0 9 z" fill="#2e5c8a"/>
+      </marker>
+    </defs>
+
+    <text x="460" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#b9772a">
+      Conformance — multiple physical instances pointing back to one logical entity
+    </text>
+
+    <!-- Logical entity at top -->
+    <rect x="320" y="50" width="280" height="78" rx="8" fill="#eaf1f8" stroke="#2e5c8a" stroke-width="2"/>
+    <text x="460" y="72" text-anchor="middle" font-weight="700" fill="#2e5c8a">Logical Entity — Counterparty</text>
+    <line x1="330" y1="80" x2="590" y2="80" stroke="#bcd2e6"/>
+    <text x="340" y="96" font-size="11" fill="#1e2a38">counterparty_id, lei, name,</text>
+    <text x="340" y="110" font-size="11" fill="#1e2a38">rating, legal_entity, ultimate_parent</text>
+    <text x="340" y="122" font-size="10.5" fill="#5b6b7d" font-style="italic">single definition, governed</text>
+
+    <!-- Three physical instances -->
+    <!-- Instance 1: TMS feed -->
+    <rect x="60" y="220" width="240" height="100" rx="6" fill="#fff" stroke="#b9772a" stroke-width="1.4"/>
+    <text x="180" y="240" text-anchor="middle" font-weight="700" fill="#b9772a">TMS Feed (Elypso)</text>
+    <line x1="70" y1="248" x2="290" y2="248" stroke="#fbe0c0"/>
+    <text x="75" y="264" font-size="10.5" fill="#1e2a38">JSON message per trade</text>
+    <text x="75" y="278" font-size="10.5" fill="#5b6b7d">cpty_code, cpty_name</text>
+    <text x="75" y="292" font-size="10.5" fill="#5b6b7d">rating field "A1/A+/A"</text>
+    <text x="75" y="308" font-size="10" fill="#b23b3b" font-style="italic">unparsed: which agency?</text>
+
+    <!-- Instance 2: Security Master -->
+    <rect x="340" y="220" width="240" height="100" rx="6" fill="#fff" stroke="#b9772a" stroke-width="1.4"/>
+    <text x="460" y="240" text-anchor="middle" font-weight="700" fill="#b9772a">Security Master</text>
+    <line x1="350" y1="248" x2="570" y2="248" stroke="#fbe0c0"/>
+    <text x="355" y="264" font-size="10.5" fill="#1e2a38">XML payload, daily refresh</text>
+    <text x="355" y="278" font-size="10.5" fill="#5b6b7d">counterparty_ref, lei</text>
+    <text x="355" y="292" font-size="10.5" fill="#5b6b7d">moodys, sp, fitch (separate)</text>
+    <text x="355" y="308" font-size="10" fill="#2f8f5b" font-style="italic">conformed: attributed per agency</text>
+
+    <!-- Instance 3: CCR Fact -->
+    <rect x="620" y="220" width="240" height="100" rx="6" fill="#fff" stroke="#b9772a" stroke-width="1.4"/>
+    <text x="740" y="240" text-anchor="middle" font-weight="700" fill="#b9772a">CCR Exposure Fact</text>
+    <line x1="630" y1="248" x2="850" y2="248" stroke="#fbe0c0"/>
+    <text x="635" y="264" font-size="10.5" fill="#1e2a38">Databricks table</text>
+    <text x="635" y="278" font-size="10.5" fill="#5b6b7d">counterparty_id (FK)</text>
+    <text x="635" y="292" font-size="10.5" fill="#5b6b7d">rating denormalised, latest</text>
+    <text x="635" y="308" font-size="10" fill="#b9772a" font-style="italic">conformed only if source declared</text>
+
+    <!-- Arrows from instances up to logical entity -->
+    <line x1="180" y1="220" x2="380" y2="128" stroke="#b9772a" stroke-width="1.4" marker-end="url(#arrConf)"/>
+    <line x1="460" y1="220" x2="460" y2="128" stroke="#b9772a" stroke-width="1.4" marker-end="url(#arrConf)"/>
+    <line x1="740" y1="220" x2="540" y2="128" stroke="#b9772a" stroke-width="1.4" marker-end="url(#arrConf)"/>
+
+    <!-- Conformance text label -->
+    <text x="225" y="186" font-size="11" font-style="italic" fill="#b9772a">conforms to ↑</text>
+    <text x="490" y="186" font-size="11" font-style="italic" fill="#b9772a">conforms to ↑</text>
+    <text x="640" y="186" font-size="11" font-style="italic" fill="#b9772a">conforms to ↑</text>
+
+    <!-- Bottom: sources beneath physical instances -->
+    <rect x="40" y="368" width="840" height="78" rx="8" fill="#fbf0e0" stroke="#b9772a" stroke-width="1.2"/>
+    <text x="460" y="388" text-anchor="middle" font-weight="700" fill="#b9772a">Source declaration required for each physical instance</text>
+    <text x="460" y="406" text-anchor="middle" font-size="11" fill="#5b6b7d">
+      What sourced each attribute · precedence / fallback rules · platform · schedule · protocol · transformations applied
+    </text>
+    <text x="460" y="424" text-anchor="middle" font-size="11" fill="#5b6b7d" font-style="italic">
+      Without this declaration, conformance is unverifiable
+    </text>
+    <line x1="180" y1="320" x2="180" y2="368" stroke="#b9772a" stroke-width="1.2" stroke-dasharray="3,3"/>
+    <line x1="460" y1="320" x2="460" y2="368" stroke="#b9772a" stroke-width="1.2" stroke-dasharray="3,3"/>
+    <line x1="740" y1="320" x2="740" y2="368" stroke="#b9772a" stroke-width="1.2" stroke-dasharray="3,3"/>
+  </svg>
+  <div class="fig-cap">Figure 4 — Conformance is the link from each physical instance back to the logical entity, supported by an explicit declaration of source.</div>
+  </div>
+
+  <h3>What risk apps need to declare &mdash; the sourcing contract</h3>
+  <p>
+    Conformance cannot be verified without explicit declaration. For each input attribute set, every risk
+    application needs to declare the following. This becomes the <b>data sourcing contract</b> for the app.
+  </p>
+
+  <table>
+    <tr><th style="width:22%">Declaration</th><th>What is recorded</th><th>Example</th></tr>
+    <tr>
+      <td><b>Source system per attribute set</b></td>
+      <td>Not just "TMS" but which attributes come from which source. Different attribute sets from different sources.</td>
+      <td>CUSIPs from Security Master; trade economics from Elypso; valuations from VS; positions from Phoenix</td>
+    </tr>
+    <tr>
+      <td><b>Precedence / fallback rules</b></td>
+      <td>When the primary source does not have the value, where does the application look next? Documented as an ordered chain.</td>
+      <td>For CUSIP: Security Master → Elypso → Markit → Bloomberg. Fall through only if prior source returns null.</td>
+    </tr>
+    <tr>
+      <td><b>Distribution platform</b></td>
+      <td>How the data arrives &mdash; direct connection, via a services layer (e.g. Veritas), via a data lake intermediary. Each has its own rules and possible transformations.</td>
+      <td>Trade data via Veritas; reference data via direct connection; valuations via data lake snapshot</td>
+    </tr>
+    <tr>
+      <td><b>Schedule / cadence</b></td>
+      <td>How often the data refreshes. Determines timing semantics: is this point-in-time, end-of-day, intraday, real-time?</td>
+      <td>Trades: real-time; reference data: daily batch at 02:00 ET; ratings: weekly</td>
+    </tr>
+    <tr>
+      <td><b>Protocol</b></td>
+      <td>The technical mechanism. Files, API, message stream, database direct read. Affects reliability, completeness, and replay semantics.</td>
+      <td>Files (SFTP daily drop); REST API on demand; Kafka stream</td>
+    </tr>
+    <tr>
+      <td><b>Transformations applied</b></td>
+      <td>Any logic the application applies between consuming the data and using it. Splits, joins, mappings, business rules. This is where silent conformance failures hide.</td>
+      <td>Splits <code>product_type_isda</code> on colon; maps vendor rating to internal scale; uses hierarchy version B for asset class</td>
+    </tr>
+  </table>
+
+  <h3>Why all of this is a conformance problem, not a documentation problem</h3>
+  <p>
+    Each item above looks like documentation. It is not. Each is a <i>commitment about meaning</i>. Once a risk
+    app declares "I source CUSIP from Security Master with fallback to Elypso," it has committed that the
+    CUSIP values in its output mean exactly that &mdash; not Security Master alone, not Elypso alone, but the
+    composite under that rule. A consumer combining this with another app's CUSIP data can now verify whether
+    the two are conformable, or determine the work needed to make them so. Without the declaration, the
+    consumer is guessing.
+  </p>
+  <p>
+    Conformance is, in practice, the difference between <b>"two apps publishing data that looks the same"</b>
+    and <b>"two apps publishing data that means the same."</b> Only the second can be combined safely.
+  </p>
+
+  <div class="matters">
+    <h4>Why this matters</h4>
+    <ul>
+      <li>Without conformance, multi-app analytics are unsafe. Numbers can be added that should not be added; comparisons can be made that have no real meaning.</li>
+      <li>The logical model alone does not deliver conformance &mdash; it specifies the target. Conformance is achieved by physical instances declaring their sources, rules, and transformations.</li>
+      <li>The sourcing contract is the operational mechanism. It is what makes the logical model real in the physical world.</li>
+      <li>This is work the risk app teams are best placed to do &mdash; only they know where each attribute came from and what rules were applied. The data team cannot reverse-engineer it.</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- CLOSING: HOW THE THREE FIT TOGETHER                          -->
+<!-- ============================================================ -->
+<section class="page">
+  <span class="page-tag">SUMMARY</span>
+  <h2>How the four layers fit together</h2>
+  <p class="strap">Each layer does a different job. None replaces another. Reports are a starting point — not the whole picture.</p>
+
+  <table>
+    <tr>
+      <th style="width:14%">Layer</th>
+      <th>What it describes</th>
+      <th>Where it lives</th>
+      <th>What your reports contribute</th>
+    </tr>
+    <tr>
+      <td><b>Canonical</b></td>
+      <td>Risk concepts as entities and relationships, independent of any app</td>
+      <td>Logical &mdash; reference document, governed by CDO / domain modelling</td>
+      <td>Reports reveal which entities your app handles; canonical model defines them once for all apps</td>
+    </tr>
+    <tr>
+      <td><b>Analytical (Star)</b></td>
+      <td>Measures organised by grain, surrounded by dimensions for slicing</td>
+      <td>Physical &mdash; star schema tables in Databricks</td>
+      <td>Reports are the measure inputs &mdash; their numeric columns become facts, their descriptive columns become dimensions</td>
+    </tr>
+    <tr>
+      <td><b>Semantic</b></td>
+      <td>Aggregation rules, hierarchies, join paths, compound metrics</td>
+      <td>Metadata in BI tool &mdash; declared once, used by every dashboard</td>
+      <td>Reports' implicit definitions become explicit governed declarations</td>
+    </tr>
+    <tr>
+      <td><b>Conformance</b></td>
+      <td>The discipline that makes physical instances genuinely conform to the logical entity</td>
+      <td>Sourcing contract &mdash; declared by each risk app for each attribute set it consumes</td>
+      <td>Today: implicit. Required: declared sources, fallback rules, platform, schedule, protocol, transformations</td>
+    </tr>
+  </table>
+
+  <div class="callout key">
+    <b>The headline message for risk app teams:</b> the reports you produce today are valuable raw material, but
+    they are only a fraction of what a complete risk data architecture requires. To get from reports to a
+    governed, reusable, cross-domain risk data platform, the same content needs to be expressed in three
+    additional ways &mdash; canonical entities, star-schema facts and dimensions, and semantic metadata &mdash; and
+    bound together by an explicit conformance discipline. Each layer does a job the others cannot.
+  </div>
+
+  <h3>What this means in practice</h3>
+  <ul>
+    <li><b>For risk apps:</b> Continue producing the calculations, but also publish the underlying measures with declared grain, dimensions, and aggregation rules &mdash; not just the formatted report. Declare your sourcing contract.</li>
+    <li><b>For the risk data team:</b> Build the canonical model for risk in collaboration with the domain teams. Define the star schemas for each sub-domain. Implement the semantic layer in the BI tool. Maintain the sourcing contracts as governed metadata.</li>
+    <li><b>For consumers:</b> Self-serve against the semantic layer, not the raw report outputs. Governed definitions, consistent numbers, drill-down capability &mdash; backed by verifiable conformance.</li>
+  </ul>
+</section>
+
+<footer class="doc">
+  Three Models for Risk Data &mdash; and the Conformance That Holds Them Together &mdash; reference note for risk application teams &mdash; CCR / Collateral example
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Starting on Conformance — A Working Strategy for Risk</title>
+<style>
+  :root {
+    --ink: #1e2a38;
+    --muted: #5b6b7d;
+    --line: #d4dce5;
+    --blue: #2e5c8a;
+    --blue-soft: #eaf1f8;
+    --green: #2f8f5b;
+    --green-soft: #e7f4ec;
+    --amber: #b9772a;
+    --amber-soft: #fbf0e0;
+    --panel: #f7f9fb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: #ffffff; color: var(--ink);
+    font-family: "Segoe UI", Arial, sans-serif;
+    line-height: 1.6; margin: 0; padding: 0;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 40px 32px 60px; }
+
+  header.doc {
+    border-bottom: 3px solid var(--blue);
+    padding-bottom: 18px; margin-bottom: 8px;
+  }
+  header.doc h1 { font-size: 26px; color: var(--blue); margin: 0 0 6px; }
+  header.doc .sub { color: var(--muted); font-size: 14.5px; }
+
+  .lead {
+    font-size: 14.5px; color: var(--muted);
+    margin: 20px 0 30px;
+  }
+
+  .page {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 28px;
+    margin: 28px 0;
+    background: #fff;
+  }
+
+  .page-tag {
+    display: inline-block;
+    background: var(--blue); color: #fff;
+    padding: 3px 12px; border-radius: 12px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+  .page h2 {
+    font-size: 22px; color: var(--blue);
+    margin: 0 0 6px;
+  }
+  .page .strap {
+    color: var(--muted); font-size: 14.5px; font-style: italic;
+    margin: 0 0 22px;
+  }
+
+  h3 {
+    font-size: 15px; color: var(--ink);
+    text-transform: uppercase; letter-spacing: 0.6px;
+    margin: 26px 0 8px; padding-bottom: 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  p { margin: 8px 0; font-size: 14.5px; }
+  ul { margin: 8px 0 14px; padding-left: 22px; }
+  li { margin: 4px 0; font-size: 14.5px; }
+
+  code {
+    background: #f1f4f7; border: 1px solid var(--line);
+    border-radius: 3px; padding: 1px 5px; font-size: 13px;
+    font-family: "Consolas", monospace;
+  }
+
+  .fig {
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 18px; margin: 18px 0; background: #fcfdfe;
+  }
+  .fig-cap {
+    font-size: 12.5px; color: var(--muted); margin-top: 10px;
+    text-align: center; font-style: italic;
+  }
+  svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+
+  .callout {
+    border-left: 4px solid var(--blue); background: var(--blue-soft);
+    padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;
+    font-size: 14px;
+  }
+  .callout.key { border-left-color: var(--green); background: var(--green-soft); }
+  .callout.warn { border-left-color: var(--amber); background: var(--amber-soft); }
+
+  table {
+    border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13.5px;
+  }
+  th {
+    background: var(--blue); color: #fff; text-align: left;
+    padding: 8px 11px; font-weight: 600;
+  }
+  td { border: 1px solid var(--line); padding: 7px 11px; vertical-align: top; }
+  tr:nth-child(even) td { background: var(--panel); }
+
+  footer.doc {
+    margin-top: 40px; padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-size: 12px; color: var(--muted); text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <h1>Starting on Conformance &mdash; A Working Strategy for Risk</h1>
+  <div class="sub">Companion to <i>Three Models for Risk Data</i> &mdash; how we propose to begin the work, within Risk, without waiting for enterprise</div>
+</header>
+
+<p class="lead">
+This companion note proposes a practical starting point. The conceptual document explains <i>what</i>
+conformance is and why it matters. This one addresses <i>how</i> we begin &mdash; given the apps we have today,
+the reports they produce, and the analytics work already underway. The intent is to start within Risk,
+make progress on what is locally actionable, and contribute back to the enterprise canonical work as it
+matures.
+</p>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 1: The starting point                                -->
+<!-- ============================================================ -->
+<section class="page">
+  <span class="page-tag">SECTION 1</span>
+  <h2>Where we are starting from</h2>
+  <p class="strap">The analytical work is valuable, but it sits on data that has not yet been fully conformed.</p>
+
+  <h3>The honest picture</h3>
+  <p>
+    We are building analytical models &mdash; star schemas, dashboards, semantic layers &mdash; on top of the data
+    that risk applications produce today as reports and distributed outputs. This work is valuable: it
+    demonstrates capability, surfaces real business questions, and gives us a vehicle for the broader
+    conversation.
+  </p>
+  <p>
+    At the same time, the source reports were produced without an explicit conformance discipline applied
+    to the inputs the apps consumed. The apps each made their own choices about where to source attributes,
+    how to combine them, and how to handle gaps and conflicts. Some of those choices were documented; many
+    were not. The analytics inherit those limitations.
+  </p>
+
+  <h3>What this means in practice</h3>
+  <ul>
+    <li>Analytics built today on the current data are reliable within the boundary of one app's report. They show what that app produced, faithfully.</li>
+    <li>Where analytics combine outputs across apps &mdash; for example, comparing exposures from CCR with valuations from VS &mdash; results are usable for direction, but precision should not be claimed until the underlying conformance work has been done.</li>
+    <li>Business consumers should be aware of this distinction. The analytical capability is real; full cross-app trust is a separate, ongoing piece of work.</li>
+  </ul>
+
+  <div class="callout">
+    <b>The two tracks proceed in parallel.</b> Analytical work does not need to wait for conformance. Conformance
+    work does not need to wait for analytics. As the conformance work matures in the source apps, the analytics
+    built on top become progressively more trustworthy. Both tracks are needed; neither alone is sufficient.
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 2: Working strategy — two waves                      -->
+<!-- ============================================================ -->
+<section class="page">
+  <span class="page-tag">SECTION 2</span>
+  <h2>The working strategy &mdash; two waves within Risk</h2>
+  <p class="strap">Start where the conversation is tightest. Expand outward as understanding builds.</p>
+
+  <h3>Why bottom-up, scoped to Risk</h3>
+  <p>
+    Risk has many product groups, each containing several applications. Within each group, the apps share
+    domain language, data sources, and business consumers. Conversations about "what does Counterparty really
+    mean here" are most tractable inside a group. We propose starting there, then expanding outward.
+  </p>
+  <p>
+    Enterprise canonical models for cross-domain entities &mdash; Trade, Security Master, Party Master, Account &mdash;
+    are being worked on in parallel by the enterprise data team. Risk contributes to that work but does not
+    pause its own progress while it matures.
+  </p>
+
+  <h3>Diagram</h3>
+
+  <div class="fig">
+  <svg viewBox="0 0 920 460" font-family="Segoe UI, Arial" font-size="12">
+    <defs>
+      <marker id="arrW1" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+        <path d="M0 0 L9 4.5 L0 9 z" fill="#2e5c8a"/>
+      </marker>
+      <marker id="arrW2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+        <path d="M0 0 L9 4.5 L0 9 z" fill="#2f8f5b"/>
+      </marker>
+    </defs>
+
+    <text x="460" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#2e5c8a">
+      Two-wave conformance approach for Risk
+    </text>
+    <text x="460" y="40" text-anchor="middle" font-size="11" fill="#5b6b7d">
+      Wave 1: within each product group · Wave 2: across product groups · Enterprise: parallel track
+    </text>
+
+    <!-- Enterprise band at top -->
+    <rect x="40" y="60" width="840" height="50" rx="6" fill="#fbf0e0" stroke="#b9772a" stroke-width="1.2"/>
+    <text x="460" y="80" text-anchor="middle" font-weight="700" fill="#b9772a">Enterprise canonical models — parallel track</text>
+    <text x="460" y="98" text-anchor="middle" font-size="10.5" fill="#5b6b7d">Trade · Security Master · Party Master · Account — Risk contributes; does not wait</text>
+
+    <!-- Risk band -->
+    <rect x="40" y="135" width="840" height="240" rx="6" fill="#eaf1f8" stroke="#2e5c8a" stroke-width="1.2"/>
+    <text x="60" y="156" font-size="11" font-weight="700" fill="#2e5c8a" letter-spacing="0.5">RISK</text>
+
+    <!-- Product groups as boxes -->
+    <!-- Credit Risk -->
+    <rect x="60" y="170" width="155" height="120" rx="6" fill="#fff" stroke="#2e5c8a" stroke-width="1.3"/>
+    <text x="137" y="190" text-anchor="middle" font-weight="700" font-size="11.5" fill="#2e5c8a">Credit Risk</text>
+    <line x1="70" y1="198" x2="205" y2="198" stroke="#d4dce5"/>
+    <text x="137" y="214" text-anchor="middle" font-size="10" fill="#5b6b7d">app · app · app</text>
+    <text x="137" y="228" text-anchor="middle" font-size="10" fill="#5b6b7d">app · app · app</text>
+    <!-- Wave 1 arrows -->
+    <path d="M 90 245 q 23 -10 47 0" stroke="#2e5c8a" stroke-width="1.2" fill="none" marker-end="url(#arrW1)"/>
+    <path d="M 137 245 q 23 -10 47 0" stroke="#2e5c8a" stroke-width="1.2" fill="none" marker-end="url(#arrW1)"/>
+    <text x="137" y="278" text-anchor="middle" font-size="9.5" fill="#2e5c8a" font-style="italic">apps compare</text>
+
+    <!-- Counterparty Risk -->
+    <rect x="225" y="170" width="155" height="120" rx="6" fill="#fff" stroke="#2e5c8a" stroke-width="1.3"/>
+    <text x="302" y="190" text-anchor="middle" font-weight="700" font-size="11.5" fill="#2e5c8a">Counterparty Risk</text>
+    <line x1="235" y1="198" x2="370" y2="198" stroke="#d4dce5"/>
+    <text x="302" y="214" text-anchor="middle" font-size="10" fill="#5b6b7d">app · app · app</text>
+    <text x="302" y="228" text-anchor="middle" font-size="10" fill="#5b6b7d">app · app · app</text>
+    <path d="M 255 245 q 23 -10 47 0" stroke="#2e5c8a" stroke-width="1.2" fill="none" marker-end="url(#arrW1)"/>
+    <path d="M 302 245 q 23 -10 47 0" stroke="#2e5c8a" stroke-width="1.2" fill="none" marker-end="url(#arrW1)"/>
+    <text x="302" y="278" text-anchor="middle" font-size="9.5" fill="#2e5c8a" font-style="italic">apps compare</text>
+
+    <!-- Market Risk -->
+    <rect x="390" y="170" width="155" height="120" rx="6" fill="#fff" stroke="#2e5c8a" stroke-width="1.3"/>
+    <text x="467" y="190" text-anchor="middle" font-weight="700" font-size="11.5" fill="#2e5c8a">Market Risk</text>
+    <line x1="400" y1="198" x2="535" y2="198" stroke="#d4dce5"/>
+    <text x="467" y="214" text-anchor="middle" font-size="10" fill="#5b6b7d">app · app · app</text>
+    <text x="467" y="228" text-anchor="middle" font-size="10" fill="#5b6b7d">app · app · app</text>
+    <path d="M 420 245 q 23 -10 47 0" stroke="#2e5c8a" stroke-width="1.2" fill="none" marker-end="url(#arrW1)"/>
+    <path d="M 467 245 q 23 -10 47 0" stroke="#2e5c8a" stroke-width="1.2" fill="none" marker-end="url(#arrW1)"/>
+    <text x="467" y="278" text-anchor="middle" font-size="9.5" fill="#2e5c8a" font-style="italic">apps compare</text>
+
+    <!-- Valuation Services -->
+    <rect x="555" y="170" width="155" height="120" rx="6" fill="#fff" stroke="#2e5c8a" stroke-width="1.3"/>
+    <text x="632" y="190" text-anchor="middle" font-weight="700" font-size="11.5" fill="#2e5c8a">Valuation Services</text>
+    <line x1="565" y1="198" x2="700" y2="198" stroke="#d4dce5"/>
+    <text x="632" y="214" text-anchor="middle" font-size="10" fill="#5b6b7d">app · app · app</text>
+    <text x="632" y="228" text-anchor="middle" font-size="10" fill="#5b6b7d">app · app · app</text>
+    <path d="M 585 245 q 23 -10 47 0" stroke="#2e5c8a" stroke-width="1.2" fill="none" marker-end="url(#arrW1)"/>
+    <path d="M 632 245 q 23 -10 47 0" stroke="#2e5c8a" stroke-width="1.2" fill="none" marker-end="url(#arrW1)"/>
+    <text x="632" y="278" text-anchor="middle" font-size="9.5" fill="#2e5c8a" font-style="italic">apps compare</text>
+
+    <!-- Liquidity / Funding / Finance combined -->
+    <rect x="720" y="170" width="145" height="120" rx="6" fill="#fff" stroke="#2e5c8a" stroke-width="1.3"/>
+    <text x="792" y="188" text-anchor="middle" font-weight="700" font-size="11" fill="#2e5c8a">Liquidity</text>
+    <text x="792" y="204" text-anchor="middle" font-weight="700" font-size="11" fill="#2e5c8a">Funding · Finance</text>
+    <line x1="730" y1="212" x2="855" y2="212" stroke="#d4dce5"/>
+    <text x="792" y="228" text-anchor="middle" font-size="10" fill="#5b6b7d">app · app · app</text>
+    <text x="792" y="242" text-anchor="middle" font-size="10" fill="#5b6b7d">app · app · app</text>
+    <path d="M 750 256 q 21 -8 42 0" stroke="#2e5c8a" stroke-width="1.2" fill="none" marker-end="url(#arrW1)"/>
+    <text x="792" y="278" text-anchor="middle" font-size="9.5" fill="#2e5c8a" font-style="italic">apps compare</text>
+
+    <!-- Wave 1 label -->
+    <text x="460" y="320" text-anchor="middle" font-size="12" font-weight="700" fill="#2e5c8a">
+      WAVE 1 — within each product group
+    </text>
+    <text x="460" y="338" text-anchor="middle" font-size="11" fill="#5b6b7d">
+      Each group's apps classify their attributes, declare their sourcing contracts, and compare against each other.
+    </text>
+    <text x="460" y="354" text-anchor="middle" font-size="11" fill="#5b6b7d">
+      Conformance decisions made for entities the group owns.
+    </text>
+
+    <!-- Wave 2 band -->
+    <rect x="40" y="395" width="840" height="50" rx="6" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.2"/>
+    <text x="460" y="415" text-anchor="middle" font-weight="700" fill="#2f8f5b">WAVE 2 — across product groups (Risk-wide)</text>
+    <text x="460" y="433" text-anchor="middle" font-size="10.5" fill="#5b6b7d">Cross-group conformance for entities shared across Risk · feeds back into enterprise canonical work</text>
+
+    <!-- Wave 2 arrows from each group down to wave 2 band -->
+    <line x1="137" y1="290" x2="137" y2="395" stroke="#2f8f5b" stroke-width="1" stroke-dasharray="3,3"/>
+    <line x1="302" y1="290" x2="302" y2="395" stroke="#2f8f5b" stroke-width="1" stroke-dasharray="3,3"/>
+    <line x1="467" y1="290" x2="467" y2="395" stroke="#2f8f5b" stroke-width="1" stroke-dasharray="3,3"/>
+    <line x1="632" y1="290" x2="632" y2="395" stroke="#2f8f5b" stroke-width="1" stroke-dasharray="3,3"/>
+    <line x1="792" y1="290" x2="792" y2="395" stroke="#2f8f5b" stroke-width="1" stroke-dasharray="3,3"/>
+  </svg>
+  <div class="fig-cap">Figure 1 — Two-wave approach: each Risk product group does its own conformance work first, then groups compare across, with enterprise canonical work proceeding in parallel.</div>
+  </div>
+
+  <h3>Why this order</h3>
+  <ul>
+    <li><b>Within a group, the conversation is easier.</b> Apps in Credit Risk share more context with each other than with apps in Liquidity. Conformance discussions converge faster among teams with shared business language.</li>
+    <li><b>Each group can move at its own pace.</b> No group has to wait for another to start. CCR / Counterparty Risk is the natural early mover because the analytics POC is already running there.</li>
+    <li><b>Cross-group work has a foundation to land on.</b> When the risk-wide comparison happens in Wave 2, each group brings a coherent picture rather than ad-hoc per-app submissions.</li>
+  </ul>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 3: What each product group does                      -->
+<!-- ============================================================ -->
+<section class="page">
+  <span class="page-tag">SECTION 3</span>
+  <h2>What each product group does</h2>
+  <p class="strap">A small number of concrete steps. The spreadsheet you already have starts most of this.</p>
+
+  <h3>The four steps within a group</h3>
+
+  <table>
+    <tr><th style="width:25%">Step</th><th>What it produces</th><th>Who does it</th></tr>
+    <tr>
+      <td><b>1. Classify report attributes</b></td>
+      <td>Each app maps the attributes in its reports to entities (Counterparty, Security, Trade, Agreement, Position, etc.). Surfaces which entities each app depends on.</td>
+      <td>Each app team, individually</td>
+    </tr>
+    <tr>
+      <td><b>2. Declare the sourcing contract</b></td>
+      <td>For each entity, the app declares its sources, fallback rules, distribution platform, schedule, protocol, and transformations &mdash; per the conformance reference doc.</td>
+      <td>Each app team, individually</td>
+    </tr>
+    <tr>
+      <td><b>3. Compare across the group</b></td>
+      <td>The group's apps share their classifications and contracts. Where the same entity is constructed differently across apps, the gaps are surfaced and discussed.</td>
+      <td>Group working session, with risk data team facilitation</td>
+    </tr>
+    <tr>
+      <td><b>4. Decide and document</b></td>
+      <td>For entities the group can settle internally, the conformed version is agreed. For entities that span groups or require enterprise input, the decision is deferred and documented.</td>
+      <td>Group leads, with risk data team</td>
+    </tr>
+  </table>
+
+  <h3>What is already in place</h3>
+  <ul>
+    <li>A spreadsheet template exists, capturing source declarations from each app. Several apps have started populating it.</li>
+    <li>The conceptual framework (the four-page reference doc) gives a shared vocabulary for the discussion.</li>
+    <li>The CCR / Collateral analytics POC provides a concrete example of what an analytical output looks like when the underlying conformance work is partial &mdash; useful as a reference point for the wider conversation.</li>
+  </ul>
+
+  <h3>What we propose adding</h3>
+  <ul>
+    <li>A simple entity classification list per app &mdash; not exhaustive, just the entities the app's reports actually touch.</li>
+    <li>Group-level working sessions to compare and converge. Once per group, then ongoing as needed.</li>
+    <li>A risk-wide register of conformed entities and deferrals &mdash; lightweight, maintained by the risk data team.</li>
+  </ul>
+
+  <div class="callout key">
+    <b>The aim of Wave 1 is clarity, not perfection.</b> A group has succeeded when each of its apps can describe,
+    in writing, where its data comes from and what entities its outputs depend on &mdash; and when the group has a
+    shared picture of where the conformance gaps are. Closing the gaps is the next phase. Naming them is the
+    starting point.
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 4: Sequencing                                        -->
+<!-- ============================================================ -->
+<section class="page">
+  <span class="page-tag">SECTION 4</span>
+  <h2>Where we propose to start</h2>
+  <p class="strap">No forced timeline. Start where the conversation is already underway.</p>
+
+  <h3>Suggested first movers</h3>
+  <p>
+    The product groups most ready to begin are the ones where the analytical conversation is already
+    happening. <b>Counterparty Risk and Credit Risk</b> are the natural early movers &mdash; the CCR / Collateral
+    POC is running, business consumers are engaged, and the conformance gaps in the underlying data are
+    already visible through the analytical work. Starting Wave 1 there builds momentum and produces a
+    concrete reference for other groups to see.
+  </p>
+  <p>
+    Other groups (Market Risk, Valuation Services, Funding, Finance, Liquidity) can begin when they are
+    ready. We are not proposing a forced sequence &mdash; just suggesting that early movers go where the
+    conversation is most concrete.
+  </p>
+
+  <h3>What success looks like in six months</h3>
+  <ul>
+    <li>Each participating group has completed the four steps for the entities most relevant to its apps.</li>
+    <li>The risk-wide register has its first entries &mdash; a small number of entities with conformed definitions, and a clear list of deferrals.</li>
+    <li>The analytical work in CCR / Collateral has progressively more conformed data underneath it, and the gap between "analytics demonstrates capability" and "analytics is trusted for cross-app use" is visibly narrowing.</li>
+    <li>The conversation with enterprise on cross-domain entities (Trade, Security Master, Party Master) is being informed by what Risk has discovered in its own work.</li>
+  </ul>
+
+  <div class="callout">
+    <b>One closing point.</b> Conformance is a discipline, not a project. It is the work of declaring, explicitly,
+    what each piece of data means and where it came from. Once started, it accumulates. The first entities
+    conformed make the next ones easier. The cost is mostly upfront; the value compounds.
+  </div>
+</section>
+
+<footer class="doc">
+  Starting on Conformance &mdash; A Working Strategy for Risk &mdash; companion to <i>Three Models for Risk Data</i>
+</footer>
+
+</div>
+</body>
+</html>
