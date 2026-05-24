@@ -427,6 +427,278 @@ but the same three-model structure applies to every risk sub-domain.
       <li>This is logical, not physical. It does not require migrating any system. It is a reference others align to.</li>
     </ul>
   </div>
+
+  <h3>Logical model → physical model → distribution format and API</h3>
+
+  <p>
+    There is a common confusion that runs through almost every conversation about how to publish data:
+    that <b>"I'll just use an API"</b> or <b>"I want JSON, not joins"</b> or <b>"give me a snowflake"</b>
+    or <b>"a canned report works for me"</b> are alternatives to data modelling. They are not. Each of
+    those is a <b>physical implementation or distribution choice sitting on top of (or, more often, in
+    the absence of) a logical model.</b> Talking about APIs without talking about what the API is exposing
+    is talking about delivery without talking about content.
+  </p>
+
+  <p>
+    The clarifying picture is three layers, not two:
+  </p>
+
+  <ul>
+    <li><b>The logical model</b> — the entities, attributes, and relationships that describe the domain in business terms. This is the conformed artefact. It is the source of meaning. Independent of any database, any file format, any API design.</li>
+    <li><b>The physical model</b> — how the logical model is materialised for storage and querying. Star schema, snowflake, denormalised flat, OBT, document store, key-value store. Each is a legitimate physical realisation of the same logical model, optimised for different consumption patterns. The physical choice trades off integrity, storage, query simplicity, and schema-evolution flexibility — but it does not change what the data means.</li>
+    <li><b>The distribution format and protocol — including APIs</b> — how the physical data gets delivered to consumers. A REST API is a <i>protocol</i> (web-based request/response). JSON is a <i>distribution format</i> (how data is serialised in transit). The two are pairs: REST/JSON, GraphQL/JSON, SOAP/XML, database connection/SQL result-set, file drop/CSV, streaming pipe/Avro. The distribution layer chooses how the data leaves the system, not what it means.</li>
+  </ul>
+
+  <p>
+    A consumer who says "I want JSON" is making a distribution-format choice. A consumer who says
+    "I want an API" is making a protocol choice. Neither of these tells you anything about the underlying
+    logical model the data represents — and neither replaces the need for one. <b>An API delivering JSON
+    is the consumer-facing surface; behind it, there is still a physical store, and behind that, there
+    is still (or should still be) a logical model.</b> The joins that the consumer was hoping to avoid
+    by "just using an API" still happen — they happen inside the service that backs the API, or they
+    happen eagerly by denormalising into the JSON shape ahead of time. The work doesn't go away;
+    it just moves.
+  </p>
+
+  <div class="fig">
+  <svg viewBox="0 0 980 720" font-family="Segoe UI, Arial" font-size="12">
+    <defs>
+      <marker id="arrLP2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+        <path d="M0 0 L9 4.5 L0 9 z" fill="#5b6b7d"/>
+      </marker>
+    </defs>
+
+    <text x="490" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#1e2a38">
+      The full data stack — from enterprise definitions down to delivery
+    </text>
+    <text x="490" y="40" text-anchor="middle" font-size="11" fill="#5b6b7d" font-style="italic">
+      Ownership on the left · architectural layer in the centre · plain-language explanation on the right
+    </text>
+
+    <!-- Left ownership bands -->
+    <rect x="20" y="60" width="115" height="160" rx="6" fill="#e8f0f6" stroke="#2e5c8a" stroke-width="1.4"/>
+    <text x="77" y="98" text-anchor="middle" font-weight="700" font-size="11" fill="#2e5c8a">ENTERPRISE</text>
+    <text x="77" y="115" text-anchor="middle" font-size="10" fill="#2e5c8a">CDO desk owns</text>
+    <text x="77" y="135" text-anchor="middle" font-size="9.5" fill="#5b6b7d" font-style="italic">building now —</text>
+    <text x="77" y="148" text-anchor="middle" font-size="9.5" fill="#5b6b7d" font-style="italic">CDM in flight</text>
+
+    <rect x="20" y="230" width="115" height="90" rx="6" fill="#e8f0f6" stroke="#2e5c8a" stroke-width="1.4"/>
+    <text x="77" y="258" text-anchor="middle" font-weight="700" font-size="11" fill="#2e5c8a">RISK (LOB)</text>
+    <text x="77" y="275" text-anchor="middle" font-size="10" fill="#2e5c8a">risk team owns</text>
+    <text x="77" y="295" text-anchor="middle" font-size="9.5" fill="#5b6b7d" font-style="italic">we have to build</text>
+    <text x="77" y="308" text-anchor="middle" font-size="9.5" fill="#5b6b7d" font-style="italic">this layer</text>
+
+    <rect x="20" y="330" width="115" height="100" rx="6" fill="#e8f0f6" stroke="#2e5c8a" stroke-width="1.4"/>
+    <text x="77" y="360" text-anchor="middle" font-weight="700" font-size="11" fill="#2e5c8a">RISK APPS</text>
+    <text x="77" y="377" text-anchor="middle" font-size="10" fill="#2e5c8a">each app owns its</text>
+    <text x="77" y="389" text-anchor="middle" font-size="10" fill="#2e5c8a">own behaviour</text>
+    <text x="77" y="408" text-anchor="middle" font-size="9.5" fill="#5b6b7d" font-style="italic">exists today —</text>
+    <text x="77" y="420" text-anchor="middle" font-size="9.5" fill="#5b6b7d" font-style="italic">but not aligned</text>
+
+    <rect x="20" y="440" width="115" height="200" rx="6" fill="#e8f0f6" stroke="#2e5c8a" stroke-width="1.4"/>
+    <text x="77" y="470" text-anchor="middle" font-weight="700" font-size="11" fill="#2e5c8a">CONSUMER</text>
+    <text x="77" y="487" text-anchor="middle" font-size="10" fill="#2e5c8a">facing — the</text>
+    <text x="77" y="499" text-anchor="middle" font-size="10" fill="#2e5c8a">visible surface</text>
+    <text x="77" y="518" text-anchor="middle" font-size="9.5" fill="#5b6b7d" font-style="italic">what people</text>
+    <text x="77" y="530" text-anchor="middle" font-size="9.5" fill="#5b6b7d" font-style="italic">actually see and use</text>
+
+    <!-- Centre column: the seven bands of the stack -->
+    <!-- Band 1: Business Entities & Relationships -->
+    <rect x="150" y="60" width="540" height="60" rx="6" fill="#fff" stroke="#5b6b7d" stroke-width="2.5"/>
+    <text x="420" y="86" text-anchor="middle" font-weight="700" fill="#1e2a38" font-size="13">Business Entities &amp; Relationships</text>
+    <text x="420" y="104" text-anchor="middle" font-size="10.5" fill="#5b6b7d" font-style="italic">enterprise-wide names for everything that exists in the business</text>
+
+    <!-- Band 2: Data Sources / Entities (two side-by-side boxes) -->
+    <rect x="150" y="135" width="265" height="80" rx="6" fill="#fff" stroke="#5b6b7d" stroke-width="2.5"/>
+    <text x="282" y="160" text-anchor="middle" font-weight="700" fill="#1e2a38" font-size="12">Governed Data Sources</text>
+    <text x="282" y="180" text-anchor="middle" font-size="10" fill="#5b6b7d" font-style="italic">which systems are the official source</text>
+    <text x="282" y="195" text-anchor="middle" font-size="10" fill="#5b6b7d" font-style="italic">of truth for each kind of data</text>
+
+    <rect x="425" y="135" width="265" height="80" rx="6" fill="#fff" stroke="#5b6b7d" stroke-width="2.5"/>
+    <text x="557" y="160" text-anchor="middle" font-weight="700" fill="#1e2a38" font-size="12">Conformed Entities</text>
+    <text x="557" y="180" text-anchor="middle" font-size="10" fill="#5b6b7d" font-style="italic">what each entity means, agreed</text>
+    <text x="557" y="195" text-anchor="middle" font-size="10" fill="#5b6b7d" font-style="italic">across applications, point-in-time</text>
+
+    <!-- Band 3: Risk Domain Model -->
+    <rect x="150" y="230" width="540" height="90" rx="6" fill="#fdf5e0" stroke="#b9772a" stroke-width="2"/>
+    <text x="420" y="256" text-anchor="middle" font-weight="700" fill="#1e2a38" font-size="13">Risk Domain Model</text>
+    <text x="420" y="276" text-anchor="middle" font-size="10.5" fill="#5b6b7d" font-style="italic">the entities and relationships specific to risk —</text>
+    <text x="420" y="290" text-anchor="middle" font-size="10.5" fill="#5b6b7d" font-style="italic">counterparty, agreement, trade, exposure, collateral, curve</text>
+    <text x="420" y="307" text-anchor="middle" font-size="10" fill="#b9772a" font-weight="700">aligned to the enterprise definitions above</text>
+
+    <!-- Band 4: Application profile (with sub-boxes) -->
+    <rect x="150" y="330" width="540" height="100" rx="6" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="2"/>
+    <text x="420" y="354" text-anchor="middle" font-weight="700" fill="#1e2a38" font-size="13">Application Behaviour</text>
+    <text x="420" y="370" text-anchor="middle" font-size="10" fill="#5b6b7d" font-style="italic">what each app does to the data it consumes</text>
+
+    <rect x="165" y="380" width="120" height="38" rx="4" fill="#fff" stroke="#2f8f5b" stroke-width="1"/>
+    <text x="225" y="398" text-anchor="middle" font-size="10.5" fill="#1e2a38">Filters / aggregation</text>
+    <text x="225" y="411" text-anchor="middle" font-size="9.5" fill="#5b6b7d" font-style="italic">what gets included</text>
+
+    <rect x="295" y="380" width="115" height="38" rx="4" fill="#fff" stroke="#2f8f5b" stroke-width="1"/>
+    <text x="352" y="398" text-anchor="middle" font-size="10.5" fill="#1e2a38">Business rules</text>
+    <text x="352" y="411" text-anchor="middle" font-size="9.5" fill="#5b6b7d" font-style="italic">how it's transformed</text>
+
+    <rect x="420" y="380" width="115" height="38" rx="4" fill="#fdf5e0" stroke="#b9772a" stroke-width="1"/>
+    <text x="477" y="398" text-anchor="middle" font-size="10.5" fill="#1e2a38">Intermediate data</text>
+    <text x="477" y="411" text-anchor="middle" font-size="9.5" fill="#b9772a" font-style="italic">not exposed today</text>
+
+    <rect x="545" y="380" width="135" height="38" rx="4" fill="#fff" stroke="#2f8f5b" stroke-width="1"/>
+    <text x="612" y="398" text-anchor="middle" font-size="10.5" fill="#1e2a38">Created measures</text>
+    <text x="612" y="411" text-anchor="middle" font-size="9.5" fill="#5b6b7d" font-style="italic">app's own derivations</text>
+
+    <!-- Band 5: Dimensional Model -->
+    <rect x="150" y="440" width="540" height="60" rx="6" fill="#fdf5e0" stroke="#b9772a" stroke-width="2"/>
+    <text x="420" y="465" text-anchor="middle" font-weight="700" fill="#1e2a38" font-size="13">Dimensional Model</text>
+    <text x="420" y="484" text-anchor="middle" font-size="10.5" fill="#5b6b7d" font-style="italic">the queryable analytical shape — facts with declared grain, conformed dimensions</text>
+
+    <!-- Band 6: Reports -->
+    <rect x="150" y="510" width="540" height="50" rx="6" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="2"/>
+    <text x="420" y="535" text-anchor="middle" font-weight="700" fill="#1e2a38" font-size="13">Reports &amp; Published Outputs</text>
+    <text x="420" y="551" text-anchor="middle" font-size="10.5" fill="#5b6b7d" font-style="italic">what apps publish today — one report per business question</text>
+
+    <!-- Band 7: Data Contract -->
+    <rect x="150" y="570" width="540" height="60" rx="6" fill="#fdf5e0" stroke="#b9772a" stroke-width="2"/>
+    <text x="420" y="595" text-anchor="middle" font-weight="700" fill="#1e2a38" font-size="13">Data Contract</text>
+    <text x="420" y="614" text-anchor="middle" font-size="10.5" fill="#5b6b7d" font-style="italic">the explicit promise: what's published, on what schedule, against which entities</text>
+
+    <!-- Band 8: Distribution (Files / API / Stream) -->
+    <text x="420" y="650" text-anchor="middle" font-size="10.5" fill="#5b6b7d" font-style="italic">Delivery channels — how the data physically reaches consumers</text>
+
+    <rect x="160" y="660" width="160" height="50" rx="6" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.6"/>
+    <text x="240" y="682" text-anchor="middle" font-weight="700" fill="#2f8f5b" font-size="12">Files</text>
+    <text x="240" y="698" text-anchor="middle" font-size="10" fill="#5b6b7d">CSV, Parquet</text>
+
+    <rect x="335" y="660" width="160" height="50" rx="6" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.6"/>
+    <text x="415" y="682" text-anchor="middle" font-weight="700" fill="#2f8f5b" font-size="12">API</text>
+    <text x="415" y="698" text-anchor="middle" font-size="10" fill="#5b6b7d">JSON, XML, GraphQL</text>
+
+    <rect x="510" y="660" width="160" height="50" rx="6" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.6"/>
+    <text x="590" y="682" text-anchor="middle" font-weight="700" fill="#2f8f5b" font-size="12">Stream</text>
+    <text x="590" y="698" text-anchor="middle" font-size="10" fill="#5b6b7d">Kafka, Solace, Avro</text>
+
+    <!-- Right annotations -->
+    <text x="710" y="78" font-size="10.5" font-weight="700" fill="#1e2a38">Enterprise Logical Model</text>
+    <text x="710" y="93" font-size="10" fill="#5b6b7d" font-style="italic">"the business in business terms"</text>
+    <text x="710" y="107" font-size="10" fill="#5b6b7d" font-style="italic">— driven by BCBS 239, FRTB,</text>
+    <text x="710" y="119" font-size="10" fill="#5b6b7d" font-style="italic">regulatory data aggregation</text>
+
+    <text x="710" y="158" font-size="10.5" font-weight="700" fill="#1e2a38">Conformance Layer</text>
+    <text x="710" y="173" font-size="10" fill="#5b6b7d" font-style="italic">"two systems calling the same thing</text>
+    <text x="710" y="185" font-size="10" fill="#5b6b7d" font-style="italic">a counterparty actually mean</text>
+    <text x="710" y="197" font-size="10" fill="#5b6b7d" font-style="italic">the same counterparty"</text>
+
+    <text x="710" y="258" font-size="10.5" font-weight="700" fill="#1e2a38">Risk's view of the domain</text>
+    <text x="710" y="273" font-size="10" fill="#5b6b7d" font-style="italic">"the entities and relationships</text>
+    <text x="710" y="285" font-size="10" fill="#5b6b7d" font-style="italic">in risk's world — counterparty,</text>
+    <text x="710" y="297" font-size="10" fill="#5b6b7d" font-style="italic">agreement, exposure, curve"</text>
+
+    <text x="710" y="358" font-size="10.5" font-weight="700" fill="#1e2a38">What each app does today</text>
+    <text x="710" y="373" font-size="10" fill="#5b6b7d" font-style="italic">"its own filters, rules, derivations</text>
+    <text x="710" y="385" font-size="10" fill="#5b6b7d" font-style="italic">— currently invisible to consumers</text>
+    <text x="710" y="397" font-size="10" fill="#5b6b7d" font-style="italic">and not aligned across apps"</text>
+
+    <text x="710" y="462" font-size="10.5" font-weight="700" fill="#1e2a38">The analytical model</text>
+    <text x="710" y="477" font-size="10" fill="#5b6b7d" font-style="italic">"slice and combine the data</text>
+    <text x="710" y="489" font-size="10" fill="#5b6b7d" font-style="italic">consistently across questions"</text>
+
+    <text x="710" y="532" font-size="10.5" font-weight="700" fill="#1e2a38">What consumers see today</text>
+    <text x="710" y="547" font-size="10" fill="#5b6b7d" font-style="italic">"one report per business question"</text>
+
+    <text x="710" y="592" font-size="10.5" font-weight="700" fill="#1e2a38">The published promise</text>
+    <text x="710" y="607" font-size="10" fill="#5b6b7d" font-style="italic">"what this data product guarantees</text>
+    <text x="710" y="619" font-size="10" fill="#5b6b7d" font-style="italic">to consumers — schedule, content"</text>
+
+    <text x="710" y="678" font-size="10.5" font-weight="700" fill="#1e2a38">How the data is delivered</text>
+    <text x="710" y="693" font-size="10" fill="#5b6b7d" font-style="italic">"channel + format — all equally valid;</text>
+    <text x="710" y="705" font-size="10" fill="#5b6b7d" font-style="italic">none replaces the model above"</text>
+  </svg>
+  <div class="fig-cap">Figure 1c — The full data stack from enterprise definitions down to delivery. Each band has an owner; each colour shows current state. The white-bordered bands at the top are being built now by the enterprise CDO function. The amber bands are not yet built — that work belongs to risk. The green bands exist today.</div>
+  </div>
+
+  <h4>Reading the picture</h4>
+
+  <p>
+    The diagram is doing three jobs at once.
+  </p>
+  <p>
+    <b>It shows the architectural layers.</b> Eight bands top-to-bottom, each one a distinct artefact with
+    its own role. Definitions at the top — what entities exist and what they mean. The risk-specific view
+    next — entities and relationships particular to risk. Then what applications actually do today —
+    filtering, rules, measures, all of it currently invisible to anyone outside the application. Then the
+    analytical model that makes the data queryable across consumers. Then the consumer-facing outputs —
+    reports today, data contracts as the explicit promise about what's being published. And finally, at
+    the bottom, the delivery channels — files, APIs, streams — that physically move the data.
+  </p>
+  <p>
+    <b>It shows the ownership.</b> The top three bands are enterprise work — what the CDO function is
+    building right now as the Canonical Data Model. The next band is risk's responsibility — the LOB
+    domain model that has to be built and aligned to the enterprise definitions above. The Application
+    Behaviour band is owned by each application individually. The bottom bands are what consumers see
+    and use.
+  </p>
+  <p>
+    <b>And it shows the current state.</b> The white-bordered top bands exist as work-in-flight — the
+    enterprise is building them now. The amber bands do not exist yet — they are what the work in this
+    document is about. The green bands exist today. The story is therefore straightforward: <i>most of
+    what the diagram shows does not exist yet.</i> What exists is the bottom — applications publishing
+    reports, distributed via files, APIs, and streams. The work is to build the upper layers, so that
+    those reports and feeds carry meaning that holds across applications and over time.
+  </p>
+
+  <h4>Industry grounding for this picture</h4>
+
+  <p>
+    The layered approach above is not unusual. Large banks have been building it under regulatory
+    pressure for over a decade. BCBS 239 (the Basel risk-data aggregation standard) explicitly requires
+    consistent counterparty and product identification across risk systems. FRTB (the market-risk
+    overhaul) requires consistent identification of trades, instruments, and risk factors across the
+    bank's models. The Canadian regulatory regime around credit risk reporting (CDR) imposes similar
+    demands. The CDO function building the enterprise canonical model is the standard institutional
+    response to these requirements.
+  </p>
+  <p>
+    The Data Contract band is more recent as a term-of-art — it became standard vocabulary in the
+    data-mesh and data-product literature roughly from 2022 onward. The concept it captures was always
+    needed; the explicit name made it easier to discuss as a separate artefact with its own owner.
+  </p>
+
+  <h4>Where APIs sit in this picture</h4>
+
+  <p>
+    APIs are in the bottom band, alongside files and streams. This placement matters. There is a common
+    instinct to treat APIs as their own architectural layer — as if "I'll use an API" or "I want JSON,
+    not joins" were modelling decisions. They are not. <b>An API is a delivery channel.</b> What gets
+    delivered through it — the entities, the attributes, the relationships, the semantics — depends
+    entirely on the layers above the distribution band. The choice of API as the channel does not exempt
+    any of the upper layers from being built.
+  </p>
+  <p>
+    The CMOS Collateral JSON shown on this page in Figure 1b is a worked example of exactly this point.
+    The JSON is delivered by an API; the JSON itself is a physical representation — a hierarchical
+    serialisation of the collateral domain for transport. But when the JSON is exploded, what comes out
+    is a logical model: Agreement, Counterparty, Trade, Margin Call, Asset Holding, Asset Movement,
+    Dispute — entities and relationships that exist independently of how the data happens to be carried.
+    The JSON did not invent the model; it carried it. The same logical model could have been delivered
+    via a relational database query (JDBC + SQL), a CSV file drop (SFTP + CSV), or a streaming feed
+    (Kafka + Avro). The choice of API + JSON was a delivery decision; the model underneath stays the same.
+  </p>
+  <p>
+    This is the point worth landing: <i>any physical representation — star schema, snowflake, denormalised
+    flat, JSON document, streaming event — is downstream of one logical model. The logical model defines
+    what entities exist and how they relate. The physical representation is the choice of how to
+    materialise them. APIs are how a physical representation reaches the consumer.</i>
+  </p>
+
+  <div class="callout">
+    The reframing: stop arguing about "API vs database" or "JSON vs table." Start asking what the
+    logical model is, what physical representation suits the consumer, and which delivery channel
+    serves their consumption pattern. All three answers can be different; what cannot vary is the
+    underlying meaning of the data. Conformance lives in the logical model; everything below it is
+    local engineering choice.
+  </div>
+
+
 </section>
 
 
@@ -703,28 +975,34 @@ but the same three-model structure applies to every risk sub-domain.
     references it.
   </p>
 
-  <h3>Representing classification variants &mdash; the asset class pattern</h3>
+  <h3>Representing classification hierarchies — the asset class pattern</h3>
   <p>
-    A subtlety that comes up often when modelling dimensions: <i>the same instrument can be classified
-    differently depending on who is asking.</i> A Government of Canada bond might be "Sovereign Bond" in
-    one classification scheme, "Government Bond" in another, "Government of Canada Bond" in a third. All
-    are correct in their own context — regulatory reporting, trading desk, eligibility checking. The
-    dimension model has to accommodate this without forcing a choice between them.
+    A subtlety that comes up often when modelling dimensions: <i>the same domain can be carved into different
+    hierarchy shapes depending on who is asking.</i> Take asset class as the running example. Asset class is
+    naturally a two-level hierarchy — <code>asset_class</code> at the top, <code>product_type</code>
+    underneath. But different lines of business legitimately use different hierarchy shapes for this domain.
+    One line of business might use a coarse hierarchy with three product types under Bond; another might
+    use a fine-grained hierarchy with twelve. The product types defined by each are different, and the
+    granularity of the breakdown is different.
   </p>
   <p>
-    A common but problematic approach is to put one classification in a single <code>asset_class</code>
-    column and force every consumer to use it. The dimension is simple, but consumers who need a different
-    classification have to maintain their own mappings outside the model.
+    Both hierarchies are correct in their context. One isn't more right than the other; they serve different
+    analytical needs. A conformance approach that picks one hierarchy and forces it on everyone loses
+    information that some consumers need; one that lets each consumer maintain its own hierarchy in isolation
+    loses the ability to compare across lines of business at all.
   </p>
   <p>
-    A better approach is to make the classification rule itself part of the dimension. Instead of one
-    <code>asset_class</code> column, the dimension carries the asset class <i>plus</i> the rule under which
-    it was classified, with each rule explicitly named and owned. A single instrument then has multiple
-    rows in the dimension — one per classification scheme — and consumers bind to the rule they need.
+    The conformed answer recognises that the <i>terminology</i> — the column names
+    <code>asset_class</code> and <code>product_type</code> — can be shared across lines of business
+    even when the <i>values</i> under those columns are organised into different hierarchies. The dimension
+    carries the hierarchy variant explicitly as a <code>hierarchy_rule</code> column, with an owner. A single
+    instrument can then appear under multiple hierarchy rules — once for each line of business's view
+    — with the asset class and product type values appropriate to each view. Consumers bind to the
+    hierarchy rule that matches their purpose; the dimension does not force a choice between views.
   </p>
 
   <div class="fig">
-  <svg viewBox="0 0 920 440" font-family="Segoe UI, Arial" font-size="12">
+  <svg viewBox="0 0 920 560" font-family="Segoe UI, Arial" font-size="12">
     <defs>
       <marker id="arrAC" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
         <path d="M0 0 L9 4.5 L0 9 z" fill="#2f8f5b"/>
@@ -732,119 +1010,194 @@ but the same three-model structure applies to every risk sub-domain.
     </defs>
 
     <text x="460" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#2f8f5b">
-      Asset class with classification rules — one instrument, multiple classifications
+      Asset class hierarchy with rule variants — different lines of business, different shapes
     </text>
 
-    <!-- Instrument box -->
-    <rect x="60" y="60" width="220" height="80" rx="6" fill="#fff" stroke="#2e5c8a" stroke-width="1.4"/>
-    <text x="170" y="82" text-anchor="middle" font-weight="700" fill="#2e5c8a">Instrument</text>
-    <line x1="70" y1="90" x2="270" y2="90" stroke="#bcd2e6"/>
-    <text x="75" y="106" font-size="11" fill="#1e2a38">instrument_id: CA135087H236</text>
-    <text x="75" y="122" font-size="11" fill="#5b6b7d">Government of Canada 2.50%</text>
-    <text x="75" y="136" font-size="11" fill="#5b6b7d">maturing 2031</text>
+    <rect x="320" y="50" width="280" height="76" rx="6" fill="#fff" stroke="#2e5c8a" stroke-width="1.4"/>
+    <text x="460" y="72" text-anchor="middle" font-weight="700" fill="#2e5c8a">Instrument</text>
+    <line x1="330" y1="80" x2="590" y2="80" stroke="#bcd2e6"/>
+    <text x="335" y="96" font-size="11" fill="#1e2a38">instrument_id: CA135087H236</text>
+    <text x="335" y="110" font-size="11" fill="#5b6b7d">Government of Canada 2.50% 2031</text>
 
-    <!-- Arrow to dimension -->
-    <line x1="280" y1="100" x2="370" y2="100" stroke="#2f8f5b" stroke-width="1.4" marker-end="url(#arrAC)"/>
-    <text x="325" y="93" text-anchor="middle" font-size="10" fill="#5b6b7d" font-style="italic">classified under</text>
+    <rect x="40" y="170" width="270" height="280" rx="6" fill="#fff" stroke="#2f8f5b" stroke-width="1.6"/>
+    <text x="175" y="192" text-anchor="middle" font-weight="700" fill="#2f8f5b">Line of Business A</text>
+    <text x="175" y="208" text-anchor="middle" font-size="10.5" fill="#5b6b7d" font-style="italic">coarse hierarchy</text>
+    <line x1="50" y1="216" x2="300" y2="216" stroke="#d4dce5"/>
+    <text x="55" y="234" font-size="10.5" font-weight="700" fill="#5b6b7d">hierarchy_rule:</text>
+    <text x="160" y="234" font-size="10.5" fill="#1e2a38">lob_a_view</text>
+    <text x="55" y="252" font-size="10.5" font-weight="700" fill="#5b6b7d">rule_owner:</text>
+    <text x="160" y="252" font-size="10.5" fill="#5b6b7d">Line of Business A</text>
+    <line x1="50" y1="266" x2="300" y2="266" stroke="#e0e6ec"/>
+    <text x="55" y="284" font-size="11" font-weight="700" fill="#2f8f5b">asset_class:</text>
+    <text x="160" y="284" font-size="11" fill="#1e2a38">Bond</text>
+    <text x="55" y="304" font-size="11" font-weight="700" fill="#2f8f5b">product_type:</text>
+    <text x="160" y="304" font-size="11" fill="#1e2a38">Sovereign Bond</text>
+    <line x1="50" y1="320" x2="300" y2="320" stroke="#e0e6ec"/>
+    <text x="175" y="338" text-anchor="middle" font-size="10.5" fill="#5b6b7d" font-style="italic">All product types in this view:</text>
+    <text x="55" y="356" font-size="10" fill="#5b6b7d">— Sovereign Bond</text>
+    <text x="55" y="370" font-size="10" fill="#5b6b7d">— Corporate Bond</text>
+    <text x="55" y="384" font-size="10" fill="#5b6b7d">— Mortgage-backed Security</text>
+    <text x="175" y="410" text-anchor="middle" font-size="10.5" fill="#b9772a" font-style="italic">3 product types under Bond</text>
+    <text x="175" y="426" text-anchor="middle" font-size="10.5" fill="#b9772a" font-style="italic">simple, low-granularity view</text>
 
-    <!-- dim_asset_class table -->
-    <rect x="380" y="50" width="490" height="220" rx="6" fill="#fff" stroke="#2f8f5b" stroke-width="1.8"/>
-    <text x="625" y="72" text-anchor="middle" font-weight="700" fill="#2f8f5b">dim_asset_class</text>
-    <line x1="390" y1="80" x2="860" y2="80" stroke="#d4dce5"/>
+    <rect x="325" y="170" width="270" height="280" rx="6" fill="#fff" stroke="#2f8f5b" stroke-width="1.6"/>
+    <text x="460" y="192" text-anchor="middle" font-weight="700" fill="#2f8f5b">Line of Business B</text>
+    <text x="460" y="208" text-anchor="middle" font-size="10.5" fill="#5b6b7d" font-style="italic">fine-grained hierarchy</text>
+    <line x1="335" y1="216" x2="585" y2="216" stroke="#d4dce5"/>
+    <text x="340" y="234" font-size="10.5" font-weight="700" fill="#5b6b7d">hierarchy_rule:</text>
+    <text x="445" y="234" font-size="10.5" fill="#1e2a38">lob_b_view</text>
+    <text x="340" y="252" font-size="10.5" font-weight="700" fill="#5b6b7d">rule_owner:</text>
+    <text x="445" y="252" font-size="10.5" fill="#5b6b7d">Line of Business B</text>
+    <line x1="335" y1="266" x2="585" y2="266" stroke="#e0e6ec"/>
+    <text x="340" y="284" font-size="11" font-weight="700" fill="#2f8f5b">asset_class:</text>
+    <text x="445" y="284" font-size="11" fill="#1e2a38">Bond</text>
+    <text x="340" y="304" font-size="11" font-weight="700" fill="#2f8f5b">product_type:</text>
+    <text x="445" y="304" font-size="11" fill="#1e2a38">Sovereign Senior Unsec</text>
+    <line x1="335" y1="320" x2="585" y2="320" stroke="#e0e6ec"/>
+    <text x="460" y="338" text-anchor="middle" font-size="10.5" fill="#5b6b7d" font-style="italic">All product types in this view:</text>
+    <text x="340" y="354" font-size="10" fill="#5b6b7d">— Sovereign Senior Unsec</text>
+    <text x="340" y="366" font-size="10" fill="#5b6b7d">— Sovereign Subordinated</text>
+    <text x="340" y="378" font-size="10" fill="#5b6b7d">— Corp IG Senior Unsec</text>
+    <text x="340" y="390" font-size="10" fill="#5b6b7d">— Corp IG Subordinated</text>
+    <text x="340" y="402" font-size="10" fill="#5b6b7d">— Corp HY Senior, Corp HY Sub</text>
+    <text x="340" y="414" font-size="10" fill="#5b6b7d">— MBS Agency, MBS Non-Agency, ...</text>
+    <text x="460" y="437" text-anchor="middle" font-size="10.5" fill="#b9772a" font-style="italic">12+ product types under Bond</text>
 
-    <!-- Header row -->
-    <rect x="390" y="86" width="470" height="22" fill="#eaf1f8"/>
-    <text x="402" y="101" font-size="10.5" font-weight="700" fill="#2e5c8a">instrument_id</text>
-    <text x="510" y="101" font-size="10.5" font-weight="700" fill="#2e5c8a">classification_rule</text>
-    <text x="650" y="101" font-size="10.5" font-weight="700" fill="#2e5c8a">asset_class</text>
-    <text x="790" y="101" font-size="10.5" font-weight="700" fill="#2e5c8a">rule_owner</text>
+    <rect x="610" y="170" width="270" height="280" rx="6" fill="#fff" stroke="#2f8f5b" stroke-width="1.6"/>
+    <text x="745" y="192" text-anchor="middle" font-weight="700" fill="#2f8f5b">Line of Business C</text>
+    <text x="745" y="208" text-anchor="middle" font-size="10.5" fill="#5b6b7d" font-style="italic">a different shape again</text>
+    <line x1="620" y1="216" x2="870" y2="216" stroke="#d4dce5"/>
+    <text x="625" y="234" font-size="10.5" font-weight="700" fill="#5b6b7d">hierarchy_rule:</text>
+    <text x="730" y="234" font-size="10.5" fill="#1e2a38">lob_c_view</text>
+    <text x="625" y="252" font-size="10.5" font-weight="700" fill="#5b6b7d">rule_owner:</text>
+    <text x="730" y="252" font-size="10.5" fill="#5b6b7d">Line of Business C</text>
+    <line x1="620" y1="266" x2="870" y2="266" stroke="#e0e6ec"/>
+    <text x="625" y="284" font-size="11" font-weight="700" fill="#2f8f5b">asset_class:</text>
+    <text x="730" y="284" font-size="11" fill="#1e2a38">Fixed Income</text>
+    <text x="625" y="304" font-size="11" font-weight="700" fill="#2f8f5b">product_type:</text>
+    <text x="730" y="304" font-size="11" fill="#1e2a38">Government Debt</text>
+    <line x1="620" y1="320" x2="870" y2="320" stroke="#e0e6ec"/>
+    <text x="745" y="338" text-anchor="middle" font-size="10.5" fill="#5b6b7d" font-style="italic">Uses different asset_class buckets:</text>
+    <text x="625" y="354" font-size="10" fill="#5b6b7d">— Fixed Income</text>
+    <text x="625" y="366" font-size="10" fill="#5b6b7d">— Equities</text>
+    <text x="625" y="378" font-size="10" fill="#5b6b7d">— Derivatives</text>
+    <text x="625" y="390" font-size="10" fill="#5b6b7d">— Funds</text>
+    <text x="625" y="402" font-size="10" fill="#5b6b7d">— Other</text>
+    <text x="745" y="425" text-anchor="middle" font-size="10.5" fill="#b9772a" font-style="italic">different top-level cuts —</text>
+    <text x="745" y="438" text-anchor="middle" font-size="10.5" fill="#b9772a" font-style="italic">not derivable from A or B</text>
 
-    <!-- Row 1 -->
-    <line x1="390" y1="110" x2="860" y2="110" stroke="#e0e6ec"/>
-    <text x="402" y="126" font-size="10.5" fill="#1e2a38">CA135087H236</text>
-    <text x="510" y="126" font-size="10.5" fill="#1e2a38">regulatory_v2</text>
-    <text x="650" y="126" font-size="10.5" fill="#1e2a38">Sovereign Bond</text>
-    <text x="790" y="126" font-size="10.5" fill="#5b6b7d">Risk Reg Team</text>
+    <line x1="460" y1="126" x2="175" y2="170" stroke="#2f8f5b" stroke-width="1.4" marker-end="url(#arrAC)"/>
+    <line x1="460" y1="126" x2="460" y2="170" stroke="#2f8f5b" stroke-width="1.4" marker-end="url(#arrAC)"/>
+    <line x1="460" y1="126" x2="745" y2="170" stroke="#2f8f5b" stroke-width="1.4" marker-end="url(#arrAC)"/>
+    <text x="280" y="158" text-anchor="middle" font-size="10" fill="#5b6b7d" font-style="italic">same instrument, classified three ways</text>
 
-    <!-- Row 2 -->
-    <line x1="390" y1="138" x2="860" y2="138" stroke="#e0e6ec"/>
-    <text x="402" y="154" font-size="10.5" fill="#1e2a38">CA135087H236</text>
-    <text x="510" y="154" font-size="10.5" fill="#1e2a38">trading_desk</text>
-    <text x="650" y="154" font-size="10.5" fill="#1e2a38">Government Bond</text>
-    <text x="790" y="154" font-size="10.5" fill="#5b6b7d">Rates Desk</text>
-
-    <!-- Row 3 -->
-    <line x1="390" y1="166" x2="860" y2="166" stroke="#e0e6ec"/>
-    <text x="402" y="182" font-size="10.5" fill="#1e2a38">CA135087H236</text>
-    <text x="510" y="182" font-size="10.5" fill="#1e2a38">eligibility_v1</text>
-    <text x="650" y="182" font-size="10.5" fill="#1e2a38">Gov of Canada Bond</text>
-    <text x="790" y="182" font-size="10.5" fill="#5b6b7d">Collateral Ops</text>
-
-    <!-- Row 4 (different instrument) -->
-    <line x1="390" y1="194" x2="860" y2="194" stroke="#e0e6ec"/>
-    <text x="402" y="210" font-size="10.5" fill="#5b6b7d">CA459200HU86</text>
-    <text x="510" y="210" font-size="10.5" fill="#5b6b7d">regulatory_v2</text>
-    <text x="650" y="210" font-size="10.5" fill="#5b6b7d">Corporate Bond</text>
-    <text x="790" y="210" font-size="10.5" fill="#5b6b7d">Risk Reg Team</text>
-
-    <!-- Row 5 -->
-    <line x1="390" y1="222" x2="860" y2="222" stroke="#e0e6ec"/>
-    <text x="402" y="238" font-size="10.5" fill="#5b6b7d">CA459200HU86</text>
-    <text x="510" y="238" font-size="10.5" fill="#5b6b7d">trading_desk</text>
-    <text x="650" y="238" font-size="10.5" fill="#5b6b7d">Corporate Debt</text>
-    <text x="790" y="238" font-size="10.5" fill="#5b6b7d">Credit Desk</text>
-
-    <text x="402" y="260" font-size="10" fill="#5b6b7d" font-style="italic">PK: (instrument_id, classification_rule)</text>
-
-    <!-- Three consumers below pointing up -->
-    <text x="460" y="300" text-anchor="middle" font-size="12" font-weight="700" fill="#5b6b7d">
-      Consumers bind to the rule they need
+    <rect x="40" y="475" width="840" height="55" rx="6" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.2"/>
+    <text x="460" y="495" text-anchor="middle" font-size="11.5" font-weight="700" fill="#2f8f5b">
+      The conformance: the column names (asset_class, product_type, hierarchy_rule, rule_owner) are shared.
     </text>
-
-    <rect x="80" y="320" width="220" height="60" rx="6" fill="#fbf0e0" stroke="#b9772a" stroke-width="1.4"/>
-    <text x="190" y="340" text-anchor="middle" font-weight="700" fill="#b9772a" font-size="11.5">Regulatory reporting</text>
-    <text x="190" y="358" text-anchor="middle" font-size="10.5" fill="#5b6b7d">filters classification_rule</text>
-    <text x="190" y="372" text-anchor="middle" font-size="10.5" fill="#5b6b7d">= 'regulatory_v2'</text>
-
-    <rect x="350" y="320" width="220" height="60" rx="6" fill="#fbf0e0" stroke="#b9772a" stroke-width="1.4"/>
-    <text x="460" y="340" text-anchor="middle" font-weight="700" fill="#b9772a" font-size="11.5">Trading dashboard</text>
-    <text x="460" y="358" text-anchor="middle" font-size="10.5" fill="#5b6b7d">filters classification_rule</text>
-    <text x="460" y="372" text-anchor="middle" font-size="10.5" fill="#5b6b7d">= 'trading_desk'</text>
-
-    <rect x="620" y="320" width="220" height="60" rx="6" fill="#fbf0e0" stroke="#b9772a" stroke-width="1.4"/>
-    <text x="730" y="340" text-anchor="middle" font-weight="700" fill="#b9772a" font-size="11.5">Collateral eligibility</text>
-    <text x="730" y="358" text-anchor="middle" font-size="10.5" fill="#5b6b7d">filters classification_rule</text>
-    <text x="730" y="372" text-anchor="middle" font-size="10.5" fill="#5b6b7d">= 'eligibility_v1'</text>
-
-    <!-- Arrows from consumers up to dim_asset_class -->
-    <line x1="190" y1="320" x2="510" y2="270" stroke="#b9772a" stroke-width="1" stroke-dasharray="3,3"/>
-    <line x1="460" y1="320" x2="560" y2="270" stroke="#b9772a" stroke-width="1" stroke-dasharray="3,3"/>
-    <line x1="730" y1="320" x2="610" y2="270" stroke="#b9772a" stroke-width="1" stroke-dasharray="3,3"/>
-
-    <!-- bottom annotation -->
-    <text x="460" y="410" text-anchor="middle" font-size="11" fill="#1e2a38" font-style="italic">
-      One dimension. Multiple classification rules. Each consumer queries the variant relevant to it.
-    </text>
-    <text x="460" y="426" text-anchor="middle" font-size="11" fill="#5b6b7d">
-      The dimension owns the choice; consumers do not need to maintain their own mappings.
+    <text x="460" y="513" text-anchor="middle" font-size="11" fill="#1e2a38">
+      The values within them — and the hierarchy shape they describe — are owned by each line of business and bound to via hierarchy_rule.
     </text>
   </svg>
-  <div class="fig-cap">Figure 2c — Asset class with classification rules. The dimension carries the rule explicitly, with an owner, so consumers bind to the variant they need.</div>
+  <div class="fig-cap">Figure 2c — Asset class hierarchy with rule variants. Each line of business's hierarchy lives as its own set of rows, distinguished by hierarchy_rule. The terminology conforms; the values and the shape they describe do not have to.</div>
+  </div>
+
+  <h4>The dimension table structure</h4>
+
+  <p>
+    The dimension carrying this pattern looks like the following. A single instrument has multiple rows
+    in the dimension — one per <code>hierarchy_rule</code> it has been classified under — with
+    the asset class and product type values appropriate to each rule.
+  </p>
+
+  <div class="fig">
+  <svg viewBox="0 0 920 320" font-family="Segoe UI, Arial" font-size="12">
+    <text x="460" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#2f8f5b">
+      dim_asset_class — one row per (instrument, hierarchy_rule)
+    </text>
+
+    <rect x="40" y="50" width="840" height="240" rx="6" fill="#fff" stroke="#2f8f5b" stroke-width="1.6"/>
+    <text x="460" y="72" text-anchor="middle" font-weight="700" fill="#2f8f5b">dim_asset_class</text>
+    <line x1="50" y1="80" x2="870" y2="80" stroke="#d4dce5"/>
+    <rect x="50" y="86" width="820" height="22" fill="#eaf1f8"/>
+    <text x="60" y="101" font-size="10.5" font-weight="700" fill="#2e5c8a">instrument_id</text>
+    <text x="200" y="101" font-size="10.5" font-weight="700" fill="#2e5c8a">hierarchy_rule</text>
+    <text x="340" y="101" font-size="10.5" font-weight="700" fill="#2e5c8a">asset_class</text>
+    <text x="480" y="101" font-size="10.5" font-weight="700" fill="#2e5c8a">product_type</text>
+    <text x="660" y="101" font-size="10.5" font-weight="700" fill="#2e5c8a">rule_owner</text>
+    <text x="790" y="101" font-size="10.5" font-weight="700" fill="#2e5c8a">effective_from</text>
+
+    <line x1="50" y1="110" x2="870" y2="110" stroke="#e0e6ec"/>
+    <text x="60" y="126" font-size="10.5" fill="#1e2a38">CA135087H236</text>
+    <text x="200" y="126" font-size="10.5" fill="#1e2a38">lob_a_view</text>
+    <text x="340" y="126" font-size="10.5" fill="#1e2a38">Bond</text>
+    <text x="480" y="126" font-size="10.5" fill="#1e2a38">Sovereign Bond</text>
+    <text x="660" y="126" font-size="10.5" fill="#5b6b7d">Line of Business A</text>
+    <text x="790" y="126" font-size="10.5" fill="#5b6b7d">2024-01-01</text>
+
+    <line x1="50" y1="138" x2="870" y2="138" stroke="#e0e6ec"/>
+    <text x="60" y="154" font-size="10.5" fill="#1e2a38">CA135087H236</text>
+    <text x="200" y="154" font-size="10.5" fill="#1e2a38">lob_b_view</text>
+    <text x="340" y="154" font-size="10.5" fill="#1e2a38">Bond</text>
+    <text x="480" y="154" font-size="10.5" fill="#1e2a38">Sovereign Senior Unsec</text>
+    <text x="660" y="154" font-size="10.5" fill="#5b6b7d">Line of Business B</text>
+    <text x="790" y="154" font-size="10.5" fill="#5b6b7d">2024-01-01</text>
+
+    <line x1="50" y1="166" x2="870" y2="166" stroke="#e0e6ec"/>
+    <text x="60" y="182" font-size="10.5" fill="#1e2a38">CA135087H236</text>
+    <text x="200" y="182" font-size="10.5" fill="#1e2a38">lob_c_view</text>
+    <text x="340" y="182" font-size="10.5" fill="#1e2a38">Fixed Income</text>
+    <text x="480" y="182" font-size="10.5" fill="#1e2a38">Government Debt</text>
+    <text x="660" y="182" font-size="10.5" fill="#5b6b7d">Line of Business C</text>
+    <text x="790" y="182" font-size="10.5" fill="#5b6b7d">2024-01-01</text>
+
+    <line x1="50" y1="194" x2="870" y2="194" stroke="#e0e6ec"/>
+    <text x="60" y="210" font-size="10.5" fill="#5b6b7d">US459200HU86</text>
+    <text x="200" y="210" font-size="10.5" fill="#5b6b7d">lob_a_view</text>
+    <text x="340" y="210" font-size="10.5" fill="#5b6b7d">Bond</text>
+    <text x="480" y="210" font-size="10.5" fill="#5b6b7d">Corporate Bond</text>
+    <text x="660" y="210" font-size="10.5" fill="#5b6b7d">Line of Business A</text>
+    <text x="790" y="210" font-size="10.5" fill="#5b6b7d">2024-01-01</text>
+
+    <line x1="50" y1="222" x2="870" y2="222" stroke="#e0e6ec"/>
+    <text x="60" y="238" font-size="10.5" fill="#5b6b7d">US459200HU86</text>
+    <text x="200" y="238" font-size="10.5" fill="#5b6b7d">lob_b_view</text>
+    <text x="340" y="238" font-size="10.5" fill="#5b6b7d">Bond</text>
+    <text x="480" y="238" font-size="10.5" fill="#5b6b7d">Corp IG Senior Unsec</text>
+    <text x="660" y="238" font-size="10.5" fill="#5b6b7d">Line of Business B</text>
+    <text x="790" y="238" font-size="10.5" fill="#5b6b7d">2024-01-01</text>
+
+    <text x="60" y="270" font-size="10" fill="#5b6b7d" font-style="italic">PK: (instrument_id, hierarchy_rule, effective_from)</text>
+    <text x="60" y="282" font-size="10" fill="#5b6b7d" font-style="italic">— compound key prevents silent row multiplication; effective_from gives point-in-time versioning per rule</text>
+  </svg>
+  <div class="fig-cap">Figure 2d — The dim_asset_class table structure. One row per (instrument × hierarchy_rule), with the rule owner and effective dates explicit. Consumers filter on hierarchy_rule to bind to the view they need.</div>
   </div>
 
   <p>
-    The same pattern applies to any dimension where multiple legitimate classifications exist: counterparty
-    rating (Moody's vs S&amp;P vs Fitch vs internal), product taxonomy (regulatory vs trading vs ISDA),
-    counterparty type (legal-entity-based vs reporting-line-based). In each case, the rule becomes a column,
-    the rule has an owner, and consumers select the rule relevant to their purpose. The dimension does not
-    have to pick a winner.
+    The compound primary key — <code>(instrument_id, hierarchy_rule, effective_from)</code> —
+    matters. Without it, queries that don't filter on the rule would silently multiply rows. Every consumer
+    query against this dimension is expected to filter or group by <code>hierarchy_rule</code>, and the
+    metadata declares this requirement. The dimension does not let a consumer accidentally produce a count
+    that mixes hierarchies, because the mixing would be visible in the row counts.
+  </p>
+
+  <p>
+    The same pattern applies to any dimension where multiple legitimate hierarchies or classifications exist:
+    counterparty rating (Moody's vs S&amp;P vs Fitch vs internal), product taxonomy (regulatory vs trading vs
+    ISDA), counterparty type (legal-entity-based vs reporting-line-based), region (geographic vs
+    booking-entity-based). In each case, the conformed dimension carries the rule explicitly, the rule has an
+    owner, and consumers select the rule relevant to their purpose. The dimension does not have to pick a
+    winner across legitimate variants — it just makes the variant visible.
   </p>
 
   <div class="callout">
-    The compound key matters: <code>(instrument_id, classification_rule)</code> is the primary key, not
-    <code>instrument_id</code> alone. Without this, queries that don't filter on the rule would silently
-    multiply rows. Every consumer query against this dimension is expected to filter or group by
-    <code>classification_rule</code> — and the metadata should declare this requirement.
+    The conformance point is subtle and worth being explicit about. What is conformed is the
+    <b>terminology</b> — everyone agrees that <code>asset_class</code>, <code>product_type</code>,
+    <code>hierarchy_rule</code>, and <code>rule_owner</code> are the columns we will use. What is not
+    forced to conform is the <b>values</b> any line of business places under those columns or the
+    <b>hierarchy shape</b> those values describe. Line of Business A's three-product-type view of Bond is
+    just as valid as Line of Business B's twelve-product-type view. Both live in the dimension; consumers
+    bind to the one they need. Conformance accommodates legitimate variance rather than suppressing it.
   </div>
 
   <h3>From reports to facts &mdash; the translation</h3>
