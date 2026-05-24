@@ -698,6 +698,161 @@ but the same three-model structure applies to every risk sub-domain.
     local engineering choice.
   </div>
 
+  <h3>The report and the three models behind it</h3>
+
+  <p>
+    A specific lens on the same architectural picture is worth drawing out separately, because it is the
+    most common way the modelling argument fails to land with stakeholders. The report is what most
+    consumers see today. Looking at the report alone, the number on the screen appears to be the whole
+    picture. It is not. Several layers of context that the report needs are not carried in the report
+    itself &mdash; they live in artefacts the report depends on but does not contain.
+  </p>
+  <p>
+    The three models supply that missing context. They are not derived <i>from</i> the report; the report
+    is incomplete <i>without</i> them. The direction matters: meaning flows up from the three models to
+    the report, not down from the report to the models.
+  </p>
+
+  <div class="fig">
+  <svg viewBox="0 0 980 720" font-family="Segoe UI, Arial" font-size="12">
+    <defs>
+      <marker id="arrUp1d" markerWidth="10" markerHeight="10" refX="5" refY="0" orient="auto">
+        <path d="M0 10 L5 0 L10 10 z" fill="#2e5c8a"/>
+      </marker>
+    </defs>
+
+    <text x="490" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#1e2a38">
+      The report and the three models behind it
+    </text>
+    <text x="490" y="40" text-anchor="middle" font-size="11" fill="#5b6b7d" font-style="italic">
+      The report on top is incomplete. The three models below supply the context it needs.
+    </text>
+
+    <!-- THE REPORT BOX (top) -->
+    <rect x="100" y="60" width="780" height="240" rx="10" fill="#eaf1f8" stroke="#2e5c8a" stroke-width="2.5"/>
+    <text x="490" y="88" text-anchor="middle" font-weight="700" fill="#2e5c8a" font-size="15">REPORT — visible to consumer</text>
+
+    <line x1="120" y1="100" x2="860" y2="100" stroke="#bcd2e6" stroke-width="1"/>
+
+    <text x="135" y="124" font-size="11.5" fill="#1e2a38" font-weight="700">What the consumer sees:</text>
+    <rect x="320" y="110" width="180" height="26" rx="4" fill="#fff" stroke="#2e5c8a" stroke-width="1.4"/>
+    <text x="410" y="128" text-anchor="middle" font-size="13" fill="#2e5c8a" font-weight="700">$84M</text>
+    <text x="520" y="128" font-size="10.5" fill="#5b6b7d" font-style="italic">(or whatever number the report shows)</text>
+
+    <line x1="120" y1="148" x2="860" y2="148" stroke="#bcd2e6" stroke-width="1" stroke-dasharray="3,3"/>
+
+    <text x="135" y="170" font-size="11.5" fill="#1e2a38" font-weight="700">What is not shown — context the report needs but does not carry:</text>
+
+    <!-- Context-needed bullets, each will have an arrow coming from below -->
+    <text x="155" y="194" font-size="11" fill="#1e2a38">•</text>
+    <text x="170" y="194" font-size="11" fill="#1e2a38">which entities exist + how they relate to each other</text>
+    <circle cx="555" cy="190" r="4" fill="#2e5c8a"/>
+
+    <text x="155" y="216" font-size="11" fill="#1e2a38">•</text>
+    <text x="170" y="216" font-size="11" fill="#1e2a38">at what grain the number was calculated</text>
+    <circle cx="555" cy="212" r="4" fill="#2e5c8a"/>
+
+    <text x="155" y="238" font-size="11" fill="#1e2a38">•</text>
+    <text x="170" y="238" font-size="11" fill="#1e2a38">which conformed dimensions apply, what aggregations are valid</text>
+    <circle cx="555" cy="234" r="4" fill="#2e5c8a"/>
+
+    <text x="155" y="260" font-size="11" fill="#1e2a38">•</text>
+    <text x="170" y="260" font-size="11" fill="#1e2a38">what the published feed guarantees — schedule, schema, scope</text>
+    <circle cx="555" cy="256" r="4" fill="#2e5c8a"/>
+
+    <line x1="120" y1="276" x2="860" y2="276" stroke="#bcd2e6" stroke-width="1" stroke-dasharray="3,3"/>
+
+    <text x="490" y="294" text-anchor="middle" font-size="12" fill="#c04a3d" font-style="italic" font-weight="700">
+      INCOMPLETE without the three models below
+    </text>
+
+    <!-- THE THREE MODELS (bottom) -->
+
+    <!-- DOMAIN MODEL -->
+    <rect x="60" y="460" width="270" height="230" rx="8" fill="#fdf5e0" stroke="#b9772a" stroke-width="2"/>
+    <text x="195" y="486" text-anchor="middle" font-weight="700" fill="#1e2a38" font-size="13">DOMAIN MODEL</text>
+    <text x="195" y="502" text-anchor="middle" font-size="11" fill="#5b6b7d" font-style="italic">(for the LOB)</text>
+    <line x1="80" y1="514" x2="310" y2="514" stroke="#fbe0c0" stroke-width="1"/>
+
+    <text x="80" y="538" font-size="11" fill="#1e2a38">what entities exist;</text>
+    <text x="80" y="554" font-size="11" fill="#1e2a38">how they relate</text>
+
+    <text x="80" y="582" font-size="11" fill="#1e2a38">the semantic</text>
+    <text x="80" y="598" font-size="11" fill="#1e2a38">foundation — counterparty,</text>
+    <text x="80" y="614" font-size="11" fill="#1e2a38">agreement, trade,</text>
+    <text x="80" y="630" font-size="11" fill="#1e2a38">collateral, curve</text>
+
+    <line x1="80" y1="650" x2="310" y2="650" stroke="#fbe0c0" stroke-width="1"/>
+    <text x="195" y="670" text-anchor="middle" font-size="10" fill="#5b6b7d" font-style="italic">owned by risk (LOB)</text>
+
+    <!-- DIMENSIONAL MODEL -->
+    <rect x="355" y="460" width="270" height="230" rx="8" fill="#fdf5e0" stroke="#b9772a" stroke-width="2"/>
+    <text x="490" y="486" text-anchor="middle" font-weight="700" fill="#1e2a38" font-size="13">DIMENSIONAL MODEL</text>
+    <text x="490" y="502" text-anchor="middle" font-size="11" fill="#5b6b7d" font-style="italic">(the analytical shape)</text>
+    <line x1="375" y1="514" x2="605" y2="514" stroke="#fbe0c0" stroke-width="1"/>
+
+    <text x="375" y="538" font-size="11" fill="#1e2a38">facts at declared</text>
+    <text x="375" y="554" font-size="11" fill="#1e2a38">grain;</text>
+
+    <text x="375" y="582" font-size="11" fill="#1e2a38">conformed dimensions;</text>
+    <text x="375" y="598" font-size="11" fill="#1e2a38">drill paths;</text>
+    <text x="375" y="614" font-size="11" fill="#1e2a38">aggregation rules per</text>
+    <text x="375" y="630" font-size="11" fill="#1e2a38">measure</text>
+
+    <line x1="375" y1="650" x2="605" y2="650" stroke="#fbe0c0" stroke-width="1"/>
+    <text x="490" y="670" text-anchor="middle" font-size="10" fill="#5b6b7d" font-style="italic">owned by risk (analytics)</text>
+
+    <!-- DATA CONTRACT -->
+    <rect x="650" y="460" width="270" height="230" rx="8" fill="#fdf5e0" stroke="#b9772a" stroke-width="2"/>
+    <text x="785" y="486" text-anchor="middle" font-weight="700" fill="#1e2a38" font-size="13">DATA CONTRACT</text>
+    <text x="785" y="502" text-anchor="middle" font-size="11" fill="#5b6b7d" font-style="italic">(the publishing promise)</text>
+    <line x1="670" y1="514" x2="900" y2="514" stroke="#fbe0c0" stroke-width="1"/>
+
+    <text x="670" y="538" font-size="11" fill="#1e2a38">what the published feed</text>
+    <text x="670" y="554" font-size="11" fill="#1e2a38">actually promises:</text>
+
+    <text x="670" y="582" font-size="11" fill="#1e2a38">schedule, schema,</text>
+    <text x="670" y="598" font-size="11" fill="#1e2a38">scope, guarantees;</text>
+    <text x="670" y="614" font-size="11" fill="#1e2a38">which entities the</text>
+    <text x="670" y="630" font-size="11" fill="#1e2a38">contract is bound against</text>
+
+    <line x1="670" y1="650" x2="900" y2="650" stroke="#fbe0c0" stroke-width="1"/>
+    <text x="785" y="670" text-anchor="middle" font-size="10" fill="#5b6b7d" font-style="italic">owned by the publishing app</text>
+
+    <!-- ARROWS (going UP from each model to the corresponding bullet on the report) -->
+    <!-- Domain Model → "which entities + how they relate" bullet -->
+    <line x1="195" y1="460" x2="520" y2="200" stroke="#2e5c8a" stroke-width="2" marker-end="url(#arrUp1d)"/>
+    <text x="245" y="430" font-size="10.5" fill="#2e5c8a" font-style="italic" font-weight="700">supplies the entities</text>
+    <text x="245" y="445" font-size="10.5" fill="#2e5c8a" font-style="italic" font-weight="700">and relationships</text>
+
+    <!-- Dimensional Model → "grain" and "conformed dimensions" bullets -->
+    <line x1="490" y1="460" x2="520" y2="244" stroke="#2e5c8a" stroke-width="2" marker-end="url(#arrUp1d)"/>
+    <text x="500" y="430" font-size="10.5" fill="#2e5c8a" font-style="italic" font-weight="700">supplies the grain</text>
+    <text x="500" y="445" font-size="10.5" fill="#2e5c8a" font-style="italic" font-weight="700">and aggregation rules</text>
+
+    <!-- Data Contract → "publishing promise" bullet -->
+    <line x1="785" y1="460" x2="520" y2="266" stroke="#2e5c8a" stroke-width="2" marker-end="url(#arrUp1d)"/>
+    <text x="730" y="430" font-size="10.5" fill="#2e5c8a" font-style="italic" font-weight="700">supplies the</text>
+    <text x="730" y="445" font-size="10.5" fill="#2e5c8a" font-style="italic" font-weight="700">publishing promise</text>
+  </svg>
+  <div class="fig-cap">Figure 1d — The report and the three models behind it. The report on top is incomplete; the three models below supply the context the report cannot carry. Arrows show meaning flowing upward — from the models to the report — not the other way around.</div>
+  </div>
+
+  <div class="callout key">
+    The report alone is incomplete. The three models below it supply the context the report cannot carry &mdash;
+    making the number recoverable, comparable, and auditable across applications and over time. Without
+    these models, the consumer is reading a number that depends on context they cannot see, that may change
+    silently between report runs, and that cannot be safely combined with numbers from other reports.
+  </div>
+
+  <p>
+    This is the version of the modelling argument that lands with consumers. It does not require them
+    to understand the full architectural stack on Figure 1c. It requires them to recognise that the
+    report they have today does not contain enough information to be relied on by itself &mdash; and that
+    the three models below it are what supply the missing pieces. The same three models that Figure 1c
+    shows as bands within the stack appear here, focused on the specific role they play in giving the
+    report meaning.
+  </p>
 
 </section>
 
