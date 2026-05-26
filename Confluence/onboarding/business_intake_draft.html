@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Business Intake — DRAFT</title>
+<style>
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 0 30px;
+  color: #1e2a38;
+  line-height: 1.6;
+  background: #fafbfc;
+}
+h1 { color: #1a5d2c; border-bottom: 3px solid #1a5d2c; padding-bottom: 10px; }
+h2 { color: #1a5d2c; margin-top: 40px; border-bottom: 1px solid #d0d7de; padding-bottom: 6px; }
+h3 { color: #2e5c8a; margin-top: 28px; font-size: 17px; }
+h4 { color: #5b6b7d; margin-bottom: 4px; font-size: 14px; }
+.intro { color: #5b6b7d; font-size: 14px; font-style: italic; margin-top: -8px; }
+
+.draft-banner {
+  background: #fef3c7; border: 1px solid #d4a017; padding: 12px 18px; border-radius: 6px;
+  margin-bottom: 30px; color: #6b4f00; font-size: 14px;
+}
+.callout {
+  background: #eaf1f8; border-left: 4px solid #2e5c8a; padding: 14px 20px; margin: 20px 0;
+  border-radius: 4px;
+}
+.callout.green { background: #eaf6ee; border-left-color: #2f8f5b; }
+.callout.faint { background: #f4f7fb; border-left-color: #a8bace; color: #5b6b7d; font-size: 13px; }
+.placeholder {
+  background: #fdf5e0; border: 1px dashed #b9772a; padding: 6px 12px; border-radius: 4px;
+  font-style: italic; color: #6b4f00; font-size: 13px; display: inline-block;
+}
+
+/* === Section divider between the two parts === */
+.part-divider {
+  height: 4px;
+  background: linear-gradient(to right, #2f8f5b, #d0d7de);
+  margin: 50px 0 30px 0;
+  border-radius: 2px;
+}
+.part-label {
+  display: inline-block;
+  background: #2f8f5b; color: #fff;
+  padding: 4px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+/* === Fillable form sections === */
+.form-section {
+  background: #fff;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  margin: 22px 0;
+  padding: 0;
+  overflow: hidden;
+}
+.form-section-header {
+  background: #f4fbf7;
+  border-bottom: 1px solid #cfe7dc;
+  padding: 14px 20px;
+}
+.form-section-num {
+  display: inline-block;
+  background: #2f8f5b;
+  color: #fff;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  text-align: center; line-height: 28px;
+  font-weight: bold; margin-right: 10px;
+  vertical-align: middle;
+}
+.form-section-title {
+  display: inline-block;
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a5d2c;
+  vertical-align: middle;
+}
+.form-section-hint {
+  font-size: 13px;
+  color: #5b6b7d;
+  font-style: italic;
+  margin: 4px 0 0 38px;
+}
+.form-section-body { padding: 16px 20px 20px; }
+
+.prompt {
+  margin: 14px 0;
+}
+.prompt-label {
+  font-weight: 600;
+  color: #2e5c8a;
+  margin-bottom: 4px;
+  display: block;
+  font-size: 14px;
+}
+.prompt-hint {
+  font-size: 12px;
+  color: #5b6b7d;
+  font-style: italic;
+  margin-bottom: 6px;
+}
+
+/* Pre-filled "answer" — styled as if someone wrote it in */
+.answer {
+  background: #fff8e1;
+  border-left: 3px solid #d4a017;
+  padding: 10px 14px;
+  font-size: 14px;
+  border-radius: 0 4px 4px 0;
+  white-space: pre-wrap;
+  margin: 6px 0;
+}
+.answer-label {
+  font-size: 10px;
+  color: #b9772a;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+/* Mini-tables inside form sections (for reports / data sources lists) */
+.intake-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 6px 0 10px 0;
+  font-size: 13px;
+}
+.intake-table th {
+  background: #f4f7fb;
+  color: #2e5c8a;
+  padding: 8px 10px;
+  text-align: left;
+  border: 1px solid #d0d7de;
+  font-size: 12px;
+  font-weight: 600;
+}
+.intake-table td {
+  padding: 8px 10px;
+  border: 1px solid #d0d7de;
+  background: #fff8e1;  /* match the answer-fill style */
+  vertical-align: top;
+}
+.intake-table td.empty {
+  background: #fafbfc;
+  color: #c5cdd6;
+  font-style: italic;
+}
+
+.contact-block {
+  background: #fff8e1;
+  border-left: 3px solid #d4a017;
+  padding: 10px 14px;
+  border-radius: 0 4px 4px 0;
+  font-size: 14px;
+}
+.contact-row { margin: 3px 0; }
+.contact-row strong { display: inline-block; min-width: 120px; color: #5b6b7d; font-weight: 500; }
+
+.empty-form-banner {
+  background: #fafbfc;
+  border: 1px dashed #c5cdd6;
+  padding: 14px 18px;
+  text-align: center;
+  font-style: italic;
+  color: #8a95a1;
+  font-size: 13px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.tip-box {
+  background: #f4f7fb;
+  border: 1px solid #cfd9e6;
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #2e5c8a;
+  margin: 8px 0;
+}
+.tip-box strong { color: #1a5d2c; }
+</style>
+</head>
+<body>
+
+<div class="draft-banner">
+  <strong>DRAFT</strong> — rough sketch of the Business Intake. Top half shows the Confluence-page-style introduction (instructions and framing).
+  Bottom half shows the fillable form pre-populated with the worked example (Exposure by Counterparty, the Counterparty Credit Risk reporting case).
+  React to the shape, the seven sections, and whether the example reads like a business person wrote it.
+</div>
+
+<!-- ====================================================== -->
+<!-- PART 1 — CONFLUENCE PAGE STYLE TOP                     -->
+<!-- ====================================================== -->
+
+<h1>Business Intake — Tell us what you need</h1>
+<p class="intro">
+  How to describe a use case so the data team can build it.
+</p>
+
+<div class="callout green">
+  <strong>This is normally a conversation.</strong>
+  In a mature data practice, a Data Product Owner would sit with you and walk through these questions in person —
+  asking, listening, capturing your answers. We don't yet have that role at TD, so we're asking you to write down
+  the answers yourself. Think of this as a structured conversation rather than a form to complete.
+</div>
+
+<h2>What this intake is for</h2>
+
+<p>
+  The Business Intake captures <em>your world</em> — what you do today, what you want to be able to do, and
+  what's hard about it — in a way that lets the data team translate it into a published, governed data product
+  in the <code>risk_warehouse</code>.
+</p>
+
+<p>
+  Don't worry about technical vocabulary. <strong>Describe what you need in your own words.</strong> The data team
+  will translate "I want to see exposure by counterparty broken down by direct, indirect, and CCR" into entities,
+  measures, contracts, and so on. Your job is to describe the business need clearly and completely.
+</p>
+
+<h2>What it takes</h2>
+
+<p>
+  Seven short sections, around 1–2 pages of content when complete. The intake template comes pre-filled with a
+  worked example so you can see what a completed intake looks like before you fill in your own.
+</p>
+
+<div class="tip-box">
+  <strong>Tip.</strong> If you find yourself stuck, write what you would <em>say</em> if someone asked you the
+  question in a meeting. Plain language. Don't try to be precise or technical — that's the data team's job.
+</div>
+
+<h2>What happens after you submit</h2>
+
+<p>
+  Your intake goes to the data team and the relevant application teams. Within a couple of days you'll have a
+  follow-up conversation to clarify the trickier parts. Your intake is the input to the work that follows:
+</p>
+
+<ul>
+  <li>Entities you name (counterparty, agreement, position…) become entries in the canonical data model</li>
+  <li>Measures you describe (exposure, limits, breaches…) inform the dimensional model</li>
+  <li>Reports you currently consume help us understand what the published view needs to support</li>
+  <li>Validation rules you describe become the data quality tests on the published product</li>
+</ul>
+
+<p>
+  Once the data product is built and published in the <code>risk_warehouse</code>, you'll be able to consume it
+  through dashboards, BI tools, and ad-hoc query. The data team will let you know when it's ready.
+</p>
+
+<h2>Worked example</h2>
+
+<p>
+  The template below is pre-filled with a worked example: <strong>Exposure by Counterparty</strong>, the
+  Counterparty Credit Risk reporting use case. Read through it to see what a completed intake looks like.
+  When you fill in your own, the example content will be replaced with yours.
+</p>
+
+<h2>Open the fillable template</h2>
+
+<p>
+  <span class="placeholder">[PLACEHOLDER — link to the fillable Business Intake (SharePoint / Teams / Excel)]</span>
+</p>
+
+<p style="font-size: 13px; color: #5b6b7d;">
+  Need help filling it in? Reach out to <span class="placeholder">[PLACEHOLDER — data team distribution list]</span>
+  and someone will walk you through it.
+</p>
+
+<!-- ====================================================== -->
+<!-- PART 2 — FILLABLE FORM (pre-filled with worked example) -->
+<!-- ====================================================== -->
+
+<div class="part-divider"></div>
+
+<span class="part-label">Below: the fillable form, pre-filled with the worked example</span>
+
+<h2>The intake — pre-filled with the worked example</h2>
+<p class="intro">
+  This is what the fillable form looks like. The yellow-shaded fields show the worked example —
+  what a business person from Counterparty Credit Risk reporting might write.
+</p>
+
+
+<!-- =============== SECTION 1 =============== -->
+<div class="form-section">
+  <div class="form-section-header">
+    <span class="form-section-num">1</span>
+    <span class="form-section-title">Who you are</span>
+    <div class="form-section-hint">Warm-up question. The point of contact and the decision-maker.</div>
+  </div>
+  <div class="form-section-body">
+    <div class="prompt">
+      <span class="prompt-label">Your name and team</span>
+      <div class="contact-block">
+        <div class="answer-label">Example fill-in</div>
+        <div class="contact-row"><strong>Name:</strong> [Business person filling in the intake]</div>
+        <div class="contact-row"><strong>Team:</strong> Counterparty Credit Risk Reporting</div>
+        <div class="contact-row"><strong>Role:</strong> Risk Reporting Lead</div>
+        <div class="contact-row"><strong>Email:</strong> [Author email]</div>
+      </div>
+    </div>
+    <div class="prompt">
+      <span class="prompt-label">Who else needs to be in the conversation?</span>
+      <div class="prompt-hint">The decision-maker if it's not you. Any other consumers of the eventual data product.</div>
+      <div class="contact-block">
+        <div class="answer-label">Example fill-in</div>
+        <div class="contact-row"><strong>Decision-maker:</strong> Head of Counterparty Credit Risk</div>
+        <div class="contact-row"><strong>Other consumers:</strong> Concentration risk team, Limit management team, Credit committee secretariat</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =============== SECTION 2 =============== -->
+<div class="form-section">
+  <div class="form-section-header">
+    <span class="form-section-num">2</span>
+    <span class="form-section-title">What you're trying to do</span>
+    <div class="form-section-hint">One paragraph. The business outcome you're chasing, in your own words.</div>
+  </div>
+  <div class="form-section-body">
+    <div class="prompt">
+      <span class="prompt-label">In plain language, what do you want to be able to do?</span>
+      <div class="prompt-hint">Think of how you'd describe this to a colleague over coffee. What question are you trying to answer? What decisions does this support?</div>
+      <div class="answer">
+<div class="answer-label">Example fill-in</div>
+I want to see our total exposure to each counterparty, every business day, so I can monitor concentration risk
+and identify counterparties where our exposure is approaching limit. Today I cobble this together from three or
+four different reports and Excel files and it takes me half a day. By the time I have a number, it's stale and
+my limit team has already asked twice. I need this to be a single, reliable view that I can trust without
+manually reconciling it every morning.</div>
+    </div>
+    <div class="prompt">
+      <span class="prompt-label">What decisions does this support?</span>
+      <div class="prompt-hint">Who acts on this information? What do they do with it?</div>
+      <div class="answer">
+<div class="answer-label">Example fill-in</div>
+The credit committee uses it for weekly concentration review. The limit management team uses it daily to flag
+counterparties approaching threshold. The relationship managers use it ad-hoc when a client asks about their
+overall position with us. Regulatory reporting uses similar numbers for BCBS 239 and large-exposure submissions
+but those go through a separate workflow today.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =============== SECTION 3 =============== -->
+<div class="form-section">
+  <div class="form-section-header">
+    <span class="form-section-num">3</span>
+    <span class="form-section-title">How you do this today</span>
+    <div class="form-section-hint">The as-is state. What reports you consume, what you do with them, what's hard about it.</div>
+  </div>
+  <div class="form-section-body">
+    <div class="prompt">
+      <span class="prompt-label">What reports or data sources do you use today?</span>
+      <div class="prompt-hint">List them. For each: where it comes from, how often you get it, what format.</div>
+      <table class="intake-table">
+        <thead>
+          <tr><th>Report or data source</th><th>Where it comes from</th><th>How often</th><th>Format</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Direct Exposure Daily Pack</td>
+            <td>Lending Operations</td>
+            <td>Daily, ~6 AM</td>
+            <td>Excel attached to email</td>
+          </tr>
+          <tr>
+            <td>Indirect Exposure (Guarantees)</td>
+            <td>Legal &amp; Documentation team</td>
+            <td>Weekly, Mondays</td>
+            <td>PDF + Excel</td>
+          </tr>
+          <tr>
+            <td>CCR PFE Pack</td>
+            <td>CCR engine team (Mosaic output)</td>
+            <td>Daily, ~7 AM</td>
+            <td>CSV via shared drive</td>
+          </tr>
+          <tr>
+            <td>Counterparty Hierarchy Reference</td>
+            <td>KYC Operations</td>
+            <td>Monthly + ad-hoc updates</td>
+            <td>Excel</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="prompt">
+      <span class="prompt-label">What do you do with these reports?</span>
+      <div class="prompt-hint">The manual steps you go through. The joins, the lookups, the validations, the spreadsheet gymnastics.</div>
+      <div class="answer">
+<div class="answer-label">Example fill-in</div>
+Every morning I copy the three exposure packs into a master spreadsheet. I VLOOKUP the counterparty IDs across
+the three sources because they're not always identical — Lending uses one counterparty code and the CCR engine
+uses a slightly different one for a few legal entities. I roll up subsidiaries to their ultimate parent using
+the KYC hierarchy file. I convert non-USD exposures to USD using last night's FX rates. Then I check the totals
+against yesterday's number and flag anything that moved more than 10%. By the time I'm done, it's 10 AM and the
+credit committee meeting has already started.</div>
+    </div>
+    <div class="prompt">
+      <span class="prompt-label">What's hard about this?</span>
+      <div class="prompt-hint">Where the friction is. What goes wrong. What you wish was different.</div>
+      <div class="answer">
+<div class="answer-label">Example fill-in</div>
+Three things. First, the counterparty IDs not matching across sources — I've had cases where we double-counted
+or missed a counterparty because two sources disagreed on its ID. Second, the manual roll-up to ultimate parent
+— this is the kind of thing that should just be done once, centrally, not by me with a VLOOKUP. Third, the time
+pressure — by the time the numbers are ready, half the people who need them have moved on. I want a view I can
+open at 7 AM that's already correct.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =============== SECTION 4 =============== -->
+<div class="form-section">
+  <div class="form-section-header">
+    <span class="form-section-num">4</span>
+    <span class="form-section-title">What you need from the new view</span>
+    <div class="form-section-hint">The to-be state. What you want to be able to see, slice, and refresh.</div>
+  </div>
+  <div class="form-section-body">
+    <div class="prompt">
+      <span class="prompt-label">What information should show up?</span>
+      <div class="prompt-hint">List the things you want to see. Plain language — don't worry about technical names.</div>
+      <div class="answer">
+<div class="answer-label">Example fill-in</div>
+For each counterparty, on each business date, I want to see:
+  • Total exposure (the headline number — direct + indirect + CCR combined)
+  • Direct exposure (broken out)
+  • Indirect exposure (broken out — and ideally I can see which guarantor chain)
+  • CCR line exposure (broken out — base case Potential Future Exposure)
+  • Counterparty's ultimate parent (so I can roll up)
+  • Counterparty's industry / sector (for concentration cuts)
+  • Country of risk</div>
+    </div>
+    <div class="prompt">
+      <span class="prompt-label">How would you want to slice, filter, or group it?</span>
+      <div class="prompt-hint">In plain language — "by counterparty," "by date," "by region," etc.</div>
+      <div class="answer">
+<div class="answer-label">Example fill-in</div>
+  • By counterparty (the primary cut)
+  • By ultimate parent (rolling subsidiaries up)
+  • By industry or sector (for concentration analysis)
+  • By country of risk
+  • By date (so I can see the trend over time, or compare today to a month ago)
+  • Filter by exposure threshold (e.g. "show me only counterparties above $50M total exposure")</div>
+    </div>
+    <div class="prompt">
+      <span class="prompt-label">How often does it need to refresh? By what time?</span>
+      <div class="prompt-hint">Once a day? Several times a day? Immediately when something changes? Plain language.</div>
+      <div class="answer">
+<div class="answer-label">Example fill-in</div>
+Daily, end-of-business-day close. Available by 7 AM the next morning at the latest. If it's not available by 8 AM,
+I need to know — the credit committee meeting is at 9 AM and I can't show up empty-handed.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =============== SECTION 5 =============== -->
+<div class="form-section">
+  <div class="form-section-header">
+    <span class="form-section-num">5</span>
+    <span class="form-section-title">Trust and validation</span>
+    <div class="form-section-hint">What rules should always hold. How you'd spot a problem.</div>
+  </div>
+  <div class="form-section-body">
+    <div class="prompt">
+      <span class="prompt-label">What rules should always be true about this data?</span>
+      <div class="prompt-hint">Things that, if they weren't true, you'd know something was wrong. Plain language.</div>
+      <div class="answer">
+<div class="answer-label">Example fill-in</div>
+  • Total exposure should never be negative
+  • If a counterparty has no positions, no guarantees, and no derivatives, they shouldn't show up at all
+  • The number of counterparties shouldn't change wildly from one day to the next — maybe a 5–10% band is normal
+  • Every counterparty in this view should also exist in our master counterparty list (no orphans)
+  • Total exposure should equal direct + indirect + CCR — these should never disagree</div>
+    </div>
+    <div class="prompt">
+      <span class="prompt-label">How do you know when something is wrong today?</span>
+      <div class="prompt-hint">The gut-check tests you do. What "feels off" looks like.</div>
+      <div class="answer">
+<div class="answer-label">Example fill-in</div>
+The first thing I look at is the top 20 counterparties by exposure. I know roughly what the top 20 should look
+like — the same big names appear most days. If suddenly there's a counterparty I've never heard of in the top 20,
+or one of the usual names drops off, something's wrong. The second thing is the total — our total exposure
+moves slowly, so if it changes by more than 10% day-on-day, I check the data before I report.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =============== SECTION 6 =============== -->
+<div class="form-section">
+  <div class="form-section-header">
+    <span class="form-section-num">6</span>
+    <span class="form-section-title">Sensitivity and constraints</span>
+    <div class="form-section-hint">Who should and shouldn't see this. Any regulatory drivers.</div>
+  </div>
+  <div class="form-section-body">
+    <div class="prompt">
+      <span class="prompt-label">Who should NOT see this data?</span>
+      <div class="prompt-hint">Any sensitivity concerns you're aware of. If you're not sure, say so — the data team will work it out.</div>
+      <div class="answer">
+<div class="answer-label">Example fill-in</div>
+This is confidential. Should be available to credit risk, limit management, the credit committee, and the
+relevant relationship managers (when their own clients are involved). Should NOT be available outside Risk —
+not Front Office sales, not Operations broadly. No PII concerns — counterparties are legal entities, not
+individuals.</div>
+    </div>
+    <div class="prompt">
+      <span class="prompt-label">Are there regulatory drivers behind this?</span>
+      <div class="prompt-hint">Specific regulations, reporting obligations, audit requirements. If you're not sure, say so.</div>
+      <div class="answer">
+<div class="answer-label">Example fill-in</div>
+Yes. BCBS 239 (risk data aggregation principles) applies. Our large-exposure regulatory submissions use related
+but separately governed numbers — those go through a different workflow and shouldn't be confused with this view.
+This view is for internal risk management, not for regulatory submission.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =============== SECTION 7 =============== -->
+<div class="form-section">
+  <div class="form-section-header">
+    <span class="form-section-num">7</span>
+    <span class="form-section-title">Anything else</span>
+    <div class="form-section-hint">Catch-all. Anything weighing on you that the structure didn't capture.</div>
+  </div>
+  <div class="form-section-body">
+    <div class="prompt">
+      <span class="prompt-label">Anything else the data team should know?</span>
+      <div class="prompt-hint">Constraints, history, things that have gone wrong before, related work, timing pressure, anything.</div>
+      <div class="answer">
+<div class="answer-label">Example fill-in</div>
+Two things. One — there's an ongoing project to clean up the counterparty hierarchy (the parent/subsidiary tree).
+If that lands before this work, great. If not, we need to use the hierarchy that exists today, even though we know
+it has gaps for some Asian subsidiaries. Two — there's a related view the market risk team wants for stressed
+exposure (PFE under shock scenarios). They're a separate use case but if there's a way to build this so that
+stressed PFE can plug in later, that would help.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =============== CLOSING =============== -->
+<h2>What happens next</h2>
+<p>
+  Submit the filled-in intake. The data team will reach out within a couple of business days to walk through it
+  with you. Expect questions about:
+</p>
+<ul>
+  <li>Anything the data team needs help understanding from your description</li>
+  <li>Whether entities you've named already exist in the canonical model or need to be built</li>
+  <li>Whether the cadence and trust rules you described are deliverable as-is or need adjustment</li>
+  <li>Timeline expectations</li>
+</ul>
+
+<!-- ====================================================== -->
+<!-- FOOTER                                                 -->
+<!-- ====================================================== -->
+
+<h2 style="margin-top: 60px; border: none; font-size: 14px; color: #5b6b7d;">— END OF DRAFT —</h2>
+<p style="font-size: 12px; color: #8a95a1; font-style: italic;">
+  Top half: Confluence-page-style introduction (the framing and instructions). Bottom half: the seven fillable
+  sections, pre-populated with the Exposure by Counterparty worked example. Each section's example fill-in is in
+  yellow so a reader can see at a glance what's example content vs structure. When the business fills in their own,
+  the yellow text gets replaced with theirs.
+</p>
+
+</body>
+</html>

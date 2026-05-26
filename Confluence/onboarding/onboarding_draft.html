@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Onboarding to the Risk Analytics Environment — DRAFT</title>
+<style>
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 0 30px;
+  color: #1e2a38;
+  line-height: 1.55;
+  background: #fafbfc;
+}
+h1 { color: #1a5d2c; border-bottom: 3px solid #1a5d2c; padding-bottom: 10px; }
+h2 { color: #1a5d2c; margin-top: 36px; border-bottom: 1px solid #d0d7de; padding-bottom: 6px; }
+h3 { color: #2e5c8a; margin-top: 28px; }
+h4 { color: #5b6b7d; margin-bottom: 4px; }
+.draft-banner {
+  background: #fef3c7; border: 1px solid #d4a017; padding: 12px 18px; border-radius: 6px;
+  margin-bottom: 30px; color: #6b4f00; font-size: 14px;
+}
+.intro { color: #5b6b7d; font-size: 14px; font-style: italic; margin-top: -8px; }
+.callout {
+  background: #eaf1f8; border-left: 4px solid #2e5c8a; padding: 12px 18px; margin: 16px 0;
+  border-radius: 4px;
+}
+.callout.faint { background: #f4f7fb; border-left-color: #a8bace; color: #5b6b7d; }
+.placeholder {
+  background: #fdf5e0; border: 1px dashed #b9772a; padding: 8px 14px; border-radius: 4px;
+  font-style: italic; color: #6b4f00; font-size: 13px;
+}
+
+/* === Flow diagram === */
+.flow-container {
+  background: #fff; border: 1px solid #d0d7de; border-radius: 8px; padding: 24px;
+  margin: 20px 0;
+}
+.flow-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+.flow-card {
+  border: 2px solid;
+  border-radius: 8px;
+  padding: 16px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.flow-card.business { border-color: #2f8f5b; background: #f4fbf7; }
+.flow-card.application { border-color: #2e5c8a; background: #f4f7fb; }
+.flow-card.convergence { border-color: #1a5d2c; background: #eaf1f8; grid-column: 1 / -1; }
+.flow-card h3 { margin-top: 0; color: inherit; }
+.flow-card.business h3 { color: #2f8f5b; }
+.flow-card.application h3 { color: #2e5c8a; }
+.flow-card.convergence h3 { color: #1a5d2c; text-align: center; }
+.flow-card .role-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+  color: #5b6b7d; margin-bottom: 4px;
+}
+.flow-card .step-num {
+  display: inline-block; width: 28px; height: 28px; line-height: 28px; text-align: center;
+  border-radius: 50%; font-weight: bold; color: #fff; margin-right: 8px;
+}
+.flow-card.business .step-num { background: #2f8f5b; }
+.flow-card.application .step-num { background: #2e5c8a; }
+.flow-card.convergence .step-num { background: #1a5d2c; }
+.flow-card ul { margin: 6px 0; padding-left: 22px; }
+.flow-card .link-btn {
+  display: inline-block; margin-top: 12px; padding: 8px 14px;
+  background: #1a5d2c; color: #fff; text-decoration: none; border-radius: 4px;
+  font-size: 13px; font-weight: 600;
+}
+.flow-card .link-btn:hover { background: #0f4a23; }
+.flow-arrow-down {
+  text-align: center; font-size: 28px; color: #5b6b7d;
+  margin: 8px 0;
+}
+.handover-card {
+  grid-column: 1 / -1;
+  border: 2px dashed #b9772a; background: #fdf5e0;
+  border-radius: 8px; padding: 14px 20px;
+  text-align: center;
+}
+.handover-card h4 {
+  color: #b9772a; margin: 0 0 4px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
+}
+
+/* === Data Product Canvas section === */
+.canvas-two-panel {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 24px;
+  margin: 20px 0;
+}
+.canvas-left {
+  background: #fff; border: 1px solid #d0d7de; border-radius: 8px; padding: 16px;
+}
+.canvas-left h4 {
+  margin-top: 0; color: #1a5d2c; text-align: center; font-size: 14px;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.canvas-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.canvas-block {
+  background: #f4fbf7; border: 2px solid #2f8f5b; border-radius: 4px;
+  padding: 10px 12px; font-size: 13px; min-height: 60px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.canvas-block.full-width { grid-column: 1 / -1; }
+.canvas-block-num {
+  font-size: 11px; color: #2f8f5b; font-weight: bold; margin-bottom: 2px;
+}
+.canvas-block-name { font-weight: 600; color: #1e2a38; }
+
+.canvas-right {
+  background: #fff; border: 1px solid #d0d7de; border-radius: 8px; padding: 16px;
+}
+.canvas-right h4 {
+  margin-top: 0; color: #2e5c8a; font-size: 14px;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.canvas-mapping-table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+}
+.canvas-mapping-table th {
+  background: #2e5c8a; color: #fff; padding: 8px 10px; text-align: left;
+  font-weight: 600; font-size: 12px;
+}
+.canvas-mapping-table td {
+  padding: 8px 10px; border-bottom: 1px solid #e5e9ed; vertical-align: top;
+}
+.canvas-mapping-table tr:last-child td { border-bottom: none; }
+.canvas-mapping-table .canvas-name { font-weight: 600; color: #2f8f5b; }
+.canvas-mapping-table .yaml-section { font-family: monospace; font-size: 11px; color: #5b6b7d; }
+
+/* === Routing chooser at top === */
+.route-chooser {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  margin: 20px 0;
+}
+.route-card {
+  background: #fff; border: 2px solid; border-radius: 8px; padding: 20px;
+  text-decoration: none; color: inherit; display: block;
+}
+.route-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.route-card.business { border-color: #2f8f5b; }
+.route-card.application { border-color: #2e5c8a; }
+.route-card .route-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #5b6b7d;
+}
+.route-card h3 { margin: 4px 0 8px 0; }
+.route-card.business h3 { color: #2f8f5b; }
+.route-card.application h3 { color: #2e5c8a; }
+
+</style>
+</head>
+<body>
+
+<div class="draft-banner">
+  <strong>DRAFT</strong> — rough sketch of the onboarding page layout. Content is illustrative, not final.
+  Use this to react to the <em>shape</em> of the page (what sections exist, how they flow,
+  what the two-panel canvas view looks like). Wording and detail will be refined after we agree the shape.
+</div>
+
+<h1>Onboarding to the Risk Analytics Environment</h1>
+<p class="intro">
+  How to bring a business use case — or an application's data — into the Databricks-based
+  risk analytics environment. We're just starting; this page describes the path.
+</p>
+
+<div class="callout">
+  <strong>Where we are today.</strong>
+  The Databricks analytics environment has just been stood up. Risk applications are loading
+  their data into application-specific schemas. The <code>risk_warehouse</code> catalog
+  — the business-facing layer that consumers will query — is not yet in use. This onboarding
+  process is how we get the first business use cases and the first application data products
+  into that catalog.
+</div>
+
+<h2>Choose your starting point</h2>
+
+<p>
+  Onboarding takes two different paths depending on who you are.
+  Pick the one that matches you; both lead to the same end state.
+</p>
+
+<div class="route-chooser">
+  <a class="route-card business" href="#stream-a">
+    <div class="route-label">Path A</div>
+    <h3>I'm a business / use case owner →</h3>
+    <p>You consume reports today. You want a new analytical view, or you want a report
+       you already use to be reproduced reliably in the analytics environment.</p>
+    <p style="font-size: 13px; color: #5b6b7d; margin-bottom: 0;">
+       → Start with the <strong>Business Intake</strong>.
+    </p>
+  </a>
+  <a class="route-card application" href="#stream-b">
+    <div class="route-label">Path B</div>
+    <h3>I'm an application / data product owner →</h3>
+    <p>You own a risk application generating data (positions, exposures, collateral, etc.).
+       You're being asked to publish a data product into the analytics environment.</p>
+    <p style="font-size: 13px; color: #5b6b7d; margin-bottom: 0;">
+       → Start with the <strong>Data Product Canvas</strong>.
+    </p>
+  </a>
+</div>
+
+<h2>The path end-to-end (both routes converge)</h2>
+
+<p>
+  Both streams produce the same final artefact: a <strong>certified data product</strong>
+  in the <code>risk_warehouse</code> catalog, published with a v8 data contract. The business
+  stream and the application stream meet in the middle, where the data product canvas gets
+  filled in.
+</p>
+
+<div class="flow-container">
+
+  <!-- BUSINESS STREAM -->
+  <div class="flow-row">
+    <div class="flow-card business">
+      <div class="role-label">Business — Step 1</div>
+      <h3><span class="step-num">1</span>Business Intake</h3>
+      <p>The use case owner describes what they need, what they consume today,
+         and what's hard about it.</p>
+      <ul>
+        <li>Use case statement (what question are you trying to answer?)</li>
+        <li>Today's reports inventory (what you consume now)</li>
+        <li>Data sources inventory (where it comes from)</li>
+        <li>Entities and measures involved</li>
+        <li>Today's validation work</li>
+        <li>Gaps and friction</li>
+      </ul>
+      <a class="link-btn" href="#stream-a-template">→ Open the Business Intake Template (Excel / SharePoint)</a>
+    </div>
+    <div class="flow-card business">
+      <div class="role-label">Worked Example</div>
+      <h3>Example: Exposure by Counterparty</h3>
+      <p style="font-size: 13px;">
+        The intake template comes pre-filled with a worked example so you can see
+        what a completed intake looks like before you fill in your own.
+      </p>
+      <p style="font-size: 13px;">
+        <strong>Example use case:</strong> Counterparty Credit Risk reporting —
+        consolidated view of exposure to a counterparty across direct positions,
+        indirect exposure through guarantees, and CCR line exposure on derivatives.
+      </p>
+    </div>
+  </div>
+
+  <div class="flow-arrow-down">↓</div>
+
+  <!-- HANDOVER -->
+  <div class="flow-row">
+    <div class="handover-card">
+      <h4>Handover</h4>
+      <p style="margin: 4px 0; font-size: 14px;">
+        The completed business intake is handed over to the data team and the relevant
+        application/data product owner. The intake becomes the <strong>input</strong>
+        to the Data Product Canvas step that follows.
+      </p>
+    </div>
+  </div>
+
+  <div class="flow-arrow-down">↓</div>
+
+  <!-- APPLICATION STREAM -->
+  <div class="flow-row">
+    <div class="flow-card application">
+      <div class="role-label">Application / Data Team — Step 2</div>
+      <h3><span class="step-num">2</span>Data Product Canvas</h3>
+      <p>The application / data product owner uses the business intake to fill in the
+         <strong>Data Product Canvas</strong>: an eight-block design template that captures
+         what the data product is, where it comes from, what it exposes, and who consumes it.</p>
+      <ul>
+        <li>Domain  ·  Data Product Name  ·  Consumer &amp; Use Case</li>
+        <li>Sources  ·  Data Product Architecture</li>
+        <li>Data Contract  ·  Ubiquitous Language  ·  Classification</li>
+      </ul>
+      <p style="font-size: 13px; font-style: italic; color: #5b6b7d;">
+        Industry-grounded: the canvas is the INNOQ Data Product Canvas (CC BY 4.0),
+        extended with TD's nine contract sections. See detail below.
+      </p>
+      <a class="link-btn" style="background: #2e5c8a;" href="#canvas-detail">↓ See the canvas in detail</a>
+    </div>
+    <div class="flow-card application">
+      <div class="role-label">Application / Data Team — Step 3</div>
+      <h3><span class="step-num">3</span>Build &amp; Publish</h3>
+      <p>The data product is built and published into the <code>risk_warehouse</code> catalog,
+         backed by:</p>
+      <ul>
+        <li>A v8 <strong>data contract</strong> (YAML in Git)</li>
+        <li>CDM entities (as they get built — incremental over time)</li>
+        <li>Dimensional model / Metric View</li>
+        <li>Unity Catalog tags, classification, lineage</li>
+        <li>Quality constraints and monitoring tests</li>
+      </ul>
+      <p style="font-size: 13px; color: #5b6b7d;">
+        Links to v8 YAML template, v7.0 Excel attribute spec, and the architecture decks
+        will go here.
+      </p>
+    </div>
+  </div>
+
+  <div class="flow-arrow-down">↓</div>
+
+  <!-- CONVERGENCE -->
+  <div class="flow-row">
+    <div class="flow-card convergence">
+      <h3><span class="step-num">★</span>End State: Certified Data Product</h3>
+      <p style="text-align: center; margin: 6px 0;">
+        A published data product in the <code>risk_warehouse</code> catalog,
+        with a v8 contract, that the consumer can rely on without having to ask the producer questions.
+      </p>
+      <p style="text-align: center; font-size: 13px; color: #5b6b7d; margin: 4px 0;">
+        Composed from the CDM and Dimensional Model. Reusable. Versioned. Governed.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- STREAM A SECTION -->
+<!-- ============================================================ -->
+
+<h2 id="stream-a">Path A: Business Intake</h2>
+
+<p>
+  The business intake captures what you consume today, what you want to be able to do,
+  and what's hard about it. It's a structured way of describing your world so the data team
+  can translate it into entities, measures, and a published contract.
+</p>
+
+<h3>What you need to do</h3>
+<ol>
+  <li>Open the intake template (link below) — comes pre-filled with the worked example</li>
+  <li>Replace the example content with your own across the tabs</li>
+  <li>Submit / share with the data team</li>
+  <li>Expect a follow-up conversation to clarify entities and measures</li>
+</ol>
+
+<h3 id="stream-a-template">The intake template</h3>
+
+<div class="placeholder">
+  [PLACEHOLDER — link to the fillable Business Intake Template]<br>
+  Excel workbook hosted in SharePoint / Teams. Tabs:
+  Use Case Statement · Reports Inventory · Data Sources Inventory · Entities · Measures · Validation Work · Gaps
+</div>
+
+<h3>What we'll do with your intake</h3>
+<p>
+  The data team takes your intake and uses it as the input to the Data Product Canvas
+  (see Path B). Entities you name go into the CDM; measures you describe go into the dimensional model;
+  reports you currently use inform what the published data product needs to support.
+</p>
+
+<!-- ============================================================ -->
+<!-- STREAM B SECTION -->
+<!-- ============================================================ -->
+
+<h2 id="stream-b">Path B: Data Product Canvas</h2>
+
+<p>
+  The Data Product Canvas is the application / data team's design template. It's a one-page visual
+  with eight blocks that capture everything about a data product: what it is, where it comes from,
+  what it exposes, who consumes it. Each block on the canvas maps to one or more sections of the
+  v8 data contract.
+</p>
+
+<div class="callout faint">
+  <strong>Industry grounding.</strong> The Data Product Canvas is the
+  <a href="https://www.datamesh-architecture.com/data-product-canvas">INNOQ Data Product Canvas</a>
+  (CC BY 4.0), used widely in the data mesh community. We've extended it with TD's nine contract
+  sections to bridge the design-time canvas to the build-time contract.
+</div>
+
+<h3 id="canvas-detail">The canvas, expanded</h3>
+<p>
+  Left: the canvas itself, as a one-page visual. Right: how each canvas block maps to TD's
+  v8 contract sections so the data team knows where the canvas content lands in the published artefact.
+</p>
+
+<div class="canvas-two-panel">
+
+  <!-- LEFT: The canvas as a one-page visual -->
+  <div class="canvas-left">
+    <h4>The Data Product Canvas</h4>
+    <div class="canvas-grid">
+      <div class="canvas-block">
+        <div class="canvas-block-num">1</div>
+        <div class="canvas-block-name">Domain</div>
+      </div>
+      <div class="canvas-block">
+        <div class="canvas-block-num">2</div>
+        <div class="canvas-block-name">Data Product Name</div>
+      </div>
+      <div class="canvas-block full-width">
+        <div class="canvas-block-num">3</div>
+        <div class="canvas-block-name">Consumer &amp; Use Case</div>
+      </div>
+      <div class="canvas-block full-width">
+        <div class="canvas-block-num">4</div>
+        <div class="canvas-block-name">Data Contract (output ports + interface)</div>
+      </div>
+      <div class="canvas-block full-width">
+        <div class="canvas-block-num">5</div>
+        <div class="canvas-block-name">Sources (input ports)</div>
+      </div>
+      <div class="canvas-block full-width">
+        <div class="canvas-block-num">6</div>
+        <div class="canvas-block-name">Data Product Architecture (internals)</div>
+      </div>
+      <div class="canvas-block">
+        <div class="canvas-block-num">7</div>
+        <div class="canvas-block-name">Ubiquitous Language</div>
+      </div>
+      <div class="canvas-block">
+        <div class="canvas-block-num">8</div>
+        <div class="canvas-block-name">Classification</div>
+      </div>
+    </div>
+    <p style="font-size: 11px; color: #5b6b7d; text-align: center; margin: 12px 0 0 0;">
+      Adapted from INNOQ Data Product Canvas (CC BY 4.0).
+    </p>
+  </div>
+
+  <!-- RIGHT: Mapping table showing how each canvas block maps to TD's nine v8 sections -->
+  <div class="canvas-right">
+    <h4>How the canvas maps to TD's v8 contract sections</h4>
+    <table class="canvas-mapping-table">
+      <thead>
+        <tr><th>Canvas Block</th><th>What goes in it</th><th>v8 Contract Section</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="canvas-name">1. Domain</td>
+          <td>Which TD risk LOB owns this product. e.g. credit_risk</td>
+          <td class="yaml-section">Section 1: x-producer_domain</td>
+        </tr>
+        <tr>
+          <td class="canvas-name">2. Data Product Name</td>
+          <td>Stable ID + display name. e.g. exposure_by_counterparty</td>
+          <td class="yaml-section">Section 1: id, name</td>
+        </tr>
+        <tr>
+          <td class="canvas-name">3. Consumer &amp; Use Case</td>
+          <td>Who needs this and what for. Direct input from Business Intake.</td>
+          <td class="yaml-section">Section 2: description.purpose</td>
+        </tr>
+        <tr>
+          <td class="canvas-name">4. Data Contract</td>
+          <td>Output interface — schema, grain, measures, SLA, quality, change policy</td>
+          <td class="yaml-section">Sections 4 (Schema), 5 (SLA), 6 (Quality), 7 (Change Policy)</td>
+        </tr>
+        <tr>
+          <td class="canvas-name">5. Sources</td>
+          <td>Input ports — upstream apps, tables, reference data</td>
+          <td class="yaml-section">Section 10 (Deferred): x-reference_dependencies, x-domain_entities</td>
+        </tr>
+        <tr>
+          <td class="canvas-name">6. Data Product Architecture</td>
+          <td>Internals — how the data is ingested, transformed, stored</td>
+          <td class="yaml-section">Not in contract; documented in Confluence product page (linked from references)</td>
+        </tr>
+        <tr>
+          <td class="canvas-name">7. Ubiquitous Language</td>
+          <td>Domain terminology shared between business and tech</td>
+          <td class="yaml-section">Section 4: schema.properties[].description</td>
+        </tr>
+        <tr>
+          <td class="canvas-name">8. Classification</td>
+          <td>foundational · derived · consumer_aligned (canvas) plus sensitivity tier</td>
+          <td class="yaml-section">Section 1: x-archetype  ·  Section 8: x-classification</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size: 11px; color: #5b6b7d; margin: 12px 0 0 0;">
+      Note: Blocks 1, 2, 3, 4, 7, 8 land directly in the v8 contract. Block 5 is captured today
+      in description / Confluence and will move into the deferred stub sections of the YAML as
+      those upstream artefacts (Domain Model, Reference Data registry) get built. Block 6 is
+      documented separately as a Confluence product page.
+    </p>
+  </div>
+
+</div>
+
+<h3>The Data Product Canvas template</h3>
+
+<div class="placeholder">
+  [PLACEHOLDER — link to the Data Product Canvas slide / template]<br>
+  PowerPoint slide showing the canvas with TD-specific extensions. Application/data owners
+  fill it in for their data product as part of the build process.
+</div>
+
+<!-- ============================================================ -->
+<!-- ACCESS &amp; SUPPORTING LINKS -->
+<!-- ============================================================ -->
+
+<h2>Access &amp; supporting links</h2>
+
+<p>
+  Before you can do anything in the analytics environment, you need access. These links
+  walk you through the access onboarding.
+</p>
+
+<ul>
+  <li><div class="placeholder" style="display: inline-block; margin: 4px 0;">
+    [PLACEHOLDER — Databricks onboarding &amp; access link]
+  </div></li>
+  <li><div class="placeholder" style="display: inline-block; margin: 4px 0;">
+    [PLACEHOLDER — Strategy onboarding &amp; access link]
+  </div></li>
+</ul>
+
+<h3>Supporting material (already produced)</h3>
+<ul>
+  <li>v8 data contract YAML template — the artefact that gets published with every certified data product</li>
+  <li>v7.0 Excel attribute spec — the row-by-row reference for what each contract attribute means</li>
+  <li>Architecture deck — Missing Link · Composition Architecture · Star Slide · Appendix</li>
+  <li>The CDM and Dimensional Model patterns — separate documentation page (under construction)</li>
+</ul>
+
+<!-- ============================================================ -->
+<!-- FOOTER -->
+<!-- ============================================================ -->
+
+<h2 style="margin-top: 50px; border: none; font-size: 14px; color: #5b6b7d;">— END OF DRAFT —</h2>
+<p style="font-size: 12px; color: #8a95a1; font-style: italic;">
+  This is a layout sketch. Comments and reactions welcome on the shape; wording can be refined once we agree the structure works.
+</p>
+
+</body>
+</html>

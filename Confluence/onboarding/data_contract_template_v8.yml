@@ -1,0 +1,604 @@
+# =============================================================================
+# DATA CONTRACT — v8 (lean MVP, ODCS-aligned)
+# =============================================================================
+#
+# What this file is
+# -----------------
+# This is the published data contract for one Data Product. It is the single
+# place where a consumer learns what the product is, what it guarantees, how
+# fast it refreshes, what it has been validated against, and where to get help.
+#
+# How v8 differs from v6/v7
+# -------------------------
+# v8 is a leaner, ODCS-aligned rebuild of v6/v7. It is intended as the MVP
+# template for the first wave of certified data products at TD. The earlier
+# versions (v6/v7) carried richer structure for a mature data-product practice;
+# v8 carries the minimum-viable shape with structural placeholders ("stubs")
+# for the richer fields that will be populated as the practice matures.
+#
+# The principle: align with the Open Data Contract Standard (ODCS v3.1.0) for
+# any field that ODCS already covers. Keep TD-specific extensions clearly
+# marked with the "x-" prefix per ODCS convention. The contract becomes
+# interoperable with industry tooling without losing TD-specific rigour.
+#
+# Architecture — the contract is COMPOSED, not authored from scratch
+# ------------------------------------------------------------------
+# The contract is the END of an architectural chain, not the beginning:
+#
+#    REQUIREMENT (e.g. George needs exposure by counterparty)
+#         |
+#         v
+#    DOMAIN MODEL / CDM (entities, relationships, conformance)
+#         |
+#         v
+#    DIMENSIONAL MODEL (grain, dimensions, measures with aggregation rules)
+#         |
+#         v
+#    IMPLEMENTATION (tables in Unity Catalog, constraints, tests)
+#         |
+#         v
+#    CONTRACT (composed by CI from the above, plus a small authored layer)
+#
+# Most of this YAML is therefore a PROJECTION of work done elsewhere. The
+# author writes very little — mostly description, intended use, SLA, and
+# ownership. Everything else is filled in by CI from the upstream artefacts.
+#
+# Comments in this file mark each section as AUTHORED or COMPOSED so readers
+# know which fields they write themselves and which are populated for them.
+#
+# The example product used throughout this file
+# ---------------------------------------------
+# Collateralized Funding View — a daily view of liquidity buffer adjusted for
+# collateral encumbrance. Joins LCR Buffer (from the Liquidity application)
+# with Collateral Exposure (from CMOS). One row per business date per currency.
+# (Same example as v6/v7, so anyone migrating between versions can recognise
+# the same product across files.)
+#
+# How to read this file
+# ---------------------
+# Every section starts with a comment block in this format:
+#   What this section is for      — plain-language purpose
+#   Authored vs composed          — who/what populates it
+#   In this example               — what the running example shows
+#   ODCS equivalents              — how this maps to the standard
+#   v6 notes                      — what changed from v6/v7
+# =============================================================================
+
+
+# =============================================================================
+# SECTION 1 — FUNDAMENTALS  (ODCS-aligned)
+# =============================================================================
+# What this section is for:
+#   The fundamentals identify the data product. They tell a consumer what the
+#   product is called, what version of the contract they are reading, and
+#   whether the contract is still active.
+#
+# Authored vs composed:
+#   AUTHORED once when the product is first registered. The "version" field
+#   below is auto-incremented by CI on each contract change, following
+#   semantic versioning (MAJOR.MINOR.PATCH).
+#
+# In this example:
+#   The product is the Collateralized Funding View. Its stable ID is
+#   "collateralized_funding_view" and never changes, even if the display name
+#   is later reworded. The current display name is "Collateralized Funding
+#   View"; a historical name is "Collateralized Liquidity View". The contract
+#   itself is at version 1.0.0 — first published release.
+#
+# ODCS equivalents (plain English):
+#   apiVersion         — which version of the ODCS standard this contract follows
+#   kind: DataContract — this document is a data contract, not some other ODCS document
+#   id                 — stable identifier; never changes (v6 called this product_id)
+#   name               — display name; can be reworded (v6 called this display_name)
+#   version            — semver of the contract itself (v6 called this contract_version)
+#   status             — lifecycle state: draft | active | deprecated | retired
+# =============================================================================
+
+apiVersion: v3.1.0
+kind: DataContract
+id: collateralized_funding_view
+name: "Collateralized Funding View"
+version: 1.0.0
+status: active
+
+# TD-specific extensions (x- prefix per ODCS convention)
+x-display_name_history:                # all names this product has ever had
+  - "Collateralized Funding View"      # current
+  - "Collateralized Liquidity View"    # historical
+x-capability: liquidity_funding_risk   # primary navigation axis in the catalog
+x-archetype: derived                   # foundational | derived | consumer_aligned
+x-producer_domain: liquidity           # credit_risk | market_risk | funding | liquidity | shared
+# v6 note: x-capability, x-archetype, x-producer_domain were top-level fields in v6;
+# in v8 they sit at the fundamentals level but carry the "x-" prefix to mark them
+# as TD-specific extensions to the ODCS standard.
+
+
+# =============================================================================
+# SECTION 2 — DESCRIPTION  (ODCS-aligned)
+# =============================================================================
+# What this section is for:
+#   The plain-language explanation of what the product is, what it can be used
+#   for, and what it should NOT be used for. This is what a consumer reads
+#   first when browsing the catalog.
+#
+# Authored vs composed:
+#   AUTHORED by the Data Product Owner during the intake conversation. The
+#   purpose statement is 1–3 sentences. The limitations statement names what
+#   the product is NOT for and points to alternative products where they exist.
+#
+# In this example:
+#   The Collateralized Funding View takes the Liquidity team's HQLA buffer and
+#   adjusts it for collateral that has been pledged out via CMOS. It is daily
+#   T+0 close — not intra-day. It uses base-case FX and haircuts — not stress
+#   scenarios. Consumers needing those use other products explicitly named.
+#
+# ODCS equivalents:
+#   description.purpose      — what the product is and is for
+#   description.limitations  — what the product is NOT for; redirects to alternatives
+#
+# v6 notes:
+#   v6 had a "usage" block with intended_use[] and disallowed_uses[]. In v8 we
+#   fold both into the ODCS description.purpose and description.limitations
+#   fields for simplicity. The structured "use_instead" alternatives from v6
+#   become inline references in the limitations text. If/when consumers need
+#   machine-readable disallowed_uses, we can promote this back to a structured
+#   block (see deferred stubs at the bottom of this file).
+# =============================================================================
+
+description:
+  purpose: |
+    Daily view of liquidity buffer adjusted for collateral encumbrance.
+    Joins LCR Buffer (Liquidity) with Collateral Exposure (CMOS).
+    Used for LCR reporting where collateral encumbrance affects the HQLA
+    calculation, and for cross-currency liquidity rollup at business-date
+    level.
+  limitations: |
+    Daily T+0 close only. For intra-day liquidity monitoring, use
+    realtime_liquidity_feed instead.
+    Base-case FX rates and base-case haircuts only. For stress testing
+    scenarios with scenario-specific shocks, use stressed_lcr_view instead.
+
+
+# =============================================================================
+# SECTION 3 — TEAM  (ODCS-aligned)
+# =============================================================================
+# What this section is for:
+#   Names the people and groups accountable for the product. A consumer with a
+#   question, a defect report, or a change request finds the right contact here.
+#
+# Authored vs composed:
+#   AUTHORED at registration; updated when ownership changes (rare). The
+#   steward_email should be a distribution list, never an individual mailbox —
+#   individuals leave; products stay.
+#
+# In this example:
+#   The product group "pg_liquidity_funding" owns the business side. The
+#   "risk_data_platform" team owns the technical side. Questions go to a
+#   shared distribution list.
+#
+# ODCS equivalents:
+#   team[] — array of team members, each with a role
+#
+# v6 notes:
+#   v6 had business_owner, technical_owner, and steward_email as flat fields
+#   at the product level. v8 moves them into the ODCS team array structure.
+#   The content is identical; the shape conforms to ODCS.
+# =============================================================================
+
+team:
+  - role: business_owner
+    name: pg_liquidity_funding
+  - role: technical_owner
+    name: risk_data_platform
+  - role: steward
+    email: risk-data-collateralized-funding@td.com
+
+
+# =============================================================================
+# SECTION 4 — SCHEMA  (ODCS-aligned — COMPOSED from the Dimensional Model)
+# =============================================================================
+# What this section is for:
+#   This is the technical heart of the contract. It declares the structure of
+#   the published data — what columns exist, what types they have, what the
+#   grain is (what one row represents), and for measure columns, the rules for
+#   safely aggregating them.
+#
+# Authored vs composed:
+#   COMPOSED — populated by CI from the Dimensional Model / Metric View.
+#   The author does NOT write this section. When the Dimensional Model
+#   changes, this section is regenerated on the next CI run.
+#
+# In this example:
+#   The Collateralized Funding View has grain "one row per business_date per
+#   currency". Two of its columns — business_date and currency — together form
+#   the primary key (this expresses the grain). One measure column shown:
+#   hqla_amount, which is additive within a currency but NOT additive across
+#   currencies (you can't sum USD HQLA + JPY HQLA without FX conversion).
+#
+# ODCS equivalents:
+#   schema[]               — array of objects (tables/views) the contract covers
+#   .name                  — table name
+#   .physicalType          — what kind of object (table | view | materialized_view)
+#   .description           — what one row represents (this expresses the grain)
+#   .properties[]          — the columns/fields of the object
+#     .name                — column name
+#     .logicalType         — data type in standard form (string | number | date | etc.)
+#     .description         — what the column holds, in plain language
+#     .primaryKey          — true if this column is part of the primary key
+#
+# TD extensions (x-) — for analytical measures:
+#   x-aggregation          — how the measure aggregates (additive | semi-additive | non-additive)
+#   x-safe_aggregation     — list of dimensions across which aggregation is SAFE
+#   x-unit                 — unit of measure (native_currency | USD | percent | count | etc.)
+#
+# v6 notes:
+#   v6 had separate top-level blocks for grain, dimensions, and measures. v8
+#   consolidates all of this into the ODCS schema section, which is where
+#   ODCS expects analytical structure to live. Grain is expressed via
+#   primaryKey flags on the relevant columns + the schema-level description.
+#   Measures and aggregation rules become column-level x- extensions.
+# =============================================================================
+
+schema:
+  - name: collateralized_funding_view
+    physicalType: materialized_view
+    description: |
+      One row per business date per currency. Each row represents the
+      collateral-adjusted HQLA position for one currency on one business date.
+
+    properties:
+      # ----- Key columns (together they express the grain) -----
+      - name: business_date
+        logicalType: date
+        description: "Business date the row represents (T)"
+        primaryKey: true
+
+      - name: currency
+        logicalType: string
+        description: "ISO 4217 currency code (USD, CAD, EUR, JPY, ...)"
+        primaryKey: true
+
+      # ----- Measure columns -----
+      - name: hqla_amount
+        logicalType: number
+        description: |
+          High Quality Liquid Assets — the liquidity buffer in native currency
+          BEFORE collateral encumbrance adjustments.
+        x-aggregation: additive
+        x-safe_aggregation: [currency]      # safe to sum across dates, NOT across currencies
+        x-unit: native_currency
+
+      # NOTE: A real contract would list every column here. This template
+      # shows the grain columns + one illustrative measure to keep the
+      # teaching example focused. CI will project the full schema from the
+      # Dimensional Model / Metric View on each build.
+
+
+# =============================================================================
+# SECTION 5 — SLA  (ODCS-aligned)
+# =============================================================================
+# What this section is for:
+#   The publishing promise. Tells a consumer when the data is expected to be
+#   fresh, by what time it should have arrived, and when an alert fires if it
+#   hasn't.
+#
+# Authored vs composed:
+#   AUTHORED — the Data Product Owner commits to these guarantees with the
+#   consumer at intake. Once committed, breaking them requires the breaking-
+#   change notice period (see Section 7).
+#
+# In this example:
+#   The Collateralized Funding View refreshes daily, is expected to be
+#   available by 07:00 Eastern, and triggers a freshness alert if not
+#   available by 08:00 Eastern.
+#
+# ODCS equivalents:
+#   slaProperties[]  — list of SLA properties, each with property/value/element
+#
+# v6 notes:
+#   v6 had a flat sla block with refresh_frequency, refresh_sla, and
+#   freshness_alert_after. v8 uses the ODCS slaProperties array shape. Content
+#   identical; ODCS-aligned shape.
+# =============================================================================
+
+slaProperties:
+  - property: frequency
+    value: daily
+  - property: refresh_sla
+    value: "07:00 EST"
+  - property: freshness_alert
+    value: "08:00 EST"
+
+
+# =============================================================================
+# SECTION 6 — DATA QUALITY  (ODCS-aligned)
+# =============================================================================
+# What this section is for:
+#   The rules the data is validated against. Two kinds: constraints (enforced
+#   at write time — bad data is rejected) and tests (run on schedule — bad
+#   data is detected and flagged for action).
+#
+# Authored vs composed:
+#   PARTIALLY COMPOSED.
+#   - Constraints are usually EXPORTED from the data modelling tool (Erwin /
+#     PowerDesigner) where the data modeller has authored them as CHECK
+#     constraints on the underlying tables.
+#   - Tests are configured by the Data Product Owner in Lakehouse Monitoring,
+#     then projected here by CI.
+#
+# In this example:
+#   Two CHECK constraints (amounts non-negative; pledged ≤ HQLA) and one
+#   scheduled test (row-count band ±10% vs prior business day).
+#
+# ODCS equivalents:
+#   quality[]   — list of quality rules
+#   .rule       — short name for the rule
+#   .type       — sql (constraint) | monitoring (scheduled test) | etc.
+#   .check      — SQL expression (for type:sql)
+#   .schedule   — frequency (for type:monitoring)
+#   .tolerance  — structured threshold (numeric, replaces v6's free-text)
+#   .baseline   — what we're comparing against (for type:monitoring)
+#
+# v6 notes:
+#   v6 had quality.constraints[] and quality.tests[] as separate sub-blocks.
+#   v8 collapses them into the single ODCS quality[] array, distinguished by
+#   .type. v6 also had free-text thresholds like "±10% vs prior business day";
+#   v8 replaces these with structured fields (tolerance + baseline) so quality
+#   tooling can evaluate them automatically.
+# =============================================================================
+
+quality:
+  - rule: amounts_non_negative
+    type: sql
+    check: hqla_amount >= 0 AND pledged_collateral_amount >= 0
+
+  - rule: pledged_not_exceed_hqla
+    type: sql
+    check: pledged_collateral_amount <= hqla_amount
+
+  - rule: row_count_band
+    type: monitoring
+    schedule: daily
+    tolerance: 10                        # percent
+    baseline: prior_business_day
+
+
+# =============================================================================
+# SECTION 7 — CHANGE POLICY  (ODCS-aligned via support / customProperties)
+# =============================================================================
+# What this section is for:
+#   Tells consumers what notice they will get before the contract changes.
+#   Three notice periods: breaking changes (consumer-impacting), additive
+#   changes (backward-compatible), and deprecation (the product is being
+#   sunset and a replacement is being introduced).
+#
+# Authored vs composed:
+#   COMPOSED from the TD org-wide change-policy standard. The Data Product
+#   Owner does not author these values — they inherit from the Risk Data
+#   team's standard. (If a product needs different notice periods, that's a
+#   conversation with governance, not a contract field.)
+#
+# In this example:
+#   Standard TD risk-data notice periods: 60 days for breaking, 14 days for
+#   additive, 90 days for deprecation. All change notifications go to the
+#   product's distribution list (see team.steward.email).
+#
+# ODCS equivalents:
+#   ODCS handles change tracking primarily through schema-property versioning
+#   and support channels. TD's explicit notice-period commitments are an
+#   x- extension because they exceed what the standard provides.
+#
+# v6 notes:
+#   v6 carried change_policy plus a separate semver_rules block declaring
+#   what counts as breaking vs additive. v8 removes semver_rules from the
+#   contract — those rules live at the org level and apply to every contract,
+#   so they don't need to be repeated per product. The change_policy block
+#   remains because the notice periods are concrete commitments the consumer
+#   binds to.
+# =============================================================================
+
+x-change_policy:
+  breaking_change_notice_days: 60
+  additive_change_notice_days: 14
+  deprecation_notice_days: 90
+  notification_channel: risk-data-collateralized-funding@td.com
+  # Detailed semver rules (what counts as breaking vs additive) are documented
+  # at the org level: see References section, semver_standard link.
+  #
+  # Per-change history (who changed what and when) lives in Git. The Git
+  # commit log is the audit trail; we do not duplicate it in this YAML.
+
+
+# =============================================================================
+# SECTION 8 — CLASSIFICATION  (ODCS-aligned, inherited)
+# =============================================================================
+# What this section is for:
+#   The sensitivity tier of the data and whether it contains personally
+#   identifiable information (PII). Drives access control downstream.
+#
+# Authored vs composed:
+#   COMPOSED — these values are inherited via CI from the app-layer UC tags
+#   on the underlying tables. The "highest-of-upstream" rule applies: if any
+#   upstream is restricted, the derived product is restricted.
+#
+# In this example:
+#   The Collateralized Funding View inherits "confidential" sensitivity from
+#   its upstream LCR Buffer and Collateral Exposure tables. It does NOT
+#   contain PII (no individual-level data — counterparties only).
+#
+# ODCS equivalents:
+#   ODCS handles classification at the schema property level (each column can
+#   declare its own classification and containsPii flag). TD's contract-level
+#   summary is an x- extension that reflects the highest-of-upstream rollup.
+# =============================================================================
+
+x-classification:
+  data_classification: confidential       # public | internal | confidential | restricted | mnpi
+  pii_present: false
+
+
+# =============================================================================
+# SECTION 9 — REFERENCES  (kept from v6 — lightly diverges from ODCS)
+# =============================================================================
+# What this section is for:
+#   One place where a consumer finds all the related artefacts for this
+#   product: the canonical YAML location in Git, the Confluence product page,
+#   the Collibra asset entry, the original intake / requirements doc, and a
+#   link to the upstream organisational standards this contract conforms to.
+#
+# Authored vs composed:
+#   PARTIALLY COMPOSED. The Git URL is auto-set by CI. The Confluence page
+#   URL is set by the product owner when they create the page. The Collibra
+#   reference is set when the product is registered in Collibra.
+#
+# In this example:
+#   Standard TD risk-warehouse Git path, a Confluence page in the RISK space,
+#   a Collibra asset ID, the intake document from product setup, and a
+#   reference to the org-wide semver standard.
+#
+# ODCS equivalents:
+#   ODCS handles external links through "support" and "customProperties"
+#   blocks but doesn't formalise a references block. TD keeps a references
+#   block because it is genuinely useful for consumers to find related
+#   artefacts in one place, and the divergence from ODCS is minor.
+#
+# v6 notes:
+#   v6 had a change_request_tracking link (a pointer to the Jira board for
+#   the product). v8 removes this — it duplicates information already in Git
+#   commit messages and Jira tickets; the references block doesn't need to
+#   carry a top-level pointer to it.
+# =============================================================================
+
+references:
+  contract_yaml_url: https://github.com/td/risk-warehouse/blob/main/contracts/liquidity_funding_risk/collateralized_funding_view.yaml
+  confluence_product_page: https://td.atlassian.net/wiki/spaces/RISK/.../collateralized-funding-view
+  collibra_ref: LFR-CFV-001
+  requirements_doc: https://td.atlassian.net/wiki/spaces/RISK/.../cfv-intake
+  semver_standard: https://td.atlassian.net/wiki/spaces/RISK/.../data-contract-semver-standard
+
+
+# =============================================================================
+# SECTION 10 — RESERVED FOR FUTURE VERSIONS (deferred stubs)
+# =============================================================================
+# What this section is for:
+#   The five sections below are intentionally empty in v8. They reserve their
+#   structural place in the contract so that, when the upstream artefacts
+#   exist, CI can populate them in place without changing the contract's
+#   shape. Each stub carries a comment explaining what it will eventually
+#   carry and when.
+#
+#   Leaving them visible (rather than omitting them entirely) has two
+#   benefits: (a) it keeps the growth direction in front of every author and
+#   reviewer, so deferred work doesn't get forgotten; (b) when a v9 product
+#   needs to start populating one of these, the structure is already there.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# x-domain_entities — DEFERRED
+# -----------------------------------------------------------------------------
+# Will carry: which canonical entities (from the Risk LOB Domain Model) this
+# product is about. Populated by CI from the Domain Model when published.
+#
+# When this becomes populated:
+#   When the Risk LOB Domain Model exists and Counterparty, Agreement,
+#   Position, Exposure, etc. are first-class governed entities.
+#
+# In the meantime:
+#   The product's description (Section 2) names the relevant entities in
+#   plain language. The contract is self-declared at the description level;
+#   formal entity linkage waits for the upstream model.
+# -----------------------------------------------------------------------------
+x-domain_entities: {}
+
+# -----------------------------------------------------------------------------
+# x-reference_dependencies — DEFERRED
+# -----------------------------------------------------------------------------
+# Will carry: upstream reference data (FX rates, asset taxonomy, business
+# calendar, country codes, instrument identifier systems) with a "conformed"
+# flag indicating whether each dependency is governed at the enterprise level
+# (true) or is application-local (false). Non-conformed dependencies are
+# warning signs for cross-product joins.
+#
+# When this becomes populated:
+#   When the Reference Data registry exists and conformed status is tracked
+#   per reference dataset. Initially populated by the product owner;
+#   eventually composed by CI from the registry.
+#
+# In the meantime:
+#   Reference data sources are documented in the product description and in
+#   the Confluence product page. Consumers cross-checking conformance must
+#   refer to those.
+# -----------------------------------------------------------------------------
+x-reference_dependencies: {}
+
+# -----------------------------------------------------------------------------
+# x-composability — DEFERRED
+# -----------------------------------------------------------------------------
+# Will carry: explicit declarations of which other data products this one
+# can be safely joined with (safely_joinable_with) and which cross-product
+# reconciliation issues this product has resolved on behalf of consumers
+# (reconciliation_resolved_for, particularly important for derived products
+# that reconcile upstream divergences).
+#
+# When this becomes populated:
+#   Once 3+ products are registered in the same capability, cross-product
+#   analysis identifies safely-joinable pairs. Authored by the Data Product
+#   Owner with input from the cross-product reviewer.
+#
+# In the meantime:
+#   Joinability across products is informally documented in Confluence.
+#   Not yet machine-readable.
+# -----------------------------------------------------------------------------
+x-composability: {}
+
+# -----------------------------------------------------------------------------
+# x-currency_handling — DEFERRED (and only for monetary products)
+# -----------------------------------------------------------------------------
+# Will carry: whether native-currency columns are preserved, whether
+# pre-converted reporting-currency columns are also published, what FX source
+# is used (e.g. core.fx_rate), and what FX rate date applies. Only relevant
+# for monetary products; omit entirely for non-monetary products.
+#
+# When this becomes populated:
+#   When the schema is mature enough that we can decide whether to express
+#   currency information per-measure (via x-unit and x-fx_source on each
+#   measure) OR as a top-level block. Current direction: per-measure is
+#   cleaner. This stub may end up empty permanently.
+#
+# In the meantime:
+#   The hqla_amount measure in Section 4 declares x-unit: native_currency.
+#   That is sufficient for the example product.
+# -----------------------------------------------------------------------------
+x-currency_handling: {}
+
+# -----------------------------------------------------------------------------
+# x-exploration — DEFERRED
+# -----------------------------------------------------------------------------
+# Will carry: a pointer to the semantic view / Metric View configuration for
+# this product, plus a pointer to sample queries showing typical consumer
+# usage patterns. The semantic view declares how the product is queried
+# (measures, dimensions, aggregation rules, joins) at a level above SQL.
+#
+# When this becomes populated:
+#   When a semantic view / Metric View is registered for this product. The
+#   metric_view path is auto-filled by CI; the sample_queries URL is
+#   curated by the product owner.
+#
+# In the meantime:
+#   Sample queries are linked from the Confluence product page (see
+#   references.confluence_product_page).
+# -----------------------------------------------------------------------------
+x-exploration: {}
+
+
+# =============================================================================
+# END OF CONTRACT
+# =============================================================================
+# Migration note:
+#   This v8 contract is a working subset of the v7 shape. Anything in v7 that
+#   doesn't appear here either (a) lives in Git or another upstream artefact
+#   now, (b) is deferred (see Section 10 stubs), or (c) was removed because
+#   no peer or industry standard carried it.
+#
+#   v8 is the MVP we ship today. v7 is the maturity target.
+# =============================================================================
