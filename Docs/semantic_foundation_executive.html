@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Semantic Foundation — Executive View</title>
+<style>
+  :root {
+    --bg: #f4f1eb;
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --ink-soft: #4a4a4a;
+    --muted: #8a8276;
+    --rule: #c8c0ad;
+    --accent-good: #2c5f4a;
+    --accent-good-soft: #d4e3da;
+    --accent-bad: #a8362a;
+    --accent-bad-soft: #ebcfca;
+    --warn: #c08a2e;
+    --warn-soft: #f0e3c3;
+    --slot-bg: #ffffff;
+    --slot-border: #2a2a2a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .slide {
+    width: 1280px;
+    height: 720px;
+    margin: 24px auto;
+    background: var(--paper);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    border: 1px solid var(--rule);
+    padding: 36px 48px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* slide header */
+  .slide-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 12px;
+    margin-bottom: 24px;
+  }
+  .slide-head .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .slide-head h1 {
+    font-size: 26px;
+    margin: 0;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .slide-head h1 .good { color: var(--accent-good); font-weight: 700; }
+  .slide-head h1 .bad { color: var(--accent-bad); font-weight: 700; }
+  .slide-head .num {
+    font-family: "Iowan Old Style", Georgia, serif;
+    font-style: italic;
+    font-size: 38px;
+    color: var(--ink);
+    line-height: 1;
+    opacity: 0.35;
+  }
+
+  /* slide body — 3-column flow */
+  .flow {
+    display: grid;
+    grid-template-columns: 320px 60px 380px 60px 240px;
+    gap: 0;
+    height: 580px;
+    align-items: stretch;
+  }
+  .col-artefacts {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    justify-content: center;
+  }
+  .col-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .arrow-line {
+    position: relative;
+    width: 100%;
+    height: 2px;
+    background: var(--ink);
+  }
+  .arrow-line.dashed {
+    background: transparent;
+    border-top: 2px dashed var(--ink-soft);
+  }
+  .arrow-line::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: -6px;
+    width: 0; height: 0;
+    border-left: 10px solid var(--ink);
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+  }
+  .arrow-line.dashed::after {
+    border-left-color: var(--ink-soft);
+  }
+  .arrow-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, calc(-50% - 22px));
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ink-soft);
+    background: var(--paper);
+    padding: 0 6px;
+    white-space: nowrap;
+  }
+
+  /* artefact card */
+  .artefact {
+    background: var(--paper);
+    border: 1.5px solid var(--slot-border);
+    padding: 14px 16px;
+    border-radius: 2px;
+    position: relative;
+  }
+  .artefact.missing {
+    border: 1.5px dashed var(--accent-bad);
+    background: var(--accent-bad-soft);
+    opacity: 0.92;
+  }
+  .artefact .tag {
+    position: absolute;
+    top: -10px;
+    left: 12px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    padding: 3px 8px;
+  }
+  .artefact.missing .tag {
+    background: var(--accent-bad);
+  }
+  .artefact h3 {
+    font-size: 14px;
+    margin: 6px 0 8px;
+    font-weight: 700;
+  }
+  .artefact .owner {
+    font-size: 10px;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 8px;
+  }
+  .artefact .missing-stamp {
+    position: absolute;
+    right: 14px;
+    top: 14px;
+    transform: rotate(-8deg);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--accent-bad);
+    border: 2px solid var(--accent-bad);
+    padding: 3px 8px;
+    background: var(--paper);
+  }
+
+  /* mini ERD inside artefact - SVG based */
+  .mini-erd-svg {
+    width: 100%;
+    height: 140px;
+    display: block;
+  }
+  .erd-entity-rect {
+    fill: var(--paper);
+    stroke: var(--ink);
+    stroke-width: 1.5;
+  }
+  .erd-entity-rect.dim { fill: #f0e8d4; }
+  .erd-entity-rect.muted { fill: #f5f0e0; opacity: 0.4; stroke-dasharray: 3,3; }
+  .erd-entity-label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    fill: var(--ink);
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+  .erd-entity-label.muted { opacity: 0.4; }
+  .erd-rel-line {
+    stroke: var(--ink);
+    stroke-width: 1.3;
+    fill: none;
+  }
+  .erd-rel-line.muted { opacity: 0.3; stroke-dasharray: 3,3; }
+  .erd-cf, .erd-one {
+    stroke: var(--ink);
+    stroke-width: 1.3;
+    fill: none;
+  }
+
+  /* mini star schema - SVG based */
+  .mini-star-svg {
+    width: 100%;
+    height: 150px;
+    display: block;
+  }
+  .star-fact-rect {
+    fill: var(--ink);
+    stroke: var(--ink);
+    stroke-width: 1.5;
+  }
+  .star-fact-label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 9.5px;
+    font-weight: 700;
+    fill: var(--paper);
+    text-anchor: middle;
+  }
+  .star-fact-measure {
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: 8px;
+    font-style: italic;
+    fill: #f0d878;
+    text-anchor: middle;
+  }
+  .star-dim-rect {
+    fill: #f0e8d4;
+    stroke: var(--ink);
+    stroke-width: 1.2;
+  }
+  .star-dim-label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    fill: var(--ink);
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+  .star-rel-line {
+    stroke: var(--ink);
+    stroke-width: 1.2;
+    fill: none;
+  }
+  .star-cardinality {
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: 8.5px;
+    font-weight: 700;
+    fill: var(--accent-good);
+  }
+
+  /* mini product contract */
+  .mini-contract {
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: 10px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    background: #f8f4ea;
+    padding: 8px 10px;
+    border-radius: 2px;
+  }
+  .mini-contract .k { color: var(--accent-good); font-weight: 700; }
+  .mini-contract .v { color: var(--ink); }
+
+  /* BI tool box (center) */
+  .bi-box {
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    padding: 16px 18px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .bi-box.bad {
+    border-color: var(--accent-bad);
+    background: #fdf6f4;
+  }
+  .bi-box .bi-label {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    padding: 3px 14px;
+  }
+  .bi-box.bad .bi-label { background: var(--accent-bad); }
+  .bi-box h3 {
+    font-size: 13px;
+    margin: 8px 0 10px;
+    text-align: center;
+    font-weight: 700;
+  }
+  .bi-box .bi-sub {
+    text-align: center;
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-top: -8px;
+    margin-bottom: 8px;
+  }
+
+  /* internal semantic entity */
+  .entity-block {
+    background: var(--accent-good-soft);
+    border: 1.5px solid var(--accent-good);
+    border-radius: 3px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+  }
+  .entity-block.bad {
+    background: var(--accent-bad-soft);
+    border-color: var(--accent-bad);
+  }
+  .entity-block .et {
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent-good);
+    margin-bottom: 4px;
+  }
+  .entity-block.bad .et { color: var(--accent-bad); }
+  .entity-block h4 {
+    font-size: 13px;
+    margin: 0 0 6px;
+    font-weight: 700;
+  }
+  .entity-block .er-mini {
+    font-size: 9.5px;
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    color: var(--ink-soft);
+    line-height: 1.4;
+  }
+  .entity-block.bad .er-mini { color: var(--accent-bad); }
+
+  .bi-note {
+    margin-top: auto;
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    border-top: 1px dashed var(--rule);
+    padding-top: 8px;
+    line-height: 1.45;
+  }
+  .bi-note strong { color: var(--ink); }
+  .bi-note.bad strong { color: var(--accent-bad); }
+
+  /* outcome (right col) */
+  .outcome {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+  }
+  .outcome-card {
+    background: var(--accent-good-soft);
+    border-left: 4px solid var(--accent-good);
+    padding: 12px 14px;
+  }
+  .outcome-card.bad {
+    background: var(--accent-bad-soft);
+    border-left-color: var(--accent-bad);
+  }
+  .outcome-card .otag {
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--accent-good);
+    margin-bottom: 5px;
+  }
+  .outcome-card.bad .otag { color: var(--accent-bad); }
+  .outcome-card .otext {
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: var(--ink);
+  }
+  .outcome-card .otext strong { font-weight: 700; }
+
+  /* slide footer */
+  .slide-foot {
+    position: absolute;
+    bottom: 12px;
+    left: 48px;
+    right: 48px;
+    border-top: 1px solid var(--rule);
+    padding-top: 8px;
+    font-size: 10.5px;
+    color: var(--muted);
+    font-style: italic;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* print */
+  @media print {
+    body { background: white; }
+    .slide { box-shadow: none; margin: 0; page-break-after: always; }
+  }
+</style>
+</head>
+<body>
+
+<!-- =============================================================== -->
+<!-- SLIDE 1 — THE RIGHT SHAPE -->
+<!-- =============================================================== -->
+<div class="slide">
+  <div class="slide-head">
+    <div>
+      <div class="eyebrow">Semantic foundation for BI — Target state</div>
+      <h1>What <span class="good">should</span> feed into the BI tool</h1>
+    </div>
+    <div class="num">01</div>
+  </div>
+
+  <div class="flow">
+    <!-- COLUMN 1: ARTEFACTS -->
+    <div class="col-artefacts">
+
+      <!-- ERD -->
+      <div class="artefact">
+        <span class="tag">ERD diagram</span>
+        <div class="owner">Owned by: data architecture</div>
+        <h3>Entity relationships &amp; cardinality</h3>
+        <svg class="mini-erd-svg" viewBox="0 0 300 140" xmlns="http://www.w3.org/2000/svg">
+          <!-- Legal Entity (top center) -->
+          <rect class="erd-entity-rect dim" x="110" y="6" width="80" height="22" rx="2"/>
+          <text class="erd-entity-label" x="150" y="17">Legal Entity</text>
+
+          <!-- Counterparty (middle center) -->
+          <rect class="erd-entity-rect dim" x="105" y="58" width="90" height="22" rx="2"/>
+          <text class="erd-entity-label" x="150" y="69">Counterparty</text>
+
+          <!-- Agreement (bottom left) -->
+          <rect class="erd-entity-rect dim" x="20" y="108" width="80" height="22" rx="2"/>
+          <text class="erd-entity-label" x="60" y="119">Agreement</text>
+
+          <!-- Trade (bottom right) -->
+          <rect class="erd-entity-rect dim" x="200" y="108" width="80" height="22" rx="2"/>
+          <text class="erd-entity-label" x="240" y="119">Trade</text>
+
+          <!-- Legal Entity 1 : N Counterparty -->
+          <line class="erd-rel-line" x1="150" y1="28" x2="150" y2="58"/>
+          <!-- one notation near LegalEntity (perpendicular tick) -->
+          <line class="erd-one" x1="144" y1="33" x2="156" y2="33"/>
+          <!-- crow's foot near Counterparty -->
+          <line class="erd-cf" x1="150" y1="52" x2="144" y2="58"/>
+          <line class="erd-cf" x1="150" y1="52" x2="150" y2="58"/>
+          <line class="erd-cf" x1="150" y1="52" x2="156" y2="58"/>
+
+          <!-- Counterparty 1 : N Agreement -->
+          <path class="erd-rel-line" d="M 120 80 L 120 95 L 60 95 L 60 108"/>
+          <!-- one notation near Counterparty -->
+          <line class="erd-one" x1="114" y1="85" x2="126" y2="85"/>
+          <!-- crow's foot near Agreement -->
+          <line class="erd-cf" x1="60" y1="102" x2="54" y2="108"/>
+          <line class="erd-cf" x1="60" y1="102" x2="60" y2="108"/>
+          <line class="erd-cf" x1="60" y1="102" x2="66" y2="108"/>
+
+          <!-- Counterparty 1 : N Trade -->
+          <path class="erd-rel-line" d="M 180 80 L 180 95 L 240 95 L 240 108"/>
+          <line class="erd-one" x1="174" y1="85" x2="186" y2="85"/>
+          <line class="erd-cf" x1="240" y1="102" x2="234" y2="108"/>
+          <line class="erd-cf" x1="240" y1="102" x2="240" y2="108"/>
+          <line class="erd-cf" x1="240" y1="102" x2="246" y2="108"/>
+
+          <!-- Agreement 1 : N Trade (curved bottom) -->
+          <path class="erd-rel-line" d="M 100 119 Q 150 138 200 119"/>
+          <line class="erd-one" x1="102" y1="124" x2="113" y2="120"/>
+          <line class="erd-cf" x1="200" y1="119" x2="194" y2="124"/>
+          <line class="erd-cf" x1="200" y1="119" x2="198" y2="125"/>
+          <line class="erd-cf" x1="200" y1="119" x2="190" y2="120"/>
+        </svg>
+      </div>
+
+      <!-- Star schema -->
+      <div class="artefact">
+        <span class="tag">Star schema</span>
+        <div class="owner">Owned by: data producer (CCR engine)</div>
+        <h3>Fact + measure + grain</h3>
+        <svg class="mini-star-svg" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
+          <!-- Dim: Counterparty (top left) -->
+          <rect class="star-dim-rect" x="5" y="10" width="78" height="22" rx="2"/>
+          <text class="star-dim-label" x="44" y="22">Counterparty</text>
+
+          <!-- Dim: Agreement (top right) -->
+          <rect class="star-dim-rect" x="218" y="10" width="78" height="22" rx="2"/>
+          <text class="star-dim-label" x="257" y="22">Agreement</text>
+
+          <!-- Dim: Date (bottom left) -->
+          <rect class="star-dim-rect" x="20" y="118" width="60" height="22" rx="2"/>
+          <text class="star-dim-label" x="50" y="130">Date</text>
+
+          <!-- Dim: Issuer (bottom right) -->
+          <rect class="star-dim-rect" x="220" y="118" width="60" height="22" rx="2"/>
+          <text class="star-dim-label" x="250" y="130">Issuer</text>
+
+          <!-- Fact (center) -->
+          <rect class="star-fact-rect" x="110" y="58" width="92" height="34" rx="2"/>
+          <text class="star-fact-label" x="156" y="73">Collateral Exposure</text>
+          <text class="star-fact-measure" x="156" y="86">collateral_value</text>
+
+          <!-- Relationship lines with 1:N notation -->
+          <!-- Counterparty (1) → Fact (N) -->
+          <line class="star-rel-line" x1="83" y1="21" x2="115" y2="65"/>
+          <text class="star-cardinality" x="84" y="32">1</text>
+          <text class="star-cardinality" x="105" y="62">N</text>
+
+          <!-- Agreement (1) → Fact (N) -->
+          <line class="star-rel-line" x1="218" y1="21" x2="197" y2="65"/>
+          <text class="star-cardinality" x="212" y="32">1</text>
+          <text class="star-cardinality" x="198" y="62">N</text>
+
+          <!-- Date (1) → Fact (N) -->
+          <line class="star-rel-line" x1="80" y1="129" x2="120" y2="92"/>
+          <text class="star-cardinality" x="80" y="120">1</text>
+          <text class="star-cardinality" x="108" y="98">N</text>
+
+          <!-- Issuer (1) → Fact (N) -->
+          <line class="star-rel-line" x1="220" y1="129" x2="192" y2="92"/>
+          <text class="star-cardinality" x="218" y="120">1</text>
+          <text class="star-cardinality" x="198" y="98">N</text>
+        </svg>
+      </div>
+
+      <!-- Product definition -->
+      <div class="artefact">
+        <span class="tag">Data product</span>
+        <div class="owner">Owned by: counterparty reference</div>
+        <h3>Counterparty — declared semantics</h3>
+        <div class="mini-contract">
+<span class="k">key:</span> <span class="v">counterparty_code</span><br>
+<span class="k">display:</span> <span class="v">counterparty_legal_name</span><br>
+<span class="k">classifiers:</span> <span class="v">regulatory_regime,</span><br>
+&nbsp;&nbsp;<span class="v">td_entity_name, rating</span><br>
+<span class="k">grain:</span> <span class="v">one row per counterparty</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARROW 1 -->
+    <div class="col-arrow">
+      <div class="arrow-line">
+        <div class="arrow-label">declared</div>
+      </div>
+    </div>
+
+    <!-- COLUMN 2: BI TOOL -->
+    <div>
+      <div class="bi-box">
+        <div class="bi-label">BI Tool</div>
+        <h3>Strategy / semantic layer</h3>
+        <div class="bi-sub">consumer of declared semantics — does not invent</div>
+
+        <div class="entity-block">
+          <div class="et">Internal entity</div>
+          <h4>Counterparty</h4>
+          <div class="er-mini">
+            key, classifiers, forms ← product<br>
+            relationships, cardinality ← ERD<br>
+            conformed to collateral fact ← star
+          </div>
+        </div>
+
+        <div class="entity-block">
+          <div class="et">Internal entity</div>
+          <h4>Agreement</h4>
+          <div class="er-mini">
+            belongs to counterparty (N:1)<br>
+            ↑ relationship from ERD
+          </div>
+        </div>
+
+        <div class="bi-note">
+          Every join path traceable to a declared contract.
+          <strong>The tool assembles, it does not guess.</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARROW 2 -->
+    <div class="col-arrow">
+      <div class="arrow-line">
+        <div class="arrow-label">answers</div>
+      </div>
+    </div>
+
+    <!-- COLUMN 3: OUTCOMES -->
+    <div class="outcome">
+      <div class="outcome-card">
+        <div class="otag">Accurate</div>
+        <div class="otext">"How many agreements exist?" → routes to agreement dim → <strong>12, every time</strong></div>
+      </div>
+      <div class="outcome-card">
+        <div class="otag">Auditable</div>
+        <div class="otext">Every number traces back to a declared semantic owned by a named team</div>
+      </div>
+      <div class="outcome-card">
+        <div class="otag">Self-service safe</div>
+        <div class="otext">Business consumer composes visualisations — never authors cardinality or join keys</div>
+      </div>
+      <div class="outcome-card">
+        <div class="otag">Catalogued</div>
+        <div class="otext">Tool pre-generates the set of dim-only questions answerable from entities alone</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-foot">
+    <span>Declared semantics ▸ assembled model ▸ correct answers by construction</span>
+    <span>Slide 1 of 2</span>
+  </div>
+</div>
+
+
+<!-- =============================================================== -->
+<!-- SLIDE 2 — WHAT'S HAPPENING TODAY -->
+<!-- =============================================================== -->
+<div class="slide">
+  <div class="slide-head">
+    <div>
+      <div class="eyebrow">Semantic foundation for BI — Current state</div>
+      <h1>What is <span class="bad">actually</span> happening today</h1>
+    </div>
+    <div class="num">02</div>
+  </div>
+
+  <div class="flow">
+    <!-- COLUMN 1: ARTEFACTS -->
+    <div class="col-artefacts">
+
+      <!-- ERD missing -->
+      <div class="artefact missing">
+        <span class="tag">ERD diagram</span>
+        <div class="missing-stamp">Not provided</div>
+        <div class="owner">Should be owned by data architecture</div>
+        <h3 style="opacity:0.5">Entity relationships &amp; cardinality</h3>
+        <svg class="mini-erd-svg" viewBox="0 0 300 140" xmlns="http://www.w3.org/2000/svg">
+          <!-- All faded with dashed strokes -->
+          <rect class="erd-entity-rect muted" x="110" y="6" width="80" height="22" rx="2"/>
+          <text class="erd-entity-label muted" x="150" y="17">?</text>
+
+          <rect class="erd-entity-rect muted" x="105" y="58" width="90" height="22" rx="2"/>
+          <text class="erd-entity-label muted" x="150" y="69">?</text>
+
+          <rect class="erd-entity-rect muted" x="20" y="108" width="80" height="22" rx="2"/>
+          <text class="erd-entity-label muted" x="60" y="119">?</text>
+
+          <rect class="erd-entity-rect muted" x="200" y="108" width="80" height="22" rx="2"/>
+          <text class="erd-entity-label muted" x="240" y="119">?</text>
+
+          <line class="erd-rel-line muted" x1="150" y1="28" x2="150" y2="58"/>
+          <path class="erd-rel-line muted" d="M 120 80 L 120 95 L 60 95 L 60 108"/>
+          <path class="erd-rel-line muted" d="M 180 80 L 180 95 L 240 95 L 240 108"/>
+          <path class="erd-rel-line muted" d="M 100 119 Q 150 138 200 119"/>
+        </svg>
+      </div>
+
+      <!-- Star schema present -->
+      <div class="artefact">
+        <span class="tag">Star schema</span>
+        <div class="owner">Owned by: data producer (CCR engine)</div>
+        <h3>Fact + measure + grain</h3>
+        <svg class="mini-star-svg" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
+          <rect class="star-dim-rect" x="5" y="10" width="78" height="22" rx="2"/>
+          <text class="star-dim-label" x="44" y="22">Counterparty</text>
+
+          <rect class="star-dim-rect" x="218" y="10" width="78" height="22" rx="2"/>
+          <text class="star-dim-label" x="257" y="22">Agreement</text>
+
+          <rect class="star-dim-rect" x="20" y="118" width="60" height="22" rx="2"/>
+          <text class="star-dim-label" x="50" y="130">Date</text>
+
+          <rect class="star-dim-rect" x="220" y="118" width="60" height="22" rx="2"/>
+          <text class="star-dim-label" x="250" y="130">Issuer</text>
+
+          <rect class="star-fact-rect" x="110" y="58" width="92" height="34" rx="2"/>
+          <text class="star-fact-label" x="156" y="73">Collateral Exposure</text>
+          <text class="star-fact-measure" x="156" y="86">collateral_value</text>
+
+          <line class="star-rel-line" x1="83" y1="21" x2="115" y2="65"/>
+          <text class="star-cardinality" x="84" y="32">1</text>
+          <text class="star-cardinality" x="105" y="62">N</text>
+
+          <line class="star-rel-line" x1="218" y1="21" x2="197" y2="65"/>
+          <text class="star-cardinality" x="212" y="32">1</text>
+          <text class="star-cardinality" x="198" y="62">N</text>
+
+          <line class="star-rel-line" x1="80" y1="129" x2="120" y2="92"/>
+          <text class="star-cardinality" x="80" y="120">1</text>
+          <text class="star-cardinality" x="108" y="98">N</text>
+
+          <line class="star-rel-line" x1="220" y1="129" x2="192" y2="92"/>
+          <text class="star-cardinality" x="218" y="120">1</text>
+          <text class="star-cardinality" x="198" y="98">N</text>
+        </svg>
+      </div>
+
+      <!-- Product missing -->
+      <div class="artefact missing">
+        <span class="tag">Data product</span>
+        <div class="missing-stamp">Not provided</div>
+        <div class="owner">Should be owned by counterparty reference</div>
+        <h3 style="opacity:0.5">Counterparty — declared semantics</h3>
+        <div class="mini-contract" style="opacity:0.35">
+<span class="k">key:</span> ?<br>
+<span class="k">classifiers:</span> ?<br>
+<span class="k">grain:</span> ?
+        </div>
+      </div>
+    </div>
+
+    <!-- ARROW 1 -->
+    <div class="col-arrow">
+      <div class="arrow-line dashed">
+        <div class="arrow-label" style="color:var(--accent-bad);">tables only</div>
+      </div>
+    </div>
+
+    <!-- COLUMN 2: BI TOOL (struggling) -->
+    <div>
+      <div class="bi-box bad">
+        <div class="bi-label">BI Tool</div>
+        <h3>Strategy / semantic layer</h3>
+        <div class="bi-sub" style="color:var(--accent-bad);">forced to infer relationships from column names</div>
+
+        <div class="entity-block bad">
+          <div class="et">Inferred entity</div>
+          <h4>Counterparty (auto-detected)</h4>
+          <div class="er-mini">
+            relationships GUESSED from shared column names<br>
+            classifiers NOT declared — left disconnected<br>
+            cardinality INFERRED, not authoritative
+          </div>
+        </div>
+
+        <div class="entity-block bad">
+          <div class="et">Inferred entity</div>
+          <h4>Agreement (auto-detected)</h4>
+          <div class="er-mini">
+            join to counterparty ROUTED THROUGH FACT<br>
+            ↑ no direct dim-to-dim path declared
+          </div>
+        </div>
+
+        <div class="bi-note bad">
+          The tool is reverse-engineering an ERD from a star schema.
+          <strong>Auto-detect ≠ declared truth.</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARROW 2 -->
+    <div class="col-arrow">
+      <div class="arrow-line dashed">
+        <div class="arrow-label" style="color:var(--accent-bad);">answers</div>
+      </div>
+    </div>
+
+    <!-- COLUMN 3: BAD OUTCOMES -->
+    <div class="outcome">
+      <div class="outcome-card bad">
+        <div class="otag">Wrong, silently</div>
+        <div class="otext">"How many agreements exist?" → routed via issuer fact → <strong>5 instead of 12</strong>. No warning.</div>
+      </div>
+      <div class="outcome-card bad">
+        <div class="otag">Not auditable</div>
+        <div class="otext">Numbers come from inferred join paths with no documented owner — can't defend them to audit</div>
+      </div>
+      <div class="outcome-card bad">
+        <div class="otag">Business does data modelling</div>
+        <div class="otext">Analysts forced to declare cardinality, fix relationships, remove spurious AI suggestions inside the tool</div>
+      </div>
+      <div class="outcome-card bad">
+        <div class="otag">Filter side-effects</div>
+        <div class="otext">A filter on one page silently re-routes a query elsewhere, changing the answer</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-foot">
+    <span>Missing semantics ▸ inferred model ▸ plausible but wrong answers</span>
+    <span>Slide 2 of 2</span>
+  </div>
+</div>
+
+</body>
+</html>
