@@ -1,0 +1,1250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Preparing Data for the Profiler — A Field Guide</title>
+<style>
+  :root {
+    --bg: #f4f1eb;
+    --paper: #faf7f0;
+    --ink: #1a2b22;
+    --ink-soft: #3d5247;
+    --muted: #7f8c84;
+    --rule: #cdc6b8;
+
+    --darkG: #1a5c38;
+    --midG: #2e8b57;
+    --lightG: #d6efe1;
+    --paleG: #eef7f0;
+    --borderG: #7aaa8a;
+
+    --accent: #c0392b;
+    --accent-soft: #e8c5be;
+    --warn: #c08a2e;
+    --warn-soft: #ecd9b3;
+
+    --code-bg: #2b2b2b;
+    --code-ink: #e8e2d4;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 64px 48px 96px;
+  }
+
+  /* ---------- HEADER ---------- */
+  header.banner {
+    border-top: 2px solid var(--darkG);
+    border-bottom: 2px solid var(--darkG);
+    padding: 28px 0;
+    margin-bottom: 56px;
+    text-align: center;
+  }
+  header.banner .eyebrow {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    font-size: 11px;
+    color: var(--darkG);
+    margin-bottom: 12px;
+  }
+  header.banner h1 {
+    font-size: 46px;
+    line-height: 1.08;
+    margin: 0 0 10px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  header.banner h1 em {
+    font-style: italic; color: var(--darkG);
+  }
+  header.banner .sub {
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 18px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  /* ---------- TOC ---------- */
+  .toc {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 24px 32px;
+    margin-bottom: 56px;
+    border-radius: 3px;
+  }
+  .toc-title {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .toc ol {
+    margin: 0;
+    padding-left: 24px;
+    columns: 2;
+    column-gap: 48px;
+  }
+  .toc li {
+    margin-bottom: 6px;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+  }
+  .toc a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .toc a:hover { color: var(--darkG); }
+
+  /* ---------- SECTIONS ---------- */
+  section { margin-bottom: 80px; }
+  .section-num {
+    display: inline-block;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 800;
+    background: var(--darkG);
+    color: var(--paper);
+    padding: 4px 12px;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    margin-bottom: 16px;
+  }
+  h2 {
+    font-size: 32px;
+    font-weight: 400;
+    margin: 0 0 14px;
+    letter-spacing: -0.01em;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 14px;
+  }
+  h2 .h2-sub {
+    display: block;
+    font-size: 14.5px;
+    font-style: italic;
+    color: var(--ink-soft);
+    margin-top: 6px;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+  h3 {
+    font-size: 20px;
+    margin: 32px 0 10px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+  h4 {
+    font-size: 16px;
+    margin: 20px 0 8px;
+    font-weight: 700;
+  }
+  p { margin: 0 0 18px; max-width: 70ch; }
+  p.lead {
+    font-size: 20px;
+    font-style: italic;
+    color: var(--ink-soft);
+    max-width: 64ch;
+    margin-bottom: 24px;
+  }
+
+  /* ---------- CALLOUT ---------- */
+  .callout {
+    background: var(--lightG);
+    border-left: 4px solid var(--darkG);
+    padding: 16px 22px;
+    margin: 20px 0;
+    font-size: 15px;
+    border-radius: 0 3px 3px 0;
+  }
+  .callout.warn { background: var(--warn-soft); border-left-color: var(--warn); }
+  .callout.bad { background: var(--accent-soft); border-left-color: var(--accent); }
+  .callout .ctag {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: var(--darkG);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .callout.warn .ctag { color: var(--warn); }
+  .callout.bad .ctag { color: var(--accent); }
+
+  /* ---------- CODE ---------- */
+  code, .mono {
+    font-family: "JetBrains Mono", "Menlo", Consolas, monospace;
+    font-size: 0.86em;
+    background: #ebe5d6;
+    color: #1a1a1a;
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 20px 24px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-family: "JetBrains Mono", "Menlo", Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 16px 0;
+  }
+  pre .c { color: #8a8a8a; font-style: italic; }
+  pre .k { color: #e8c270; }
+  pre .s { color: #b5cea8; }
+  pre .x { color: #c47e7e; }
+
+  /* ---------- ROLE CARDS (for column classification) ---------- */
+  .role-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin: 28px 0;
+  }
+  .role-card {
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    padding: 20px 22px;
+    border-radius: 3px;
+    position: relative;
+  }
+  .role-card .role-tag {
+    display: inline-block;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 800;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    padding: 4px 10px;
+    margin-bottom: 12px;
+    color: var(--paper);
+  }
+  .role-card.key .role-tag { background: #5d2e8b; }
+  .role-card.fk .role-tag { background: #2e6f8b; }
+  .role-card.classifier .role-tag { background: var(--darkG); }
+  .role-card.property .role-tag { background: var(--muted); }
+  .role-card.measure .role-tag { background: var(--accent); }
+  .role-card.audit .role-tag { background: #555; }
+  .role-card.derived .role-tag { background: var(--warn); }
+
+  .role-card h4 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    font-family: "Iowan Old Style", Georgia, serif;
+    font-weight: 700;
+  }
+  .role-card .desc {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .role-card .examples {
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    color: var(--ink);
+    background: #f5efe0;
+    padding: 8px 10px;
+    border-radius: 2px;
+    margin-top: 8px;
+  }
+  .role-card .examples strong {
+    color: var(--darkG);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .role-card .question {
+    font-style: italic;
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 8px;
+    font-family: "Iowan Old Style", Georgia, serif;
+  }
+
+  /* classifier vs property comparison */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 24px 0;
+  }
+  .compare-card {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    padding: 22px;
+    border-radius: 3px;
+  }
+  .compare-card.good { border-color: var(--darkG); }
+  .compare-card.bad { border-color: var(--accent); }
+  .compare-card .vtag {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 800;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-bottom: 10px;
+  }
+  .compare-card.good .vtag { color: var(--darkG); }
+  .compare-card.bad .vtag { color: var(--accent); }
+  .compare-card h4 {
+    margin: 4px 0 12px;
+    font-size: 18px;
+    font-family: "Iowan Old Style", Georgia, serif;
+  }
+  .compare-card .checks {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    font-size: 14px;
+  }
+  .compare-card .checks li {
+    padding: 5px 0 5px 24px;
+    position: relative;
+    color: var(--ink-soft);
+  }
+  .compare-card.good .checks li::before {
+    content: "✓";
+    color: var(--darkG);
+    font-weight: 700;
+    position: absolute;
+    left: 4px;
+  }
+  .compare-card.bad .checks li::before {
+    content: "✗";
+    color: var(--accent);
+    font-weight: 700;
+    position: absolute;
+    left: 4px;
+  }
+
+  /* ---------- STEP BLOCKS ---------- */
+  .step {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 24px;
+    margin: 32px 0;
+    padding: 24px;
+    background: var(--paper);
+    border-left: 4px solid var(--darkG);
+    border-radius: 0 3px 3px 0;
+  }
+  .step .num {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 800;
+    font-size: 56px;
+    color: var(--darkG);
+    line-height: 1;
+    opacity: 0.5;
+    text-align: center;
+  }
+  .step .step-body h3 {
+    margin-top: 0;
+    margin-bottom: 6px;
+    font-size: 22px;
+  }
+  .step .step-body .step-sub {
+    font-size: 13.5px;
+    font-style: italic;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .step .step-body p {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+  .step .step-body ul {
+    margin: 8px 0 12px 0;
+    padding-left: 22px;
+    font-size: 14.5px;
+  }
+  .step .step-body li {
+    margin-bottom: 6px;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- EXAMPLE CSV + SIDECAR ---------- */
+  .example-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .example-file {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .example-file .file-h {
+    background: #1f1f1f;
+    color: #c5c0b0;
+    padding: 8px 14px;
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    border-bottom: 1px solid #444;
+  }
+  .example-file .file-h .filetype {
+    float: right;
+    color: var(--midG);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-top: 2px;
+  }
+  .example-file pre {
+    margin: 0;
+    background: var(--code-bg);
+    border-radius: 0;
+    font-size: 11.5px;
+    padding: 14px 16px;
+  }
+
+  /* ---------- TABLE ---------- */
+  table.data {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 13.5px;
+  }
+  table.data th {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: left;
+    padding: 10px 14px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+  }
+  table.data td {
+    padding: 10px 14px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  table.data tr:nth-child(even) td { background: #f8f3e3; }
+  table.data td code { font-size: 12px; }
+
+  /* ---------- WORKED EXAMPLE BLOCK ---------- */
+  .worked {
+    background: var(--paleG);
+    border: 1px dashed var(--borderG);
+    padding: 22px 26px;
+    border-radius: 4px;
+    margin: 24px 0;
+  }
+  .worked-title {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: var(--darkG);
+    margin-bottom: 8px;
+  }
+
+  /* ---------- SUMMARY TABLE ---------- */
+  .summary {
+    background: var(--paper);
+    border: 2px solid var(--darkG);
+    padding: 28px 32px;
+    border-radius: 4px;
+    margin-top: 32px;
+  }
+  .summary h3 {
+    margin-top: 0;
+    color: var(--darkG);
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-top: 24px;
+    margin-top: 80px;
+    text-align: center;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 14px;
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 800px) {
+    .wrap { padding: 32px 20px 64px; }
+    .role-grid { grid-template-columns: 1fr; }
+    .compare { grid-template-columns: 1fr; }
+    .example-pair { grid-template-columns: 1fr; }
+    .toc ol { columns: 1; }
+    .step { grid-template-columns: 1fr; }
+    .step .num { font-size: 36px; text-align: left; }
+    header.banner h1 { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="banner">
+  <div class="eyebrow">Data product preparation — field guide</div>
+  <h1>Preparing data <em>for the profiler</em></h1>
+  <div class="sub">What an upstream application team needs to do to make profiling efficient — and turn raw outputs into a consumable data product</div>
+</header>
+
+<!-- ============================================================== -->
+<div class="toc">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#why">Why this matters</a></li>
+    <li><a href="#roles">Column role classification</a></li>
+    <li><a href="#classifier-vs-property">Classifier vs property — the critical distinction</a></li>
+    <li><a href="#step1">Step 1 — Standardise format and metadata header</a></li>
+    <li><a href="#step2">Step 2 — Per-column documentation</a></li>
+    <li><a href="#step3">Step 3 — Clean the data before publishing</a></li>
+    <li><a href="#step4">Step 4 — Validate against the contract</a></li>
+    <li><a href="#step5">Step 5 — Declare entity references</a></li>
+    <li><a href="#step6">Step 6 — Document the calculation logic</a></li>
+    <li><a href="#step7">Step 7 — Version everything</a></li>
+    <li><a href="#step8">Step 8 — Delivery mechanism that preserves the pair</a></li>
+    <li><a href="#worked-example">Worked example — a complete published dataset</a></li>
+    <li><a href="#industry">Where industry is going</a></li>
+    <li><a href="#summary">Summary — the ask, in order of importance</a></li>
+  </ol>
+</div>
+
+<!-- ============================================================== -->
+<section id="why">
+  <span class="section-num">00 — Context</span>
+  <h2>Why this matters
+    <span class="h2-sub">Without preparation, profiling becomes guessing — and guessing has been the problem all along.</span>
+  </h2>
+  <p class="lead">A profiler can run against any CSV. But its output quality depends entirely on how prepared the input is. Junk in, more junk out. The work the application team does upstream is what separates a profiler that produces a clean contract in an hour from one that produces noise that takes a week to sift through.</p>
+
+  <p>Three things have to be true before the CSV reaches the profiler. The data has to be <strong>clean</strong>. The columns have to be <strong>classified</strong>. And the file has to be <strong>self-describing</strong> enough that someone who didn't write it can understand what each column represents.</p>
+
+  <p>If these three things are true, the profiler stops being a guessing machine and becomes a directed analyser. It produces a clean candidate contract for human review, instead of a noisy list of every column-pair functional dependency it could find. The human review step becomes minutes, not days.</p>
+
+  <p>What follows is the eight-step preparation pipeline an application team should follow when publishing data outputs to consumers — including the BI tool, the profiler, downstream analysts, and audit. Before the steps, a foundational concept: the column role classification, which is the single highest-leverage change you can make.</p>
+</section>
+
+<!-- ============================================================== -->
+<section id="roles">
+  <span class="section-num">01 — Foundation</span>
+  <h2>Column role classification
+    <span class="h2-sub">Seven roles. Every column gets exactly one. This single change eliminates 80% of profiler noise.</span>
+  </h2>
+
+  <p>Before you can profile or contract a dataset, every column needs to be classified by its role in the business. The classification tells downstream tools what to do with the column — and crucially, what NOT to do with it.</p>
+
+  <div class="role-grid">
+
+    <div class="role-card key">
+      <span class="role-tag">Key</span>
+      <h4>Identifies a row uniquely</h4>
+      <div class="desc">A primary key or alternate key. Tells the profiler "this is the grain of the table".</div>
+      <div class="examples">
+        <strong>Examples</strong>
+        agreement_id<br>
+        counterparty_code<br>
+        trade_id
+      </div>
+      <div class="question">"What makes this row unique?"</div>
+    </div>
+
+    <div class="role-card fk">
+      <span class="role-tag">Foreign Key</span>
+      <h4>References an entity elsewhere</h4>
+      <div class="desc">A pointer to a master entity that exists in another table or another data product. Tells the profiler where joins should happen.</div>
+      <div class="examples">
+        <strong>Examples</strong>
+        counterparty_code → counterparty master<br>
+        agreement_id → agreement master<br>
+        issuer_lei → issuer master
+      </div>
+      <div class="question">"What other entity does this row point to?"</div>
+    </div>
+
+    <div class="role-card classifier">
+      <span class="role-tag">Classifier</span>
+      <h4>Categorises the row for grouping</h4>
+      <div class="desc">A categorical attribute used by the business to group, slice, or report. <strong>These are the hierarchy candidates.</strong> Low cardinality typically.</div>
+      <div class="examples">
+        <strong>Examples</strong>
+        regulatory_regime<br>
+        counterparty_rating<br>
+        agreement_type
+      </div>
+      <div class="question">"Does the business want to group by this?"</div>
+    </div>
+
+    <div class="role-card property">
+      <span class="role-tag">Property</span>
+      <h4>Descriptive — never grouped on</h4>
+      <div class="desc">A descriptive attribute that's not used for grouping or reporting. <strong>Never a hierarchy candidate.</strong> Profiler should ignore it for relationship analysis.</div>
+      <div class="examples">
+        <strong>Examples</strong>
+        primary_contact_email<br>
+        comments<br>
+        last_updated_by
+      </div>
+      <div class="question">"Is this just metadata about the row?"</div>
+    </div>
+
+    <div class="role-card measure">
+      <span class="role-tag">Measure</span>
+      <h4>A numeric value to aggregate</h4>
+      <div class="desc">The quantity. Carries an implicit (or explicit) grain. Tells the profiler "this is what the business wants to sum, average, or otherwise aggregate".</div>
+      <div class="examples">
+        <strong>Examples</strong>
+        collateral_value<br>
+        indirect_exposure<br>
+        dispute_amount
+      </div>
+      <div class="question">"Is this a number to be aggregated?"</div>
+    </div>
+
+    <div class="role-card audit">
+      <span class="role-tag">Audit</span>
+      <h4>System columns</h4>
+      <div class="desc">Load timestamps, source batch identifiers, ETL metadata. Generally ignored by consumers and the profiler.</div>
+      <div class="examples">
+        <strong>Examples</strong>
+        load_timestamp<br>
+        source_batch_id<br>
+        etl_run_id
+      </div>
+      <div class="question">"Is this an operational artefact, not business data?"</div>
+    </div>
+
+    <div class="role-card derived">
+      <span class="role-tag">Derived</span>
+      <h4>Computed from other columns</h4>
+      <div class="desc">A value the upstream engine computed from other columns. Often shouldn't be re-aggregated naively because the math has already been applied at a specific grain.</div>
+      <div class="examples">
+        <strong>Examples</strong>
+        concentration_ratio<br>
+        net_exposure<br>
+        rwa_amount
+      </div>
+      <div class="question">"Is this a calculated output rather than raw input?"</div>
+    </div>
+
+    <div class="role-card" style="border-color: var(--muted); opacity: 0.7;">
+      <span class="role-tag" style="background: var(--muted);">Unclassified</span>
+      <h4>The default if nothing else fits</h4>
+      <div class="desc">If you can't classify it, flag it for review. Don't let it default into the wrong role. An unclassified column should not pass validation.</div>
+      <div class="examples">
+        <strong>Examples</strong>
+        anything ambiguous
+      </div>
+      <div class="question">"If I can't decide, who can?"</div>
+    </div>
+
+  </div>
+
+  <div class="callout">
+    <span class="ctag">Why this is the highest-leverage step</span>
+    The BI tool's auto-suggestion engine doesn't know which columns are classifiers vs properties — so it proposes every plausible functional dependency as a potential hierarchy. With role classification declared upstream, the profiler only looks at classifier columns for hierarchy candidates, foreign-key columns for join candidates, and measures with declared grain. The noise disappears.
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<section id="classifier-vs-property">
+  <span class="section-num">02 — The critical distinction</span>
+  <h2>Classifier vs property
+    <span class="h2-sub">The data alone cannot tell you which is which. Only business meaning can.</span>
+  </h2>
+
+  <p>This is the distinction that's easiest to lose. Two columns in a dim that both have a one-to-many functional dependency with the primary key — in the data, they look identical. In the business, they could not be more different.</p>
+
+  <div class="compare">
+
+    <div class="compare-card good">
+      <span class="vtag">Classifier → hierarchy</span>
+      <h4>regulatory_regime</h4>
+      <p style="font-size: 14px; color: var(--ink-soft);">Each counterparty has one regulatory_regime. There are 4 distinct values across 12 counterparties.</p>
+      <ul class="checks">
+        <li>Membership language works: "MUFG is an OSFI counterparty"</li>
+        <li>Aggregation makes sense: "count counterparties under OSFI"</li>
+        <li>Time invariant: regime rarely changes</li>
+        <li>Used in policy: "concentration limit per regime"</li>
+        <li>Featured in regulatory reports</li>
+      </ul>
+      <p style="font-size: 13.5px; color: var(--darkG); margin-top: 12px; font-style: italic;">Declare as a hierarchy parent of Counterparty. Business benefits — drilling, grouping, reporting, limit setting.</p>
+    </div>
+
+    <div class="compare-card bad">
+      <span class="vtag">Property → not a hierarchy</span>
+      <h4>primary_contact_email</h4>
+      <p style="font-size: 14px; color: var(--ink-soft);">Each counterparty has one primary_contact_email. Possibly fewer than 12 distinct values if some are shared.</p>
+      <ul class="checks">
+        <li>No membership language: "MUFG is a john@td.com counterparty" is nonsense</li>
+        <li>Aggregation is meaningless: "count counterparties per email"</li>
+        <li>Time variant: emails change with staff turnover</li>
+        <li>Not used in policy or reporting</li>
+        <li>Just an operational lookup</li>
+      </ul>
+      <p style="font-size: 13.5px; color: var(--accent); margin-top: 12px; font-style: italic;">If profiled blindly, the data shows a functional dependency. But it's not a hierarchy — it's a property. The BI tool should never offer it as a drill or group-by.</p>
+    </div>
+
+  </div>
+
+  <h3>How to tell the difference</h3>
+  <p>The data shape is identical. The signal lives outside the data. Use these heuristics:</p>
+
+  <table class="data">
+    <thead>
+      <tr><th>Test</th><th>Classifier (hierarchy)</th><th>Property (not a hierarchy)</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Membership language</strong></td>
+        <td>"X is an OSFI counterparty" — feels natural</td>
+        <td>"X is a 'comments=urgent' counterparty" — nonsense</td>
+      </tr>
+      <tr>
+        <td><strong>Aggregation</strong></td>
+        <td>"Count counterparties by regime" — useful</td>
+        <td>"Count counterparties by primary email" — pointless</td>
+      </tr>
+      <tr>
+        <td><strong>Stability over time</strong></td>
+        <td>Rarely changes (years)</td>
+        <td>Can change frequently (months or weeks)</td>
+      </tr>
+      <tr>
+        <td><strong>Policy and reporting</strong></td>
+        <td>Drives limits, regulatory reports, KPIs</td>
+        <td>Operational lookup only</td>
+      </tr>
+      <tr>
+        <td><strong>Who would care</strong></td>
+        <td>Senior management, credit committee, regulator</td>
+        <td>Whoever needs to send an email or note something</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <span class="ctag">The reviewer's job</span>
+    The profiler proposes candidates. The data owner — someone who knows what the column means in the business — makes the call. The profiler cannot be left to decide on its own, because the data does not contain the answer. This is why the role classification has to be declared by the application team upstream, not inferred at profiling time.
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<section id="step1">
+  <span class="section-num">03 — Step 1</span>
+  <h2>Standardise format and metadata header
+    <span class="h2-sub">Every published file ships with a sidecar describing what it is.</span>
+  </h2>
+
+  <div class="step">
+    <div class="num">1</div>
+    <div class="step-body">
+      <h3>Publish a sidecar metadata file with every CSV</h3>
+      <div class="step-sub">YAML or JSON. Same base filename, different extension.</div>
+
+      <p>Today these CSVs probably arrive as raw data dumps — headers in row 1, data below, nothing else. The industry standard for any published data file is a metadata header describing what the file is, who owns it, what it represents, and how to interpret it.</p>
+
+      <p>At minimum the sidecar declares:</p>
+      <ul>
+        <li>Report name and business purpose</li>
+        <li>Owning team and contact</li>
+        <li>The grain (one row per agreement per counterparty per as-of-date)</li>
+        <li>The as-of-date the data represents</li>
+        <li>Source system, source table, calculation methodology version</li>
+        <li>Known quality issues or caveats</li>
+      </ul>
+
+      <p>In banks this often goes further and includes BCBS 239 attestation fields — who validated it, when, against what controls.</p>
+    </div>
+  </div>
+
+  <div class="example-pair">
+    <div class="example-file">
+      <div class="file-h">ccr_exposure_2026_03_31.csv <span class="filetype">CSV</span></div>
+<pre><span class="c"># the data file itself</span>
+agreement_id,counterparty_code,as_of_date,...
+AGR-001,BCCU,2026-03-31,...
+AGR-002,BCCU,2026-03-31,...
+AGR-003,JPMC,2026-03-31,...
+...</pre>
+    </div>
+    <div class="example-file">
+      <div class="file-h">ccr_exposure_2026_03_31.yml <span class="filetype">SIDECAR</span></div>
+<pre><span class="k">product_name:</span> ccr_collateral_exposure
+<span class="k">version:</span> <span class="s">2.1.0</span>
+<span class="k">owner:</span> ccr_engine_team
+<span class="k">contact:</span> ccr-eng@td.com
+<span class="k">purpose:</span> daily snapshot of agreement-
+  level collateral exposure
+<span class="k">grain:</span> one row per (agreement,
+  counterparty, as_of_date)
+<span class="k">as_of_date:</span> <span class="s">2026-03-31</span>
+<span class="k">source_system:</span> CCR_ENGINE v4.2
+<span class="k">methodology:</span> CEM + SA-CCR hybrid
+<span class="k">attestation:</span>
+  <span class="k">validated_by:</span> j.smith
+  <span class="k">validated_on:</span> <span class="s">2026-04-01T08:00Z</span>
+  <span class="k">controls:</span> [DQ-001, DQ-002, BCBS-239]</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<section id="step2">
+  <span class="section-num">04 — Step 2</span>
+  <h2>Per-column documentation
+    <span class="h2-sub">Each column gets a name, a description, a type, and a role.</span>
+  </h2>
+
+  <div class="step">
+    <div class="num">2</div>
+    <div class="step-body">
+      <h3>Describe every column with its role and constraints</h3>
+      <div class="step-sub">This is where the column role classification lives.</div>
+
+      <p>Each column in the CSV must be described in the sidecar. Minimum fields:</p>
+      <ul>
+        <li><strong>Column name</strong> (matching the CSV header exactly)</li>
+        <li><strong>Business name</strong> (the readable version)</li>
+        <li><strong>Description</strong> (one sentence on what this column represents)</li>
+        <li><strong>Data type</strong> (string, decimal, date, boolean)</li>
+        <li><strong>Role classification</strong> (key, foreign_key, classifier, property, measure, audit, derived)</li>
+        <li><strong>Source of truth</strong> (the system or upstream table that owns this value)</li>
+        <li><strong>Allowed values</strong>, if any (for enumerated fields)</li>
+        <li><strong>Quality contract</strong> (nullable or not, unique or not, range constraints)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="example-file">
+    <div class="file-h">ccr_exposure_2026_03_31.yml — columns section <span class="filetype">YAML</span></div>
+<pre><span class="k">columns:</span>
+  - <span class="k">name:</span> agreement_id
+    <span class="k">business_name:</span> Agreement ID
+    <span class="k">description:</span> Unique identifier for the collateral agreement
+    <span class="k">type:</span> string
+    <span class="k">role:</span> <span class="s">foreign_key</span>
+    <span class="k">references:</span> agreement_master.agreement_id
+    <span class="k">nullable:</span> false
+
+  - <span class="k">name:</span> counterparty_code
+    <span class="k">business_name:</span> Counterparty Code
+    <span class="k">description:</span> Internal code for the legal entity facing TD
+    <span class="k">type:</span> string
+    <span class="k">role:</span> <span class="s">foreign_key</span>
+    <span class="k">references:</span> counterparty_master.counterparty_code
+    <span class="k">nullable:</span> false
+
+  - <span class="k">name:</span> as_of_date
+    <span class="k">business_name:</span> As Of Date
+    <span class="k">description:</span> Calculation snapshot date
+    <span class="k">type:</span> date
+    <span class="k">role:</span> <span class="s">key</span>
+    <span class="k">nullable:</span> false
+
+  - <span class="k">name:</span> regulatory_regime
+    <span class="k">business_name:</span> Regulatory Regime
+    <span class="k">description:</span> Margin regulator governing this counterparty
+    <span class="k">type:</span> string
+    <span class="k">role:</span> <span class="s">classifier</span>
+    <span class="k">allowed_values:</span> [OSFI, EMIR, SEC, CBIRC, JFSA, CFTC]
+    <span class="k">nullable:</span> false
+
+  - <span class="k">name:</span> collateral_value
+    <span class="k">business_name:</span> Collateral Value
+    <span class="k">description:</span> Market value of collateral posted, USD-equivalent
+    <span class="k">type:</span> decimal(18,2)
+    <span class="k">role:</span> <span class="s">measure</span>
+    <span class="k">unit:</span> USD
+    <span class="k">grain:</span> per agreement-counterparty-date
+
+  - <span class="k">name:</span> primary_contact_email
+    <span class="k">business_name:</span> Primary Contact Email
+    <span class="k">description:</span> Email of relationship manager on TD side
+    <span class="k">type:</span> string
+    <span class="k">role:</span> <span class="s">property</span>
+    <span class="k">nullable:</span> true</pre>
+  </div>
+
+  <div class="callout">
+    <span class="ctag">What the profiler sees</span>
+    When the profiler reads this sidecar, it knows immediately: <code>regulatory_regime</code> is a classifier candidate for hierarchy analysis. <code>primary_contact_email</code> is a property — skip it. <code>collateral_value</code> is a measure — don't look for functional dependencies from it. <code>counterparty_code</code> and <code>agreement_id</code> are foreign keys with declared references — use them for join analysis. The profiler is now directed, not blind.
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<section id="step3">
+  <span class="section-num">05 — Step 3</span>
+  <h2>Clean the data before publishing
+    <span class="h2-sub">Dirty data hides real dependencies and creates false ones.</span>
+  </h2>
+
+  <div class="step">
+    <div class="num">3</div>
+    <div class="step-body">
+      <h3>Normalise the data so the profiler can see it clearly</h3>
+      <div class="step-sub">A few hours of cleanup eliminates days of profiler debugging.</div>
+
+      <p>Profilers detect functional dependencies in actual data. If the data is messy, the dependencies are obscured. What "clean" means in practice:</p>
+
+      <ul>
+        <li><strong>No mixed types in a column.</strong> Date columns hold dates, not "N/A" interleaved with dates.</li>
+        <li><strong>Consistent null handling.</strong> Pick one — real null, or a documented sentinel. Not a mix of empty string, "N/A", "NULL", and actual null.</li>
+        <li><strong>Stable identifier formats.</strong> Counterparty code = "MUFG" everywhere, not "MUFG" in one batch and "Mufg Bank Ltd" in the next.</li>
+        <li><strong>Whitespace trimmed, case normalised</strong> on identifier columns. "MUFG " and "MUFG" should not be two different counterparty values.</li>
+        <li><strong>Numbers in a single representation.</strong> Don't have $1,500,000.00 in one row and 1500000 in another.</li>
+        <li><strong>ISO-8601 dates.</strong> YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS. No local formats.</li>
+        <li><strong>Booleans consistent.</strong> Either true/false, or 0/1, or Y/N. Pick one.</li>
+        <li><strong>No summary rows</strong> at top or bottom that aren't data.</li>
+        <li><strong>UTF-8 encoding</strong>, declared. No mystery Windows-1252.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<section id="step4">
+  <span class="section-num">06 — Step 4</span>
+  <h2>Validate against the contract before publishing
+    <span class="h2-sub">If validation fails, the file does not ship.</span>
+  </h2>
+
+  <div class="step">
+    <div class="num">4</div>
+    <div class="step-body">
+      <h3>Run a validation pass — and fail loudly if it breaks</h3>
+      <div class="step-sub">This is where data contracts become enforceable rather than aspirational.</div>
+
+      <p>Before the CSV is published to a consumer, run a validation script against the sidecar contract. The validation must check:</p>
+
+      <ul>
+        <li>Every declared column exists in the CSV</li>
+        <li>No undeclared columns are present</li>
+        <li>Every value conforms to its declared type and constraints</li>
+        <li>Required columns have no nulls</li>
+        <li>Enumerated columns contain only declared values</li>
+        <li>Row count is within expected range</li>
+        <li>Key uniqueness holds where declared</li>
+        <li>Referential integrity holds for foreign keys (where the master is available)</li>
+      </ul>
+
+      <p>Output is pass-fail with a breach list. Files that fail validation do not ship.</p>
+
+      <p>Tools commonly used: <strong>Great Expectations</strong>, <strong>Soda</strong>, <strong>dbt tests</strong>, <strong>Pandera</strong>. Pick what fits the existing platform.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="ctag">Why this matters for the profiler</span>
+    When the profiler reads the CSV, it can trust that the data conforms to the contract. No defensive parsing. No "is this column really a decimal or sometimes a string?" handling. The profiler can focus on relationships, not data hygiene.
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<section id="step5">
+  <span class="section-num">07 — Step 5</span>
+  <h2>Declare entity references
+    <span class="h2-sub">Where each foreign key points — declared, not guessed.</span>
+  </h2>
+
+  <div class="step">
+    <div class="num">5</div>
+    <div class="step-body">
+      <h3>For each foreign-key column, declare its master</h3>
+      <div class="step-sub">This is the equivalent of an ERD link, declared at the source.</div>
+
+      <p>For each foreign-key column, the application team declares:</p>
+      <ul>
+        <li>Which master entity it references (counterparty_code → Counterparty master)</li>
+        <li>Where the master is published (the canonical table or data product)</li>
+        <li>Whether referential integrity is guaranteed</li>
+      </ul>
+
+      <p>This eliminates the join-discovery work the profiler would otherwise do. The profiler doesn't have to guess "is counterparty_code a foreign key to the counterparty dim?" — it's declared.</p>
+
+      <p>In industry, this is supported by maintaining a master entity catalogue — a registry of canonical entities and where they live. Tools that help: <strong>OpenLineage</strong>, <strong>DataHub</strong>, <strong>Collibra</strong>, <strong>Atlan</strong>. In simpler setups, a YAML file in a shared Git repo.</p>
+    </div>
+  </div>
+
+  <div class="example-file">
+    <div class="file-h">references section in the sidecar <span class="filetype">YAML</span></div>
+<pre><span class="k">references:</span>
+  - <span class="k">column:</span> counterparty_code
+    <span class="k">references_entity:</span> counterparty
+    <span class="k">references_product:</span> counterparty_master
+    <span class="k">canonical_location:</span> uc.cdm.counterparty_master
+    <span class="k">referential_integrity:</span> <span class="s">guaranteed</span>
+    <span class="k">cardinality:</span> <span class="s">many_to_one</span>
+
+  - <span class="k">column:</span> agreement_id
+    <span class="k">references_entity:</span> agreement
+    <span class="k">references_product:</span> agreement_master
+    <span class="k">canonical_location:</span> uc.cdm.agreement_master
+    <span class="k">referential_integrity:</span> <span class="s">guaranteed</span>
+    <span class="k">cardinality:</span> <span class="s">many_to_one</span></pre>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<section id="step6">
+  <span class="section-num">08 — Step 6</span>
+  <h2>Document the calculation logic
+    <span class="h2-sub">For measure columns — what does the number actually represent?</span>
+  </h2>
+
+  <div class="step">
+    <div class="num">6</div>
+    <div class="step-body">
+      <h3>Specify the calculation behind every measure</h3>
+      <div class="step-sub">For the human reviewer who comes after the profiler.</div>
+
+      <p>For measure columns, the team provides a calculation specification — what the number represents in business terms, what inputs were used, what methodology, what model version.</p>
+
+      <p>This isn't for the profiler. It's for the human reviewer and for audit. When the profiler proposes "indirect_exposure looks like a measure, what's its grain?", the calculation spec answers it.</p>
+
+      <p>In regulated banks, this documentation is required under BCBS 239 anyway. The difference here is making it travel <em>with</em> the data, not as a separate document that gets out of sync.</p>
+    </div>
+  </div>
+
+  <div class="example-file">
+    <div class="file-h">measure specifications in the sidecar <span class="filetype">YAML</span></div>
+<pre><span class="k">measures:</span>
+  - <span class="k">column:</span> collateral_value
+    <span class="k">business_definition:</span> Market value of all eligible collateral
+      posted by the counterparty under this agreement, valued in USD
+      using closing FX rates on as_of_date
+    <span class="k">grain:</span> <span class="s">per agreement, counterparty, as_of_date</span>
+    <span class="k">unit:</span> USD
+    <span class="k">aggregation_rules:</span>
+      <span class="k">across_counterparty:</span> <span class="s">sum</span>
+      <span class="k">across_agreement:</span> <span class="s">sum</span>
+      <span class="k">across_date:</span> <span class="s">latest</span>    <span class="c"># semi-additive!</span>
+    <span class="k">methodology:</span> haircut-adjusted, post-eligibility-filter
+    <span class="k">model_version:</span> CEM v4.2
+    <span class="k">source_inputs:</span>
+      - collateral_postings (raw)
+      - eligibility_schedule (per agreement)
+      - haircut_table (per collateral type)
+      - fx_rates (closing, as_of_date)</pre>
+  </div>
+
+  <div class="callout">
+    <span class="ctag">This solves the semi-additive measure problem at the source</span>
+    Every measure carries its declared aggregation rules per dimension. When the BI tool consumes this, it knows <code>across_date: latest</code> — and refuses to sum collateral_value across dates. The grain enforcement happens because the data product declared it, not because the dashboard author remembered to pin a filter.
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<section id="step7">
+  <span class="section-num">09 — Step 7</span>
+  <h2>Version everything
+    <span class="h2-sub">When the contract changes, consumers know.</span>
+  </h2>
+
+  <div class="step">
+    <div class="num">7</div>
+    <div class="step-body">
+      <h3>Semantic versioning on the contract</h3>
+      <div class="step-sub">major.minor.patch — and a change log.</div>
+
+      <p>The CSV gets versioned. The sidecar contract gets versioned. When the application team changes a column, a calculation, or a constraint, the contract version bumps. Consumers can detect the change and decide whether to re-profile, re-validate, or re-test their downstream usage.</p>
+
+      <p>Versioning rules:</p>
+      <ul>
+        <li><strong>Major bump</strong> for breaking changes (column removed, type changed, calculation methodology changed)</li>
+        <li><strong>Minor bump</strong> for additive changes (new column, new allowed value)</li>
+        <li><strong>Patch bump</strong> for cosmetic changes (description rewording, business name change)</li>
+      </ul>
+
+      <p>A change log alongside the contract — what changed, when, why, who reviewed it. This becomes the audit trail.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<section id="step8">
+  <span class="section-num">10 — Step 8</span>
+  <h2>Delivery mechanism that preserves the pair
+    <span class="h2-sub">The CSV and the contract have to travel together.</span>
+  </h2>
+
+  <div class="step">
+    <div class="num">8</div>
+    <div class="step-body">
+      <h3>Ensure data and contract stay paired</h3>
+      <div class="step-sub">If they get separated, you're back where you started.</div>
+
+      <p>In simple environments: a shared landing zone (S3 bucket, Azure Blob container) where both files land with matching base filenames.</p>
+
+      <p>Better: a single container or archive (ZIP, TAR) with both files inside.</p>
+
+      <p><strong>Best — Parquet or Iceberg with embedded metadata.</strong> The metadata lives inside the data file's footer or table properties. Cannot be separated. Cannot drift. Faster to read. Smaller on disk. Type-safe.</p>
+    </div>
+  </div>
+
+  <table class="data">
+    <thead>
+      <tr><th>Delivery format</th><th>Metadata</th><th>Pros</th><th>Cons</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>CSV + sidecar YAML</strong></td>
+        <td>External</td>
+        <td>Universally readable, easy to inspect</td>
+        <td>Can be separated; CSV is type-unsafe</td>
+      </tr>
+      <tr>
+        <td><strong>CSV + YAML in ZIP</strong></td>
+        <td>Bundled</td>
+        <td>Travel together; one artifact</td>
+        <td>Still type-unsafe CSV inside</td>
+      </tr>
+      <tr>
+        <td><strong>Parquet with footer metadata</strong></td>
+        <td>Embedded</td>
+        <td>Type-safe, fast, compact, metadata can't drift</td>
+        <td>Requires data engineering literacy</td>
+      </tr>
+      <tr>
+        <td><strong>Iceberg / Delta table</strong></td>
+        <td>Embedded + versioned</td>
+        <td>Full versioning, time travel, schema evolution</td>
+        <td>Requires a lakehouse environment</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================== -->
+<section id="worked-example">
+  <span class="section-num">11 — Bringing it together</span>
+  <h2>Worked example
+    <span class="h2-sub">A complete published dataset and what the profiler does with it.</span>
+  </h2>
+
+  <div class="worked">
+    <div class="worked-title">Scenario</div>
+    <p>The CCR engine publishes a daily collateral exposure report. The application team has done all eight steps. The output is:</p>
+    <ul style="font-size: 14px; color: var(--ink-soft); margin: 0;">
+      <li><code>ccr_exposure_2026_03_31.csv</code> — the data file</li>
+      <li><code>ccr_exposure_2026_03_31.yml</code> — the contract sidecar with column roles, references, measure specs, version</li>
+      <li>Validation has passed; the file shipped</li>
+    </ul>
+  </div>
+
+  <h3>What the profiler does when it picks up this file</h3>
+  <ol style="font-size: 15px; line-height: 1.7;">
+    <li><strong>Reads the sidecar first.</strong> Knows the grain, the columns, the roles, the references, the measure specs.</li>
+    <li><strong>Skips properties and audit columns</strong> — no profiling needed.</li>
+    <li><strong>For classifiers (regulatory_regime, agreement_type), runs functional-dependency analysis</strong> against the keys. Confirms the declared parent-child candidates exist in the data.</li>
+    <li><strong>For foreign keys (counterparty_code, agreement_id), checks referential integrity</strong> against the declared master products. If the masters are also profiled, generates the declared dim-to-dim relationship contracts.</li>
+    <li><strong>For measures, captures the declared grain and aggregation rules</strong> as part of the output contract — no inference needed.</li>
+    <li><strong>Produces a candidate contract</strong> for the BI tool to consume, enriched with confidence indicators from the data analysis.</li>
+  </ol>
+
+  <p>What used to be a multi-day reconciliation exercise — fixing the BI tool's auto-detected model by hand — becomes a 30-minute review of a clean candidate contract. Most of the work is already done upstream.</p>
+</section>
+
+<!-- ============================================================== -->
+<section id="industry">
+  <span class="section-num">12 — Context</span>
+  <h2>Where industry is going
+    <span class="h2-sub">This is the data contracts / data products pattern, spreading since 2022.</span>
+  </h2>
+
+  <p>This is not a novel pattern. Spotify, Airbnb, Netflix, and most large banks now publish data this way for internal consumers. The driver in regulated industries is BCBS 239 in banking and similar regulations elsewhere — you have to be able to show provenance, lineage, and definition for every number that ends up in a regulatory report.</p>
+
+  <h3>Frameworks and tools worth knowing by name</h3>
+
+  <table class="data">
+    <thead>
+      <tr><th>Name</th><th>What it is</th><th>Why it matters here</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Open Data Contract Standard (ODCS)</strong></td>
+        <td>Open standard for data contract structure</td>
+        <td>The most mature vendor-neutral YAML format. Increasingly adopted.</td>
+      </tr>
+      <tr>
+        <td><strong>dbt + dbt tests</strong></td>
+        <td>De facto open-source toolchain for SQL transformations with tested contracts</td>
+        <td>Already adopted across most modern data platforms.</td>
+      </tr>
+      <tr>
+        <td><strong>Great Expectations / Soda</strong></td>
+        <td>Data validation frameworks</td>
+        <td>The "enforce contract at the data layer" piece.</td>
+      </tr>
+      <tr>
+        <td><strong>DataHub / OpenMetadata</strong></td>
+        <td>Open-source catalog and lineage platforms</td>
+        <td>Where contracts and entity references can be registered.</td>
+      </tr>
+      <tr>
+        <td><strong>Apache Iceberg, Delta Lake</strong></td>
+        <td>Table formats with built-in metadata and versioning</td>
+        <td>The delivery format that solves the "stay paired" problem.</td>
+      </tr>
+      <tr>
+        <td><strong>dbt MetricFlow, Cube.dev</strong></td>
+        <td>YAML-based semantic layer standards</td>
+        <td>The shape the BI vendor question wants to test — does the tool consume these?</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>You don't need any of these specifically — what matters is the pattern. But naming them in conversations with platform and architecture teams signals you've located the work in a familiar industry context, not as a one-off ask.</p>
+</section>
+
+<!-- ============================================================== -->
+<section id="summary">
+  <span class="section-num">13 — In summary</span>
+  <h2>The ask, in order of importance
+    <span class="h2-sub">What to tell the application development team.</span>
+  </h2>
+
+  <div class="summary">
+    <h3>For the development team conversation</h3>
+    <ol style="font-size: 15px; line-height: 1.8;">
+      <li><strong>Classify every column.</strong> One of seven roles: key, foreign_key, classifier, property, measure, audit, derived. This single change eliminates 80% of profiler noise.</li>
+      <li><strong>Publish a sidecar metadata file</strong> with every output — column names, types, descriptions, allowed values, foreign-key references, calculation methodology.</li>
+      <li><strong>Clean the data</strong> before publishing — consistent types, normalised nulls, ISO dates, no mixed encodings.</li>
+      <li><strong>Validate against the contract</strong> before publishing. Don't ship anything that breaks its own declared rules.</li>
+      <li><strong>Declare foreign-key references explicitly</strong> — which master entity, where it lives, whether referential integrity is guaranteed.</li>
+      <li><strong>Specify measure semantics</strong> — grain, aggregation rules per dimension, methodology, model version.</li>
+      <li><strong>Version the contract</strong> with semantic versioning and bump on every change.</li>
+      <li><strong>Deliver as Parquet with embedded metadata</strong> if you can; CSV plus YAML if you can't.</li>
+    </ol>
+
+    <p style="margin-top: 24px; font-style: italic; color: var(--ink-soft);">Roughly 6–8 weeks of work for a team that has never done this; 3–4 weeks for a team that already has data engineering practice. The output is durable — it serves the profiler, the BI tool, audit, and every other downstream consumer that comes after.</p>
+  </div>
+</section>
+
+<footer>
+  This is the data product / data contracts pattern applied to risk reporting. The data architecture function defines the practice; the application team implements it; the BI tool and the profiler consume the output. Every number on every dashboard traces back to a declared, owned, versioned contract.
+</footer>
+
+</div>
+</body>
+</html>
