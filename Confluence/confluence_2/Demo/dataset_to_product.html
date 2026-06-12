@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>From Dataset to Data Product — Rough Draft</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1A2B22;
+    --ink-soft:   #3D5247;
+    --paper:      #FFFFFF;
+    --paper-2:    #FAFAF7;
+    --dark-g:     #1A5C38;
+    --mid-g:      #2E8B57;
+    --light-g:    #D6EFE1;
+    --pale-g:     #EEF7F0;
+    --muted:      #8A968F;
+    --rule:       #E5E2DA;
+    --accent:     #A8362A;
+    --bulb:       #F5B82E;
+    --cream:      #F4F1EB;
+
+    --sans: "Inter", system-ui, sans-serif;
+    --mono: "JetBrains Mono", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: #F2EEE5;
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    padding: 30px 20px;
+  }
+
+  .deck { max-width: 1280px; margin: 0 auto; }
+
+  .deck-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .slide {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    aspect-ratio: 16/9;
+    position: relative;
+    padding: 32px 44px 32px 44px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .slide-num {
+    position: absolute;
+    bottom: 14px;
+    right: 22px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .slide-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .slide-sub {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-top: 2px;
+    margin-bottom: 18px;
+  }
+
+  /* The main composition */
+  .build {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 28px;
+    min-height: 0;
+  }
+
+  /* LEFT — the progression chain */
+  .chain {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+    justify-content: center;
+  }
+
+  .chain-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--mid-g);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 12px;
+    align-items: start;
+    padding: 8px 12px;
+    border: 1px solid var(--rule);
+    background: var(--paper-2);
+    border-radius: 4px;
+  }
+
+  .step-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--mid-g);
+    width: 24px;
+    height: 24px;
+    border: 1.5px solid var(--mid-g);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .step-content .step-name {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .step-content .step-desc {
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    line-height: 1.4;
+  }
+
+  .arrow {
+    text-align: center;
+    color: var(--mid-g);
+    font-size: 18px;
+    height: 6px;
+    margin: -2px 0;
+    line-height: 1;
+  }
+
+  /* The final step — emphasised */
+  .step.product {
+    background: var(--dark-g);
+    border-color: var(--dark-g);
+  }
+  .step.product .step-num {
+    color: var(--paper);
+    border-color: var(--paper);
+  }
+  .step.product .step-content .step-name {
+    color: var(--paper);
+    font-size: 14px;
+  }
+  .step.product .step-content .step-desc {
+    color: var(--light-g);
+  }
+
+  /* RIGHT — the pedestal */
+  .pedestal-area {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .pedestal-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .product-block {
+    background: var(--dark-g);
+    color: var(--paper);
+    padding: 14px 20px;
+    border-radius: 6px;
+    text-align: center;
+    box-shadow: 0 4px 0 0 var(--mid-g);
+  }
+  .product-block .label {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--bulb);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .product-block .name {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .product-block .sub {
+    font-size: 11px;
+    font-style: italic;
+    color: var(--light-g);
+    margin-top: 4px;
+  }
+
+  .down-arrow {
+    text-align: center;
+    color: var(--accent);
+    font-size: 14px;
+    margin: 8px 0 6px 0;
+    font-family: var(--mono);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    font-size: 10px;
+    text-transform: uppercase;
+  }
+
+  /* Pedestal layers */
+  .pedestal {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .layer {
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--mid-g);
+    padding: 8px 14px;
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .layer-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--dark-g);
+  }
+  .layer-content {
+    font-size: 10.5px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .layer-content code {
+    font-family: var(--mono);
+    font-size: 10px;
+    background: var(--paper);
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: var(--ink-soft);
+  }
+
+  /* The metadata wrapper concept — sits between product and pedestal */
+  .wrapper-note {
+    background: #FFF9E5;
+    border: 1px dashed var(--bulb);
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--ink);
+    text-align: center;
+    line-height: 1.5;
+    margin: 4px 0;
+  }
+  .wrapper-note strong {
+    color: var(--accent);
+  }
+
+  /* Footnote */
+  .footnote {
+    margin-top: 16px;
+    padding: 10px 18px;
+    background: var(--cream);
+    border-left: 3px solid var(--mid-g);
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    font-style: italic;
+    line-height: 1.5;
+  }
+  .footnote strong {
+    color: var(--ink);
+    font-style: normal;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+
+<div class="deck-meta">Rough draft · How an app-generated dataset becomes a data product</div>
+
+<div class="slide">
+  <div class="slide-title">From dataset to data product — the metadata wrapper</div>
+  <div class="slide-sub">A dataset doesn't become a data product by being renamed. It becomes one when it's wrapped in the metadata that consumers depend on.</div>
+
+  <div class="build">
+
+    <!-- ============ LEFT — progression chain ============ -->
+    <div class="chain">
+      <div class="chain-title">The progression</div>
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-name">Entity</div>
+          <div class="step-desc">A business concept. No rows. No agreement yet.</div>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-name">Conformed Entity</div>
+          <div class="step-desc">Concept with agreed definition — attributes, allowed values, meaning.</div>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-name">Conformed Data Model</div>
+          <div class="step-desc">Design — conformed entities + relationships + rules.</div>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-name">App-Generated Dataset</div>
+          <div class="step-desc">A physical table. Has rows. Built by the app — but the data model behind it may be hidden.</div>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+
+      <div class="step product">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-name">Data Product</div>
+          <div class="step-desc">Same dataset — now wrapped in metadata that consumers can rely on.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ RIGHT — what's underneath ============ -->
+    <div class="pedestal-area">
+      <div class="pedestal-label">What holds a data product up</div>
+
+      <div class="product-block">
+        <div class="label">DATA PRODUCT</div>
+        <div class="name">fact_issuer_exposure</div>
+        <div class="sub">consumer-facing, contracted, supported</div>
+      </div>
+
+      <div class="wrapper-note">
+        💡 <strong>The metadata wrapper</strong> — visible to every consumer.
+        Below is what must be declared, transparently, before this is a product.
+      </div>
+
+      <div class="pedestal">
+
+        <div class="layer">
+          <div class="layer-name">Data model</div>
+          <div class="layer-content">
+            What entities are in this dataset? How do they relate? What rules apply?
+            <code>conformed_entities, FKs, precedence, filters</code>
+          </div>
+        </div>
+
+        <div class="layer">
+          <div class="layer-name">Sources &amp; lineage</div>
+          <div class="layer-content">
+            What feeds this dataset? Which Contract IDs populate each entity?
+            <code>upstream contracts · lineage spine</code>
+          </div>
+        </div>
+
+        <div class="layer">
+          <div class="layer-name">Ownership</div>
+          <div class="layer-content">
+            Who fixes it. Who decides what it should be.
+            <code>technical owner · business owner</code>
+          </div>
+        </div>
+
+        <div class="layer">
+          <div class="layer-name">SLA &amp; lifecycle</div>
+          <div class="layer-content">
+            When can consumers expect it? What's its current state?
+            <code>refresh frequency · SLA · lifecycle status · classification</code>
+          </div>
+        </div>
+
+        <div class="layer">
+          <div class="layer-name">Consumer description</div>
+          <div class="layer-content">
+            What's this dataset for? What does each column mean?
+            <code>table comment · column comments · aliases · allowed values</code>
+          </div>
+        </div>
+
+        <div class="layer">
+          <div class="layer-name">Discovery</div>
+          <div class="layer-content">
+            How do consumers find it? Where's it documented?
+            <code>Risk Data Catalog entry · Unity Catalog tags</code>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footnote">
+    <strong>The point:</strong> Calling an app-generated dataset a "data product" doesn't make it one. The promotion happens when the metadata wrapper is in place — and every layer above is transparently communicated to the business.
+  </div>
+
+  <div class="slide-num">01</div>
+</div>
+
+</div>
+</body>
+</html>
