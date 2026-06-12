@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Data vs Metadata — Explainer Slides</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1A2B22;
+    --ink-soft:   #3D5247;
+    --paper:      #FFFFFF;
+    --paper-2:    #FAFAF7;
+    --dark-g:     #1A5C38;
+    --mid-g:      #2E8B57;
+    --light-g:    #D6EFE1;
+    --pale-g:     #EEF7F0;
+    --muted:      #8A968F;
+    --rule:       #E5E2DA;
+    --accent:     #A8362A;
+    --bulb:       #F5B82E;
+    --bulb-bg:    #FFF9E5;
+    --confused:   #C7C2B6;
+
+    --sans: "Inter", system-ui, sans-serif;
+    --mono: "JetBrains Mono", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: #F2EEE5;
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    padding: 30px 20px;
+  }
+
+  .deck { max-width: 1280px; margin: 0 auto; }
+
+  .deck-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .slide {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    aspect-ratio: 16/9;
+    margin-bottom: 32px;
+    position: relative;
+    padding: 40px 50px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .slide-num {
+    position: absolute;
+    bottom: 16px;
+    right: 24px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ============ SLIDE 1 — Data vs Metadata ============ */
+
+  .slide-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+  }
+  .slide-sub {
+    font-size: 14px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-bottom: 22px;
+  }
+
+  /* The three-stage panel */
+  .stages {
+    flex: 1;
+    display: grid;
+    grid-template-rows: 1fr 1fr 1.05fr;
+    gap: 10px;
+    min-height: 0;
+  }
+
+  .stage {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+    align-items: center;
+    padding: 12px 0;
+  }
+
+  .stage-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    line-height: 1.4;
+  }
+  .stage-label .big {
+    display: block;
+    font-family: var(--sans);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-transform: none;
+    color: var(--ink);
+    margin-top: 4px;
+  }
+  .stage-label .annotation {
+    display: block;
+    font-family: var(--sans);
+    font-size: 11.5px;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  /* The data table — small */
+  table.data-mini {
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  table.data-mini th, table.data-mini td {
+    padding: 5px 10px;
+    border: 1px solid var(--rule);
+    text-align: left;
+  }
+  table.data-mini thead th {
+    background: var(--paper-2);
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 10.5px;
+  }
+  table.data-mini tbody td {
+    color: var(--ink);
+  }
+  table.data-mini.confused thead th {
+    color: var(--confused);
+  }
+  table.data-mini.confused tbody td {
+    color: var(--ink-soft);
+  }
+
+  /* Confused thought bubbles row 2 */
+  .row-confused {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 24px;
+    align-items: center;
+  }
+  .confused-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .bubble {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #FBF6F0;
+    border: 1px dashed var(--accent);
+    border-radius: 14px;
+    padding: 4px 10px;
+    font-size: 10.5px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .bubble .q {
+    font-family: var(--mono);
+    color: var(--ink);
+    font-weight: 600;
+    margin-right: 2px;
+  }
+
+  /* Row 3 - lightbulb + metadata table */
+  .row-bulb {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 24px;
+    align-items: stretch;
+  }
+
+  .bulb-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  /* SVG lightbulb */
+  .bulb-svg {
+    width: 90px;
+    height: 90px;
+    display: block;
+  }
+
+  .bulb-caption {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--bulb);
+    text-align: center;
+  }
+
+  /* Metadata table — extra columns with descriptions */
+  table.data-rich {
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    width: 100%;
+  }
+  table.data-rich th, table.data-rich td {
+    padding: 5px 8px;
+    border: 1px solid var(--rule);
+    text-align: left;
+    vertical-align: top;
+  }
+  table.data-rich thead th {
+    background: var(--pale-g);
+    color: var(--dark-g);
+    font-weight: 600;
+    font-size: 10px;
+  }
+  table.data-rich .meta-header {
+    background: var(--bulb-bg);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 3px 8px;
+    border-bottom: none;
+    font-weight: 600;
+  }
+  table.data-rich .meta {
+    background: var(--bulb-bg);
+    font-family: var(--sans);
+    font-size: 9.5px;
+    color: var(--ink);
+    font-style: italic;
+    line-height: 1.3;
+  }
+
+  /* ============ SLIDE 2 — What metadata unlocks ============ */
+  .unlocks {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 18px;
+    margin-top: 18px;
+  }
+
+  .panel {
+    border: 1px solid var(--rule);
+    background: var(--paper-2);
+    padding: 18px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+  }
+
+  .panel.feature {
+    grid-row: span 2;
+    background: var(--pale-g);
+    border: 2px solid var(--mid-g);
+  }
+
+  .panel-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+
+  .panel-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--dark-g);
+    letter-spacing: -0.01em;
+  }
+  .panel.feature .panel-title {
+    font-size: 22px;
+  }
+
+  .panel-body {
+    font-size: 12px;
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .panel.feature .panel-body {
+    font-size: 12.5px;
+  }
+
+  .panel-example {
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px dashed var(--rule);
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  .panel-example b {
+    color: var(--accent);
+  }
+
+  /* mini join illustration for the conformity panel */
+  .join-illu {
+    margin-top: 10px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 12px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink);
+  }
+
+  .join-illu .app {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+  }
+
+  .join-illu .app-name {
+    color: var(--mid-g);
+    font-weight: 600;
+  }
+
+  .join-illu .meta-tag {
+    color: var(--accent);
+    font-style: italic;
+    font-size: 9.5px;
+  }
+
+  .join-illu .verdict {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--rule);
+    text-align: center;
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--dark-g);
+  }
+
+  .join-illu .verdict .glow {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* Closing strip */
+  .closing-strip {
+    margin-top: 14px;
+    padding: 12px 22px;
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    font-size: 14px;
+    font-style: italic;
+    letter-spacing: -0.01em;
+  }
+  .closing-strip strong {
+    color: var(--bulb);
+    font-weight: 700;
+    font-style: normal;
+  }
+
+</style>
+</head>
+<body>
+<div class="deck">
+
+<div class="deck-meta">Data vs Metadata · Explainer · For Zero-Maturity Engineers · 2 slides</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 1 — DATA, CONFUSION, METADATA                            -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-title">What is metadata, really?</div>
+  <div class="slide-sub">Look at this data. Try to make sense of it. Now look again — with metadata.</div>
+
+  <div class="stages">
+
+    <!-- STAGE 1 — Just the data -->
+    <div class="stage">
+      <div class="stage-label">
+        Step 1
+        <span class="big">Here's some data.</span>
+        <span class="annotation">It's a few rows from a trade table. Looks fine.</span>
+      </div>
+      <div>
+        <table class="data-mini">
+          <thead>
+            <tr><th>cpty_cd</th><th>notional</th><th>mtm</th><th>ns</th><th>asof</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>JPMC</td><td>10000000</td><td>-42150.55</td><td>NS-9921</td><td>2026-06-10</td></tr>
+            <tr><td>GS</td><td>5500000</td><td>118023.10</td><td>NS-9921</td><td>2026-06-10</td></tr>
+            <tr><td>BARC</td><td>2400000</td><td>-2710.00</td><td>NS-8842</td><td>2026-06-10</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- STAGE 2 — Confused -->
+    <div class="stage">
+      <div class="stage-label" style="color: var(--accent);">
+        Step 2
+        <span class="big" style="color: var(--accent);">Now try to use it.</span>
+        <span class="annotation">Hold on. There are questions you can't answer.</span>
+      </div>
+      <div class="confused-row">
+        <span class="bubble"><span class="q">cpty_cd</span>— Bloomberg? Internal code? LEI?</span>
+        <span class="bubble"><span class="q">notional</span>— what currency?</span>
+        <span class="bubble"><span class="q">mtm</span>— calculated by whom? As of when?</span>
+        <span class="bubble"><span class="q">ns</span>— "netting set" or "non-settled"?</span>
+        <span class="bubble"><span class="q">asof</span>— close-of-business in which timezone?</span>
+        <span class="bubble">Can I join this with App B's data?</span>
+      </div>
+    </div>
+
+    <!-- STAGE 3 — Lightbulb -->
+    <div class="stage" style="border-top: 1px solid var(--rule); padding-top: 16px;">
+      <div class="bulb-cell">
+        <!-- Inline SVG lightbulb -->
+        <svg class="bulb-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <!-- glow rays -->
+          <g stroke="#F5B82E" stroke-width="2.5" stroke-linecap="round" opacity="0.7">
+            <line x1="50" y1="6" x2="50" y2="16" />
+            <line x1="20" y1="20" x2="27" y2="27" />
+            <line x1="80" y1="20" x2="73" y2="27" />
+            <line x1="10" y1="50" x2="20" y2="50" />
+            <line x1="90" y1="50" x2="80" y2="50" />
+          </g>
+          <!-- bulb glass -->
+          <path d="M50 18 C 32 18, 22 32, 22 46 C 22 56, 28 64, 34 70 L 34 78 C 34 80, 36 82, 38 82 L 62 82 C 64 82, 66 80, 66 78 L 66 70 C 72 64, 78 56, 78 46 C 78 32, 68 18, 50 18 Z"
+                fill="#FFF6CC" stroke="#F5B82E" stroke-width="2.5" />
+          <!-- inner glow -->
+          <ellipse cx="50" cy="44" rx="14" ry="18" fill="#FFE680" opacity="0.7" />
+          <!-- filament suggestion -->
+          <path d="M44 58 Q 50 50 56 58 M 47 62 Q 50 56 53 62" stroke="#E89F0E" stroke-width="1.5" fill="none" />
+          <!-- base -->
+          <rect x="36" y="82" width="28" height="4" fill="#7F8C84" />
+          <rect x="38" y="86" width="24" height="3" fill="#5A6660" />
+          <rect x="40" y="89" width="20" height="3" fill="#5A6660" />
+          <path d="M44 92 L 56 92 L 53 96 L 47 96 Z" fill="#5A6660" />
+        </svg>
+        <div class="bulb-caption">Metadata!</div>
+        <div style="font-size: 9.5px; color: var(--ink-soft); text-align: center; max-width: 110px; line-height: 1.3;">
+          The data <em>about</em> the data — what each field means, where it came from, what unit it's in.
+        </div>
+      </div>
+
+      <div>
+        <table class="data-rich">
+          <thead>
+            <tr>
+              <th>cpty_cd</th><th>notional</th><th>mtm</th><th>ns</th><th>asof</th>
+            </tr>
+            <tr class="meta-header">
+              <td class="meta-header">Counterparty Code</td>
+              <td class="meta-header">Trade Notional (USD)</td>
+              <td class="meta-header">Mark-to-Market (USD)</td>
+              <td class="meta-header">Netting Set ID</td>
+              <td class="meta-header">As-of Date (EST close)</td>
+            </tr>
+            <tr class="meta">
+              <td>Internal · sourced from Veritas</td>
+              <td>FX-converted · MIDAS · daily</td>
+              <td>Engine: CCR_v4.2 · semi-additive</td>
+              <td>FK → star_dim_netting_set</td>
+              <td>Daily snapshot · 17:00 EST</td>
+            </tr>
+            <tr><td>JPMC</td><td>10000000</td><td>-42150.55</td><td>NS-9921</td><td>2026-06-10</td></tr>
+            <tr><td>GS</td><td>5500000</td><td>118023.10</td><td>NS-9921</td><td>2026-06-10</td></tr>
+            <tr><td>BARC</td><td>2400000</td><td>-2710.00</td><td>NS-8842</td><td>2026-06-10</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="slide-num">01</div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 2 — WHAT METADATA UNLOCKS                                -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-title">So why bother? What does metadata unlock?</div>
+  <div class="slide-sub">Once every column knows what it is, where it came from, and how it relates to other data — a lot becomes possible.</div>
+
+  <div class="unlocks">
+
+    <!-- Feature panel — Conformity (spans 2 rows) -->
+    <div class="panel feature">
+      <div class="panel-icon" style="background: var(--bulb-bg);">🧩</div>
+      <div class="panel-title">Entity Conformity</div>
+      <div class="panel-body">
+        <strong>The big one.</strong> Two apps both have a column called <code style="font-family: var(--mono); background: var(--paper); padding: 1px 5px; border-radius: 3px;">cpty_cd</code>. Without metadata, you assume they mean the same thing. They don't.
+      </div>
+
+      <div class="join-illu">
+        <div class="app">
+          <span><b>App A</b> · <span class="app-name">xvala</span> · cpty_cd = <b style="color: var(--ink);">"JPMC"</b></span>
+        </div>
+        <div class="app">
+          <span class="meta-tag">↳ source: Veritas · scheme: internal_code</span>
+        </div>
+        <div class="app" style="margin-top: 10px;">
+          <span><b>App B</b> · <span class="app-name">cmos</span> · cpty_cd = <b style="color: var(--ink);">"037833100"</b></span>
+        </div>
+        <div class="app">
+          <span class="meta-tag">↳ source: Bloomberg · scheme: cusip</span>
+        </div>
+
+        <div class="verdict">
+          Same column name. <span class="glow">Different worlds.</span><br>
+          <span style="color: var(--ink-soft); font-weight: 400; font-size: 10.5px; font-style: italic;">
+            Metadata is what makes conformity possible — you can't conform what you can't describe.
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Automation panel -->
+    <div class="panel">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+        <div class="panel-icon">⚙️</div>
+        <div class="panel-title">Automation</div>
+      </div>
+      <div class="panel-body">
+        If every column declares its type, nullability, FK, and grain — pipelines, DQ checks, and lineage tracking write themselves.
+      </div>
+      <div class="panel-example">
+        Example: a column tagged <b>PII = yes</b> automatically gets masked in dev environments. No human asked.
+      </div>
+    </div>
+
+    <!-- AI panel -->
+    <div class="panel">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+        <div class="panel-icon">🤖</div>
+        <div class="panel-title">AI &amp; Analytics</div>
+      </div>
+      <div class="panel-body">
+        Models, LLMs, and BI tools need context. "What does <code style="font-family: var(--mono); font-size: 10.5px;">mtm</code> mean?" is answerable when the metadata says so.
+      </div>
+      <div class="panel-example">
+        Example: an LLM asked "show me PFE exposure to JPMC" can find the right table — because the metadata says <b>x-measure = PFE</b>, <b>refersTo = counterparty</b>.
+      </div>
+    </div>
+
+  </div>
+
+  <div class="closing-strip">
+    💡 <strong>The lightbulb:</strong> Data is the noun. Metadata is everything that tells you <em>what kind of noun</em> it is.<br>
+    Without metadata, every consumer of your data does detective work. With metadata, they just use it.
+  </div>
+
+  <div class="slide-num">02</div>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Data vs Metadata — Real Example + AI Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1A2B22;
+    --ink-soft:   #3D5247;
+    --paper:      #FFFFFF;
+    --paper-2:    #FAFAF7;
+    --dark-g:     #1A5C38;
+    --mid-g:      #2E8B57;
+    --light-g:    #D6EFE1;
+    --pale-g:     #EEF7F0;
+    --muted:      #8A968F;
+    --rule:       #E5E2DA;
+    --accent:     #A8362A;
+    --bulb:       #F5B82E;
+    --bulb-bg:    #FFF9E5;
+    --confused:   #C7C2B6;
+    --m365-blue:  #2B7CD3;
+
+    --sans: "Inter", system-ui, sans-serif;
+    --mono: "JetBrains Mono", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: #F2EEE5;
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    padding: 30px 20px;
+  }
+
+  .deck { max-width: 1280px; margin: 0 auto; }
+
+  .deck-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .slide {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    aspect-ratio: 16/9;
+    margin-bottom: 32px;
+    position: relative;
+    padding: 36px 44px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .slide-num {
+    position: absolute;
+    bottom: 14px;
+    right: 22px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .slide-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+    letter-spacing: -0.02em;
+  }
+  .slide-sub {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-bottom: 18px;
+  }
+
+  /* ============================================================ */
+  /* SLIDE 1 — Real worked example, 3 stages                       */
+  /* ============================================================ */
+  .stages {
+    flex: 1;
+    display: grid;
+    grid-template-rows: 1fr 0.6fr 1.4fr;
+    gap: 14px;
+    min-height: 0;
+  }
+
+  .stage {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .stage-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .stage-label .big {
+    display: block;
+    font-family: var(--sans);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-transform: none;
+    color: var(--ink);
+    margin-top: 3px;
+  }
+  .stage-label .annotation {
+    display: block;
+    font-family: var(--sans);
+    font-size: 10.5px;
+    font-weight: 400;
+    text-transform: none;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+
+  /* Data tables */
+  table.data-mini {
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 10.5px;
+  }
+  table.data-mini th, table.data-mini td {
+    padding: 4px 8px;
+    border: 1px solid var(--rule);
+    text-align: left;
+  }
+  table.data-mini thead th {
+    background: var(--paper-2);
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 10px;
+  }
+  table.data-mini tbody td {
+    color: var(--ink);
+  }
+
+  /* Bubbles */
+  .confused-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .bubble {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #FBF6F0;
+    border: 1px dashed var(--accent);
+    border-radius: 12px;
+    padding: 3px 9px;
+    font-size: 10.5px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .bubble .q {
+    font-family: var(--mono);
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* Stage 3 - lightbulb + metadata-rich table */
+  .row-bulb {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 18px;
+    align-items: stretch;
+  }
+  .bulb-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .bulb-svg {
+    width: 80px;
+    height: 80px;
+  }
+  .bulb-caption {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--bulb);
+    text-align: center;
+  }
+  .bulb-help {
+    font-size: 9px;
+    color: var(--ink-soft);
+    text-align: center;
+    max-width: 110px;
+    line-height: 1.3;
+    font-style: italic;
+  }
+
+  /* Metadata-rich table — header rows show business name + meta */
+  table.data-rich {
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    width: 100%;
+  }
+  table.data-rich th, table.data-rich td {
+    padding: 3px 6px;
+    border: 1px solid var(--rule);
+    text-align: left;
+    vertical-align: top;
+  }
+  table.data-rich thead .col-name th {
+    background: var(--paper-2);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 9.5px;
+  }
+  table.data-rich thead .biz-name th {
+    background: var(--pale-g);
+    color: var(--dark-g);
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 9.5px;
+  }
+  table.data-rich thead .meta-row th {
+    background: var(--bulb-bg);
+    color: var(--accent);
+    font-family: var(--sans);
+    font-style: italic;
+    font-size: 8.5px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  table.data-rich .meta-label {
+    background: var(--bulb-bg);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 7.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: right;
+    border-right: 2px solid var(--accent) !important;
+  }
+
+  /* ============================================================ */
+  /* SLIDE 2 — AI demo flow                                        */
+  /* ============================================================ */
+  .demo-flow {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 14px;
+    min-height: 0;
+  }
+
+  .demo-panel {
+    border: 1px solid var(--rule);
+    background: var(--paper-2);
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .demo-step-num {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .demo-panel-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dark-g);
+    padding-right: 36px;
+  }
+  .demo-panel-sub {
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-style: italic;
+    line-height: 1.4;
+  }
+
+  .demo-content {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 8px 10px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--ink);
+    flex: 1;
+    overflow: hidden;
+    white-space: pre;
+    line-height: 1.5;
+  }
+
+  .demo-content .yaml-comment { color: var(--mid-g); }
+  .demo-content .yaml-key { color: var(--accent); }
+  .demo-content .sql-kw { color: var(--m365-blue); font-weight: 600; }
+  .demo-content .sql-fn { color: var(--accent); font-weight: 600; }
+  .demo-content .sql-str { color: var(--mid-g); }
+
+  .question-bubble {
+    background: var(--m365-blue);
+    color: var(--paper);
+    padding: 10px 14px;
+    border-radius: 16px 16px 16px 4px;
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-top: 4px;
+  }
+  .question-bubble .who {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 600;
+    opacity: 0.85;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+    display: block;
+    text-transform: uppercase;
+  }
+
+  /* Bottom strip */
+  .closing-strip {
+    margin-top: 12px;
+    padding: 12px 22px;
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    font-size: 13px;
+    font-style: italic;
+    letter-spacing: -0.01em;
+  }
+  .closing-strip strong {
+    color: var(--bulb);
+    font-weight: 700;
+    font-style: normal;
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+
+<div class="deck-meta">Data vs Metadata · using star_fact_issuer_exposure · + AI demo</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 1 — REAL EXAMPLE: star_fact_issuer_exposure              -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-title">What is metadata? Let's use a table you'll recognise.</div>
+  <div class="slide-sub">star_fact_issuer_exposure — the fact table for indirect issuer exposure. A real example from our own work.</div>
+
+  <div class="stages">
+
+    <!-- Step 1 — raw data -->
+    <div class="stage">
+      <div class="stage-label">
+        Step 1
+        <span class="big">Here's some data.</span>
+        <span class="annotation">A few rows from <code style="font-family: var(--mono); font-size: 10px;">star_fact_issuer_exposure</code>.</span>
+      </div>
+      <div>
+        <table class="data-mini">
+          <thead>
+            <tr>
+              <th>agreement_id</th>
+              <th>counterparty_code</th>
+              <th>as_of_date</th>
+              <th>issuer_name</th>
+              <th>issuer_type</th>
+              <th>issuer_rating</th>
+              <th>collateral_value</th>
+              <th>indirect_exposure</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>AGR-44219</td><td>CP-001183</td><td>2026-06-10</td><td>US Treasury</td><td>Sovereign</td><td>AA+</td><td>12500000.00</td><td>11875000.00</td></tr>
+            <tr><td>AGR-44219</td><td>CP-001183</td><td>2026-06-10</td><td>JPMorgan Chase</td><td>Bank</td><td>A+</td><td>4200000.00</td><td>3780000.00</td></tr>
+            <tr><td>AGR-50871</td><td>CP-002455</td><td>2026-06-10</td><td>Bundesrepublik</td><td>Sovereign</td><td>AAA</td><td>8750000.00</td><td>8312500.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Step 2 — confused -->
+    <div class="stage">
+      <div class="stage-label" style="color: var(--accent);">
+        Step 2
+        <span class="big" style="color: var(--accent);">Now try to use it.</span>
+        <span class="annotation">Some questions you can't answer just by reading the data.</span>
+      </div>
+      <div class="confused-row">
+        <span class="bubble"><span class="q">collateral_value</span>— what currency?</span>
+        <span class="bubble"><span class="q">counterparty_code</span>— join with what?</span>
+        <span class="bubble"><span class="q">issuer_rating</span>— S&amp;P? Moody's? Internal?</span>
+        <span class="bubble"><span class="q">as_of_date</span>— calendar day or business?</span>
+        <span class="bubble"><span class="q">indirect_exposure</span>— how is it calculated?</span>
+        <span class="bubble">Which rows mean the same thing?</span>
+      </div>
+    </div>
+
+    <!-- Step 3 — lightbulb + metadata-enriched table -->
+    <div class="stage" style="border-top: 1px solid var(--rule); padding-top: 12px;">
+      <div class="row-bulb" style="display: contents;">
+        <div class="bulb-cell">
+          <svg class="bulb-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <g stroke="#F5B82E" stroke-width="2.5" stroke-linecap="round" opacity="0.7">
+              <line x1="50" y1="6" x2="50" y2="16" />
+              <line x1="20" y1="20" x2="27" y2="27" />
+              <line x1="80" y1="20" x2="73" y2="27" />
+              <line x1="10" y1="50" x2="20" y2="50" />
+              <line x1="90" y1="50" x2="80" y2="50" />
+            </g>
+            <path d="M50 18 C 32 18, 22 32, 22 46 C 22 56, 28 64, 34 70 L 34 78 C 34 80, 36 82, 38 82 L 62 82 C 64 82, 66 80, 66 78 L 66 70 C 72 64, 78 56, 78 46 C 78 32, 68 18, 50 18 Z"
+                  fill="#FFF6CC" stroke="#F5B82E" stroke-width="2.5" />
+            <ellipse cx="50" cy="44" rx="14" ry="18" fill="#FFE680" opacity="0.7" />
+            <path d="M44 58 Q 50 50 56 58 M 47 62 Q 50 56 53 62" stroke="#E89F0E" stroke-width="1.5" fill="none" />
+            <rect x="36" y="82" width="28" height="4" fill="#7F8C84" />
+            <rect x="38" y="86" width="24" height="3" fill="#5A6660" />
+            <rect x="40" y="89" width="20" height="3" fill="#5A6660" />
+            <path d="M44 92 L 56 92 L 53 96 L 47 96 Z" fill="#5A6660" />
+          </svg>
+          <div class="bulb-caption">Metadata!</div>
+          <div class="bulb-help">Now every column tells you what it is.</div>
+        </div>
+        <div>
+          <table class="data-rich">
+            <thead>
+              <tr class="col-name">
+                <th style="width: 35px;">↓</th>
+                <th>agreement_id</th>
+                <th>counterparty_code</th>
+                <th>as_of_date</th>
+                <th>issuer_name</th>
+                <th>issuer_type</th>
+                <th>issuer_rating</th>
+                <th>collateral_value</th>
+                <th>indirect_exposure</th>
+              </tr>
+              <tr class="biz-name">
+                <th class="meta-label">Business name</th>
+                <th>Agreement ID</th>
+                <th>Counterparty Code</th>
+                <th>As-of Date</th>
+                <th>Issuer Name</th>
+                <th>Issuer Type</th>
+                <th>Issuer Rating</th>
+                <th>Collateral Value</th>
+                <th>Indirect Exposure</th>
+              </tr>
+              <tr class="meta-row">
+                <th class="meta-label">Description</th>
+                <th>Collateral agreement under which exposure arose</th>
+                <th>Counterparty facing TD</th>
+                <th>Calculation snapshot date</th>
+                <th>Name of collateral issuer</th>
+                <th>Sovereign / Bank / Corporate / Supranational / Agency</th>
+                <th>External rating at as_of_date</th>
+                <th>Market value posted, USD</th>
+                <th>USD exposure to issuer via collateral</th>
+              </tr>
+              <tr class="meta-row">
+                <th class="meta-label">Source / Unit / FK</th>
+                <th>FK → star_dim_agreement</th>
+                <th>FK → star_dim_counterparty</th>
+                <th>DATE · business calendar</th>
+                <th>Bloomberg-sourced</th>
+                <th>CHECK constraint enforced</th>
+                <th>S&amp;P-equivalent scale</th>
+                <th>USD · FX via MIDAS · as_of date</th>
+                <th>USD · CCR_ENGINE_v4.2 · semi-additive</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><th class="meta-label">&nbsp;</th><td>AGR-44219</td><td>CP-001183</td><td>2026-06-10</td><td>US Treasury</td><td>Sovereign</td><td>AA+</td><td>12500000.00</td><td>11875000.00</td></tr>
+              <tr><th class="meta-label">&nbsp;</th><td>AGR-44219</td><td>CP-001183</td><td>2026-06-10</td><td>JPMorgan Chase</td><td>Bank</td><td>A+</td><td>4200000.00</td><td>3780000.00</td></tr>
+              <tr><th class="meta-label">&nbsp;</th><td>AGR-50871</td><td>CP-002455</td><td>2026-06-10</td><td>Bundesrepublik</td><td>Sovereign</td><td>AAA</td><td>8750000.00</td><td>8312500.00</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="slide-num">01</div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- SLIDE 2 — AI DEMO: metadata → ChatGPT → SQL → Databricks       -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-title">So why bother? Feed metadata to AI — watch it write the SQL.</div>
+  <div class="slide-sub">Live demo: I share only the metadata (not the data) with ChatGPT in M365. Ask a business question. Get a runnable query.</div>
+
+  <div class="demo-flow">
+
+    <!-- Step 1 — share metadata -->
+    <div class="demo-panel">
+      <div class="demo-step-num">1</div>
+      <div class="demo-panel-title">Share the metadata</div>
+      <div class="demo-panel-sub">I paste the YAML contracts for the two tables into ChatGPT. No actual data — just the metadata.</div>
+      <div class="demo-content"><span class="yaml-comment"># star_fact_issuer_exposure</span>
+<span class="yaml-key">schema:</span>
+  - name: star_fact_issuer_exposure
+    properties:
+      - name: counterparty_code
+        type: STRING
+        description: Counterparty facing TD
+        references: star_dim_counterparty.counterparty_code
+      - name: as_of_date
+        type: DATE
+      - name: issuer_type
+        allowedValues:
+          [Sovereign, Bank, Corporate, Supranational, Agency]
+      - name: indirect_exposure
+        type: DECIMAL(18,2)
+        unit: USD
+        aggregation: semi-additive
+        methodology: CCR_ENGINE_v4.2
+
+<span class="yaml-comment"># star_dim_counterparty</span>
+<span class="yaml-key">schema:</span>
+  - name: star_dim_counterparty
+    properties:
+      - name: counterparty_code
+        primaryKey: true
+      - name: regulatory_regime
+        allowedValues:
+          [OSFI, EMIR, SEC, CBIRC, JFSA, CFTC]
+      - name: counterparty_rating</div>
+    </div>
+
+    <!-- Step 2 — Ask a question -->
+    <div class="demo-panel">
+      <div class="demo-step-num">2</div>
+      <div class="demo-panel-title">Ask a business question</div>
+      <div class="demo-panel-sub">In plain language. No SQL knowledge required from the asker.</div>
+      <div class="question-bubble">
+        <span class="who">Risk analyst → ChatGPT (M365)</span>
+        Give me the top 10 sovereign issuers by total indirect exposure across counterparties under the OSFI regulatory regime, as of the latest snapshot date.
+      </div>
+      <div style="font-size: 11px; color: var(--ink-soft); font-style: italic; margin-top: 8px;">
+        Every concept the analyst uses — <strong>sovereign</strong>, <strong>indirect exposure</strong>, <strong>OSFI regime</strong>, <strong>latest snapshot</strong> — is grounded in the metadata.
+      </div>
+    </div>
+
+    <!-- Step 3 — Generated SQL -->
+    <div class="demo-panel">
+      <div class="demo-step-num">3</div>
+      <div class="demo-panel-title">ChatGPT generates the SQL</div>
+      <div class="demo-panel-sub">Joins the right tables on the right keys. Picks the right filter. Aggregates correctly.</div>
+      <div class="demo-content"><span class="sql-kw">SELECT</span>
+  f.issuer_name,
+  <span class="sql-fn">SUM</span>(f.indirect_exposure) <span class="sql-kw">AS</span> total_exposure_usd
+<span class="sql-kw">FROM</span> creditrisk.xvala_xva.star_fact_issuer_exposure f
+<span class="sql-kw">JOIN</span> creditrisk.xvala_xva.star_dim_counterparty c
+  <span class="sql-kw">ON</span> f.counterparty_code = c.counterparty_code
+<span class="sql-kw">WHERE</span> f.issuer_type = <span class="sql-str">'Sovereign'</span>
+  <span class="sql-kw">AND</span> c.regulatory_regime = <span class="sql-str">'OSFI'</span>
+  <span class="sql-kw">AND</span> f.as_of_date = (
+    <span class="sql-kw">SELECT</span> <span class="sql-fn">MAX</span>(as_of_date)
+    <span class="sql-kw">FROM</span> creditrisk.xvala_xva.star_fact_issuer_exposure
+  )
+<span class="sql-kw">GROUP BY</span> f.issuer_name
+<span class="sql-kw">ORDER BY</span> total_exposure_usd <span class="sql-kw">DESC</span>
+<span class="sql-kw">LIMIT</span> 10;</div>
+    </div>
+
+    <!-- Step 4 — Run in Databricks -->
+    <div class="demo-panel">
+      <div class="demo-step-num">4</div>
+      <div class="demo-panel-title">Paste into Databricks — done</div>
+      <div class="demo-panel-sub">The query is ready to run. No detective work. No "what does that column mean again?"</div>
+      <div class="demo-content" style="background: #1A2B22; color: #D6EFE1; white-space: pre;">
+<span style="color: #8A968F;">▶ Running on creditrisk_cluster …</span>
+
+issuer_name           total_exposure_usd
+─────────────────     ──────────────────
+US Treasury              48,231,750.00
+Bundesrepublik           34,775,200.00
+UK Gilts                 22,108,900.00
+JGB                      18,440,000.00
+France OAT               15,902,300.00
+Canada (CAD)             12,300,100.00
+...                              ...
+
+<span style="color: var(--bulb);">✓ Query returned 10 rows · 0.42s</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="closing-strip">
+    💡 <strong>That's the point.</strong> The AI never saw a single row of trade data. It only saw the metadata.<br>
+    Good metadata makes data self-describing — to humans, to tools, and to AI.
+  </div>
+
+  <div class="slide-num">02</div>
+</div>
+
+</div>
+</body>
+</html>
