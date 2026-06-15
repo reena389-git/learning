@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Risk Data — Today vs Going</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1A2B22;
+    --ink-soft:   #3D5247;
+    --paper:      #FFFFFF;
+    --paper-2:    #FAFAF7;
+    --dark-g:     #1A5C38;
+    --mid-g:      #2E8B57;
+    --light-g:    #D6EFE1;
+    --pale-g:     #EEF7F0;
+    --muted:      #8A968F;
+    --rule:       #E5E2DA;
+    --accent:     #A8362A;
+    --bulb:       #F5B82E;
+    --bulb-bg:    #FFF9E5;
+    --grey-bg:    #F4F1EB;
+
+    --sans: "Inter", system-ui, sans-serif;
+    --mono: "JetBrains Mono", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: #F2EEE5;
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    padding: 30px 20px;
+  }
+
+  .deck { max-width: 1280px; margin: 0 auto; }
+
+  .deck-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .slide {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    aspect-ratio: 16/9;
+    margin-bottom: 32px;
+    position: relative;
+    padding: 32px 44px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .slide-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .slide-sub {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-top: 2px;
+    margin-bottom: 18px;
+  }
+
+  /* Two-column layout: today / going */
+  .worlds {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 24px;
+    min-height: 0;
+  }
+
+  .world {
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .world.today {
+    background: var(--grey-bg);
+  }
+
+  .world.going {
+    background: var(--pale-g);
+    border-color: var(--mid-g);
+  }
+
+  .world-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .world.going .world-label { color: var(--dark-g); }
+
+  .world-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin-top: -8px;
+  }
+
+  .world-sub {
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-top: -10px;
+  }
+
+  /* Today panel - apps and CSV pipes */
+  .today-diagram {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 18px;
+    border-radius: 4px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 14px;
+  }
+
+  .app-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .app-row .app {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 6px 12px;
+    border-radius: 3px;
+    font-weight: 600;
+    min-width: 70px;
+    text-align: center;
+  }
+  .app-row .pipe {
+    flex: 1;
+    height: 2px;
+    background: var(--muted);
+    position: relative;
+  }
+  .app-row .pipe-label {
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 10px;
+    color: var(--accent);
+    font-family: var(--sans);
+    font-style: italic;
+  }
+  .app-row .consumer {
+    background: var(--paper-2);
+    border: 1px dashed var(--accent);
+    color: var(--accent);
+    padding: 6px 12px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-style: italic;
+  }
+
+  .today-issue {
+    background: #FBE9E7;
+    border-left: 3px solid var(--accent);
+    padding: 8px 12px;
+    font-size: 11px;
+    color: var(--accent);
+    line-height: 1.5;
+    border-radius: 3px;
+  }
+  .today-issue strong { color: var(--accent); font-style: normal; }
+
+  /* Going panel - layered architecture */
+  .going-diagram {
+    background: var(--paper);
+    border: 1px solid var(--mid-g);
+    padding: 16px;
+    border-radius: 4px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .layer-top {
+    background: var(--dark-g);
+    color: var(--paper);
+    padding: 10px 14px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .layer-top .icon {
+    font-size: 16px;
+  }
+  .layer-top .label {
+    font-size: 12px;
+    font-weight: 700;
+    flex: 1;
+  }
+  .layer-top .sub {
+    font-size: 10px;
+    font-style: italic;
+    color: var(--light-g);
+  }
+
+  .split-line {
+    text-align: center;
+    color: var(--mid-g);
+    font-size: 14px;
+    font-family: var(--mono);
+    line-height: 1;
+  }
+
+  .two-impls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .impl {
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    padding: 10px 12px;
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .impl .impl-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--mid-g);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .impl .impl-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .impl .impl-desc {
+    font-size: 10px;
+    color: var(--ink-soft);
+    line-height: 1.4;
+    font-style: italic;
+  }
+
+  .arrows-out {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .arrow-out {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .consumers {
+    background: var(--bulb-bg);
+    border: 1px dashed var(--bulb);
+    border-radius: 3px;
+    padding: 8px 12px;
+    margin-top: 4px;
+  }
+  .consumers-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .consumers-list {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .consumer-tag {
+    background: var(--paper);
+    border: 1px solid var(--bulb);
+    color: var(--ink);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .going-msg {
+    background: var(--light-g);
+    padding: 8px 12px;
+    border-radius: 3px;
+    font-size: 11px;
+    color: var(--dark-g);
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .going-msg strong { color: var(--dark-g); font-style: normal; font-weight: 700; }
+
+  /* The shift band */
+  .shift-band {
+    margin-top: 18px;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 22px;
+    border-radius: 4px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 18px;
+    align-items: center;
+  }
+
+  .shift-icon {
+    font-size: 22px;
+    color: var(--bulb);
+  }
+
+  .shift-text {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--paper);
+  }
+  .shift-text strong { color: var(--bulb); font-weight: 700; }
+  .shift-text br + br { display: none; }
+
+  .footer {
+    margin-top: 12px;
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+
+<div class="deck-meta">Risk Data — Synthesis · Where we are, where we're going</div>
+
+<div class="slide">
+  <div class="slide-title">Risk's shift — from operational application world to declared analytics</div>
+  <div class="slide-sub">The operational world continues. The analytical world is new. Both will have declared metadata. Both honour the same conformed entities.</div>
+
+  <div class="worlds">
+
+    <!-- ============ TODAY ============ -->
+    <div class="world today">
+      <div>
+        <div class="world-label">TODAY</div>
+        <div class="world-title">Operational application world</div>
+      </div>
+      <div class="world-sub">Apps exchange data through services and CSVs. Schema lives in consumers' inference.</div>
+
+      <div class="today-diagram">
+        <div class="app-row">
+          <div class="app">App A</div>
+          <div class="pipe"><span class="pipe-label">CSV / API</span></div>
+          <div class="consumer">App B (consumer infers schema)</div>
+        </div>
+        <div class="app-row">
+          <div class="app">App C</div>
+          <div class="pipe"><span class="pipe-label">Service</span></div>
+          <div class="consumer">App D (consumer infers schema)</div>
+        </div>
+        <div class="app-row">
+          <div class="app">XVALA</div>
+          <div class="pipe"><span class="pipe-label">CSV report</span></div>
+          <div class="consumer">Risk consumers (read &amp; guess)</div>
+        </div>
+      </div>
+
+      <div class="today-issue">
+        <strong>The problem:</strong> Without declared metadata, schema lives in consumers' inference. Each consumer writes their own assumptions. If the producer changes anything, consumers break silently. No contract. No catalog. No self-service.
+      </div>
+    </div>
+
+    <!-- ============ GOING ============ -->
+    <div class="world going">
+      <div>
+        <div class="world-label">GOING</div>
+        <div class="world-title">Same operational world + new analytical world</div>
+      </div>
+      <div class="world-sub">Both worlds. Both with declared metadata. Both honouring the same conformed entities.</div>
+
+      <div class="going-diagram">
+
+        <div class="layer-top">
+          <div class="icon">⬢</div>
+          <div class="label">CONFORMED ENTITIES</div>
+          <div class="sub">logical · platform-agnostic</div>
+        </div>
+
+        <div class="split-line">↓</div>
+
+        <div class="two-impls">
+          <div class="impl">
+            <div class="impl-label">OPERATIONAL</div>
+            <div class="impl-name">JSON / CSV / API</div>
+            <div class="impl-desc">Now with declared schema, JSON Schema, OpenAPI contracts.</div>
+          </div>
+          <div class="impl">
+            <div class="impl-label">ANALYTICAL</div>
+            <div class="impl-name">Databricks · star schema</div>
+            <div class="impl-desc">Decomposed, joinable, queryable. Layer 1-2-3-4.</div>
+          </div>
+        </div>
+
+        <div class="arrows-out">
+          <div class="arrow-out">↓ batch / service<br>exchange continues</div>
+          <div class="arrow-out">↓ self-service<br>analytics enabled</div>
+        </div>
+
+        <div class="consumers">
+          <div class="consumers-label">CONSUMERS — DIFFERENT KINDS</div>
+          <div class="consumers-list">
+            <span class="consumer-tag">Operational apps</span>
+            <span class="consumer-tag">Analytical SQL users</span>
+            <span class="consumer-tag">Report viewers</span>
+            <span class="consumer-tag">AI / Genie / ChatGPT</span>
+          </div>
+        </div>
+
+        <div class="going-msg">
+          <strong>The win:</strong> Both worlds have declared metadata. The schema is published, not inferred. AI consumers can generate queries because the metadata tells them everything.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="shift-band">
+    <div class="shift-icon">💡</div>
+    <div class="shift-text">
+      <strong>The shift is twofold.</strong>
+      One — metadata moves from inference to declaration. Consumers stop guessing.
+      Two — implementations diversify by consumption pattern. Operational continues (with declared structure). Analytical takes a different shape — decomposed, joinable, queryable — for self-service.
+      <strong>Conformity is what ties both worlds together.</strong>
+    </div>
+  </div>
+
+  <div class="footer">TD Securities · Risk Data Platform · Synthesis</div>
+</div>
+
+</div>
+</body>
+</html>
