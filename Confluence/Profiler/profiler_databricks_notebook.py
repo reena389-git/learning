@@ -23,6 +23,7 @@ dbutils.widgets.text("tables", "asts,ats_summary", "Tables (blank = whole schema
 dbutils.widgets.dropdown("mode", "profile", ["profile", "diff", "apply"], "Mode")
 dbutils.widgets.text("sample_size", "50000", "Sample size")
 dbutils.widgets.dropdown("apply_dry_run", "true", ["true", "false"], "Apply: dry-run")
+dbutils.widgets.text("results_location", "", "Results location catalog.schema (blank = print only)")
 
 CATALOG = dbutils.widgets.get("catalog").strip()
 SCHEMA  = dbutils.widgets.get("schema").strip()
@@ -30,7 +31,17 @@ TABLES  = [t.strip() for t in dbutils.widgets.get("tables").split(",") if t.stri
 MODE    = dbutils.widgets.get("mode").strip()
 SAMPLE  = int(dbutils.widgets.get("sample_size"))
 DRYRUN  = dbutils.widgets.get("apply_dry_run").strip().lower() == "true"
+RESULTS_LOCATION = dbutils.widgets.get("results_location").strip()
 ASSUME_NULLABLE = True   # per current instruction
+
+print("PARAMETERS")
+print("  catalog        =", CATALOG)
+print("  schema         =", SCHEMA)
+print("  tables         =", TABLES or "(whole schema)")
+print("  mode           =", MODE)
+print("  sample_size    =", SAMPLE)
+print("  apply_dry_run  =", DRYRUN)
+print("  results_location =", RESULTS_LOCATION or "(print only — nothing persisted)")
 
 # COMMAND ----------
 # MAGIC %md ## Pure-Python detection helpers (no Spark — unit-tested below)
@@ -38,6 +49,9 @@ ASSUME_NULLABLE = True   # per current instruction
 # COMMAND ----------
 import re
 from datetime import datetime
+
+def log(msg):
+    print(f"[{datetime.now():%H:%M:%S}] {msg}")
 
 _THOUSANDS_NUM = re.compile(r'^[+-]?\d{1,3}(,\d{3})+(\.\d+)?$')   # 5,053  1,234.50
 _PLAIN_NUM     = re.compile(r'^[+-]?\d+(\.\d+)?$')                # 5053   1234.50
@@ -152,6 +166,8 @@ def date_profile(values, col_name=''):
                 'match_fraction': round(excel / n, 3), 'note': 'Excel serial (name-hinted)'}
     return {'is_date': False}
 
+log("detection helpers ready: numeric_text_profile, date_profile, representative_values, is_blank_or_zero")
+
 # COMMAND ----------
 # MAGIC %md ## Self-test of the detection helpers
 
@@ -216,20 +232,28 @@ def exact_unique(df, c, row_count):
     r = df.agg(F.count(cc).alias("nn"), F.countDistinct(cc).alias("nd")).collect()[0]
     return r["nn"] == row_count and r["nd"] == row_count
 
+log("spark helpers ready: fqn, list_tables, table_stats, exact_unique")
+
 # COMMAND ----------
 # MAGIC %md ## Profile one table → proposals + anomalies
 
 # COMMAND ----------
 def profile_table(table):
     fq = fqn(table)
+    log(f"--- profiling {fq}")
     df = spark.table(fq)
     fields = df.schema.fields
     cols = [f.name for f in fields]
+    log(f"    schema resolved: {len(cols)} columns")
 
     # value-pattern inference uses a sample, pulled once to the driver
+    log(f"    sampling up to {SAMPLE:,} rows to the driver ...")
     sample_pdf = df.limit(SAMPLE).toPandas()
+    log(f"    sample pulled: {len(sample_pdf):,} rows")
 
+    log("    computing full-table counts, nulls, distincts, duplicate rows ...")
     row_count, dup_rows, stats = table_stats(df, cols)
+    log(f"    row_count={row_count:,}  duplicate_rows={dup_rows:,}")
 
     proposals, anomalies = [], []
     if dup_rows > 0:
@@ -283,6 +307,7 @@ def profile_table(table):
     # ---- dup/null-aware key detection (FR-3.7/3.8/3.9) ----
     key_report = []
     candidates = [p["column"] for p in proposals if p["approx_distinct"] >= row_count * 0.98 and row_count > 0]
+    log(f"    key check: {len(candidates)} candidate column(s) to verify")
     for c in candidates:
         valid = exact_unique(df, c, row_count)
         verdict = ("valid" if valid and dup_rows == 0 else
@@ -297,8 +322,11 @@ def profile_table(table):
     if not candidates:
         anomalies.append(f"{table}: no single-column key candidate" + (" (duplicate rows present)" if dup_rows else "") + ".")
 
+    log(f"    done {table}: {len(proposals)} columns, {len(anomalies)} anomaly note(s)")
     return {"table": table, "row_count": row_count, "dup_rows": dup_rows,
             "proposals": proposals, "key_report": key_report, "anomalies": anomalies}
+
+log("profile_table() ready")
 
 # COMMAND ----------
 # MAGIC %md ## Unity Catalog current schema (for diff / apply)
@@ -314,37 +342,101 @@ def uc_current(table):
         out[r["column_name"]] = {"type": (r["full_data_type"] or "").lower(), "comment": r["comment"]}
     return out
 
+log("uc_current() ready")
+
 # COMMAND ----------
 # MAGIC %md ## Run
 
 # COMMAND ----------
-results = [profile_table(t) for t in list_tables()]
+tables_to_run = list_tables()
+log(f"tables to profile: {tables_to_run}")
 
-# flatten for display
+results, failures = [], []
+for t in tables_to_run:
+    try:
+        results.append(profile_table(t))
+    except Exception as e:
+        msg = str(e)
+        failures.append((t, msg))
+        if "403" in msg or "AccessDenied" in msg or "not authorized" in msg.lower():
+            log(f"!! ACCESS DENIED reading {t}: this is a permissions/credential issue, not the code. "
+                f"Confirm SELECT on the table and READ FILES on its external location, and that you are on a "
+                f"Unity-Catalog-enabled cluster. (raw: {msg[:160]})")
+        else:
+            log(f"!! FAILED {t}: {msg[:200]}")
+
+log(f"profiling complete: {len(results)} table(s) ok, {len(failures)} failed")
+
+# flatten
 prop_rows = [p for res in results for p in res["proposals"]]
 key_rows  = [k for res in results for k in res["key_report"]]
 all_anom  = [a for res in results for a in res["anomalies"]]
 
+def _strrows(rows):
+    # stringify so Spark can always infer a schema (avoids all-None column errors)
+    return [{k: ("" if v is None else str(v)) for k, v in r.items()} for r in rows]
+
 print("=" * 70)
 for res in results:
-    print(f"TABLE {res['table']}: {res['row_count']} rows, {res['dup_rows']} duplicate rows")
+    print(f"TABLE {res['table']}: {res['row_count']} rows, {res['dup_rows']} duplicate rows, {len(res['proposals'])} columns")
+for t, _ in failures:
+    print(f"TABLE {t}: FAILED (see log above)")
 print("=" * 70)
-print("\nANOMALIES")
+print(f"\nANOMALIES ({len(all_anom)})")
 for a in all_anom:
     print("  •", a)
 
-try:
-    display(spark.createDataFrame(prop_rows))
-    if key_rows:
-        display(spark.createDataFrame(key_rows))
-except Exception as e:
-    print("display unavailable:", e)
+if prop_rows:
+    try:
+        display(spark.createDataFrame(_strrows(prop_rows)))
+        if key_rows:
+            display(spark.createDataFrame(_strrows(key_rows)))
+    except Exception as e:
+        print("display unavailable:", e)
+else:
+    log("no proposals produced (all tables failed?) — nothing to display")
+
+# COMMAND ----------
+# MAGIC %md
+# MAGIC ## Persist results (optional)
+# MAGIC If `results_location` (e.g. `my_catalog.my_metadata`) is set and you can write there, this saves four Delta
+# MAGIC tables — `profiler_proposals`, `profiler_keys`, `profiler_anomalies`, `profiler_runlog` — tagged with a run
+# MAGIC timestamp. If it's blank, results live only in this notebook's cell output + the driver log (nothing persisted).
+
+# COMMAND ----------
+RUN_TS = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+if RESULTS_LOCATION:
+    def _save(rows, name):
+        tgt = f"{RESULTS_LOCATION}.{name}"
+        if not rows:
+            log(f"    (skip {tgt}: no rows)"); return
+        sdf = spark.createDataFrame(_strrows(rows)).withColumn("run_ts", F.lit(RUN_TS))
+        sdf.write.mode("append").option("mergeSchema", "true").saveAsTable(tgt)
+        log(f"    wrote {sdf.count()} row(s) -> {tgt}")
+    try:
+        log(f"persisting results to {RESULTS_LOCATION} ...")
+        _save(prop_rows, "profiler_proposals")
+        _save(key_rows,  "profiler_keys")
+        _save([{"anomaly": a} for a in all_anom], "profiler_anomalies")
+        _save([{"catalog": CATALOG, "schema": SCHEMA, "tables": ",".join(tables_to_run),
+                "mode": MODE, "sample_size": SAMPLE,
+                "tables_ok": len(results), "tables_failed": len(failures),
+                "failures": "; ".join(f"{t}: {m[:120]}" for t, m in failures)}], "profiler_runlog")
+        log("persistence done.")
+    except Exception as e:
+        log(f"!! could not persist to {RESULTS_LOCATION}: {str(e)[:200]} "
+            f"(you likely need CREATE/MODIFY on that schema; results are still in the cell output above)")
+else:
+    log("results_location blank -> nothing persisted. Set it to a catalog.schema you can write to, "
+        "to save profiler_proposals / _keys / _anomalies / _runlog as Delta tables.")
 
 # COMMAND ----------
 # MAGIC %md ## Mode: diff (proposal vs Unity Catalog)
 
 # COMMAND ----------
 if MODE == "diff":
+    log("diff mode: comparing proposal against Unity Catalog ...")
     diffs = []
     for res in results:
         cur = uc_current(res["table"])
@@ -360,11 +452,13 @@ if MODE == "diff":
                 diffs.append({"table": res["table"], "column": c, "attribute": "comment",
                               "unity_catalog": cinfo.get("comment"), "proposed": "(profiler seed)",
                               "action": "ALTER … COMMENT"})
-    print(f"{len(diffs)} difference(s) between proposal and Unity Catalog.")
+    log(f"diff mode: {len(diffs)} difference(s) found.")
     try:
-        display(spark.createDataFrame(diffs) if diffs else spark.createDataFrame([{"info": "no differences"}]))
+        display(spark.createDataFrame(_strrows(diffs)) if diffs else spark.createDataFrame([{"info": "no differences"}]))
     except Exception as e:
         for d in diffs: print(d)
+else:
+    log(f"diff cell skipped (mode={MODE}).")
 
 # COMMAND ----------
 # MAGIC %md
@@ -375,6 +469,7 @@ if MODE == "diff":
 
 # COMMAND ----------
 if MODE == "apply":
+    log(f"apply mode ({'DRY-RUN' if DRYRUN else 'EXECUTE'}): comments + informational PK; type changes printed only.")
     def run(sql):
         print(("DRY-RUN  " if DRYRUN else "EXECUTE  ") + sql)
         if not DRYRUN:
@@ -401,3 +496,30 @@ if MODE == "apply":
                 print(f"--   add a typed column then backfill:  {p['cast_expr']}  (avoid in-place ALTER COLUMN TYPE on Delta)")
 
     print("\napply complete" + (" (dry-run — nothing executed)" if DRYRUN else ""))
+else:
+    log(f"apply cell skipped (mode={MODE}).")
+
+# COMMAND ----------
+# MAGIC %md ## Run summary — where everything went
+
+# COMMAND ----------
+print("=" * 70)
+print("RUN SUMMARY")
+print("  mode             :", MODE)
+print("  tables profiled  :", [r["table"] for r in results], f"({len(failures)} failed)")
+print("  proposals        :", len(prop_rows), "rows")
+print("  key candidates   :", len(key_rows), "rows")
+print("  anomalies        :", len(all_anom))
+print("-" * 70)
+print("WHERE THE OUTPUT IS:")
+print("  • Log lines + tables above  -> this notebook's cell output (and the cluster Driver log -> stdout;")
+print("                                 if run as a Job, the job run page). Ephemeral — tied to this run.")
+if RESULTS_LOCATION:
+    print(f"  • Saved Delta tables (run_ts='{RUN_TS}') ->")
+    for n in ("profiler_proposals", "profiler_keys", "profiler_anomalies", "profiler_runlog"):
+        print(f"        {RESULTS_LOCATION}.{n}")
+    print(f"    Query later e.g.:  SELECT * FROM {RESULTS_LOCATION}.profiler_proposals WHERE run_ts = '{RUN_TS}'")
+else:
+    print("  • Nothing persisted (results_location is blank). Set it to a catalog.schema you can write to")
+    print("    if you want profiler_proposals / _keys / _anomalies / _runlog saved as Delta tables.")
+print("=" * 70)
