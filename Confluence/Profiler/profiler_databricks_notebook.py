@@ -405,28 +405,53 @@ else:
 
 # COMMAND ----------
 RUN_TS = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+PERSISTED = []          # (quoted_table_name, rowcount) actually written
+PERSIST_ERROR = None
+
+def _qualify(name):
+    # backtick-quote every part so a hyphenated catalog (d4001-...) is valid
+    return ".".join(bq(p.strip()) for p in (RESULTS_LOCATION.split(".") + [name]))
 
 if RESULTS_LOCATION:
-    def _save(rows, name):
-        tgt = f"{RESULTS_LOCATION}.{name}"
-        if not rows:
-            log(f"    (skip {tgt}: no rows)"); return
-        sdf = spark.createDataFrame(_strrows(rows)).withColumn("run_ts", F.lit(RUN_TS))
+    from pyspark.sql.types import StructType, StructField, StringType
+
+    def _save(rows, name, columns):
+        # always creates the table, even when empty, using an explicit string schema
+        tgt = _qualify(name)
+        rows = _strrows(rows)
+        cols = columns + ["run_ts"]
+        if rows:
+            sdf = spark.createDataFrame(rows).withColumn("run_ts", F.lit(RUN_TS))
+            sdf = sdf.select(*cols)                       # stable column order
+        else:
+            schema = StructType([StructField(c, StringType(), True) for c in cols])
+            sdf = spark.createDataFrame([], schema)
         sdf.write.mode("append").option("mergeSchema", "true").saveAsTable(tgt)
-        log(f"    wrote {sdf.count()} row(s) -> {tgt}")
+        n = sdf.count()
+        PERSISTED.append((tgt, n))
+        log(f"    wrote {n} row(s) -> {tgt}")
+
+    PROP_COLS = ["table", "column", "current_type", "proposed_type", "nullable", "date_format",
+                 "cast_expr", "null_count", "null_pct", "zero_or_blank", "approx_distinct",
+                 "enum_values", "sample_values", "notes"]
+    KEY_COLS  = ["table", "column", "key_kind", "unique_nonnull", "verdict"]
+    ANOM_COLS = ["anomaly"]
+    RUNLOG_COLS = ["catalog", "schema", "tables", "mode", "sample_size",
+                   "tables_ok", "tables_failed", "failures"]
     try:
         log(f"persisting results to {RESULTS_LOCATION} ...")
-        _save(prop_rows, "profiler_proposals")
-        _save(key_rows,  "profiler_keys")
-        _save([{"anomaly": a} for a in all_anom], "profiler_anomalies")
+        _save(prop_rows, "profiler_proposals", PROP_COLS)
+        _save(key_rows,  "profiler_keys", KEY_COLS)
+        _save([{"anomaly": a} for a in all_anom], "profiler_anomalies", ANOM_COLS)
         _save([{"catalog": CATALOG, "schema": SCHEMA, "tables": ",".join(tables_to_run),
                 "mode": MODE, "sample_size": SAMPLE,
                 "tables_ok": len(results), "tables_failed": len(failures),
-                "failures": "; ".join(f"{t}: {m[:120]}" for t, m in failures)}], "profiler_runlog")
+                "failures": "; ".join(f"{t}: {m[:120]}" for t, m in failures)}], "profiler_runlog", RUNLOG_COLS)
         log("persistence done.")
     except Exception as e:
-        log(f"!! could not persist to {RESULTS_LOCATION}: {str(e)[:200]} "
-            f"(you likely need CREATE/MODIFY on that schema; results are still in the cell output above)")
+        PERSIST_ERROR = str(e)
+        log(f"!! could not persist to {RESULTS_LOCATION}: {PERSIST_ERROR[:240]} "
+            f"(you likely need CREATE TABLE on that schema; results are still in the cell output above)")
 else:
     log("results_location blank -> nothing persisted. Set it to a catalog.schema you can write to, "
         "to save profiler_proposals / _keys / _anomalies / _runlog as Delta tables.")
@@ -514,12 +539,20 @@ print("-" * 70)
 print("WHERE THE OUTPUT IS:")
 print("  • Log lines + tables above  -> this notebook's cell output (and the cluster Driver log -> stdout;")
 print("                                 if run as a Job, the job run page). Ephemeral — tied to this run.")
-if RESULTS_LOCATION:
-    print(f"  • Saved Delta tables (run_ts='{RUN_TS}') ->")
-    for n in ("profiler_proposals", "profiler_keys", "profiler_anomalies", "profiler_runlog"):
-        print(f"        {RESULTS_LOCATION}.{n}")
-    print(f"    Query later e.g.:  SELECT * FROM {RESULTS_LOCATION}.profiler_proposals WHERE run_ts = '{RUN_TS}'")
-else:
+if not RESULTS_LOCATION:
     print("  • Nothing persisted (results_location is blank). Set it to a catalog.schema you can write to")
     print("    if you want profiler_proposals / _keys / _anomalies / _runlog saved as Delta tables.")
+elif PERSIST_ERROR:
+    print(f"  • PERSIST FAILED — tables were NOT created. Reason: {PERSIST_ERROR[:200]}")
+    print("    Most common cause: you lack CREATE TABLE on that schema. Use a schema you can write to,")
+    print("    or ask for CREATE TABLE on it, then re-run the persist cell.")
+elif PERSISTED:
+    print(f"  • Saved Delta tables (run_ts='{RUN_TS}'):")
+    for tgt, n in PERSISTED:
+        print(f"        {tgt}   ({n} rows)")
+    print(f"    Query later:  SELECT * FROM {_qualify('profiler_proposals')} WHERE run_ts = '{RUN_TS}'")
+    print("    (refresh Catalog Explorer to see them.)")
+else:
+    print("  • results_location is set but nothing was written — the persist cell didn't run.")
+    print("    Run the 'Persist results' cell (or Run All) so the tables get created.")
 print("=" * 70)
