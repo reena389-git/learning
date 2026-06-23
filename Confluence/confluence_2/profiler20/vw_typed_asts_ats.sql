@@ -20,8 +20,8 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_xva`.`vw_asts_t
 SELECT
   * EXCEPT (`Line_Expiry`, `business_date`, `Standard_Usage_0_3_mo`, `Standard_Usage_3_12_mo`, `Standard_Usage_1_2_Yr`, `Standard_Usage_2_5_Yr`, `Standard_Usage_5_10_Yr`, `Standard_Usage_10_50_Yr`, `Max_Usage_0_3_mo`, `Max_Usage_3_12_mo`, `Max_Usage_1_2_Yr`, `Max_Usage_2_5_Yr`, `Max_Usage_5_10_Yr`, `Max_Usage_10_50_Yr`, `Limit_3_mo`, `Limit_1_Yr`, `Limit_2_Yr`, `Limit_5_Yr`, `Limit_10_Yr`, `Limit_50_Yr`, `Gross_Max_Exposure`, `Max_Scenario_Exposure`, `Standard_Exposure`),
   -- dates: YYYYMMDD (int/text today) OR native DATE/TIMESTAMP (after a fix) -> DATE
-  COALESCE(try_to_date(CAST(`Line_Expiry` AS STRING), 'yyyyMMdd'), try_cast(`Line_Expiry` AS DATE), try_to_date(CAST(`Line_Expiry` AS STRING))) AS `Line_Expiry`,
-  COALESCE(try_to_date(CAST(`business_date` AS STRING), 'yyyyMMdd'), try_cast(`business_date` AS DATE), try_to_date(CAST(`business_date` AS STRING))) AS `business_date`,
+  COALESCE(try_to_date(CAST(`Line_Expiry` AS STRING), 'yyyyMMdd'), try_cast(CAST(`Line_Expiry` AS STRING) AS DATE)) AS `Line_Expiry`,
+  COALESCE(try_to_date(CAST(`business_date` AS STRING), 'yyyyMMdd'), try_cast(CAST(`business_date` AS STRING) AS DATE)) AS `business_date`,
   -- numerics: thousands-separated text today OR BIGINT (after a fix) -> BIGINT
   try_cast(replace(CAST(`Standard_Usage_0_3_mo` AS STRING), ',', '') AS BIGINT) AS `Standard_Usage_0_3_mo`,
   try_cast(replace(CAST(`Standard_Usage_3_12_mo` AS STRING), ',', '') AS BIGINT) AS `Standard_Usage_3_12_mo`,
@@ -50,7 +50,7 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_ats_s
 SELECT
   * EXCEPT (`business_date`),
   -- dates: YYYYMMDD (int/text today) OR native DATE/TIMESTAMP (after a fix) -> DATE
-  COALESCE(try_to_date(CAST(`business_date` AS STRING), 'yyyyMMdd'), try_cast(`business_date` AS DATE), try_to_date(CAST(`business_date` AS STRING))) AS `business_date`
+  COALESCE(try_to_date(CAST(`business_date` AS STRING), 'yyyyMMdd'), try_cast(CAST(`business_date` AS STRING) AS DATE)) AS `business_date`
 FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`ats_summary`;
 
 -- ---------------------------------------------------------------------------
