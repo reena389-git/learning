@@ -1,0 +1,169 @@
+-- =====================================================================
+-- vw_ast_breach_report   (v4 — IM + IA + Worst_Scenario)
+-- Databricks SQL.  Catalog: d4001-centralus-tdvip-creditrisk
+--
+-- CHANGES in v4:
+--   + Worst_Scenario = asts.Max_Scenario_Name  (the model-native driver: the
+--     scenario that produced the line's max exposure — the dashboard's
+--     "which scenario hurts" tag, sourced for free)
+--
+-- CHANGES already in v3:
+--   + IM  = lines_report.initial_margin            (already on the MTM join — free)
+--   + IA  = pfe_exp_decomp_report.max_usage_0_3_mo
+--             WHERE product_group = 'Lines_Report - With IM'
+--           deduped to one row per Line (line+source unique, IM equal across
+--           sources -> MAX over the line collapses it safely; no fan-out)
+--   ~ asts now read from xvala_core.asts        (was xvala_xva.asts — your open
+--                                                item (a); DDL confirms xvala_core)
+--   ~ test_ats_summary join wrapped with a business_date filter to stop a
+--     multi-load fan-out (the prior join was on Line only, no date) — see (!) note
+--
+-- (!) STILL TO CONFIRM:
+--   b) test_ats_summary / test_lines_report — dev03 test_ tables vs prod
+--      ats_summary / lines_report. IA below points at xvala_core-raw.pfe_exp_decomp_report
+--      (the only copy in the DDL); repoint to a test_ copy if one exists in dev03.
+--   c) sic_code — CONFIRMED present on test_ats_summary. brr still to verify
+--      (prod ats_summary in the DDL has neither); if brr is absent, Rating is NULL.
+--   d) IA date filter format: decomp business_date is STRING; I used '20260430'
+--      to match asts. If decomp follows lines_report's '2026-04-30', flip it
+--      (else IA silently returns NULL for every line — V-IA below catches that).
+-- =====================================================================
+
+CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_ast_breach_report (
+  Line,
+  Counterparty_Name,
+  Industry,
+  Rating,
+  Line_Type,
+  Line_Currency,
+  MTM_MM COMMENT 'Mark to market value as DOUBLE.',
+  Stress_PFE_MM,
+  Standard_PFE_MM,
+  IM COMMENT 'Initial Margin from lines_report.initial_margin (DOUBLE).',
+  IA COMMENT 'Independent Amount = exp_decomp max_usage_0_3_mo where product_group = Lines_Report - With IM.',
+  SIC_Code,
+  Stress_Credit_Utilization,
+  Product_Type,
+  Worst_Scenario COMMENT 'Model-native driver: asts.Max_Scenario_Name — the scenario that produced the max exposure.'
+)
+WITH SCHEMA COMPENSATION
+AS
+WITH breach_lines AS (
+    -- Step 1: lines with a breach in ANY of the six buckets (flags are STRING).
+    SELECT
+        Line,
+        Long_Name,
+        Worst_Rating_Of_Associated_Clients,   -- selected but no longer used downstream
+        Line_Type,
+        Line_Currency,
+        Max_Exp_Time_Bucket,
+        Max_Scenario_Name,
+        CAST(REPLACE(Max_Scenario_Exposure, ',', '') AS DOUBLE) AS Max_Scenario_Exposure,
+        CAST(REPLACE(Standard_Exposure,     ',', '') AS DOUBLE) AS Standard_Exposure,
+        CAST(REPLACE(`Limit_3_mo`,  ',', '') AS DOUBLE) AS Limit_3_mo,
+        CAST(REPLACE(`Limit_1_Yr`,  ',', '') AS DOUBLE) AS Limit_1_Yr,
+        CAST(REPLACE(`Limit_2_Yr`,  ',', '') AS DOUBLE) AS Limit_2_Yr,
+        CAST(REPLACE(`Limit_5_Yr`,  ',', '') AS DOUBLE) AS Limit_5_Yr,
+        CAST(REPLACE(`Limit_10_Yr`, ',', '') AS DOUBLE) AS Limit_10_Yr,
+        CAST(REPLACE(`Limit_50_Yr`, ',', '') AS DOUBLE) AS Limit_50_Yr
+    FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.asts AS ast      -- (~) was xvala_xva
+    WHERE (
+            ast.`0_3_mo_Excess_Breach`   = 'TRUE'
+         OR ast.`3_12_mo_Excess_Breach`  = 'TRUE'
+         OR ast.`1_2_Yr_Excess_Breach`   = 'TRUE'
+         OR ast.`2_5_Yr_Excess_Breach`   = 'TRUE'
+         OR ast.`5_10_Yr_Excess_Breach`  = 'TRUE'
+         OR ast.`10_50_Yr_Excess_Breach` = 'TRUE'
+          )
+      AND ast.business_date     = '20260430'
+      AND ast.No_Line_Indicator = 'False'
+),
+unique_breach_lines AS (
+    -- "Take Unique Line": one row per Line, highest exposure wins.
+    SELECT
+        ast.*,
+        ROW_NUMBER() OVER (PARTITION BY Line ORDER BY Max_Scenario_Exposure DESC) AS rn
+    FROM breach_lines AS ast
+),
+-- (+) IA source: one row per Line. line+source is unique and IM is constant across
+--     sources, so MAX over the line is a safe collapse (avoids a scenario fan-out).
+ia_src AS (
+    SELECT
+        line,
+        MAX(CAST(REPLACE(max_usage_0_3_mo, ',', '') AS DOUBLE)) AS ia
+    FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.pfe_exp_decomp_report
+    WHERE product_group = 'Lines_Report - With IM'
+      AND business_date = '20260430'        -- (!) confirm format — see note (d)
+    GROUP BY line
+)
+SELECT
+    ast.Line                       AS Line,
+    ast.Long_Name                  AS Counterparty_Name,
+    ats_summary.sic_industry       AS Industry,          -- join key: Line
+    ats_summary.brr                AS Rating,            -- join key: Line  (see note c)
+    ast.Line_Type                  AS Line_Type,
+    ast.Line_Currency              AS Line_Currency,
+    Lines_Report.`mark_to_market`  AS MTM_MM,            -- join key: Line
+    ast.Max_Scenario_Exposure      AS Stress_PFE_MM,
+    ast.Standard_Exposure          AS Standard_PFE_MM,
+    Lines_Report.`initial_margin`  AS IM,                -- (+) IM
+    ia_src.ia                      AS IA,                -- (+) IA (filtered decomp)
+    ats_summary.sic_code           AS SIC_Code,          -- join key: Line  (see note c)
+    -- Stress Credit Utilization: Max_Scenario_Exposure / (bucket-matched Limit,
+    -- falling back to Standard_Exposure, then NULL).
+    CASE ast.Max_Exp_Time_Bucket
+        WHEN 'max_usage_0_3_mo'
+            THEN ROUND(ast.Max_Scenario_Exposure / COALESCE(NULLIF(ast.Limit_3_mo,  0), NULLIF(ast.Standard_Exposure, 0)), 4)
+        WHEN 'max_usage_3_12_mo'
+            THEN ROUND(ast.Max_Scenario_Exposure / COALESCE(NULLIF(ast.Limit_1_Yr,  0), NULLIF(ast.Standard_Exposure, 0)), 4)
+        WHEN 'max_usage_1_2_yr'
+            THEN ROUND(ast.Max_Scenario_Exposure / COALESCE(NULLIF(ast.Limit_2_Yr,  0), NULLIF(ast.Standard_Exposure, 0)), 4)
+        WHEN 'max_usage_2_5_yr'
+            THEN ROUND(ast.Max_Scenario_Exposure / COALESCE(NULLIF(ast.Limit_5_Yr,  0), NULLIF(ast.Standard_Exposure, 0)), 4)
+        WHEN 'max_usage_5_10_yr'
+            THEN ROUND(ast.Max_Scenario_Exposure / COALESCE(NULLIF(ast.Limit_10_Yr, 0), NULLIF(ast.Standard_Exposure, 0)), 4)
+        WHEN 'max_usage_10_50_yr'
+            THEN ROUND(ast.Max_Scenario_Exposure / COALESCE(NULLIF(ast.Limit_50_Yr, 0), NULLIF(ast.Standard_Exposure, 0)), 4)
+        ELSE
+            ROUND(ast.Max_Scenario_Exposure / NULLIF(ast.Standard_Exposure, 0), 4)
+    END                            AS Stress_Credit_Utilization,
+    ats_summary.otc_sft            AS Product_Type,      -- join key: Line
+    ast.Max_Scenario_Name          AS Worst_Scenario     -- (+) model-native driver (free from breach_lines)
+FROM unique_breach_lines AS ast
+LEFT JOIN (
+        -- (~) date-filtered so a multi-load test_ats_summary can't fan out the grain.
+        --     If test_ats_summary is single-load (or lacks business_date), drop the WHERE.
+        SELECT Line, sic_industry, brr, sic_code, otc_sft
+        FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.test_ats_summary
+        WHERE business_date = '20260430'
+     ) AS ats_summary
+       ON ats_summary.Line = ast.Line
+LEFT JOIN (
+        SELECT *
+        FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.test_lines_report
+        WHERE business_date = '2026-04-30'
+          AND Source = 'CARTOR'
+     ) AS Lines_Report
+       ON Lines_Report.Line = ast.Line
+LEFT JOIN ia_src
+       ON ia_src.line = ast.Line
+WHERE ast.rn = 1
+ORDER BY ast.Line;
+
+
+-- =====================================================================
+-- VALIDATION
+-- =====================================================================
+-- V-COUNT  rows == distinct breached lines (proves no fan-out from the joins)
+SELECT COUNT(*) AS rows, COUNT(DISTINCT Line) AS distinct_lines
+FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_ast_breach_report;
+
+-- V-IA  IA coverage. If ia_pop = 0, the decomp date filter format is wrong (note d)
+--       or the product_group string doesn't match verbatim.
+SELECT COUNT(*) AS total, COUNT(IA) AS ia_pop, COUNT(IM) AS im_pop
+FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_ast_breach_report;
+
+-- V-RATING  brr/sic_code presence (note c). If both are ~all NULL, test_ats_summary
+--           isn't exposing them.
+SELECT COUNT(*) AS total, COUNT(Rating) AS rating_pop, COUNT(SIC_Code) AS sic_pop
+FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_ast_breach_report;
