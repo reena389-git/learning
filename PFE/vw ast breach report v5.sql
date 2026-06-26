@@ -1,5 +1,5 @@
 -- =====================================================================
--- vw_ast_breach_report   (v4 — IM + IA + Worst_Scenario)
+-- vw_ast_breach_report   (v5 — IM + IA + Worst_Scenario + Rating-from-asts; homed in xvala_core-raw)
 -- Databricks SQL.  Catalog: d4001-centralus-tdvip-creditrisk
 --
 -- CHANGES in v4:
@@ -29,7 +29,7 @@
 --      (else IA silently returns NULL for every line — V-IA below catches that).
 -- =====================================================================
 
-CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_ast_breach_report (
+CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_ast_breach_report (
   Line,
   Counterparty_Name,
   Industry,
@@ -100,7 +100,10 @@ SELECT
     ast.Line                       AS Line,
     ast.Long_Name                  AS Counterparty_Name,
     ats_summary.sic_industry       AS Industry,          -- join key: Line
-    ats_summary.brr                AS Rating,            -- join key: Line  (see note c)
+    regexp_replace(ast.Worst_Rating_Of_Associated_Clients, '\\s*\\(NIG\\)', '')
+                                   AS Rating,            -- (~) from asts worst rating: breach-driving & 132/132.
+                                                         --     swap to td_account_rating if the upstream Excess_Breach
+                                                         --     buffer keys off it (then fix its coverage gap).
     ast.Line_Type                  AS Line_Type,
     ast.Line_Currency              AS Line_Currency,
     Lines_Report.`mark_to_market`  AS MTM_MM,            -- join key: Line
@@ -156,14 +159,14 @@ ORDER BY ast.Line;
 -- =====================================================================
 -- V-COUNT  rows == distinct breached lines (proves no fan-out from the joins)
 SELECT COUNT(*) AS rows, COUNT(DISTINCT Line) AS distinct_lines
-FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_ast_breach_report;
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_ast_breach_report;
 
 -- V-IA  IA coverage. If ia_pop = 0, the decomp date filter format is wrong (note d)
 --       or the product_group string doesn't match verbatim.
 SELECT COUNT(*) AS total, COUNT(IA) AS ia_pop, COUNT(IM) AS im_pop
-FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_ast_breach_report;
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_ast_breach_report;
 
 -- V-RATING  brr/sic_code presence (note c). If both are ~all NULL, test_ats_summary
 --           isn't exposing them.
 SELECT COUNT(*) AS total, COUNT(Rating) AS rating_pop, COUNT(SIC_Code) AS sic_pop
-FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_ast_breach_report;
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_ast_breach_report;

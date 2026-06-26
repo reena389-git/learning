@@ -1,5 +1,5 @@
 -- =============================================================================
--- portfolio_aggregation_v2.sql
+-- portfolio_aggregation_v3.sql  (limit basis switched to asts bucket-matched, to reconcile with vw_ast_breach_report; pfe_limit_config dropped; utilisation now a RATIO)
 -- What changed vs v1, and why.
 --
 --   The trajectory dashboard needs three things the old Level-1 view didn't emit:
@@ -143,13 +143,16 @@ FROM cp_named;
 --   across dates and delete this.)
 --
 --   Also: collapses entity -> CP (sums the 8 scenario sums, then re-GREATESTs, so
---   the two-step stays correct), filters OTC, and joins the limit so the radar's
+--   the two-step stays correct), keeps OTC+SFT (otc_sft is a grain key / page toggle,
+--   not a hard filter), and takes the limit from asts (same basis as the breach view) so
 --   utilisation axis has a denominator for every name (not just breached ones).
 -- =============================================================================
 CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_cp_stress_hist_demo` AS
-WITH cur AS (   -- collapse entity, OTC only, re-sum scenarios across entity
+WITH cur AS (   -- collapse entity; KEEP otc_sft as a grain key (whole book — OTC/SFT is a
+                -- page toggle, not a hard filter); re-sum scenarios across entity
   SELECT
     counterparty,
+    otc_sft,
     MAX(industry)        AS industry,
     MAX(country_of_risk) AS country_of_risk,
     MAX(region)          AS region,
@@ -165,8 +168,7 @@ WITH cur AS (   -- collapse entity, OTC only, re-sum scenarios across entity
     SUM(cp_prod)      AS s_prod,
     SUM(cp_strmpr025) AS s_strmpr025
   FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_asts_portfolio_cp_stress`
-  WHERE otc_sft = 'OTC'
-  GROUP BY counterparty
+  GROUP BY counterparty, otc_sft
 ),
 cur2 AS (
   SELECT *,
@@ -174,11 +176,37 @@ cur2 AS (
     s_cartor AS standard_pfe
   FROM cur
 ),
-lim AS (   -- limit via the CLEAN notch of the worst rating ((NIG) stripped)
-  SELECT c.*, lc.`limit` AS limit_amt
+asts_lim AS (   -- bucket-matched limit per CP x product from asts — the SAME definition
+                -- as vw_ast_breach_report's denominator, so the two levels reconcile.
+                -- Whole book; otc_sft (from ats_summary) kept as a grain key. Latest run.
+  SELECT counterparty, otc_sft, SUM(bucket_limit) AS limit_amt
+  FROM (
+    SELECT
+      a.`Long_Name` AS counterparty,
+      CASE a.`Max_Exp_Time_Bucket`
+        WHEN 'max_usage_0_3_mo'   THEN CAST(REPLACE(a.`Limit_3_mo`, ',','') AS DOUBLE)
+        WHEN 'max_usage_3_12_mo'  THEN CAST(REPLACE(a.`Limit_1_Yr`, ',','') AS DOUBLE)
+        WHEN 'max_usage_1_2_yr'   THEN CAST(REPLACE(a.`Limit_2_Yr`, ',','') AS DOUBLE)
+        WHEN 'max_usage_2_5_yr'   THEN CAST(REPLACE(a.`Limit_5_Yr`, ',','') AS DOUBLE)
+        WHEN 'max_usage_5_10_yr'  THEN CAST(REPLACE(a.`Limit_10_Yr`,',','') AS DOUBLE)
+        WHEN 'max_usage_10_50_yr' THEN CAST(REPLACE(a.`Limit_50_Yr`,',','') AS DOUBLE)
+        ELSE NULL END AS bucket_limit,
+      s.`otc_sft`,
+      ROW_NUMBER() OVER (PARTITION BY a.`Line`
+        ORDER BY CAST(REPLACE(a.`Max_Scenario_Exposure`,',','') AS DOUBLE) DESC) AS rn
+    FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`asts` a
+    LEFT JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`ats_summary` s
+           ON s.`line` = a.`Line` AND s.`business_date` = a.`business_date`   -- both yyyymmdd
+    WHERE a.`business_date` = '20260430'
+      AND a.`No_Line_Indicator` = 'False'
+  ) z
+  WHERE rn = 1
+  GROUP BY counterparty, otc_sft
+),
+lim AS (   -- attach the asts bucket-matched limit (pfe_limit_config no longer used)
+  SELECT c.*, a.limit_amt
   FROM cur2 c
-  LEFT JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_limit_config` lc
-    ON lc.`cp_internal_rating` = regexp_replace(c.worst_rating, '\\s*\\(NIG\\)', '')
+  LEFT JOIN asts_lim a ON a.counterparty = c.counterparty AND a.otc_sft = c.otc_sft
 ),
 months AS ( SELECT explode(array(0,1,2,3,4,5)) AS m_back ),   -- 0=current(real)..5
 gen AS (
@@ -187,13 +215,13 @@ gen AS (
     CASE WHEN mb.m_back = 0 THEN 1.0
          ELSE greatest(0.2,
                 1.0
-                - mb.m_back * ((pmod(xxhash64(l.counterparty), 240) - 120) / 1000.0)
-                + ((pmod(xxhash64(l.counterparty, CAST(mb.m_back AS STRING)), 60) - 30) / 1000.0))
+                - mb.m_back * ((pmod(xxhash64(l.counterparty, l.otc_sft), 240) - 120) / 1000.0)
+                + ((pmod(xxhash64(l.counterparty, l.otc_sft, CAST(mb.m_back AS STRING)), 60) - 30) / 1000.0))
     END AS drift
   FROM lim l CROSS JOIN months mb
 )
 SELECT
-  counterparty, industry, country_of_risk, region, worst_rating, brr_bucket,
+  counterparty, otc_sft, industry, country_of_risk, region, worst_rating, brr_bucket,
   date_format(add_months(to_date(business_date,'yyyyMMdd'), -m_back), 'yyyyMMdd') AS business_date,
   m_back,
   ROUND(stress_pfe   * drift) AS stress_pfe,
@@ -203,7 +231,7 @@ SELECT
   ROUND(s_str75*drift)  AS cp_str75,  ROUND(s_one*drift)   AS cp_one,
   ROUND(s_prod*drift)   AS cp_prod,   ROUND(s_strmpr025*drift) AS cp_strmpr025,
   limit_amt,
-  ROUND(100.0 * stress_pfe * drift / NULLIF(limit_amt,0), 1) AS utilization_pct
+  ROUND(stress_pfe * drift / NULLIF(limit_amt,0), 4) AS utilization   -- RATIO (1.94), matches vw_ast_breach_report
 FROM gen;
 
 
@@ -215,32 +243,34 @@ FROM gen;
 WITH h AS (SELECT * FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_cp_stress_hist_demo`),
 mx AS (SELECT MAX(business_date) d FROM h)
 SELECT
-  cur.counterparty, cur.industry, cur.brr_bucket, cur.country_of_risk,
-  cur.stress_pfe, cur.standard_pfe, cur.limit_amt, cur.utilization_pct,
-  prev.utilization_pct AS utilization_prev_pct,
-  ROUND(cur.utilization_pct - prev.utilization_pct, 1) AS mom_pp,
+  cur.counterparty, cur.otc_sft, cur.industry, cur.brr_bucket, cur.country_of_risk,
+  cur.stress_pfe, cur.standard_pfe, cur.limit_amt, cur.utilization,
+  prev.utilization AS utilization_prev,
+  ROUND(cur.utilization - prev.utilization, 4) AS mom_delta,
   cur.cp_cartor, cur.cp_zero, cur.cp_c_25, cur.cp_c_75,
   cur.cp_str75, cur.cp_one, cur.cp_prod, cur.cp_strmpr025   -- fingerprint
 FROM h cur JOIN mx ON cur.business_date = mx.d
 LEFT JOIN h prev
-  ON prev.counterparty = cur.counterparty AND prev.m_back = 1
-ORDER BY cur.utilization_pct DESC;
+  ON prev.counterparty = cur.counterparty AND prev.otc_sft = cur.otc_sft AND prev.m_back = 1
+ORDER BY cur.utilization DESC;
 
 -- R2  Sparkline feed : 6-month utilisation per CP (oldest -> newest).
-SELECT counterparty, business_date, utilization_pct
+SELECT counterparty, otc_sft, business_date, utilization
 FROM   `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_cp_stress_hist_demo`
-ORDER  BY counterparty, business_date;
+ORDER  BY counterparty, otc_sft, business_date;
 
 -- R3  Delta strip : New / Worsening / Improving / Cleared (current vs prior).
 WITH h AS (SELECT * FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_cp_stress_hist_demo`),
 cur AS (SELECT * FROM h WHERE m_back = 0),
-prv AS (SELECT counterparty, utilization_pct AS u_prev FROM h WHERE m_back = 1)
+prv AS (SELECT counterparty, otc_sft, utilization AS u_prev FROM h WHERE m_back = 1)
 SELECT
-  SUM(CASE WHEN cur.utilization_pct>=100 AND u_prev<100  THEN 1 ELSE 0 END) AS new_breaches,
-  SUM(CASE WHEN cur.utilization_pct>=100 AND cur.utilization_pct>u_prev AND u_prev>=100 THEN 1 ELSE 0 END) AS worsening,
-  SUM(CASE WHEN cur.utilization_pct>=100 AND cur.utilization_pct<u_prev THEN 1 ELSE 0 END) AS improving,
-  SUM(CASE WHEN cur.utilization_pct<100  AND u_prev>=100 THEN 1 ELSE 0 END) AS cleared
-FROM cur LEFT JOIN prv USING (counterparty);
+  cur.otc_sft,
+  SUM(CASE WHEN cur.utilization>=1.0 AND u_prev<1.0  THEN 1 ELSE 0 END) AS new_breaches,
+  SUM(CASE WHEN cur.utilization>=1.0 AND cur.utilization>u_prev AND u_prev>=1.0 THEN 1 ELSE 0 END) AS worsening,
+  SUM(CASE WHEN cur.utilization>=1.0 AND cur.utilization<u_prev THEN 1 ELSE 0 END) AS improving,
+  SUM(CASE WHEN cur.utilization<1.0  AND u_prev>=1.0 THEN 1 ELSE 0 END) AS cleared
+FROM cur LEFT JOIN prv USING (counterparty, otc_sft)
+GROUP BY cur.otc_sft;
 
 
 -- =============================================================================
