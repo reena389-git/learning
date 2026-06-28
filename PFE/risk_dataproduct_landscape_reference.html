@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Risk Data Landscape & Data-Product Reference</title>
+<style>
+  :root{
+    --ink:#1c2b24; --muted:#5d6f66; --line:#d7e0db; --bg:#f4f7f5; --card:#fff;
+    --green:#1b6b46; --green2:#2e8b62; --amber:#b5651d; --amberbg:#fbf1e3;
+    --red:#b23b3b; --redbg:#fbecec; --blue:#2c5c8f; --bluebg:#e9f1f8;
+    --greenbg:#e6f1ea; --purple:#5b4b8a; --purplebg:#efeaf6; --slate:#46606f; --slatebg:#eaf0f3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);
+    background:var(--bg);line-height:1.5;font-size:15px}
+  header{background:linear-gradient(135deg,#15402c,#1b6b46);color:#fff;padding:30px 40px}
+  header h1{margin:0 0 6px;font-size:25px;letter-spacing:.2px}
+  header p{margin:0;opacity:.9;font-size:14px;max-width:900px}
+  .wrap{display:flex;gap:0;align-items:flex-start}
+  nav{position:sticky;top:0;align-self:flex-start;min-width:220px;max-width:220px;padding:20px 14px;
+    background:#fff;border-right:1px solid var(--line);height:100vh;overflow:auto;font-size:13px}
+  nav a{display:block;color:var(--slate);text-decoration:none;padding:6px 8px;border-radius:6px;margin-bottom:2px}
+  nav a:hover{background:var(--greenbg);color:var(--green)}
+  nav .grp{font-weight:700;color:var(--ink);margin:14px 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+  main{flex:1;padding:30px 40px;max-width:1040px}
+  section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px 26px;margin-bottom:22px}
+  h2{font-size:20px;margin:0 0 4px;color:var(--green)}
+  h2 .n{color:var(--line);font-weight:800;margin-right:10px}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+  h3{font-size:15px;margin:20px 0 8px}
+  p{margin:0 0 12px}
+  .lead{font-size:15px}
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;vertical-align:middle}
+  .p-prod{background:var(--greenbg);color:var(--green)} .p-cons{background:var(--bluebg);color:var(--blue)}
+  .p-conf{background:var(--purplebg);color:var(--purple)} .p-calc{background:var(--amberbg);color:var(--amber)}
+  .p-ext{background:var(--slatebg);color:var(--slate)} .p-ung{background:var(--redbg);color:var(--red)}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 18px}
+  .legend .pill{cursor:default}
+  .grid{display:grid;gap:12px}
+  .box{border:1px solid var(--line);border-radius:9px;padding:12px 14px;background:#fcfdfc}
+  .box h4{margin:0 0 4px;font-size:13.5px}
+  .box .meta{font-size:12px;color:var(--muted)}
+  .plane{border-radius:10px;padding:16px 18px;margin-bottom:12px}
+  .plane.gov{background:var(--greenbg);border:1px solid #bcd9c8}
+  .plane.ung{background:var(--redbg);border:1px solid #ecc9c9}
+  .plane h4{margin:0 0 8px;display:flex;align-items:center;gap:8px;font-size:14px}
+  .flow{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:10px 0}
+  .node{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 11px;font-size:12.5px;font-weight:600}
+  .node.src{background:#f3f5f4;color:var(--slate)} .node.crs{background:var(--purplebg);border-color:#cdbfe6}
+  .node.calc{background:var(--amberbg);border-color:#e7cba6} .node.view{background:var(--bluebg);border-color:#bcd2e8}
+  .arrow{color:var(--muted);font-weight:700}
+  table{width:100%;border-collapse:collapse;margin:8px 0 14px;font-size:13px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#f0f5f2;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--slate)}
+  .ladder .rung{display:grid;grid-template-columns:54px 1fr;gap:14px;align-items:start;padding:12px 0;border-bottom:1px dashed var(--line)}
+  .ladder .lv{font-weight:800;color:#fff;background:var(--green2);border-radius:8px;text-align:center;padding:8px 0;font-size:15px}
+  .ladder .lv.l0,.ladder .lv.l1{background:var(--slate)} .ladder .lv.l2,.ladder .lv.l3{background:var(--purple)}
+  .ladder .lv.l4{background:var(--blue)} .ladder .lv.l5{background:#8a8a8a}
+  .ladder .rung h4{margin:0 0 3px;font-size:14px}
+  .ladder .tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+  .tag.rep{color:var(--slate)} .tag.sem{color:var(--purple)} .tag.con{color:var(--blue)}
+  .callout{border-left:4px solid var(--green2);background:#f3f8f5;padding:12px 16px;border-radius:0 8px 8px 0;margin:14px 0}
+  .callout.warn{border-color:var(--amber);background:var(--amberbg)}
+  .callout.key{border-color:var(--blue);background:var(--bluebg)}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .gloss dt{font-weight:700;margin-top:10px}
+  .gloss dd{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+  .star{color:var(--amber)}
+  code{background:#eef3f0;padding:1px 5px;border-radius:4px;font-size:12.5px}
+  @media(max-width:860px){.wrap{flex-direction:column}nav{position:static;max-width:none;min-width:0;height:auto;width:100%;border-right:none;border-bottom:1px solid var(--line)}.twocol{grid-template-columns:1fr}}
+  .foot{color:var(--muted);font-size:12px;padding:10px 40px 40px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Risk Data Landscape &amp; Data-Product Reference</h1>
+  <p>A starter reference for the data-product / conformance story — the landscape, the two product archetypes, the conformance ladder, and the Risk CDM vs CDO CDM distinction. Working vocabulary captured as we go; to be turned into the team explainer. Maturity level today: 0 (datasets, manual cross-app conformance).</p>
+</header>
+<div class="wrap">
+<nav>
+  <div class="grp">Stories</div>
+  <a href="#planes">The two planes</a>
+  <a href="#landscape">Risk landscape (mesh)</a>
+  <a href="#products">Story A · Product tree</a>
+  <a href="#ladder">Story C · Conformance ladder</a>
+  <a href="#cdm">Story B · Risk vs CDO CDM</a>
+  <div class="grp">Principles</div>
+  <a href="#principles">Decisions &amp; rules</a>
+  <a href="#pilot">Stress-PFE as pilot</a>
+  <div class="grp">Reference</div>
+  <a href="#glossary">Glossary</a>
+  <a href="#industry">Industry grounding</a>
+</nav>
+<main>
+
+<section id="planes">
+  <h2><span class="n">00</span>The two planes</h2>
+  <p class="sub">Governance is a property of the <em>distribution path</em>, not the data. The same fact can travel a governed or an ungoverned plane.</p>
+  <div class="plane gov">
+    <h4><span class="pill p-prod">GOVERNED</span> Unity Catalog · CDO CDM · lineage · contracts · data products</h4>
+    <p style="margin:0;font-size:13.5px">Tables/views in Unity Catalog with captured column-lineage, assignable ownership, declared semantics (grain, unit, currency, FX source), and ODCS contracts. Where we are building.</p>
+  </div>
+  <div class="plane ung">
+    <h4><span class="pill p-ung">UNGOVERNED</span> Veritas + contractless app services</h4>
+    <p style="margin:0 0 6px;font-size:13.5px"><strong>Veritas</strong> — incumbent services/distribution layer that <em>blends source-statement data</em> with <strong>no lineage, no ownership, no contract</strong>; its semantics differ from the CDM with <strong>no common abstraction layer</strong> between them. Risk apps also re-distribute their own computed outputs the same way — over services, no contract, FX from various sources, currency often undeclared.</p>
+  </div>
+  <div class="callout warn"><strong>The defect in one line:</strong> conformance is <em>already happening</em> — inside Veritas — but in the dark. The CDM doesn't <em>start</em> conformance; it moves conformance from an ungoverned service into a governed model.</div>
+</section>
+
+<section id="landscape">
+  <h2><span class="n">01</span>The risk landscape — a mesh, not a chain</h2>
+  <p class="sub">Four product groups, many apps each. Apps consume from sources <em>and</em> from each other. The same entity (counterparty, book) is authored multiple times → divergent-conformance risk.</p>
+  <div class="legend">
+    <span class="pill p-ext">origin producer (non-risk)</span>
+    <span class="pill p-conf">conformer (authors conformed entity)</span>
+    <span class="pill p-calc">calculator (authors computed metric)</span>
+    <span class="pill p-cons">internal consumer</span>
+    <span class="pill p-cons">business-aligned (consumer) product</span>
+  </div>
+
+  <h3>Input paths (heterogeneous)</h3>
+  <p>A risk app's inputs may arrive <strong>three</strong> ways — and some apps do no conformance at all (direct-source, shaped ad hoc):</p>
+  <div class="flow">
+    <span class="node src">Source systems<br><span style="font-weight:400">trades · PETR (cpty) · market/ref</span></span>
+    <span class="arrow">→ via</span>
+    <span class="node">Veritas (ungoverned)</span><span class="arrow">/</span>
+    <span class="node">other services</span><span class="arrow">/</span>
+    <span class="node">direct-to-source</span>
+    <span class="arrow">→</span>
+    <span class="node crs">risk apps</span>
+  </div>
+
+  <h3>The apps &amp; their roles</h3>
+  <div class="grid" style="grid-template-columns:1fr 1fr">
+    <div class="box"><h4>CRS — Credit Risk System <span class="pill p-conf">conformer</span> <span class="pill p-calc">calculator</span></h4>
+      <div class="meta">Ingests trades + PETR + reference data; <strong>shapes conformed entities</strong> (counterparty, book, credit hierarchy → <code>clients_report</code>, <code>lines_report</code>) <em>and</em> <strong>computes stress PFE / exposures</strong> (<code>asts</code>, <code>ats_summary</code>). The de-facto (undeclared) risk conformer.</div></div>
+    <div class="box"><h4>Xvala <span class="pill p-conf">conformer</span> <span class="pill p-calc">calculator</span></h4>
+      <div class="meta">Consumes trades + sources <em>directly</em>, shapes them its own way, produces xval metrics; may also feed conformed-entity reports + metrics to risk business. → a <strong>second authority</strong> for "counterparty".</div></div>
+    <div class="box"><h4>Market-risk apps <span class="pill p-cons">consumer</span> <span class="pill p-calc">calculator</span></h4>
+      <div class="meta">Consume <strong>conformed entities from CRS</strong> (book, credit hierarchy) as their trusted source; produce market-risk metrics. CRS output is upstream to them.</div></div>
+    <div class="box"><h4>CMOS <span class="pill p-cons">consumer</span> <span class="pill p-calc">calculator</span></h4>
+      <div class="meta">Hybrid: consumes <strong>directly from sources</strong> <em>and</em> some <strong>conformed entities from CRS</strong>.</div></div>
+  </div>
+
+  <h3>The four product groups (each multi-app)</h3>
+  <div class="grid" style="grid-template-columns:repeat(4,1fr)">
+    <div class="box"><h4>Credit risk</h4><div class="meta">CRS, Xvala, …</div></div>
+    <div class="box"><h4>Market risk</h4><div class="meta">market-risk apps, …</div></div>
+    <div class="box"><h4>Liquidity &amp; funding</h4><div class="meta">…</div></div>
+    <div class="box"><h4>Finance</h4><div class="meta">…</div></div>
+  </div>
+  <div class="callout"><strong>"Conformed entity" is a role a node plays, not a layer.</strong> CRS's <code>counterparty</code> is conformed-<em>output</em> to market risk but conformed-<em>input</em> shaped from PETR. The same node is producer on one edge and consumer on another — that is the mesh.</div>
+  <div class="callout warn"><strong>Today (maturity 0):</strong> each app emits CSV reports; <strong>business does cross-app conformance by hand in Excel</strong>, downstream of every app, with no model. Conformance happens at the worst possible place. The whole initiative = <em>move conformance left</em>.</div>
+</section>
+
+<section id="products">
+  <h2><span class="n">02</span>Story A — the producer / consumer product tree</h2>
+  <p class="sub">What gets published, and how it flows. This story is about the <strong>supply chain</strong>.</p>
+  <p class="lead"><strong>The authorship test decides the producer boundary:</strong> not "is it raw," not "is it untouched" — <em>who computed or shaped this fact?</em> A heavily-shaped table is still a producer product if the domain <em>authored the shaping</em>.</p>
+
+  <table>
+    <tr><th>Archetype</th><th>Definition</th><th>Risk examples</th></tr>
+    <tr><td><span class="pill p-prod">Producer · source-aligned</span><br><span class="meta">two tiers ↓</span></td>
+      <td>The domain's <strong>authored output</strong>, as produced.</td><td></td></tr>
+    <tr><td style="padding-left:24px">↳ <em>conformed source</em> (risk-shaped)</td>
+      <td>CRS's authored conformance of borrowed raw inputs.</td><td><code>clients_report</code>, <code>lines_report</code></td></tr>
+    <tr><td style="padding-left:24px">↳ <em>computed output</em> (true risk-produced)</td>
+      <td>Facts that exist nowhere upstream — computed by the engine.</td><td><code>asts</code>, <code>ats_summary</code> (stress PFE, scenario maxima, breach flags)</td></tr>
+    <tr><td><span class="pill p-cons">Consumer · business-aligned</span></td>
+      <td>Purpose-built curation for a named audience.</td><td><code>vw_asts_portfolio_cp_stress</code>, <code>vw_ast_breach_report</code> (Stress-Test Forum)</td></tr>
+  </table>
+
+  <div class="callout key"><strong>Counter-intuitive but central:</strong> the <em>more-derived</em> <code>ats_summary</code> is a <em>better</em> producer candidate than the <em>rawer-looking</em> <code>lines_report</code>, because producer = authorship, not rawness. <code>lines_report</code> looks raw but is shaped-from-borrowed; <code>ats_summary</code> looks derived but is the engine's own computation.</div>
+
+  <h3>What is <em>not</em> your producer product</h3>
+  <p>The raw <strong>inputs</strong> — trades, PETR, market/reference data — are <span class="pill p-ext">other domains' producers</span>. The <code>pfe_</code> prefix denotes the consuming process (CRS shaped them), not foreign ownership. <strong>Don't publish</strong> <code>test_</code> tables (dev artifacts) or <code>pfe_limit_config</code> (a reference input, not a product) as products.</p>
+</section>
+
+<section id="ladder">
+  <h2><span class="n">03</span>Story C — the conformance ladder</h2>
+  <p class="sub">Conformance composes upward; it can't skip. Each level uses the <strong>same metadata template</strong> at rising scope. <span class="tag rep">representational</span> = agree with yourself · <span class="tag sem">semantic</span> = agree with others · <span class="tag con">consumption</span>.</p>
+  <div class="ladder">
+    <div class="rung"><div class="lv l0">L0</div><div><h4>Within a table <span class="tag rep">representational</span></h4><div class="meta">dates→canonical · money-strings→numeric · FX declared · currency/unit stamped · grain + keys declared. <strong>= filling the template per table = the productization act itself.</strong> Profiler-automatable.</div></div></div>
+    <div class="rung"><div class="lv l1">L1</div><div><h4>Within an app <span class="tag rep">internal</span></h4><div class="meta">one app's tables agree (one counterparty, one calendar, one FX). <em>Not a precondition for productizing a single dataset.</em></div></div></div>
+    <div class="rung"><div class="lv l2">L2</div><div><h4>Within a product group <span class="tag sem">semantic</span></h4><div class="meta">all credit-risk apps mean the same counterparty/book/rating; same for each group.</div></div></div>
+    <div class="rung"><div class="lv l3">L3</div><div><h4>Across product groups <span class="tag sem">semantic = the Risk CDM</span></h4><div class="meta">credit / market / L&amp;F / finance agree on shared entities. <strong>"Risk CDM = what the templates agree on at L3."</strong></div></div></div>
+    <div class="rung"><div class="lv l4">L4</div><div><h4>Risk Analytics <span class="tag con">consumption</span></h4><div class="meta">works <em>off the conformed risk domain</em>, not off CSVs. Replaces manual cross-app reconciliation. <strong>Strategy / Mosaic lives here — consumes conformed, never performs conformance.</strong></div></div></div>
+    <div class="rung"><div class="lv l5">L5</div><div><h4>CDO CDM <span class="tag sem">enterprise</span></h4><div class="meta">risk binds to enterprise-canonical entities. Fan-out, later.</div></div></div>
+  </div>
+  <div class="callout warn"><strong>Most programs fail by attempting L2/L3 before L0/L1.</strong> You can't conform across apps while individual tables still ship comma-strings and undeclared currency. Bottom-up is mandatory — but <em>overlap</em> groups rather than serialise (start binding shared keys as soon as two groups reach L1).</div>
+</section>
+
+<section id="cdm">
+  <h2><span class="n">04</span>Story B — Risk CDM vs CDO CDM</h2>
+  <p class="sub">What the entities <em>are</em> (the nouns, conformed). This story is about <strong>semantics</strong>. Stories A and B are the two halves of governance: supply chain + semantics.</p>
+  <div class="twocol">
+    <div class="box"><h4>CDO CDM <span class="pill p-prod">enterprise · authoritative</span></h4>
+      <div class="meta">The firm's <strong>single authoritative definition</strong> of shared entities — what a counterparty <em>is</em>, its identifier (LEI), canonical attributes. Owned by CDO / reference data, application-agnostic. New governed artifact. Answers: <em>"what is this entity, enterprise-wide?"</em></div></div>
+    <div class="box"><h4>Risk CDM <span class="pill p-conf">domain · risk-authored</span> <span class="pill p-ung">aspirational today</span></h4>
+      <div class="meta">The <strong>risk domain's conformed model</strong> — entities shaped for risk: counterparty <em>+ credit hierarchy, worst-rating roll-up, book, netting set, line structure</em> — concepts the CDO model doesn't carry. Consistent across risk apps. Answers: <em>"what is this entity, for risk, consistently across our apps?"</em></div></div>
+  </div>
+  <div class="callout key"><strong>The relationship (one sentence for the explainer):</strong> the CDO CDM defines the entity for the enterprise; the Risk CDM defines the risk-domain's <em>conformed extension</em> of that entity. The Risk CDM <strong>reconciles to</strong> the CDO CDM for shared identity and <strong>adds</strong> the risk-specific structure — it must <strong>extend, not fork</strong>.</div>
+  <p><strong>Status today:</strong> the Risk CDM <em>does not exist as a governed artifact</em> — but <strong>CRS already de-facto conforms</strong> and other risk apps consume some of it. So: <em>"you already have a Risk CDM — it's CRS's conformance, undeclared. The task is to formalise it, not invent it."</em> The enterprise counterparty key <strong>exists</strong> → binding is real, so divergent-conformance is fixable, not structural.</p>
+  <div class="callout warn"><strong>Failure mode — "Veritas 2.0":</strong> if risk conforms internally <em>without binding to the enterprise key from day one</em>, it builds a risk model that competes with the enterprise entity — ungoverned relative to CDO, the same no-common-abstraction problem one level up.</div>
+</section>
+
+<section id="principles">
+  <h2><span class="n">05</span>Decisions &amp; rules captured</h2>
+  <table>
+    <tr><th>Rule</th><th>Why</th></tr>
+    <tr><td><strong>Productization ≠ conformance — independent tracks.</strong> Products never wait on conformance.</td><td>A dataset can be owned + contracted + semantically declared while still unconformed across (or within) apps. The gap is <em>declared conformance debt</em> in the contract, not a blocker.</td></tr>
+    <tr><td><strong>The unit of productization is the single dataset</strong> — not the app.</td><td>Even datasets <em>within one app</em> needn't conform to each other for any one of them to publish. Smallest possible unit ⇒ nothing is ever blocked.</td></tr>
+    <tr><td><strong>L0 (fill the template) IS productization</strong> — and the prerequisite for all higher conformance.</td><td>Productize-now isn't a detour from conformance; it lays its groundwork. Value now, conformance compounds.</td></tr>
+    <tr><td class="star"><strong>Bind the enterprise key AT publish — the only non-deferrable step.</strong></td><td>Bind low ⇒ later conformance is <em>verification</em>, not rework. Skip it ⇒ re-open every product to conform.</td></tr>
+    <tr><td><strong>Extend, not fork</strong> the CDO entity.</td><td>Avoids Veritas 2.0 — a risk model competing with the enterprise definition.</td></tr>
+    <tr><td><strong>Declared non-conformance &gt; invisible non-conformance.</strong></td><td>The gap exists either way; only a governed product tells you. Contract makes the debt visible, owned metadata.</td></tr>
+    <tr><td><strong>Conformance happens in governed layers, never in the BI tool.</strong></td><td>Conforming inside Strategy/Mosaic = the Excel problem one tool up — ungoverned, lineage-invisible, unowned.</td></tr>
+    <tr><td><strong>The metadata template is the abstraction layer</strong> between apps/Veritas and the CDM.</td><td>Capturing producer domain, conformed entity, bound key, FX source, currency, unit per product makes "map to CDO CDM" a fill-in-the-fields exercise, not a re-architecture.</td></tr>
+  </table>
+  <div class="callout key"><strong>The canonical teaching example — FX/currency:</strong> two risk apps compute "exposure" using FX rates from different sources, neither declaring currency or FX source, both distributing via contractless services. Downstream, someone sums them. The numbers are incomparable and <em>nothing flags it</em>. One bug = missing semantics (currency/unit) + missing supply-chain metadata (FX source) + missing contract + ungoverned distribution. The template's <code>Reporting currency</code>, <code>FX source</code>, <code>FX rate date</code>, <code>Measure unit</code> fields were designed to prevent exactly this.</div>
+</section>
+
+<section id="pilot">
+  <h2><span class="n">06</span>Stress PFE as the pilot</h2>
+  <p>The build exercises <strong>both archetypes and the producer→consumer boundary</strong> — which is why it's a good exemplar for other teams. It proves the <em>productize-now</em> track with no dependency on any other app's conformance.</p>
+  <table>
+    <tr><th>Object</th><th>Role</th><th>Level demonstrated</th></tr>
+    <tr><td><code>asts</code> / <code>ats_summary</code></td><td><span class="pill p-prod">producer (computed)</span></td><td>L0 (template-filled) → nearest-term <strong>producer</strong> product</td></tr>
+    <tr><td><code>clients_report</code> / <code>lines_report</code></td><td><span class="pill p-prod">producer (conformed source)</span></td><td>L0/L1</td></tr>
+    <tr><td><code>vw_asts_portfolio_cp_stress</code></td><td><span class="pill p-cons">consumer / business-aligned</span></td><td>nearest-term <strong>business-facing</strong> product</td></tr>
+    <tr><td><code>vw_ast_breach_report</code></td><td><span class="pill p-cons">consumer / business-aligned</span></td><td>L4 consumption done right (reads conformed, doesn't conform)</td></tr>
+  </table>
+  <p class="meta">None is a data product <em>as-is</em> (no owner, no contract ⇒ dataset, not product). Candidates only. Shortest paths: producer → declare grain/PK, fix string-numerics, glossary comments, owner; consumer → source real <code>standard_pfe</code>, resolve the two-definitions-of-breach, limitations + contract + owner.</p>
+</section>
+
+<section id="glossary">
+  <h2><span class="n">07</span>Glossary — working vocabulary</h2>
+  <dl class="gloss">
+    <dt>Source systems</dt><dd>External systems of record CRS/apps ingest from: trade/booking, PETR (counterparty), market/reference data. Other domains' producers.</dd>
+    <dt>CRS (Credit Risk System)</dt><dd>The risk producing application; ingests sources, conforms entities, and computes exposure. The de-facto (undeclared) risk conformer.</dd>
+    <dt>Conformed source data (risk-shaped)</dt><dd>CRS's authored conformance of borrowed raw inputs — <code>clients_report</code>, <code>lines_report</code>. Producer-tier, "shaped input".</dd>
+    <dt>Risk-computed data (true risk-produced)</dt><dd>Facts computed by the engine, existing nowhere upstream — <code>asts</code>, <code>ats_summary</code>. Producer-tier, "computed output".</dd>
+    <dt>Producer / source-aligned data product</dt><dd>Governed publication of a domain's authored output (conformed or computed).</dd>
+    <dt>Consumer / business-aligned data product</dt><dd>Purpose-built curation for a named audience (the Forum views).</dd>
+    <dt>Authorship test</dt><dd>The rule for the producer boundary: <em>who computed/shaped this fact?</em> Not rawness, not untouched-ness.</dd>
+    <dt>Veritas</dt><dd>Incumbent ungoverned distribution/services layer; blends source-statement data; no lineage/ownership/contract; semantics differ from CDM with no common abstraction.</dd>
+    <dt>Two distribution planes</dt><dd>Governed (UC/CDM/lineage/contracts) vs ungoverned (Veritas + contractless app services). The same fact can travel both.</dd>
+    <dt>Ungoverned conformance</dt><dd>Conformance/blending happening inside Veritas with no model/owner/lineage — the thing the CDM brings into the light.</dd>
+    <dt>Contractless distribution</dt><dd>Apps shipping computed outputs over services with no contract and undeclared currency/FX — governance lost at the doorstep.</dd>
+    <dt>CDO CDM</dt><dd>New governed, enterprise-canonical conformed data model; one authoritative entity definition (LEI-keyed); owned by CDO/reference data.</dd>
+    <dt>Risk CDM</dt><dd>Aspirational risk-domain conformed model extending the CDO entity with risk concepts (credit hierarchy, netting, worst-rating, line structure); consistent across risk apps.</dd>
+    <dt>Extend, not fork</dt><dd>The Risk CDM binds to the CDO entity for identity and adds risk structure — it must not re-author the enterprise entity.</dd>
+    <dt>Conformance ladder L0–L5</dt><dd>representational (table) → internal (app) → cross-app (group) → cross-group (Risk CDM) → consumption (analytics) → enterprise (CDO).</dd>
+    <dt>Representational vs semantic conformance</dt><dd>Agree-with-yourself (L0/L1, mechanical, profiler-automatable) vs agree-with-others (L2/L3, needs Risk CDM + shared keys).</dd>
+    <dt>Moving conformance left</dt><dd>From the consumer's spreadsheet (today, L4-by-hand) into governed layers, earliest-possible.</dd>
+    <dt>Declared conformance debt</dt><dd>Within/cross-app disagreement recorded in a product's contract — visible, owned metadata rather than an invisible landmine.</dd>
+    <dt>The template as conformance instrument</dt><dd>One artifact applied at rising scope: fill at L0, agree-check at L1/L2/L3.</dd>
+    <dt>Risk Analytics (new)</dt><dd>L4 capability that works off the conformed risk domain, replacing manual cross-app CSV reconciliation.</dd>
+  </dl>
+</section>
+
+<section id="industry">
+  <h2><span class="n">08</span>Industry grounding</h2>
+  <p class="sub">Your terms re-derive the data-mesh canon. Annexing the canonical labels lets you borrow the field's authority and tooling.</p>
+  <table>
+    <tr><th>Our / your term</th><th>Canonical industry term</th></tr>
+    <tr><td>Producer (risk-produced) vs consumer (business-aligned) products</td><td>Source-aligned vs consumer-aligned data products (Dehghani, data mesh)</td></tr>
+    <tr><td>Contract, owner, declared semantics</td><td>Data contract — the inter-domain interface spec (≈ API contract)</td></tr>
+    <tr><td>Conformed entity / cross-app conformance</td><td>Conformed dimensions (Kimball), applied at mesh scale</td></tr>
+    <tr><td>Risk CDM vs CDO CDM</td><td>Domain conformed model vs enterprise canonical model + MDM for identity</td></tr>
+    <tr><td>Veritas / ungoverned plane</td><td>Shadow distribution; the un-enforced-standards / drift failure mode</td></tr>
+    <tr><td>Productize-now, conform-progressively; Stress PFE pilot</td><td>Incremental rollout — 2–4 initial products, 3–6 months, "learning phase"</td></tr>
+    <tr><td>Input paths / output to consumers</td><td>Input ports / output ports, each governed by a contract</td></tr>
+    <tr><td>Bind enterprise key at publish</td><td>Entity resolution / MDM keying (out of scope for the profiler — structural conformance only)</td></tr>
+  </table>
+  <div class="callout"><strong>Maturity read:</strong> advanced practitioner / emerging data architect — ahead of the org. Growth edge is <em>translation</em> (canonical labels), not concepts. Communication risks: telescoping many advanced points at once, and coining local terms where canon exists.</div>
+</section>
+
+</main>
+</div>
+<div class="foot">Reference artifact · captured during the Stress-PFE engagement · vocabulary to be formalised into the team data-product explainer. Maturity level 0 baseline.</div>
+</body>
+</html>
