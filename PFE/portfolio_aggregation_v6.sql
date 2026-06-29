@@ -162,17 +162,19 @@ SELECT
   CASE WHEN n.otc_sft = 'OTC' THEN 'Y' ELSE 'N' END AS otc_flag,   -- (+) split leg (Y/N), otc_sft kept
   CASE WHEN n.otc_sft = 'SFT' THEN 'Y' ELSE 'N' END AS sft_flag,   -- (+) split leg (Y/N)
   n.entity,
-  -- (REQ 1.1) `industry` FIXED IN PLACE to the 5 mapped buckets. HF = SIC 7298
-  -- (resolves the blank/Other rows the analyst saw); else map the coarse industry;
-  -- everything outside Banks/Government/Financial/HF -> Corporates. No dup `sector`.
+  -- (REQ 1.1 + NAMING CONSISTENCY with breach report) the 5-bucket mapped column is
+  -- named `Sector` (was `industry`); the granular SIC text is named `Industry` (was
+  -- `sic_industry`) — SAME names the breach report uses. HF = SIC 7298; else map the
+  -- coarse industry; everything outside Banks/Government/Financial/HF -> Corporates.
   CASE
     WHEN n.sic_code = '7298'                THEN 'Hedge Funds'
     WHEN upper(n.industry) LIKE 'BANK%'     THEN 'Banks'
     WHEN upper(n.industry) LIKE 'GOV%'      THEN 'Government'
     WHEN upper(n.industry) LIKE 'FINANC%'   THEN 'Financial'
     ELSE 'Corporates'
-  END AS industry,
-  n.sic_industry, n.country_of_risk, n.region, n.worst_rating,
+  END AS Sector,                                          -- mapped 5-bucket (= breach Sector)
+  n.sic_industry AS Industry,                             -- granular SIC text (= breach Industry)
+  n.country_of_risk, n.region, n.worst_rating,
   CASE
     WHEN upper(n.worst_rating) LIKE '%NIG%' THEN 'NIG'
     WHEN n.worst_rating RLIKE '^[0-9]' THEN
