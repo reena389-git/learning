@@ -108,7 +108,7 @@ WITH breach_lines AS (
          OR ast.`5_10_Yr_Excess_Breach`  = 'TRUE'
          OR ast.`10_50_Yr_Excess_Breach` = 'TRUE'
           )
-      AND ast.business_date     = '20260430'
+      AND regexp_replace(CAST(ast.business_date AS STRING),'-','') = '20260430'  -- datatype-agnostic
       AND ast.No_Line_Indicator = 'False'
 ),
 unique_breach_lines AS (
@@ -126,7 +126,7 @@ ia_src AS (
         MAX(CAST(REPLACE(max_usage_0_3_mo, ',', '') AS DOUBLE)) AS ia
     FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.pfe_exp_decomp_report
     WHERE product_group = 'Lines_Report - With IM'
-      AND business_date = '20260430'        -- (!) confirm format — see note (d)
+      AND regexp_replace(CAST(business_date AS STRING),'-','') = '20260430'  -- datatype-agnostic
     GROUP BY line
 ),
 -- (+) prior_breached: lines that breached in the PRIOR load (one month back).
@@ -137,7 +137,7 @@ prior_breached AS (
     WHERE business_date = (
             SELECT MAX(business_date)
             FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.asts
-            WHERE business_date < '20260430'
+            WHERE regexp_replace(CAST(business_date AS STRING),'-','') < '20260430'  -- datatype-agnostic
           )
       AND No_Line_Indicator = 'False'
       AND ( `0_3_mo_Excess_Breach`='TRUE' OR `3_12_mo_Excess_Breach`='TRUE'
@@ -215,13 +215,17 @@ LEFT JOIN (
         --     If test_ats_summary is single-load (or lacks business_date), drop the WHERE.
         SELECT Line, sic_industry, industry, brr, sic_code, otc_sft
         FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.test_ats_summary
-        WHERE business_date = '20260430'
+        WHERE regexp_replace(CAST(business_date AS STRING),'-','') = '20260430'
+        -- (~) v9 DATATYPE-AGNOSTIC: test_ats_summary stores business_date as DATE
+        --     ('2026-04-30'); normalize to canonical 'yyyymmdd' so the filter matches
+        --     regardless of STRING-yyyymmdd / STRING-yyyy-mm-dd / DATE. (Was '20260430'
+        --     literal vs a DATE column -> 0 rows -> sic_code/brr/sic_industry all NULL.)
      ) AS ats_summary
        ON ats_summary.Line = ast.Line
 LEFT JOIN (
         SELECT *
         FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.test_lines_report
-        WHERE business_date = '2026-04-30'
+        WHERE regexp_replace(CAST(business_date AS STRING),'-','') = '20260430'  -- datatype-agnostic (lines_report DATE)
           AND Source = 'CARTOR'
      ) AS Lines_Report
        ON Lines_Report.Line = ast.Line

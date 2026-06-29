@@ -83,7 +83,14 @@ WITH line_level AS (
     COALESCE(s.`prod_max`,0)      AS prod,    COALESCE(s.`strmpr025_max`,0) AS strmpr025
   FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`ats_summary` s
   LEFT JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`test_ats_summary` ts
-         ON ts.`line` = s.`line` AND ts.`business_date` = s.`business_date`   -- sic_code (HF=7298)
+         ON ts.`line` = s.`line`
+        AND regexp_replace(CAST(ts.`business_date` AS STRING),'-','')
+          = regexp_replace(CAST(s.`business_date`  AS STRING),'-','')
+        -- (~) v6 DATATYPE-AGNOSTIC date match. asts/ats_summary store business_date as
+        --     STRING 'yyyymmdd'; test_ tables store it as DATE (renders 'yyyy-mm-dd').
+        --     CAST->STRING then strip dashes normalizes STRING-yyyymmdd, STRING-yyyy-mm-dd
+        --     AND real DATE to one canonical 'yyyymmdd' — survives a datatype change on
+        --     either side. (Was ts.bd = s.bd -> 0 matches -> sic_code NULL -> no HF.)
 ),
 cp_scn AS (   -- STEP 1: SUM each scenario across the CP's lines (per product/entity/date)
   SELECT
@@ -141,7 +148,9 @@ asts_lim AS (   -- asts bucket-matched limit + breach flag, to CP x otc x entity
         ORDER BY CAST(REPLACE(a.`Max_Scenario_Exposure`,',','') AS DOUBLE) DESC) AS rn
     FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`asts` a
     LEFT JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`ats_summary` s
-           ON s.`line` = a.`Line` AND s.`business_date` = a.`business_date`   -- both yyyymmdd
+           ON s.`line` = a.`Line`
+          AND regexp_replace(CAST(s.`business_date` AS STRING),'-','')
+            = regexp_replace(CAST(a.`business_date` AS STRING),'-','')   -- datatype-agnostic (both yyyymmdd today)
     WHERE a.`No_Line_Indicator` = 'False'
   ) z
   WHERE rn = 1
@@ -185,7 +194,8 @@ SELECT
   ROUND(n.stress_pfe / NULLIF(l.limit_amt,0), 4) AS utilization   -- NEW: RATIO (do NOT Sum)
 FROM cp_named n
 LEFT JOIN asts_lim l
-  ON  l.`business_date` = n.`business_date`
+  ON  regexp_replace(CAST(l.`business_date` AS STRING),'-','')
+    = regexp_replace(CAST(n.`business_date` AS STRING),'-','')   -- datatype-agnostic
   AND l.counterparty    = n.counterparty
   AND l.otc_sft         = n.otc_sft
   AND l.entity          = n.entity;
