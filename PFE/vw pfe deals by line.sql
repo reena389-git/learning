@@ -11,7 +11,7 @@
 --   (see LIMITATIONS). This view supplies the deal/asset-class half.
 --
 -- GRAIN  : one row per DEAL (deal_id) per business_date, under a `line`.
--- SOURCE : `xvala_core-raw`.pfe_deals_report  (note the hyphenated schema).
+-- SOURCE : `xvala_core`.pfe_deals_report  (consolidated schema, pfe_ prefix).
 -- KEY    : `line`  (XX_(TDBK)_(ZZZZ)) — same key as the breach/facility view,
 --          so this drills from a line. Entity parsed the same way.
 --
@@ -28,7 +28,7 @@
 --     asset_class_group map is provided as a CASE, <confirm> with business.
 -- =============================================================================
 
-CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.`vw_pfe_deals_by_line` (
+CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_deals_by_line` (
   Line                COMMENT 'Credit line / facility key. Drill key from the Level-2 facility/breach view.',
   Entity              COMMENT 'Parsed from the first parenthesised token of Line (e.g. CP_(TDBK)_(...) -> TDBK).',
   Counterparty_Name   COMMENT 'counterparty_long_name.',
@@ -57,6 +57,20 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.`vw_p
   Margin_Call_Norm    COMMENT 'SELECTOR LENS: Daily / Not daily (N/A), normalized from margin_call_frequency.',
   New_Deal_Norm       COMMENT 'SELECTOR LENS: New / Existing from new_deal_flag.',
   Override_Norm       COMMENT 'FLAG: Overridden / Clean from override (audit marker).',
+  -- (+) LINE BREACH CONTEXT (from vw_line_stress_spine, joined on Line)
+  Line_Stress_PFE     COMMENT 'The deal''s LINE total stress PFE (line-level, not deal-level).',
+  Line_Utilization    COMMENT 'The line''s utilization (stress/limit). RATIO.',
+  Breach_Status       COMMENT 'Breached / Approaching / OK / No Limit — the line''s status, on every deal.',
+  Line_Is_Breaching   COMMENT 'Y/N — colour the runway by this.',
+  Line_Worst_Scenario COMMENT 'Which scenario drives the line (filter deals by scenario via this).',
+  -- (+) DEAL BEHAVIOUR WITHIN ITS LINE (window functions over the line partition)
+  MTM_Share_Of_Line   COMMENT 'Abs(deal MTM) / line gross MTM. Concentration — which deals drive the line.',
+  Is_Dominant_Deal    COMMENT 'Y when this deal is >= 25% of the line gross MTM (a whale).',
+  Maturity_Position   COMMENT 'Longest / Long / Mid / Short — this deal''s tenor vs the line''s spread.',
+  Is_Longest_In_Line  COMMENT 'Y when this deal has the max ytm in its line (the structural tail).',
+  Direction_Vs_Line   COMMENT 'Adds / Hedges — deal MTM sign vs the line net MTM direction.',
+  Line_New_MTM_Share  COMMENT 'Share of line gross MTM that is NEW this load (line-level, repeated).',
+  Line_Override_Share COMMENT 'Share of line gross MTM under override (line-level, repeated).',
   Override            COMMENT 'override (Y/N) — ties to req-4 Override Function.',
   Override_Date       COMMENT 'override_date.',
   OES_Indicator       COMMENT 'oes_indicator.',
@@ -71,10 +85,24 @@ AS
 WITH base AS (
   SELECT
     d.*,
-    -- numeric ytm computed once so the band CASEs below can reuse it
-    CAST(NULLIF(REPLACE(d.`years_to_maturity`,',',''),'null') AS DOUBLE) AS ytm_num
-  FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.`pfe_deals_report` d
+    -- numerics computed once so the band CASEs + behavioural windows below can reuse them
+    CAST(NULLIF(REPLACE(d.`years_to_maturity`,',',''),'null') AS DOUBLE) AS ytm_num,
+    CAST(NULLIF(REPLACE(d.`deal_m2m`,',',''),'null')         AS DOUBLE) AS mtm_num
+  FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_deals_report` d
   WHERE upper(d.`no_line_indicator`) = 'FALSE'            -- population: real lines only
+),
+win AS (   -- line-partition aggregates: a deal's behaviour is relative to its line
+  SELECT b.*,
+    SUM(ABS(mtm_num)) OVER (PARTITION BY `line`, `business_date`)              AS line_gross_mtm,
+    SUM(mtm_num)      OVER (PARTITION BY `line`, `business_date`)              AS line_net_mtm,
+    COUNT(*)          OVER (PARTITION BY `line`, `business_date`)              AS line_deal_count,
+    MAX(ytm_num)      OVER (PARTITION BY `line`, `business_date`)              AS line_max_ytm,
+    AVG(ytm_num)      OVER (PARTITION BY `line`, `business_date`)              AS line_avg_ytm,
+    SUM(CASE WHEN upper(`new_deal_flag`)='Y' THEN ABS(mtm_num) ELSE 0 END)
+        OVER (PARTITION BY `line`, `business_date`)                           AS line_new_gross_mtm,
+    SUM(CASE WHEN upper(`override`)='Y' THEN ABS(mtm_num) ELSE 0 END)
+        OVER (PARTITION BY `line`, `business_date`)                           AS line_ovr_gross_mtm
+  FROM base b
 )
 SELECT
   d.`line`                                              AS Line,
@@ -132,6 +160,33 @@ SELECT
   -- (+) FLAG — override audit
   CASE WHEN upper(d.`override`) = 'Y' THEN 'Overridden' ELSE 'Clean' END  AS Override_Norm,
 
+  -- (+) LINE BREACH CONTEXT — joined from the line-grain spine on Line + date
+  sp.Stress_PFE                                         AS Line_Stress_PFE,
+  sp.Utilization                                        AS Line_Utilization,
+  sp.Breach_Status                                      AS Breach_Status,
+  sp.Is_Breaching                                       AS Line_Is_Breaching,
+  sp.Worst_Scenario_Label                               AS Line_Worst_Scenario,
+
+  -- (+) DEAL BEHAVIOUR WITHIN ITS LINE
+  ROUND(ABS(d.mtm_num) / NULLIF(d.line_gross_mtm,0), 4)  AS MTM_Share_Of_Line,
+  CASE WHEN ABS(d.mtm_num) / NULLIF(d.line_gross_mtm,0) >= 0.25 THEN 'Y' ELSE 'N' END AS Is_Dominant_Deal,
+  CASE
+    WHEN d.ytm_num IS NULL OR d.line_max_ytm IS NULL          THEN 'Unknown'
+    WHEN d.ytm_num >= d.line_max_ytm                          THEN 'Longest'
+    WHEN d.ytm_num >= d.line_avg_ytm                          THEN 'Long'
+    WHEN d.ytm_num >= d.line_avg_ytm * 0.5                    THEN 'Mid'
+    ELSE 'Short'
+  END                                                    AS Maturity_Position,
+  CASE WHEN d.ytm_num >= d.line_max_ytm THEN 'Y' ELSE 'N' END AS Is_Longest_In_Line,
+  -- same sign as the line's net direction = adds to exposure; opposite = hedges it
+  CASE
+    WHEN d.mtm_num = 0 OR d.line_net_mtm = 0                  THEN 'Neutral'
+    WHEN sign(d.mtm_num) = sign(d.line_net_mtm)              THEN 'Adds'
+    ELSE 'Hedges'
+  END                                                    AS Direction_Vs_Line,
+  ROUND(d.line_new_gross_mtm / NULLIF(d.line_gross_mtm,0), 4) AS Line_New_MTM_Share,
+  ROUND(d.line_ovr_gross_mtm / NULLIF(d.line_gross_mtm,0), 4) AS Line_Override_Share,
+
   d.`override`                                          AS Override,
   d.`override_date`                                     AS Override_Date,
   d.`oes_indicator`                                     AS OES_Indicator,
@@ -141,7 +196,11 @@ SELECT
   d.`agreement_group_code`                              AS Agreement_Group_Code,
   d.`source`                                            AS Source,
   d.`business_date`                                     AS Business_Date
-FROM base d
+FROM win d
+LEFT JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_line_stress_spine` sp
+  ON sp.Line = d.`line`
+ AND regexp_replace(CAST(sp.Business_Date AS STRING),'-','')
+   = regexp_replace(CAST(d.`business_date` AS STRING),'-','')   -- datatype-agnostic
 ;
 
 -- =============================================================================
@@ -176,4 +235,20 @@ FROM base d
 --             /NULLIF(SUM(ABS(MTM)),0),0)                              AS rolloff_1yr_pct,
 --   ROUND(SUM(Years_To_Maturity*ABS(MTM))/NULLIF(SUM(ABS(MTM)),0),1)   AS wtd_maturity_yrs
 -- FROM ... WHERE Line='HC_(TDBK)_(LCH1)' AND Business_Date='20260430' GROUP BY Line;
+--
+-- ---- DEAL-BEHAVIOUR TWINS --------------------------------------------------
+-- B1  which deals dominate a line (concentration)
+-- SELECT Deal_Id, Asset_Class, MTM, MTM_Share_Of_Line, Is_Dominant_Deal,
+--        Maturity_Position, Direction_Vs_Line
+-- FROM ... WHERE Line='HC_(TDBK)_(LCH1)' AND Business_Date='20260430'
+-- ORDER BY MTM_Share_Of_Line DESC;
+--
+-- B2  shares must sum to ~1.0 per line (sanity on the window denominator)
+-- SELECT Line, ROUND(SUM(MTM_Share_Of_Line),3) AS share_sum
+-- FROM ... WHERE Business_Date='20260430' GROUP BY Line HAVING share_sum NOT BETWEEN 0.99 AND 1.01;
+--   -- expect 0 rows (every line's deal shares sum to 1)
+--
+-- B3  hedge vs add split for a line
+-- SELECT Direction_Vs_Line, COUNT(*) deals, SUM(ABS(MTM)) gross
+-- FROM ... WHERE Line='HC_(TDBK)_(LCH1)' GROUP BY Direction_Vs_Line;
 -- =============================================================================
