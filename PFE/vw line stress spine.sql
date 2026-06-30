@@ -115,7 +115,9 @@ SELECT
     WHEN upper(n.industry_coarse) LIKE 'FINANC%' THEN 'Financial'
     ELSE 'Corporates'
   END                                                         AS Sector,
-  n.Industry, n.Worst_Rating, n.`business_date`              AS Business_Date
+  n.Industry, n.Worst_Rating,
+  to_date(regexp_replace(CAST(n.`business_date` AS STRING),'-',''),'yyyyMMdd') AS Business_Date
+  -- (~) OUTPUT NORMALIZED: always a real DATE regardless of source datatype.
 FROM line_scn2 n
 LEFT JOIN line_lim l
   ON l.Line = n.Line

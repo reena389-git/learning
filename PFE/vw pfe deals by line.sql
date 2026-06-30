@@ -195,7 +195,9 @@ SELECT
   d.`margin_call_frequency`                             AS Margin_Call_Frequency,
   d.`agreement_group_code`                              AS Agreement_Group_Code,
   d.`source`                                            AS Source,
-  d.`business_date`                                     AS Business_Date
+  to_date(regexp_replace(CAST(d.`business_date` AS STRING),'-',''),'yyyyMMdd') AS Business_Date
+  -- (~) OUTPUT NORMALIZED: always a real DATE regardless of source datatype
+  --     (string yyyymmdd / string yyyy-mm-dd / DATE all -> one canonical DATE).
 FROM win d
 LEFT JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_line_stress_spine` sp
   ON sp.Line = d.`line`
