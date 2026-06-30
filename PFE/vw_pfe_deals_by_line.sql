@@ -59,6 +59,8 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_d
   Override_Norm       COMMENT 'FLAG: Overridden / Clean from override (audit marker).',
   -- (+) LINE BREACH CONTEXT (from vw_line_stress_spine, joined on Line)
   Line_Stress_PFE     COMMENT 'The deal''s LINE total stress PFE (line-level, not deal-level).',
+  Line_Standard_PFE   COMMENT 'The line''s standard (base/cartor) PFE. Line-level, repeated on deals — do NOT sum.',
+  Line_Limit          COMMENT 'The line''s limit amount. Line-level, repeated on deals — do NOT sum (use Max).',
   Line_Utilization    COMMENT 'The line''s utilization (stress/limit). RATIO.',
   Breach_Status       COMMENT 'Breached / Approaching / OK / No Limit — the line''s status, on every deal.',
   Line_Is_Breaching   COMMENT 'Y/N — colour the runway by this.',
@@ -162,6 +164,8 @@ SELECT
 
   -- (+) LINE BREACH CONTEXT — joined from the line-grain spine on Line + date
   sp.Stress_PFE                                         AS Line_Stress_PFE,
+  sp.Standard_PFE                                       AS Line_Standard_PFE,
+  sp.Limit_Amount                                       AS Line_Limit,
   sp.Utilization                                        AS Line_Utilization,
   sp.Breach_Status                                      AS Breach_Status,
   sp.Is_Breaching                                       AS Line_Is_Breaching,
