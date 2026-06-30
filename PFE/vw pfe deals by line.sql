@@ -168,7 +168,9 @@ SELECT
   sp.Worst_Scenario_Label                               AS Line_Worst_Scenario,
 
   -- (+) DEAL BEHAVIOUR WITHIN ITS LINE
-  ROUND(ABS(d.mtm_num) / NULLIF(d.line_gross_mtm,0), 4)  AS MTM_Share_Of_Line,
+  ABS(d.mtm_num) / NULLIF(d.line_gross_mtm,0)            AS MTM_Share_Of_Line,
+  -- NOTE: NOT rounded. With 100k+ deals per line each share is ~1e-6; ROUND(,4)
+  -- would floor most to 0 and the shares would no longer sum to 1. Round at DISPLAY only.
   CASE WHEN ABS(d.mtm_num) / NULLIF(d.line_gross_mtm,0) >= 0.25 THEN 'Y' ELSE 'N' END AS Is_Dominant_Deal,
   CASE
     WHEN d.ytm_num IS NULL OR d.line_max_ytm IS NULL          THEN 'Unknown'
@@ -184,8 +186,8 @@ SELECT
     WHEN sign(d.mtm_num) = sign(d.line_net_mtm)              THEN 'Adds'
     ELSE 'Hedges'
   END                                                    AS Direction_Vs_Line,
-  ROUND(d.line_new_gross_mtm / NULLIF(d.line_gross_mtm,0), 4) AS Line_New_MTM_Share,
-  ROUND(d.line_ovr_gross_mtm / NULLIF(d.line_gross_mtm,0), 4) AS Line_Override_Share,
+  d.line_new_gross_mtm / NULLIF(d.line_gross_mtm,0)      AS Line_New_MTM_Share,
+  d.line_ovr_gross_mtm / NULLIF(d.line_gross_mtm,0)      AS Line_Override_Share,
 
   d.`override`                                          AS Override,
   d.`override_date`                                     AS Override_Date,
