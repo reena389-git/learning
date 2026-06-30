@@ -11,7 +11,7 @@
 --   (see LIMITATIONS). This view supplies the deal/asset-class half.
 --
 -- GRAIN  : one row per DEAL (deal_id) per business_date, under a `line`.
--- SOURCE : `xvala_core`.pfe_deals_report  (consolidated schema, pfe_ prefix).
+-- SOURCE : `xvala_core-raw`.pfe_deals_report  (note the hyphenated schema).
 -- KEY    : `line`  (XX_(TDBK)_(ZZZZ)) — same key as the breach/facility view,
 --          so this drills from a line. Entity parsed the same way.
 --
@@ -28,7 +28,7 @@
 --     asset_class_group map is provided as a CASE, <confirm> with business.
 -- =============================================================================
 
-CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_deals_by_line` (
+CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.`vw_pfe_deals_by_line` (
   Line                COMMENT 'Credit line / facility key. Drill key from the Level-2 facility/breach view.',
   Entity              COMMENT 'Parsed from the first parenthesised token of Line (e.g. CP_(TDBK)_(...) -> TDBK).',
   Counterparty_Name   COMMENT 'counterparty_long_name.',
@@ -73,7 +73,7 @@ WITH base AS (
     d.*,
     -- numeric ytm computed once so the band CASEs below can reuse it
     CAST(NULLIF(REPLACE(d.`years_to_maturity`,',',''),'null') AS DOUBLE) AS ytm_num
-  FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_deals_report` d
+  FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.`pfe_deals_report` d
   WHERE upper(d.`no_line_indicator`) = 'FALSE'            -- population: real lines only
 )
 SELECT
