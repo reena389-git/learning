@@ -157,7 +157,9 @@ asts_lim AS (   -- asts bucket-matched limit + breach flag, to CP x otc x entity
   GROUP BY `business_date`, counterparty, otc_sft, entity
 )
 SELECT
-  n.`business_date`,
+  to_date(regexp_replace(CAST(n.`business_date` AS STRING),'-',''),'yyyyMMdd') AS business_date,
+  -- (~) OUTPUT NORMALIZED: always a real DATE regardless of source datatype
+  --     (string yyyymmdd / string yyyy-mm-dd / DATE all -> one canonical DATE).
   n.counterparty, n.otc_sft,
   CASE WHEN n.otc_sft = 'OTC' THEN 'Y' ELSE 'N' END AS otc_flag,   -- (+) split leg (Y/N), otc_sft kept
   CASE WHEN n.otc_sft = 'SFT' THEN 'Y' ELSE 'N' END AS sft_flag,   -- (+) split leg (Y/N)
