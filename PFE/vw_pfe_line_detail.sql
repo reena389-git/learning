@@ -1,7 +1,22 @@
 -- =====================================================================
--- vw_ast_breach_report   (v7 — + Limit_Amount column)
+-- vw_ast_breach_report   (v11 — DE-FILTERED / CONSOLIDATED, all lines)
 -- Databricks SQL.  Catalog: d4001-centralus-tdvip-creditrisk
 --
+-- v11 vs v9:  v9's body is preserved BYTE-FOR-BYTE except two changes —
+--   (~) breach_lines -> all_lines: the 6-flag WHERE is REMOVED so ALL lines
+--       survive (breached + approaching + OK). No_Line + date filters kept.
+--   (+) Is_Breached column = window-MAX of the 6 *_Excess_Breach flags OVER
+--       the Line (the ORIGINAL baseline breach definition, turned into a
+--       column). Evaluated across ALL the Line's asts rows BEFORE the dedup
+--       picks a winner, so which bucket-row wins rn=1 cannot flip a Line's
+--       breach status.  => WHERE Is_Breached='Y' reproduces v9's 132 lines /
+--       39.7B EXACTLY (V-RECON below proves it).
+--   No Breach_Status / Approaching bands are baked in — the ONLY breach signal
+--   is Is_Breached (the flags). Severity/approaching thresholds are a DASHBOARD
+--   filter on Stress_Credit_Utilization, per the design principle (question at
+--   presentation layer, truth in the data layer). The spine's independently
+--   RE-COMPUTED stress/limit (which caused the 132-vs-97 divergence) is dropped;
+--   v9's own Stress_Credit_Utilization stays the single utilization source.
 -- =====================================================================
 -- CHANGE LOG vs the ORIGINAL base view (the one shared by the team)
 -- Every line added/changed relative to the original is marked inline with:
@@ -44,21 +59,22 @@
 --   ~ test_ats_summary join wrapped with a business_date filter to stop a
 --     multi-load fan-out (the prior join was on Line only, no date) — see (!) note
 --
--- (!) STILL TO CONFIRM:
---   b) test_ats_summary / test_lines_report — dev03 test_ tables vs prod
---      ats_summary / lines_report. IA below points at xvala_core-raw.pfe_exp_decomp_report
---      (the only copy in the DDL); repoint to a test_ copy if one exists in dev03.
---   c) sic_code — CONFIRMED present on test_ats_summary. brr still to verify
---      (prod ats_summary in the DDL has neither); if brr is absent, Rating is NULL.
---   d) IA date filter format: decomp business_date is STRING; I used '20260430'
+-- (!) RESOLVED in v11.1 (2026-07-01): source objects repointed to production —
+--   asts -> vw_asts, ats_summary -> vw_asts_summary, lines_report -> pfe_client_report,
+--   exp_decomp off -raw -> xvala_core.pfe_exp_decomp_report. View renamed
+--   vw_ast_breach_report -> vw_pfe_line_detail, homed in xvala_core (off -raw).
+--   Column names inside the joins (mark_to_market, initial_margin, Line, Source,
+--   sic_industry, industry, brr, sic_code, otc_sft) confirmed unchanged across the
+--   repoint. IA date-format note (d) below still applies if decomp differs from asts.
 --      to match asts. If decomp follows lines_report's '2026-04-30', flip it
 --      (else IA silently returns NULL for every line — V-IA below catches that).
 -- =====================================================================
 
-CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_ast_breach_report (
+CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_line_detail (
   Line,
   Counterparty_Name,
   Industry,
+  Sector COMMENT '(+) v8 REQ 1.1: mapped 5-bucket sector (Hedge Funds=SIC 7298, Banks/Government/Financial by text, else Corporates) for grouping the granular Industry.',
   Rating,
   Line_Type,
   Line_Currency,
@@ -71,15 +87,23 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_as
   Stress_Credit_Utilization,
   Limit_Amount COMMENT '(+) v7 ADDED: bucket-matched limit (denominator of Stress_Credit_Utilization), exposed as its own measure so BI can build Sum(Stress_PFE_MM)/Sum(Limit_Amount). Standard_Exposure fallback applied, matching the ratio.',
   Product_Type,
+  OTC_Flag COMMENT '(+) v9: Y if Product_Type=OTC else N — for showing an OTC leg separately. otc_sft (Product_Type) kept.',
+  SFT_Flag COMMENT '(+) v9: Y if Product_Type=SFT else N — for showing an SFT leg separately.',
   Worst_Scenario COMMENT 'Model-native driver: asts.Max_Scenario_Name — the scenario that produced the max exposure.',
+  Is_Breached COMMENT '(+) v11: Y if the Line trips ANY of the 6 *_Excess_Breach flags (the ORIGINAL baseline breach definition), else N. Window-MAX across all the Line''s asts rows so the dedup can''t flip it. This is the ONLY breach signal — the dashboard filters Is_Breached=Y for the breach list; approaching/severity bands ride on Stress_Credit_Utilization at the presentation layer, not baked here.',
   Recurring_New COMMENT 'Recurring = line also breached in the prior business_date; New = first breach this month.',
   Major_Risk_Driver COMMENT 'Analyst-entered (FX/IR/EQ/Metal) from ats_dshbd_breach_commentary.primary_risk_driver — distinct from Worst_Scenario.',
   Feedback COMMENT 'Analyst free-text from the breach commentary write-back table.'
 )
 WITH SCHEMA COMPENSATION
 AS
-WITH breach_lines AS (
-    -- Step 1: lines with a breach in ANY of the six buckets (flags are STRING).
+WITH all_lines AS (
+    -- (~) v11 DE-FILTERED: was breach_lines (6-flag WHERE removed). Now ALL lines
+    --     survive — breached + approaching + OK — so the breach signal moves from a
+    --     ROW filter to the Is_Breached COLUMN below. Population filter (No_Line +
+    --     date) kept. The 6 raw *_Excess_Breach flags are carried through so the
+    --     window-MAX in the next CTE can decide Is_Breached ACROSS all of a Line's
+    --     rows (dedup-proof — see unique_lines).
     SELECT
         Line,
         Long_Name,
@@ -95,25 +119,32 @@ WITH breach_lines AS (
         CAST(REPLACE(`Limit_2_Yr`,  ',', '') AS DOUBLE) AS Limit_2_Yr,
         CAST(REPLACE(`Limit_5_Yr`,  ',', '') AS DOUBLE) AS Limit_5_Yr,
         CAST(REPLACE(`Limit_10_Yr`, ',', '') AS DOUBLE) AS Limit_10_Yr,
-        CAST(REPLACE(`Limit_50_Yr`, ',', '') AS DOUBLE) AS Limit_50_Yr
-    FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.asts AS ast      -- (~) was xvala_xva
-    WHERE (
-            ast.`0_3_mo_Excess_Breach`   = 'TRUE'
-         OR ast.`3_12_mo_Excess_Breach`  = 'TRUE'
-         OR ast.`1_2_Yr_Excess_Breach`   = 'TRUE'
-         OR ast.`2_5_Yr_Excess_Breach`   = 'TRUE'
-         OR ast.`5_10_Yr_Excess_Breach`  = 'TRUE'
-         OR ast.`10_50_Yr_Excess_Breach` = 'TRUE'
-          )
-      AND ast.business_date     = '20260430'
+        CAST(REPLACE(`Limit_50_Yr`, ',', '') AS DOUBLE) AS Limit_50_Yr,
+        -- (+) v11: per-ROW breach indicator (1 if this row trips ANY of the 6 buckets).
+        --     Aggregated to the Line via window-MAX below — NOT read off the deduped
+        --     row, so which row wins the dedup can't flip a Line's breach status.
+        CASE WHEN ast.`0_3_mo_Excess_Breach`   = 'TRUE'
+              OR ast.`3_12_mo_Excess_Breach`  = 'TRUE'
+              OR ast.`1_2_Yr_Excess_Breach`   = 'TRUE'
+              OR ast.`2_5_Yr_Excess_Breach`   = 'TRUE'
+              OR ast.`5_10_Yr_Excess_Breach`  = 'TRUE'
+              OR ast.`10_50_Yr_Excess_Breach` = 'TRUE'
+             THEN 1 ELSE 0 END AS row_is_breached
+    FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_asts AS ast   -- (~) v11.1 was test/asts -> vw_asts
+    WHERE regexp_replace(CAST(ast.business_date AS STRING),'-','') = '20260430'  -- datatype-agnostic
       AND ast.No_Line_Indicator = 'False'
 ),
-unique_breach_lines AS (
-    -- "Take Unique Line": one row per Line, highest exposure wins.
+unique_lines AS (
+    -- (~) v11: "Take Unique Line": one row per Line, highest exposure wins (unchanged
+    --     dedup). Is_Breached is a window-MAX of row_is_breached OVER the whole Line,
+    --     so it equals v9's pre-dedup "ANY row breached" — reconciles to 132 exactly
+    --     regardless of which bucket row wins rn=1.
     SELECT
         ast.*,
-        ROW_NUMBER() OVER (PARTITION BY Line ORDER BY Max_Scenario_Exposure DESC) AS rn
-    FROM breach_lines AS ast
+        ROW_NUMBER() OVER (PARTITION BY Line ORDER BY Max_Scenario_Exposure DESC) AS rn,
+        CASE WHEN MAX(row_is_breached) OVER (PARTITION BY Line) = 1
+             THEN 'Y' ELSE 'N' END AS Is_Breached   -- (+) v11 flag column (dedup-proof)
+    FROM all_lines AS ast
 ),
 -- (+) IA source: one row per Line. line+source is unique and IM is constant across
 --     sources, so MAX over the line is a safe collapse (avoids a scenario fan-out).
@@ -121,20 +152,20 @@ ia_src AS (
     SELECT
         line,
         MAX(CAST(REPLACE(max_usage_0_3_mo, ',', '') AS DOUBLE)) AS ia
-    FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.pfe_exp_decomp_report
+    FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.pfe_exp_decomp_report   -- (~) v11.1 off -raw
     WHERE product_group = 'Lines_Report - With IM'
-      AND business_date = '20260430'        -- (!) confirm format — see note (d)
+      AND regexp_replace(CAST(business_date AS STRING),'-','') = '20260430'  -- datatype-agnostic
     GROUP BY line
 ),
 -- (+) prior_breached: lines that breached in the PRIOR load (one month back).
 --     Drives Recurring_New. Robust to the pinned date: prior = max date < current.
 prior_breached AS (
     SELECT DISTINCT Line
-    FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.asts
+    FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_asts   -- (~) v11.1 -> vw_asts
     WHERE business_date = (
             SELECT MAX(business_date)
-            FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.asts
-            WHERE business_date < '20260430'
+            FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_asts   -- (~) v11.1 -> vw_asts
+            WHERE regexp_replace(CAST(business_date AS STRING),'-','') < '20260430'  -- datatype-agnostic
           )
       AND No_Line_Indicator = 'False'
       AND ( `0_3_mo_Excess_Breach`='TRUE' OR `3_12_mo_Excess_Breach`='TRUE'
@@ -144,7 +175,18 @@ prior_breached AS (
 SELECT
     ast.Line                       AS Line,
     ast.Long_Name                  AS Counterparty_Name,
-    ats_summary.sic_industry       AS Industry,          -- join key: Line
+    ats_summary.sic_industry       AS Industry,          -- join key: Line (granular, shown)
+    -- (~) v9 REQ 1.1: mapped 5-bucket Sector, ALIGNED with portfolio v6 — derived
+    --     from the COARSE `industry` column (not granular sic_industry text), with
+    --     HF=SIC 7298 override (sic_code is on test_ats_summary). Granular `Industry`
+    --     (sic_industry) is kept above for display under the Sector headers.
+    CASE
+      WHEN ats_summary.sic_code = '7298'                  THEN 'Hedge Funds'
+      WHEN upper(ats_summary.industry) LIKE 'BANK%'       THEN 'Banks'
+      WHEN upper(ats_summary.industry) LIKE 'GOV%'        THEN 'Government'
+      WHEN upper(ats_summary.industry) LIKE 'FINANC%'     THEN 'Financial'
+      ELSE 'Corporates'
+    END                            AS Sector,            -- (~) v9 REQ 1.1 (aligned)
     regexp_replace(ast.Worst_Rating_Of_Associated_Clients, '\\s*\\(NIG\\)', '')
                                    AS Rating,            -- (~) from asts worst rating: breach-driving & 132/132.
                                                          --     swap to td_account_rating if the upstream Excess_Breach
@@ -188,24 +230,31 @@ SELECT
         WHEN 'max_usage_10_50_yr' THEN COALESCE(NULLIF(ast.Limit_50_Yr, 0), NULLIF(ast.Standard_Exposure, 0))
         ELSE NULLIF(ast.Standard_Exposure, 0)
     END                            AS Limit_Amount,
-    ats_summary.otc_sft            AS Product_Type,      -- join key: Line
-    ast.Max_Scenario_Name          AS Worst_Scenario,    -- (+) model-native driver (free from breach_lines)
+    ats_summary.otc_sft            AS Product_Type,      -- join key: Line  (kept)
+    CASE WHEN ats_summary.otc_sft = 'OTC' THEN 'Y' ELSE 'N' END AS OTC_Flag,  -- (+) v9 split leg
+    CASE WHEN ats_summary.otc_sft = 'SFT' THEN 'Y' ELSE 'N' END AS SFT_Flag,  -- (+) v9 split leg
+    ast.Max_Scenario_Name          AS Worst_Scenario,    -- (+) model-native driver (free from all_lines)
+    ast.Is_Breached                AS Is_Breached,       -- (+) v11 baseline flag (window-MAX, dedup-proof)
     CASE WHEN pb.Line IS NOT NULL THEN 'Recurring' ELSE 'New' END AS Recurring_New,   -- (+) history compare
     CAST(NULL AS STRING)           AS Major_Risk_Driver, -- (+) STUB: analyst write-back — wire via block below
     CAST(NULL AS STRING)           AS Feedback           -- (+) STUB: analyst write-back — wire via block below
-FROM unique_breach_lines AS ast
+FROM unique_lines AS ast
 LEFT JOIN (
         -- (~) date-filtered so a multi-load test_ats_summary can't fan out the grain.
         --     If test_ats_summary is single-load (or lacks business_date), drop the WHERE.
-        SELECT Line, sic_industry, brr, sic_code, otc_sft
-        FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.test_ats_summary
-        WHERE business_date = '20260430'
+        SELECT Line, sic_industry, industry, brr, sic_code, otc_sft
+        FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_asts_summary   -- (~) v11.1 was test_ats_summary
+        WHERE regexp_replace(CAST(business_date AS STRING),'-','') = '20260430'
+        -- (~) v9 DATATYPE-AGNOSTIC: test_ats_summary stores business_date as DATE
+        --     ('2026-04-30'); normalize to canonical 'yyyymmdd' so the filter matches
+        --     regardless of STRING-yyyymmdd / STRING-yyyy-mm-dd / DATE. (Was '20260430'
+        --     literal vs a DATE column -> 0 rows -> sic_code/brr/sic_industry all NULL.)
      ) AS ats_summary
        ON ats_summary.Line = ast.Line
 LEFT JOIN (
         SELECT *
-        FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.test_lines_report
-        WHERE business_date = '2026-04-30'
+        FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.pfe_client_report   -- (~) v11.1 was test_lines_report
+        WHERE regexp_replace(CAST(business_date AS STRING),'-','') = '20260430'  -- datatype-agnostic (lines_report DATE)
           AND Source = 'CARTOR'
      ) AS Lines_Report
        ON Lines_Report.Line = ast.Line
@@ -242,29 +291,65 @@ ORDER BY ast.Line;
 -- =====================================================================
 -- VALIDATION
 -- =====================================================================
+-- V-RECON  (+) v11 THE GATE: WHERE Is_Breached='Y' must reproduce v9's breach
+--          set EXACTLY. Expect count = 132 and stress ~= 39.7B. If this passes,
+--          the de-filter is a safe drop-in and the deal view can re-point here.
+SELECT COUNT(*) AS breached_lines, ROUND(SUM(Stress_PFE_MM)/1e9, 3) AS stress_b
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_line_detail
+WHERE Is_Breached = 'Y';
+--   Compare against the FROZEN v9 (breach-filtered) on the same date:
+--   SELECT COUNT(*), ROUND(SUM(Stress_PFE_MM)/1e9,3) FROM <v9 view>;  -- expect 132 / 39.7
+
+-- V-FLAGVAR  (+) v11 dedup-safety proof: do the 6 flags vary WITHIN a Line across
+--            its asts rows? If max_flag=min_flag for every Line (0 rows returned),
+--            the flags are line-level and reading off the deduped row would ALSO
+--            have worked — confirms the window-MAX is correct either way. Any rows
+--            returned = flags DO vary within a Line, so the window-MAX was NECESSARY
+--            (reading the deduped row would have dropped those lines).
+SELECT Line, COUNT(*) AS rows_in_line
+FROM (
+  SELECT Line,
+    CASE WHEN `0_3_mo_Excess_Breach`='TRUE' OR `3_12_mo_Excess_Breach`='TRUE'
+          OR `1_2_Yr_Excess_Breach`='TRUE'  OR `2_5_Yr_Excess_Breach`='TRUE'
+          OR `5_10_Yr_Excess_Breach`='TRUE' OR `10_50_Yr_Excess_Breach`='TRUE'
+         THEN 1 ELSE 0 END AS rb
+  FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_asts   -- (~) v11.1 -> vw_asts
+  WHERE regexp_replace(CAST(business_date AS STRING),'-','') = '20260430'
+    AND No_Line_Indicator = 'False'
+) t
+GROUP BY Line
+HAVING MIN(rb) <> MAX(rb);   -- lines whose breach flag is inconsistent row-to-row
+
+-- V-ALLLINES  (+) v11: the de-filter worked — total lines should now be the FULL
+--             line population (breached + approaching + OK), materially > 132.
+SELECT COUNT(*) AS all_lines,
+       SUM(CASE WHEN Is_Breached='Y' THEN 1 ELSE 0 END) AS breached,
+       SUM(CASE WHEN Is_Breached='N' THEN 1 ELSE 0 END) AS not_breached
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_line_detail;
+
 -- V-COUNT  rows == distinct breached lines (proves no fan-out from the joins)
 SELECT COUNT(*) AS rows, COUNT(DISTINCT Line) AS distinct_lines
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_ast_breach_report;
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_line_detail;
 
 -- V-IA  IA coverage. If ia_pop = 0, the decomp date filter format is wrong (note d)
 --       or the product_group string doesn't match verbatim.
 SELECT COUNT(*) AS total, COUNT(IA) AS ia_pop, COUNT(IM) AS im_pop
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_ast_breach_report;
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_line_detail;
 
 -- V-RATING  brr/sic_code presence (note c). If both are ~all NULL, test_ats_summary
 --           isn't exposing them.
 SELECT COUNT(*) AS total, COUNT(Rating) AS rating_pop, COUNT(SIC_Code) AS sic_pop
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_ast_breach_report;
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_line_detail;
 
 -- V-RECUR  Recurring vs New split (needs >=2 loads in asts; flat 'New' = no prior month yet).
 SELECT Recurring_New, COUNT(*) AS lines
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_ast_breach_report
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_line_detail
 GROUP BY Recurring_New;
 
 -- V-LIMIT  (+) v7: Limit_Amount must reconcile with the stored ratio at line grain:
 --          Stress_PFE_MM / Limit_Amount should equal Stress_Credit_Utilization.
 --          Expect 0 mismatched rows (allowing rounding + NULL limit lines).
 SELECT COUNT(*) AS mismatched
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_ast_breach_report
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_line_detail
 WHERE Limit_Amount IS NOT NULL
   AND ROUND(Stress_PFE_MM / NULLIF(Limit_Amount,0), 4) <> Stress_Credit_Utilization;

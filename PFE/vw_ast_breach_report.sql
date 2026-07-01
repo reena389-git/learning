@@ -55,7 +55,7 @@
 --      (else IA silently returns NULL for every line — V-IA below catches that).
 -- =====================================================================
 
-CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_ast_breach_report (
+CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ast_breach_report (
   Line,
   Counterparty_Name,
   Industry,
@@ -99,7 +99,7 @@ WITH breach_lines AS (
         CAST(REPLACE(`Limit_5_Yr`,  ',', '') AS DOUBLE) AS Limit_5_Yr,
         CAST(REPLACE(`Limit_10_Yr`, ',', '') AS DOUBLE) AS Limit_10_Yr,
         CAST(REPLACE(`Limit_50_Yr`, ',', '') AS DOUBLE) AS Limit_50_Yr
-    FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.asts AS ast      -- (~) was xvala_xva
+    FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_asts AS ast      -- (~) was xvala_xva
     WHERE (
             ast.`0_3_mo_Excess_Breach`   = 'TRUE'
          OR ast.`3_12_mo_Excess_Breach`  = 'TRUE'
@@ -124,7 +124,7 @@ ia_src AS (
     SELECT
         line,
         MAX(CAST(REPLACE(max_usage_0_3_mo, ',', '') AS DOUBLE)) AS ia
-    FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.pfe_exp_decomp_report
+    FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.pfe_exp_decomp_report
     WHERE product_group = 'Lines_Report - With IM'
       AND regexp_replace(CAST(business_date AS STRING),'-','') = '20260430'  -- datatype-agnostic
     GROUP BY line
@@ -133,10 +133,10 @@ ia_src AS (
 --     Drives Recurring_New. Robust to the pinned date: prior = max date < current.
 prior_breached AS (
     SELECT DISTINCT Line
-    FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.asts
+    FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_asts
     WHERE business_date = (
             SELECT MAX(business_date)
-            FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.asts
+            FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_asts
             WHERE regexp_replace(CAST(business_date AS STRING),'-','') < '20260430'  -- datatype-agnostic
           )
       AND No_Line_Indicator = 'False'
@@ -214,7 +214,7 @@ LEFT JOIN (
         -- (~) date-filtered so a multi-load test_ats_summary can't fan out the grain.
         --     If test_ats_summary is single-load (or lacks business_date), drop the WHERE.
         SELECT Line, sic_industry, industry, brr, sic_code, otc_sft
-        FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.test_ats_summary
+        FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.vw_asts_summary
         WHERE regexp_replace(CAST(business_date AS STRING),'-','') = '20260430'
         -- (~) v9 DATATYPE-AGNOSTIC: test_ats_summary stores business_date as DATE
         --     ('2026-04-30'); normalize to canonical 'yyyymmdd' so the filter matches
@@ -224,7 +224,7 @@ LEFT JOIN (
        ON ats_summary.Line = ast.Line
 LEFT JOIN (
         SELECT *
-        FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.test_lines_report
+        FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.pfe_client_report
         WHERE regexp_replace(CAST(business_date AS STRING),'-','') = '20260430'  -- datatype-agnostic (lines_report DATE)
           AND Source = 'CARTOR'
      ) AS Lines_Report
@@ -264,27 +264,27 @@ ORDER BY ast.Line;
 -- =====================================================================
 -- V-COUNT  rows == distinct breached lines (proves no fan-out from the joins)
 SELECT COUNT(*) AS rows, COUNT(DISTINCT Line) AS distinct_lines
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_ast_breach_report;
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ast_breach_report;
 
 -- V-IA  IA coverage. If ia_pop = 0, the decomp date filter format is wrong (note d)
 --       or the product_group string doesn't match verbatim.
 SELECT COUNT(*) AS total, COUNT(IA) AS ia_pop, COUNT(IM) AS im_pop
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_ast_breach_report;
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ast_breach_report;
 
 -- V-RATING  brr/sic_code presence (note c). If both are ~all NULL, test_ats_summary
 --           isn't exposing them.
 SELECT COUNT(*) AS total, COUNT(Rating) AS rating_pop, COUNT(SIC_Code) AS sic_pop
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_ast_breach_report;
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ast_breach_report;
 
 -- V-RECUR  Recurring vs New split (needs >=2 loads in asts; flat 'New' = no prior month yet).
 SELECT Recurring_New, COUNT(*) AS lines
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_ast_breach_report
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ast_breach_report
 GROUP BY Recurring_New;
 
 -- V-LIMIT  (+) v7: Limit_Amount must reconcile with the stored ratio at line grain:
 --          Stress_PFE_MM / Limit_Amount should equal Stress_Credit_Utilization.
 --          Expect 0 mismatched rows (allowing rounding + NULL limit lines).
 SELECT COUNT(*) AS mismatched
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core-raw`.vw_ast_breach_report
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ast_breach_report
 WHERE Limit_Amount IS NOT NULL
   AND ROUND(Stress_PFE_MM / NULLIF(Limit_Amount,0), 4) <> Stress_Credit_Utilization;
