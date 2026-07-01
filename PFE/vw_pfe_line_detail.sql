@@ -60,7 +60,7 @@
 --     multi-load fan-out (the prior join was on Line only, no date) — see (!) note
 --
 -- (!) RESOLVED in v11.1 (2026-07-01): source objects repointed to production —
---   asts -> vw_asts, ats_summary -> vw_asts_summary, lines_report -> pfe_client_report,
+--   asts -> vw_asts, ats_summary -> vw_asts_summary, lines_report -> pfe_lines_report,
 --   exp_decomp off -raw -> xvala_core.pfe_exp_decomp_report. View renamed
 --   vw_ast_breach_report -> vw_pfe_line_detail, homed in xvala_core (off -raw).
 --   Column names inside the joins (mark_to_market, initial_margin, Line, Source,
@@ -253,7 +253,7 @@ LEFT JOIN (
        ON ats_summary.Line = ast.Line
 LEFT JOIN (
         SELECT *
-        FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.pfe_client_report   -- (~) v11.1 was test_lines_report
+        FROM `d4001-centralus-tdvip-creditrisk`.xvala_core.pfe_lines_report   -- (~) v11.1 was test_lines_report (straight test_->pfe_)
         WHERE regexp_replace(CAST(business_date AS STRING),'-','') = '20260430'  -- datatype-agnostic (lines_report DATE)
           AND Source = 'CARTOR'
      ) AS Lines_Report

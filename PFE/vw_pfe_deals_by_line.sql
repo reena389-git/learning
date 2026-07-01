@@ -62,8 +62,7 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_d
   Line_Standard_PFE   COMMENT 'The line''s standard (base/cartor) PFE. Line-level, repeated on deals — do NOT sum.',
   Line_Limit          COMMENT 'The line''s limit amount. Line-level, repeated on deals — do NOT sum (use Max).',
   Line_Utilization    COMMENT 'The line''s utilization (stress/limit). RATIO.',
-  Breach_Status       COMMENT 'Breached / Approaching / OK / No Limit — the line''s status, on every deal.',
-  Line_Is_Breaching   COMMENT 'Y/N — colour the runway by this.',
+  Is_Breached         COMMENT 'Y/N — the line''s breach flag, straight from vw_pfe_line_detail (any of the 6 *_Excess_Breach tenor flags). Repeated on every deal of the line. Colour the runway by this.',
   Line_Worst_Scenario COMMENT 'Which scenario drives the line (filter deals by scenario via this).',
   -- (+) DEAL BEHAVIOUR WITHIN ITS LINE (window functions over the line partition)
   MTM_Share_Of_Line   COMMENT 'Abs(deal MTM) / line gross MTM. Concentration — which deals drive the line.',
@@ -162,14 +161,13 @@ SELECT
   -- (+) FLAG — override audit
   CASE WHEN upper(d.`override`) = 'Y' THEN 'Overridden' ELSE 'Clean' END  AS Override_Norm,
 
-  -- (+) LINE BREACH CONTEXT — joined from the line-grain spine on Line + date
-  sp.Stress_PFE                                         AS Line_Stress_PFE,
-  sp.Standard_PFE                                       AS Line_Standard_PFE,
-  sp.Limit_Amount                                       AS Line_Limit,
-  sp.Utilization                                        AS Line_Utilization,
-  sp.Breach_Status                                      AS Breach_Status,
-  sp.Is_Breaching                                       AS Line_Is_Breaching,
-  sp.Worst_Scenario_Label                               AS Line_Worst_Scenario,
+  -- (+) LINE BREACH CONTEXT — joined from vw_pfe_line_detail on Line (was vw_line_stress_spine)
+  ld.Stress_PFE_MM                                      AS Line_Stress_PFE,     -- (~) was sp.Stress_PFE
+  ld.Standard_PFE_MM                                    AS Line_Standard_PFE,   -- (~) was sp.Standard_PFE
+  ld.Limit_Amount                                       AS Line_Limit,          -- unchanged name
+  ld.Stress_Credit_Utilization                          AS Line_Utilization,    -- (~) was sp.Utilization
+  ld.Is_Breached                                        AS Is_Breached,         -- (~) was Breach_Status; now the raw Y/N flag from line detail
+  ld.Worst_Scenario                                     AS Line_Worst_Scenario, -- (~) was sp.Worst_Scenario_Label
 
   -- (+) DEAL BEHAVIOUR WITHIN ITS LINE
   ABS(d.mtm_num) / NULLIF(d.line_gross_mtm,0)            AS MTM_Share_Of_Line,
@@ -205,10 +203,12 @@ SELECT
   -- (~) OUTPUT NORMALIZED: always a real DATE regardless of source datatype
   --     (string yyyymmdd / string yyyy-mm-dd / DATE all -> one canonical DATE).
 FROM win d
-LEFT JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_line_stress_spine` sp
-  ON sp.Line = d.`line`
- AND regexp_replace(CAST(sp.Business_Date AS STRING),'-','')
-   = regexp_replace(CAST(d.`business_date` AS STRING),'-','')   -- datatype-agnostic
+LEFT JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_line_detail` ld   -- (~) was vw_line_stress_spine sp
+  ON ld.Line = d.`line`
+  -- (~) date condition DROPPED: vw_pfe_line_detail is internally pinned to a single
+  --     business_date and emits no Business_Date column, so Line alone is the key.
+  --     One row per Line in the detail => no fan-out. If the detail ever becomes
+  --     multi-date, re-add a date column there and restore the date predicate here.
 ;
 
 -- =============================================================================
