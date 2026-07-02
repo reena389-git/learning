@@ -89,14 +89,14 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_li
   Product_Type,
   OTC_Flag COMMENT '(+) v9: Y if Product_Type=OTC else N — for showing an OTC leg separately. otc_sft (Product_Type) kept.',
   SFT_Flag COMMENT '(+) v9: Y if Product_Type=SFT else N — for showing an SFT leg separately.',
-  Line_Scn_Cartor_Base     COMMENT '(+) v11.2: scenario maximum — Base/Cartor (cartor_max). Line grain, DOUBLE, additive across lines. For portfolio: SUM across the CP''s lines, then GREATEST of the 8 sums at CP grain (Mosaic level metric).',
-  Line_Scn_Zero            COMMENT '(+) v11.2: scenario maximum — Zero (zero_max). Additive across lines; GREATEST at CP grain.',
-  Line_Scn_25th            COMMENT '(+) v11.2: scenario maximum — 25th (c_25_max). Additive across lines; GREATEST at CP grain.',
-  Line_Scn_75th            COMMENT '(+) v11.2: scenario maximum — 75th (c_75_max). Additive across lines; GREATEST at CP grain.',
-  Line_Scn_Stress75        COMMENT '(+) v11.2: scenario maximum — Stress 75 (str75_max). Additive across lines; GREATEST at CP grain.',
-  Line_Scn_Correlation_1   COMMENT '(+) v11.2: scenario maximum — Correlation 1.0 (one_max). Additive across lines; GREATEST at CP grain.',
-  Line_Scn_Product         COMMENT '(+) v11.2: scenario maximum — Product (prod_max). Additive across lines; GREATEST at CP grain.',
-  Line_Scn_Stress_MPR_025  COMMENT '(+) v11.2: scenario maximum — Stress MPR 0.25 (strmpr025_max). Additive across lines; GREATEST at CP grain.',
+  Scn_Cartor_Base     COMMENT '(+) v11.2: scenario maximum — Base/Cartor (cartor_max). Line grain, DOUBLE, additive across lines. For portfolio: SUM across the CP''s lines, then GREATEST of the 8 sums at CP grain (Mosaic level metric).',
+  Scn_Zero            COMMENT '(+) v11.2: scenario maximum — Zero (zero_max). Additive across lines; GREATEST at CP grain.',
+  Scn_25th            COMMENT '(+) v11.2: scenario maximum — 25th (c_25_max). Additive across lines; GREATEST at CP grain.',
+  Scn_75th            COMMENT '(+) v11.2: scenario maximum — 75th (c_75_max). Additive across lines; GREATEST at CP grain.',
+  Scn_Stress75        COMMENT '(+) v11.2: scenario maximum — Stress 75 (str75_max). Additive across lines; GREATEST at CP grain.',
+  Scn_Correlation_1   COMMENT '(+) v11.2: scenario maximum — Correlation 1.0 (one_max). Additive across lines; GREATEST at CP grain.',
+  Scn_Product         COMMENT '(+) v11.2: scenario maximum — Product (prod_max). Additive across lines; GREATEST at CP grain.',
+  Scn_Stress_MPR_025  COMMENT '(+) v11.2: scenario maximum — Stress MPR 0.25 (strmpr025_max). Additive across lines; GREATEST at CP grain.',
   Worst_Scenario COMMENT 'Model-native driver: asts.Max_Scenario_Name — the scenario that produced the max exposure.',
   Is_Breached COMMENT '(+) v11: Y if the Line trips ANY of the 6 *_Excess_Breach flags (the ORIGINAL baseline breach definition), else N. Window-MAX across all the Line''s asts rows so the dedup can''t flip it. This is the ONLY breach signal — the dashboard filters Is_Breached=Y for the breach list; approaching/severity bands ride on Stress_Credit_Utilization at the presentation layer, not baked here.',
   Recurring_New COMMENT 'Recurring = line also breached in the prior business_date; New = first breach this month.',
@@ -245,14 +245,14 @@ SELECT
     --     Exposed so portfolio = this view aggregated to CP: SUM each scenario across
     --     the CP's lines, THEN GREATEST of the 8 sums (the correct two-step roll-up,
     --     done in Mosaic as a level metric). Do NOT sum a line's own worst across CPs.
-    ats_summary.cartor_max         AS Line_Scn_Cartor_Base,     -- Base / Cartor
-    ats_summary.zero_max           AS Line_Scn_Zero,            -- Zero
-    ats_summary.c_25_max           AS Line_Scn_25th,            -- 25th
-    ats_summary.c_75_max           AS Line_Scn_75th,            -- 75th
-    ats_summary.str75_max          AS Line_Scn_Stress75,        -- Stress 75
-    ats_summary.one_max            AS Line_Scn_Correlation_1,   -- Correlation 1.0
-    ats_summary.prod_max           AS Line_Scn_Product,         -- Product
-    ats_summary.strmpr025_max      AS Line_Scn_Stress_MPR_025,  -- Stress MPR 0.25
+    ats_summary.cartor_max         AS Scn_Cartor_Base,     -- Base / Cartor
+    ats_summary.zero_max           AS Scn_Zero,            -- Zero
+    ats_summary.c_25_max           AS Scn_25th,            -- 25th
+    ats_summary.c_75_max           AS Scn_75th,            -- 75th
+    ats_summary.str75_max          AS Scn_Stress75,        -- Stress 75
+    ats_summary.one_max            AS Scn_Correlation_1,   -- Correlation 1.0
+    ats_summary.prod_max           AS Scn_Product,         -- Product
+    ats_summary.strmpr025_max      AS Scn_Stress_MPR_025,  -- Stress MPR 0.25
     ast.Max_Scenario_Name          AS Worst_Scenario,    -- (+) model-native driver (free from all_lines)
     ast.Is_Breached                AS Is_Breached,       -- (+) v11 baseline flag (window-MAX, dedup-proof)
     CASE WHEN pb.Line IS NOT NULL THEN 'Recurring' ELSE 'New' END AS Recurring_New,   -- (+) history compare
@@ -332,14 +332,14 @@ ORDER BY ast.Line;
 SELECT
     Counterparty_Name,
     GREATEST(
-        SUM(Line_Scn_Cartor_Base), SUM(Line_Scn_Zero), SUM(Line_Scn_25th), SUM(Line_Scn_75th),
-        SUM(Line_Scn_Stress75), SUM(Line_Scn_Correlation_1), SUM(Line_Scn_Product), SUM(Line_Scn_Stress_MPR_025)
+        SUM(Scn_Cartor_Base), SUM(Scn_Zero), SUM(Scn_25th), SUM(Scn_75th),
+        SUM(Scn_Stress75), SUM(Scn_Correlation_1), SUM(Scn_Product), SUM(Scn_Stress_MPR_025)
     ) / 1e6                                  AS correct_stress_mm,   -- sum-then-greatest
     SUM(Stress_PFE_MM)                       AS naive_stress_mm,     -- sum of line maxima
     ROUND( 100.0 * (SUM(Stress_PFE_MM) -
         GREATEST(
-            SUM(Line_Scn_Cartor_Base), SUM(Line_Scn_Zero), SUM(Line_Scn_25th), SUM(Line_Scn_75th),
-            SUM(Line_Scn_Stress75), SUM(Line_Scn_Correlation_1), SUM(Line_Scn_Product), SUM(Line_Scn_Stress_MPR_025)
+            SUM(Scn_Cartor_Base), SUM(Scn_Zero), SUM(Scn_25th), SUM(Scn_75th),
+            SUM(Scn_Stress75), SUM(Scn_Correlation_1), SUM(Scn_Product), SUM(Scn_Stress_MPR_025)
         )/1e6 ) / NULLIF(SUM(Stress_PFE_MM),0), 3) AS naive_overstatement_pct
 FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_line_detail
 GROUP BY Counterparty_Name
