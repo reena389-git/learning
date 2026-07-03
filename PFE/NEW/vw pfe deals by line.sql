@@ -30,7 +30,7 @@
 
 CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_deals_by_line` (
   Line                COMMENT 'Credit line / facility key. Drill key from the Level-2 facility/breach view.',
-  Entity              COMMENT 'Parsed from the first parenthesised token of Line (e.g. CP_(TDBK)_(...) -> TDBK).',
+  Booking_Entity      COMMENT 'Parsed from the first parenthesised token of Line (e.g. CP_(TDBK)_(...) -> TDBK).',
   Counterparty_Name   COMMENT 'counterparty_long_name.',
   Counterparty_Code   COMMENT 'counterparty_code.',
   Deal_Id             COMMENT 'deal_id — deal grain key.',
@@ -40,8 +40,8 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_d
   Asset_Class         COMMENT 'deal_type as-is (the asset/product classifier).',
   Asset_Class_Group   COMMENT '<confirm> higher-level grouping of deal_type (Rates/FX/Equity/Repo-SFT/Commodity/Other).',
   ISDA_Indicator      COMMENT 'isda_indicator (Y/N).',
-  Industry            COMMENT 'sic_industry (granular, as on deals).',
-  Rating              COMMENT 'td_account_rating (deal-level account rating).',
+  Industry            COMMENT 'sic_industry (granular). CONFORMS with vw_ats_lines_detail.Industry (same counterparty reference attribute).',
+  Counterparty_Rating COMMENT 'td_account_rating — the counterparty''s own account rating. DO NOT CONFORM with Line_Worst_Rating (worst across the line''s clients — different grain/concept).',
   MTM                 COMMENT 'deal_m2m, CAST to DOUBLE. Consistently USD -> SUMMABLE.',
   MTM_Currency        COMMENT 'deal_m2m_currency.',
   Notional_1          COMMENT 'principal_1, CAST to DOUBLE. MULTI-CURRENCY -> NOT summable across deals without FX.',
@@ -111,7 +111,7 @@ win AS (   -- line-partition aggregates: a deal's behaviour is relative to its l
 )
 SELECT
   d.`line`                                              AS Line,
-  regexp_extract(d.`line`, '\\(([^)]+)\\)', 1)          AS Entity,
+  regexp_extract(d.`line`, '\\(([^)]+)\\)', 1)          AS Booking_Entity,
   d.`counterparty_long_name`                            AS Counterparty_Name,
   d.`counterparty_code`                                 AS Counterparty_Code,
   d.`deal_id`                                           AS Deal_Id,
@@ -130,7 +130,7 @@ SELECT
   END                                                   AS Asset_Class_Group,
   d.`isda_indicator`                                    AS ISDA_Indicator,
   d.`sic_industry`                                      AS Industry,
-  d.`td_account_rating`                                 AS Rating,
+  d.`td_account_rating`                                 AS Counterparty_Rating,
   CAST(NULLIF(REPLACE(d.`deal_m2m`,    ',',''),'null') AS DOUBLE) AS MTM,
   d.`deal_m2m_currency`                                 AS MTM_Currency,
   CAST(NULLIF(REPLACE(d.`principal_1`, ',',''),'null') AS DOUBLE) AS Notional_1,
