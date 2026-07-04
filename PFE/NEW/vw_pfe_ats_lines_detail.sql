@@ -1,5 +1,5 @@
 -- =====================================================================
--- vw_ats_lines_detail   (v2 — LINE FACT; ats_summary folded in)
+-- vw_pfe_ats_lines_detail   (v2 — LINE FACT; ats_summary folded in)
 --   (was vw_pfe_line_detail; renamed because ats_summary cleaning is now inline)
 -- Catalog d4001-centralus-tdvip-creditrisk · Schema xvala_core
 --
@@ -28,7 +28,7 @@
 --   OR'd safely; COALESCE Is_Breached), explicit columns, LEFT JOINs so the ~73-line
 --   CARTOR surplus and any missing IA/MTM rows are harmless.
 -- =====================================================================
-CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_ats_lines_detail` (
+CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_ats_lines_detail` (
   Line              COMMENT 'Credit line identifier. Conformed key (trim(upper)). The spine every fact joins on. Line IS the Counterparty_Line_Code: for CP-format lines Line = pfe_clients_report.counterparty_code (join CP dim directly); for HC-format lines Line is an agent/facility key not in clients_report.',
   Line_Class        COMMENT 'CP or HC. DERIVED from the Line prefix. CP = counterparty line (Line = counterparty_code, joins the CP dimension). HC = agent/fund/house facility line (not a counterparty_code; null on CP dim but self-attributed here). Portfolio selector/filter; decomposes the CP+HC total (no double-count).',
   Counterparty_Name COMMENT 'Counterparty / line long name.',
@@ -43,8 +43,8 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_ats_l
   Utilization       COMMENT 'Stress PFE / Limit at LINE grain. NON-additive — recompute SUM(Stress_PFE)/SUM(Limit) at each roll-up level; never sum the stored ratio.',
   Is_Breached       COMMENT 'Y/N. Window-MAX OR of the 5 *_Excess_Breach flags in vw_asts (no 0_3_mo flag). Dedup-proof; the only breach signal (approaching = BI filter on Utilization).',
   Worst_Scenario    COMMENT 'Scenario that produced the worst exposure (ats_summary.scenario_of_max). ats_summary scenario vocabulary — see dim_scenario.',
-  IM                COMMENT 'Initial Margin (line-level, 0-3 bucket). From pfe_exp_decomp_report max_usage_0_3_mo where product_group=''Lines_Report - With IM'', source=CARTOR. NOTE: varies by scenario in source — base taken; definition to confirm with data owner.',
-  IA                COMMENT 'Independent Amount. From pfe_lines_report.initial_margin (source=CARTOR, active line_type). Line/agreement level, not per deal.',
+  IM                COMMENT 'Initial Margin (line-level, 0-3 bucket). From pfe_exp_decomp_report max_usage_0_3_mo where product_group=''Lines_Report - With IM'', source=CARTOR. COALESCED to 0 (no IM posted = 0; ~99% of lines). NOTE: varies by scenario in source — base taken; definition to confirm with data owner.',
+  IA                COMMENT 'Independent Amount. From pfe_lines_report.initial_margin (source=CARTOR, active line_type). COALESCED to 0 (IA is genuinely zero/absent for ~99% of lines — only ~98 carry a value; data reality). Line/agreement level, not per deal.',
   Line_MTM_Base     COMMENT 'Current mark-to-market (base). From pfe_lines_report source=CARTOR. Un-shocked. Additive across lines.',
   Line_MTM_Stress   COMMENT 'Line MTM under the 75% market stress. From pfe_lines_report source=STRMARKETC75 (only scenario whose MTM differs from base). Additive across lines.',
   Line_Scn_Cartor_Base    COMMENT 'Scenario maximum — Base/Cartor. SEMI-ADDITIVE (sum across lines; GREATEST across scenarios).',
@@ -130,9 +130,12 @@ lines_stress AS (
 im AS (
   -- IM = the line-level Initial Margin for the 0-3 bucket, from the exp_decomp
   -- 'Lines_Report - With IM' slice (per requirement: "IM is the line level IM for 0-3 bucket").
-  -- exp_decomp grain is line × product_group × source (source = scenario). Filter to the
-  -- IM product_group + source='CARTOR' (base) + no_line_indicator=false for one row per line.
-  -- NOTE (confirm with data owner): max_usage_0_3_mo varies by source/scenario (~doubles under
+  -- exp_decomp grain is line × line_type × product_group × source (source = scenario).
+  -- NOTE: pfe_exp_decomp_report has NO no_line_indicator column (unlike lines_report) — do NOT
+  -- filter on it. The IM slice (product_group='Lines_Report - With IM' + source='CARTOR') is
+  -- UNIQUE per line — confirmed: GROUP BY line,source,product_group HAVING COUNT(*)>1 = 0 rows.
+  -- So it joins 1:1 to the line (no fan-out); no GROUP BY needed.
+  -- (confirm with data owner): max_usage_0_3_mo varies by source/scenario (~doubles under
   -- stress) — unusual for a collateral term. Base (CARTOR) taken here; flag the definition.
   SELECT
     trim(upper(line))                                                  AS Line,
@@ -140,7 +143,6 @@ im AS (
   FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_exp_decomp_report`
   WHERE product_group = 'Lines_Report - With IM'
     AND source = 'CARTOR'
-    AND no_line_indicator = false
 )
 SELECT
   a.Line,
@@ -167,8 +169,8 @@ SELECT
   a.Stress_PFE / NULLIF(a.Limit_Amount, 0)                             AS Utilization,
   COALESCE(b.Is_Breached, 'N')                                         AS Is_Breached,
   a.Worst_Scenario,
-  lc.IA,
-  im.IM,
+  COALESCE(lc.IA, 0)                                                   AS IA,
+  COALESCE(im.IM, 0)                                                   AS IM,
   lc.Line_MTM_Base,
   ls.Line_MTM_Stress,
   a.Line_Scn_Cartor_Base,
@@ -193,36 +195,52 @@ LEFT JOIN im              ON im.Line = a.Line
 -- V-GRAIN  one row per line (ats_summary is line grain; all joins 1:1 per line).
 --   EXPECT rows_ = lines_ = 11,804 (no fan-out).
 SELECT COUNT(*) AS rows_, COUNT(DISTINCT Line) AS lines_
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ats_lines_detail;
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_ats_lines_detail;
 -- V-CLASS  CP/HC split + exposure. EXPECT: CP 10,417 lines ~121.08bn ; HC 1,387 lines ~84.41bn.
 --   (Confirms Line_Class populates and the CP+HC decomposition matches the portfolio total.)
 SELECT Line_Class,
        COUNT(DISTINCT Line)  AS lines_,
        ROUND(SUM(Stress_PFE)/1e6, 0) AS stress_pfe_MM
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ats_lines_detail
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_ats_lines_detail
 GROUP BY Line_Class ORDER BY Line_Class;
 -- V-CPDIM  CP-dimension coverage. EXPECT: CP lines match counterparty_code; HC lines do not.
 --   matched ~10,417 ; unmatched ~1,387 (the HC lines, self-attributed, null on CP dim by design).
 SELECT
   SUM(CASE WHEN c.counterparty_code IS NOT NULL THEN 1 ELSE 0 END) AS cp_dim_matched,
   SUM(CASE WHEN c.counterparty_code IS NULL     THEN 1 ELSE 0 END) AS cp_dim_unmatched
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ats_lines_detail d
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_ats_lines_detail d
 LEFT JOIN (SELECT DISTINCT trim(upper(counterparty_code)) AS counterparty_code
            FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_clients_report`) c
   ON d.Line = c.counterparty_code;
 -- V-BREACH  Is_Breached='Y' should reproduce the prior breach set (~132).
-SELECT Is_Breached, COUNT(*) FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ats_lines_detail GROUP BY Is_Breached;
+SELECT Is_Breached, COUNT(*) FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_ats_lines_detail GROUP BY Is_Breached;
 -- V-POP  measure NULLs = lines absent from those sources (LEFT JOIN misses).
+--   Post-coalesce EXPECT: null_im=0, null_ia=0 (IA/IM coalesced to 0); null_mtm_base~107.
 SELECT
   SUM(CASE WHEN IM              IS NULL THEN 1 ELSE 0 END) AS null_im,
   SUM(CASE WHEN IA              IS NULL THEN 1 ELSE 0 END) AS null_ia,
   SUM(CASE WHEN Line_MTM_Base   IS NULL THEN 1 ELSE 0 END) AS null_mtm_base,
   SUM(CASE WHEN Line_MTM_Stress IS NULL THEN 1 ELSE 0 END) AS null_mtm_stress
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ats_lines_detail;
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_ats_lines_detail;
+-- V-POP2  NULL-and-ZERO pattern for IA/IM/MTM by Line_Class (verifies coalesce + IA sparsity).
+--   EXPECT (post-coalesce): ia_null=0, im_null=0 (all pushed to 0);
+--   ia_zero ~10,536 (data reality — no independent amount posted on ~99% of lines);
+--   mtm_base_null ~107 (CP lines absent from lines_report; HC fully covered -> 0).
+SELECT
+  Line_Class,
+  COUNT(*)                                                  AS lines_,
+  SUM(CASE WHEN IA = 0                THEN 1 ELSE 0 END)     AS ia_zero,
+  SUM(CASE WHEN IA IS NULL            THEN 1 ELSE 0 END)     AS ia_null,
+  SUM(CASE WHEN IM = 0                THEN 1 ELSE 0 END)     AS im_zero,
+  SUM(CASE WHEN IM IS NULL            THEN 1 ELSE 0 END)     AS im_null,
+  SUM(CASE WHEN Line_MTM_Base = 0     THEN 1 ELSE 0 END)     AS mtm_base_zero,
+  SUM(CASE WHEN Line_MTM_Base IS NULL THEN 1 ELSE 0 END)     AS mtm_base_null
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_ats_lines_detail
+GROUP BY Line_Class ORDER BY Line_Class;
 -- V-ROLLUP  portfolio test: CP stress = GREATEST(SUM per scenario) vs naive SUM(Stress_PFE).
 SELECT Counterparty_Name,
   GREATEST(SUM(Line_Scn_Cartor_Base),SUM(Line_Scn_Zero),SUM(Line_Scn_25th),SUM(Line_Scn_75th),
            SUM(Line_Scn_Stress75),SUM(Line_Scn_Correlation_1),SUM(Line_Scn_Product),SUM(Line_Scn_Stress_MPR_025)) AS correct_stress,
   SUM(Stress_PFE) AS naive_stress
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ats_lines_detail
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_ats_lines_detail
 GROUP BY Counterparty_Name ORDER BY correct_stress DESC LIMIT 20;

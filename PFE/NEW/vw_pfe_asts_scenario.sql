@@ -1,5 +1,5 @@
 -- =====================================================================
--- vw_asts_scenario   (v1 — SCENARIO FACT; line × scenario)
+-- vw_pfe_asts_scenario   (v1 — SCENARIO FACT; line × scenario)
 -- Catalog d4001-centralus-tdvip-creditrisk · Schema xvala_core
 --
 -- WHY THIS VIEW EXISTS (rationale)
@@ -24,12 +24,12 @@
 -- KEY     Line + Scenario_Name
 -- MEASURE Scenario_Exposure  (the per-scenario max — the selectable measure)
 -- ROLLUP  line stress = GREATEST(Scenario_Exposure) over a line = ats_summary.max_of_all
---         = vw_ats_lines_detail.Stress_PFE. Portfolio-by-scenario = SUM(Scenario_Exposure)
+--         = vw_pfe_ats_lines_detail.Stress_PFE. Portfolio-by-scenario = SUM(Scenario_Exposure)
 --         within the selected Scenario_Name, grouped by dimension (additive within a scenario).
 -- CONFORMS on: Line (to line fact & deal fact), Scenario_Name (to dim_scenario & the
 --         line fact's Line_Scn_* maxima), Counterparty_Name.
 -- =====================================================================
-CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_asts_scenario` (
+CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_asts_scenario` (
   Line               COMMENT 'Credit line identifier. Conformed key (trim(upper)). FK to line grain. Line IS the Counterparty_Line_Code (CP rows = counterparty_code; HC rows = agent/facility, null on CP dim).',
   Line_Class         COMMENT 'CP or HC. DERIVED from the Line prefix (same as the line fact). CP = counterparty line; HC = agent/fund/house facility. Scenario-view CP/HC selector/filter.',
   Scenario_Name      COMMENT 'Scenario (friendly name, from the ats_summary column mapping). SELECTABLE attribute for the scenario picker. FK to dim_scenario. Conforms to the line fact''s Line_Scn_* maxima.',
@@ -115,20 +115,20 @@ LATERAL VIEW stack(8,
 -- V-GRAIN  8 scenario rows per line: out_rows = ats_summary lines × 8.
 SELECT
   (SELECT COUNT(*) FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.pfe_ats_summary) AS lines_,
-  (SELECT COUNT(*) FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_asts_scenario) AS out_rows,
-  (SELECT COUNT(*) FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_asts_scenario) * 1.0 /
+  (SELECT COUNT(*) FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_asts_scenario) AS out_rows,
+  (SELECT COUNT(*) FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_asts_scenario) * 1.0 /
     NULLIF((SELECT COUNT(*) FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.pfe_ats_summary),0) AS ratio_should_be_8;
 -- V-TIE  scenario fact must tie to the line fact: MAX(Scenario_Exposure) per line
---        should equal vw_ats_lines_detail.Stress_PFE for that line.
+--        should equal vw_pfe_ats_lines_detail.Stress_PFE for that line.
 SELECT sc.Line,
        MAX(sc.Scenario_Exposure) AS scn_greatest,
        ld.Stress_PFE
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_asts_scenario sc
-JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ats_lines_detail ld ON ld.Line = sc.Line
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_asts_scenario sc
+JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_ats_lines_detail ld ON ld.Line = sc.Line
 GROUP BY sc.Line, ld.Stress_PFE
 HAVING ABS(MAX(sc.Scenario_Exposure) - ld.Stress_PFE) > 1     -- expect ~0 rows (they tie)
 LIMIT 20;
 -- V-SCEN  8 scenarios present with the friendly names, incl. Base.
 SELECT Scenario_Name, COUNT(*) AS lines_, ROUND(SUM(Scenario_Exposure)/1e9,3) AS exposure_b
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_asts_scenario
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_asts_scenario
 GROUP BY Scenario_Name ORDER BY exposure_b DESC;

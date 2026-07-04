@@ -29,7 +29,7 @@
 -- =============================================================================
 
 CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_deals_by_line` (
-  Line                COMMENT 'EXPOSURE / DRILL key (= deals.line). The unified HC/CP exposure line: CP-format where the deal is direct (Line = Counterparty_Code), HC-format where it is an agent/facility. RELATES TO vw_ats_lines_detail.Line (deal->line-fact drill), matching 4,603 CP + 712 HC = 5,315 lines, no double-count. NOTE: this is the FACILITY/EXPOSURE key, NOT the counterparty — for counterparty attribution use Counterparty_Code (an HC line is a facility, not a counterparty).',
+  Line                COMMENT 'EXPOSURE / DRILL key (= deals.line). The unified HC/CP exposure line: CP-format where the deal is direct (Line = Counterparty_Code), HC-format where it is an agent/facility. RELATES TO vw_pfe_ats_lines_detail.Line (deal->line-fact drill), matching 4,603 CP + 712 HC = 5,315 lines, no double-count. NOTE: this is the FACILITY/EXPOSURE key, NOT the counterparty — for counterparty attribution use Counterparty_Code (an HC line is a facility, not a counterparty).',
   Line_Class          COMMENT 'CP or HC. DERIVED from the Line prefix. CP = the line IS the counterparty (direct); HC = agent/fund/house facility whose trades post to a CP (Counterparty_Code). Matches the line/scenario facts Line_Class.',
   Facility_Line_Code  COMMENT 'Alias of Line — the HC/CP facility/exposure line code, named explicitly for the deal screen (the facility a deal is booked to).',
   Booking_Entity      COMMENT 'Parsed from the first parenthesised token of Line (e.g. CP_(TDBK)_(...) -> TDBK).',
@@ -42,7 +42,7 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_d
   Asset_Class         COMMENT 'deal_type as-is (the asset/product classifier).',
   Asset_Class_Group   COMMENT '<confirm> higher-level grouping of deal_type (Rates/FX/Equity/Repo-SFT/Commodity/Other).',
   ISDA_Indicator      COMMENT 'isda_indicator (Y/N).',
-  Industry            COMMENT 'sic_industry (granular). CONFORMS with vw_ats_lines_detail.Industry (same counterparty reference attribute).',
+  Industry            COMMENT 'sic_industry (granular). CONFORMS with vw_pfe_ats_lines_detail.Industry (same counterparty reference attribute).',
   Counterparty_Rating COMMENT 'td_account_rating — the counterparty''s own account rating. DO NOT CONFORM with Line_Worst_Rating (worst across the line''s clients — different grain/concept).',
   MTM                 COMMENT 'deal_m2m, CAST to DOUBLE. Consistently USD -> SUMMABLE.',
   MTM_Currency        COMMENT 'deal_m2m_currency.',
@@ -64,7 +64,7 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_d
   Line_Standard_PFE   COMMENT 'The line''s standard (base/cartor) PFE. Line-level, repeated on deals — do NOT sum.',
   Line_Limit          COMMENT 'The line''s limit amount. Line-level, repeated on deals — do NOT sum (use Max).',
   Line_Utilization    COMMENT 'The line''s utilization (stress/limit). RATIO.',
-  Is_Breached         COMMENT 'Y/N — the line''s breach flag from vw_ats_lines_detail (window-MAX OR of the 5 tenor breach flags). Repeated on every deal of the line.',
+  Is_Breached         COMMENT 'Y/N — the line''s breach flag from vw_pfe_ats_lines_detail (window-MAX OR of the 5 tenor breach flags). Repeated on every deal of the line.',
   Line_Worst_Scenario COMMENT 'Which scenario drives the line (filter deals by scenario via this).',
   Line_IM             COMMENT 'The line''s Initial Margin (line/agreement level). Repeated on deals — do NOT sum.',
   Line_IA             COMMENT 'The line''s Independent Amount (line/agreement level). Repeated on deals — do NOT sum.',
@@ -171,7 +171,7 @@ SELECT
   -- (+) FLAG — override audit
   CASE WHEN upper(d.`override`) = 'Y' THEN 'Overridden' ELSE 'Clean' END  AS Override_Norm,
 
-  -- (+) LINE CONTEXT — joined from vw_ats_lines_detail on Line (was vw_pfe_line_detail/spine)
+  -- (+) LINE CONTEXT — joined from vw_pfe_ats_lines_detail on Line (was vw_pfe_line_detail/spine)
   ld.Stress_PFE                                         AS Line_Stress_PFE,     -- (~) new fact name (was Stress_PFE_MM)
   ld.Standard_PFE                                       AS Line_Standard_PFE,   -- (~) was Standard_PFE_MM
   ld.Limit_Amount                                       AS Line_Limit,
@@ -217,7 +217,7 @@ SELECT
   -- (~) OUTPUT NORMALIZED: always a real DATE regardless of source datatype
   --     (string yyyymmdd / string yyyy-mm-dd / DATE all -> one canonical DATE).
 FROM win d
-LEFT JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_ats_lines_detail` ld   -- (~) was vw_pfe_line_detail
+LEFT JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_ats_lines_detail` ld   -- (~) was vw_pfe_line_detail
   ON ld.Line = trim(upper(d.`line`))   -- (~) conformed key: line fact's Line is trim(upper); match it here
   -- date condition intentionally omitted: the line fact is single-date and emits its
   -- own Business_Date; joining on the conformed Line alone is 1:1 (no fan-out).
@@ -248,7 +248,7 @@ LEFT JOIN (SELECT DISTINCT trim(upper(counterparty_code)) AS counterparty_code
 --   EXPECT 0 (proves CP+HC additive, no double-count at the deal-attribution level too).
 SELECT COUNT(DISTINCT d.Counterparty_Code) AS hc_cp_codes_that_are_also_lines
 FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_deals_by_line d
-JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ats_lines_detail ld ON ld.Line = d.Counterparty_Code
+JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_ats_lines_detail ld ON ld.Line = d.Counterparty_Code
 WHERE d.Line_Class = 'HC';
 --
 -- ---- ORIGINAL VALIDATION / RUNBOOK TWINS (commented) -----------------------
