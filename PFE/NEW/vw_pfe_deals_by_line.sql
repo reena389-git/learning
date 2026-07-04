@@ -29,10 +29,12 @@
 -- =============================================================================
 
 CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_deals_by_line` (
-  Line                COMMENT 'Credit line / facility key. Drill key from the Level-2 facility/breach view.',
+  Line                COMMENT 'EXPOSURE / DRILL key (= deals.line). The unified HC/CP exposure line: CP-format where the deal is direct (Line = Counterparty_Code), HC-format where it is an agent/facility. RELATES TO vw_ats_lines_detail.Line (deal->line-fact drill), matching 4,603 CP + 712 HC = 5,315 lines, no double-count. NOTE: this is the FACILITY/EXPOSURE key, NOT the counterparty — for counterparty attribution use Counterparty_Code (an HC line is a facility, not a counterparty).',
+  Line_Class          COMMENT 'CP or HC. DERIVED from the Line prefix. CP = the line IS the counterparty (direct); HC = agent/fund/house facility whose trades post to a CP (Counterparty_Code). Matches the line/scenario facts Line_Class.',
+  Facility_Line_Code  COMMENT 'Alias of Line — the HC/CP facility/exposure line code, named explicitly for the deal screen (the facility a deal is booked to).',
   Booking_Entity      COMMENT 'Parsed from the first parenthesised token of Line (e.g. CP_(TDBK)_(...) -> TDBK).',
-  Counterparty_Name   COMMENT 'counterparty_long_name.',
-  Counterparty_Code   COMMENT 'counterparty_code.',
+  Counterparty_Name   COMMENT 'counterparty_long_name — the COUNTERPARTY''s name (tracks Counterparty_Code; varies by CP code, confirmed). NOT the facility name.',
+  Counterparty_Code   COMMENT 'counterparty_code (always CP format) — the COUNTERPARTY the trade posts to. This is the CP-ATTRIBUTION key: RELATES TO pfe_clients_report.counterparty_code (deal->CP dimension). For HC facility deals this is the underlying CP; for CP deals it equals Line. NEVER relate the deal to the CP dimension on Line — only on Counterparty_Code.',
   Deal_Id             COMMENT 'deal_id — deal grain key.',
   Deal_Name           COMMENT 'name.',
   New_Deal_Flag       COMMENT 'new_deal_flag (Y/N) — new this load.',
@@ -110,10 +112,14 @@ win AS (   -- line-partition aggregates: a deal's behaviour is relative to its l
   FROM base b
 )
 SELECT
-  d.`line`                                              AS Line,
+  trim(upper(d.`line`))                                 AS Line,   -- conformed to the line fact's Line (trim(upper)) so Mosaic treats them as ONE attribute
+  CASE WHEN trim(upper(d.`line`)) LIKE 'CP%' THEN 'CP'
+       WHEN trim(upper(d.`line`)) LIKE 'HC%' THEN 'HC'
+       ELSE 'Other' END                                 AS Line_Class,
+  trim(upper(d.`line`))                                 AS Facility_Line_Code,   -- explicit alias of the facility/exposure line
   regexp_extract(d.`line`, '\\(([^)]+)\\)', 1)          AS Booking_Entity,
   d.`counterparty_long_name`                            AS Counterparty_Name,
-  d.`counterparty_code`                                 AS Counterparty_Code,
+  trim(upper(d.`counterparty_code`))                    AS Counterparty_Code,    -- conformed CP-attribution key -> clients_report.counterparty_code
   d.`deal_id`                                           AS Deal_Id,
   d.`name`                                              AS Deal_Name,
   d.`new_deal_flag`                                     AS New_Deal_Flag,
@@ -218,7 +224,34 @@ LEFT JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_ats_lines_detail` 
 ;
 
 -- =============================================================================
--- VALIDATION
+-- VALIDATION  (JOIN-RESOLUTION checks — run these; expected numbers in comments)
+-- =============================================================================
+-- VJ-CLASS  deal Line_Class split. EXPECT: CP 4,604 distinct lines · HC 712 distinct lines.
+SELECT Line_Class, COUNT(*) AS deal_rows, COUNT(DISTINCT Line) AS distinct_lines
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_deals_by_line
+GROUP BY Line_Class ORDER BY Line_Class;
+-- VJ-DRILL  deal -> line fact on Line (exposure). EXPECT most deals match a line-fact row;
+--   Line_Stress_PFE non-null. matched distinct lines ~5,315 (4,603 CP + 712 HC).
+SELECT
+  COUNT(DISTINCT d.Line)                                              AS deal_lines,
+  COUNT(DISTINCT CASE WHEN d.Line_Stress_PFE IS NOT NULL THEN d.Line END) AS lines_matched_to_line_fact
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_deals_by_line d;
+-- VJ-CPDIM  deal -> CP dimension on Counterparty_Code (attribution). EXPECT high match to clients_report.
+SELECT
+  COUNT(DISTINCT d.Counterparty_Code)                                AS deal_cp_codes,
+  COUNT(DISTINCT c.counterparty_code)                                AS matched_in_clients
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_deals_by_line d
+LEFT JOIN (SELECT DISTINCT trim(upper(counterparty_code)) AS counterparty_code
+           FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_clients_report`) c
+  ON d.Counterparty_Code = c.counterparty_code;
+-- VJ-NODOUBLE  the CP codes HC deals attribute to must NOT be their own line-fact lines.
+--   EXPECT 0 (proves CP+HC additive, no double-count at the deal-attribution level too).
+SELECT COUNT(DISTINCT d.Counterparty_Code) AS hc_cp_codes_that_are_also_lines
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_deals_by_line d
+JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ats_lines_detail ld ON ld.Line = d.Counterparty_Code
+WHERE d.Line_Class = 'HC';
+--
+-- ---- ORIGINAL VALIDATION / RUNBOOK TWINS (commented) -----------------------
 -- V1  deal grain (one row per deal per date) — expect dupes = 0
 -- SELECT Deal_Id, Business_Date, COUNT(*) c FROM ... GROUP BY 1,2 HAVING COUNT(*)>1;
 --

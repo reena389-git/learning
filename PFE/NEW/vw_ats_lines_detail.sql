@@ -11,10 +11,10 @@
 --       Booking_Entity (derived).  [was the separate vw_ats_summary — now inline,
 --       since the line fact is its only consumer.]
 --     • vw_asts   -> the 5 breach flags -> Is_Breached (window-MAX OR, dedup-proof).
---     • pfe_lines_report source=CARTOR       -> IM, Line_MTM_Base.
+--     • pfe_lines_report source=CARTOR       -> IA (initial_margin), Line_MTM_Base.
 --     • pfe_lines_report source=STRMARKETC75 -> Line_MTM_Stress.
---     • pfe_exp_decomp_report product_group='Lines_Report - With IM' -> IA
---       (= max_usage_0_3_mo on that slice; logic unchanged from the prior view).
+--     • pfe_exp_decomp_report product_group='Lines_Report - With IM', source=CARTOR -> IM
+--       (= max_usage_0_3_mo, the line-level 0-3 bucket Initial Margin).
 --
 --   COMPUTES (not just joins): Is_Breached (window-MAX OR of 5 flags); Utilization
 --   (ratio — metadata flags rederive_in_bi); Booking_Entity (regex parse of Line);
@@ -29,7 +29,8 @@
 --   CARTOR surplus and any missing IA/MTM rows are harmless.
 -- =====================================================================
 CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_ats_lines_detail` (
-  Line              COMMENT 'Credit line identifier. Conformed key (trim(upper)). The spine every fact joins on.',
+  Line              COMMENT 'Credit line identifier. Conformed key (trim(upper)). The spine every fact joins on. Line IS the Counterparty_Line_Code: for CP-format lines Line = pfe_clients_report.counterparty_code (join CP dim directly); for HC-format lines Line is an agent/facility key not in clients_report.',
+  Line_Class        COMMENT 'CP or HC. DERIVED from the Line prefix. CP = counterparty line (Line = counterparty_code, joins the CP dimension). HC = agent/fund/house facility line (not a counterparty_code; null on CP dim but self-attributed here). Portfolio selector/filter; decomposes the CP+HC total (no double-count).',
   Counterparty_Name COMMENT 'Counterparty / line long name.',
   Booking_Entity    COMMENT 'Booking entity. DERIVED: first parenthesised token of Line — regexp_extract(Line, ''\\(([^)]+)\\)'', 1). E.g. CP_(TDBK)_(SKBS_DBL) -> TDBK.',
   Industry          COMMENT 'Granular industry (sic_industry). Denormalized counterparty reference attribute; refreshed each load.',
@@ -42,8 +43,8 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_ats_l
   Utilization       COMMENT 'Stress PFE / Limit at LINE grain. NON-additive — recompute SUM(Stress_PFE)/SUM(Limit) at each roll-up level; never sum the stored ratio.',
   Is_Breached       COMMENT 'Y/N. Window-MAX OR of the 5 *_Excess_Breach flags in vw_asts (no 0_3_mo flag). Dedup-proof; the only breach signal (approaching = BI filter on Utilization).',
   Worst_Scenario    COMMENT 'Scenario that produced the worst exposure (ats_summary.scenario_of_max). ats_summary scenario vocabulary — see dim_scenario.',
-  IM                COMMENT 'Initial Margin. From pfe_lines_report source=CARTOR (IM constant across scenarios). Line/agreement level, not per deal.',
-  IA                COMMENT 'Independent Amount. From pfe_exp_decomp_report max_usage_0_3_mo where product_group=''Lines_Report - With IM'' (unique per line). Line/agreement level.',
+  IM                COMMENT 'Initial Margin (line-level, 0-3 bucket). From pfe_exp_decomp_report max_usage_0_3_mo where product_group=''Lines_Report - With IM'', source=CARTOR. NOTE: varies by scenario in source — base taken; definition to confirm with data owner.',
+  IA                COMMENT 'Independent Amount. From pfe_lines_report.initial_margin (source=CARTOR, active line_type). Line/agreement level, not per deal.',
   Line_MTM_Base     COMMENT 'Current mark-to-market (base). From pfe_lines_report source=CARTOR. Un-shocked. Additive across lines.',
   Line_MTM_Stress   COMMENT 'Line MTM under the 75% market stress. From pfe_lines_report source=STRMARKETC75 (only scenario whose MTM differs from base). Additive across lines.',
   Line_Scn_Cartor_Base    COMMENT 'Scenario maximum — Base/Cartor. SEMI-ADDITIVE (sum across lines; GREATEST across scenarios).',
@@ -105,32 +106,49 @@ breach AS (
   GROUP BY Line
 ),
 lines_cartor AS (
-  -- IM + base MTM from the CARTOR (base) row — one row per line.
+  -- IA + base MTM from the CARTOR (base) scenario row.
+  -- IA = pfe_lines_report.initial_margin (per requirement: "IA is Initial Margin from lines report").
+  -- no_line_indicator=false selects the one active line_type -> one row per line.
   SELECT
     trim(upper(line))                                                  AS Line,
-    try_cast(replace(CAST(initial_margin AS STRING),',','') AS DOUBLE) AS IM,
+    try_cast(replace(CAST(initial_margin AS STRING),',','') AS DOUBLE) AS IA,
     try_cast(replace(CAST(mark_to_market AS STRING),',','') AS DOUBLE) AS Line_MTM_Base
   FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_lines_report`
   WHERE source = 'CARTOR'
+    AND no_line_indicator = false
 ),
 lines_stress AS (
-  -- Stress MTM from the market-stress row — one row per line.
+  -- Stress MTM from the market-stress scenario row. Same grain/filter logic:
+  -- no_line_indicator=false gives the one active line_type -> one row per line.
   SELECT
     trim(upper(line))                                                  AS Line,
     try_cast(replace(CAST(mark_to_market AS STRING),',','') AS DOUBLE) AS Line_MTM_Stress
   FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_lines_report`
   WHERE source = 'STRMARKETC75'
+    AND no_line_indicator = false
 ),
-ia AS (
-  -- IA from the with-IM decomposition slice — unique per line after the filter (logic unchanged).
+im AS (
+  -- IM = the line-level Initial Margin for the 0-3 bucket, from the exp_decomp
+  -- 'Lines_Report - With IM' slice (per requirement: "IM is the line level IM for 0-3 bucket").
+  -- exp_decomp grain is line × product_group × source (source = scenario). Filter to the
+  -- IM product_group + source='CARTOR' (base) + no_line_indicator=false for one row per line.
+  -- NOTE (confirm with data owner): max_usage_0_3_mo varies by source/scenario (~doubles under
+  -- stress) — unusual for a collateral term. Base (CARTOR) taken here; flag the definition.
   SELECT
     trim(upper(line))                                                  AS Line,
-    try_cast(replace(CAST(max_usage_0_3_mo AS STRING),',','') AS DOUBLE) AS IA
+    try_cast(replace(CAST(max_usage_0_3_mo AS STRING),',','') AS DOUBLE) AS IM
   FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_exp_decomp_report`
   WHERE product_group = 'Lines_Report - With IM'
+    AND source = 'CARTOR'
+    AND no_line_indicator = false
 )
 SELECT
   a.Line,
+  -- Line_Class: CP (counterparty line, = counterparty_code) vs HC (agent/fund/house facility).
+  -- Derived from the Line prefix. Drives the portfolio CP/HC selector; CP+HC are disjoint (no double-count).
+  CASE WHEN a.Line LIKE 'CP%' THEN 'CP'
+       WHEN a.Line LIKE 'HC%' THEN 'HC'
+       ELSE 'Other' END                                                 AS Line_Class,
   a.Counterparty_Name,
   a.Booking_Entity,
   a.Industry,
@@ -149,8 +167,8 @@ SELECT
   a.Stress_PFE / NULLIF(a.Limit_Amount, 0)                             AS Utilization,
   COALESCE(b.Is_Breached, 'N')                                         AS Is_Breached,
   a.Worst_Scenario,
-  lc.IM,
-  ia.IA,
+  lc.IA,
+  im.IM,
   lc.Line_MTM_Base,
   ls.Line_MTM_Stress,
   a.Line_Scn_Cartor_Base,
@@ -166,15 +184,32 @@ FROM ats_clean a
 LEFT JOIN breach       b  ON b.Line  = a.Line
 LEFT JOIN lines_cartor lc ON lc.Line = a.Line
 LEFT JOIN lines_stress ls ON ls.Line = a.Line
-LEFT JOIN ia              ON ia.Line = a.Line
+LEFT JOIN im              ON im.Line = a.Line
 ;
 
 -- =====================================================================
--- VALIDATION
+-- VALIDATION  (run each; expected numbers in comments)
 -- =====================================================================
 -- V-GRAIN  one row per line (ats_summary is line grain; all joins 1:1 per line).
+--   EXPECT rows_ = lines_ = 11,804 (no fan-out).
 SELECT COUNT(*) AS rows_, COUNT(DISTINCT Line) AS lines_
 FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ats_lines_detail;
+-- V-CLASS  CP/HC split + exposure. EXPECT: CP 10,417 lines ~121.08bn ; HC 1,387 lines ~84.41bn.
+--   (Confirms Line_Class populates and the CP+HC decomposition matches the portfolio total.)
+SELECT Line_Class,
+       COUNT(DISTINCT Line)  AS lines_,
+       ROUND(SUM(Stress_PFE)/1e6, 0) AS stress_pfe_MM
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ats_lines_detail
+GROUP BY Line_Class ORDER BY Line_Class;
+-- V-CPDIM  CP-dimension coverage. EXPECT: CP lines match counterparty_code; HC lines do not.
+--   matched ~10,417 ; unmatched ~1,387 (the HC lines, self-attributed, null on CP dim by design).
+SELECT
+  SUM(CASE WHEN c.counterparty_code IS NOT NULL THEN 1 ELSE 0 END) AS cp_dim_matched,
+  SUM(CASE WHEN c.counterparty_code IS NULL     THEN 1 ELSE 0 END) AS cp_dim_unmatched
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ats_lines_detail d
+LEFT JOIN (SELECT DISTINCT trim(upper(counterparty_code)) AS counterparty_code
+           FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_clients_report`) c
+  ON d.Line = c.counterparty_code;
 -- V-BREACH  Is_Breached='Y' should reproduce the prior breach set (~132).
 SELECT Is_Breached, COUNT(*) FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_ats_lines_detail GROUP BY Is_Breached;
 -- V-POP  measure NULLs = lines absent from those sources (LEFT JOIN misses).
