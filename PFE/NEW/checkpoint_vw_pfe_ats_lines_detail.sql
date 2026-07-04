@@ -42,7 +42,7 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_a
   Limit_Amount      COMMENT 'Approved limit (peak bucket). Additive (utilization denominator).',
   Utilization       COMMENT 'Stress PFE / Limit at LINE grain. NON-additive — recompute SUM(Stress_PFE)/SUM(Limit) at each roll-up level; never sum the stored ratio.',
   Is_Breached       COMMENT 'Y/N. Window-MAX OR of the 5 *_Excess_Breach flags in vw_asts (no 0_3_mo flag). Dedup-proof; the only breach signal (approaching = BI filter on Utilization).',
-  Worst_Scenario    COMMENT 'Scenario that produced the worst exposure (ats_summary.scenario_of_max). ats_summary scenario vocabulary — see vw_dim_scenario.',
+  Worst_Scenario    COMMENT 'Scenario that produced the worst exposure (ats_summary.scenario_of_max). ats_summary scenario vocabulary — see dim_scenario.',
   IM                COMMENT 'Initial Margin (line-level, 0-3 bucket). From pfe_exp_decomp_report max_usage_0_3_mo where product_group=''Lines_Report - With IM'', source=CARTOR. COALESCED to 0 (no IM posted = 0; ~99% of lines). NOTE: varies by scenario in source — base taken; definition to confirm with data owner.',
   IA                COMMENT 'Independent Amount. From pfe_lines_report.initial_margin (source=CARTOR, active line_type). COALESCED to 0 (IA is genuinely zero/absent for ~99% of lines — only ~98 carry a value; data reality). Line/agreement level, not per deal.',
   Line_MTM_Base     COMMENT 'Current mark-to-market (base). From pfe_lines_report source=CARTOR. Un-shocked. Additive across lines.',

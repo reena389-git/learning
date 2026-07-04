@@ -26,13 +26,13 @@
 -- ROLLUP  line stress = GREATEST(Scenario_Exposure) over a line = ats_summary.max_of_all
 --         = vw_pfe_ats_lines_detail.Stress_PFE. Portfolio-by-scenario = SUM(Scenario_Exposure)
 --         within the selected Scenario_Name, grouped by dimension (additive within a scenario).
--- CONFORMS on: Line (to line fact & deal fact), Scenario_Name (to dim_scenario & the
+-- CONFORMS on: Line (to line fact & deal fact), Scenario_Name (to vw_dim_scenario & the
 --         line fact's Line_Scn_* maxima), Counterparty_Name.
 -- =====================================================================
 CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_asts_scenario` (
   Line               COMMENT 'Credit line identifier. Conformed key (trim(upper)). FK to line grain. Line IS the Counterparty_Line_Code (CP rows = counterparty_code; HC rows = agent/facility, null on CP dim).',
   Line_Class         COMMENT 'CP or HC. DERIVED from the Line prefix (same as the line fact). CP = counterparty line; HC = agent/fund/house facility. Scenario-view CP/HC selector/filter.',
-  Scenario_Name      COMMENT 'Scenario (friendly name, from the ats_summary column mapping). SELECTABLE attribute for the scenario picker. FK to dim_scenario. Conforms to the line fact''s Line_Scn_* maxima.',
+  Scenario_Name      COMMENT 'Scenario (friendly name, from the ats_summary column mapping). SELECTABLE attribute for the scenario picker. FK to vw_dim_scenario. Conforms to the line fact''s Line_Scn_* maxima.',
   Scenario_Exposure  COMMENT 'This line''s exposure under this scenario (the unpivoted *_max). The scenario-view measure. ADDITIVE within a scenario across lines (portfolio-by-scenario = SUM within the selected scenario). Across scenarios take GREATEST, not SUM.',
   Counterparty_Name  COMMENT 'Counterparty / line long name. Repeated line attribute.',
   Booking_Entity     COMMENT 'Booking entity. DERIVED: first parenthesised token of Line. Repeated line attribute.',

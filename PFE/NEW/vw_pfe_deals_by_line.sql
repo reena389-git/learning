@@ -60,16 +60,15 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_d
   New_Deal_Norm       COMMENT 'SELECTOR LENS: New / Existing from new_deal_flag.',
   Override_Norm       COMMENT 'FLAG: Overridden / Clean from override (audit marker).',
   -- (+) LINE BREACH CONTEXT (from vw_line_stress_spine, joined on Line)
-  Line_Stress_PFE     COMMENT 'The deal''s LINE total stress PFE (line-level, not deal-level).',
-  Line_Standard_PFE   COMMENT 'The line''s standard (base/cartor) PFE. Line-level, repeated on deals — do NOT sum.',
-  Line_Limit          COMMENT 'The line''s limit amount. Line-level, repeated on deals — do NOT sum (use Max).',
-  Line_Utilization    COMMENT 'The line''s utilization (stress/limit). RATIO.',
-  Is_Breached         COMMENT 'Y/N — the line''s breach flag from vw_pfe_ats_lines_detail (window-MAX OR of the 5 tenor breach flags). Repeated on every deal of the line.',
-  Line_Worst_Scenario COMMENT 'Which scenario drives the line (filter deals by scenario via this).',
-  Line_IM             COMMENT 'The line''s Initial Margin (line/agreement level). Repeated on deals — do NOT sum.',
-  Line_IA             COMMENT 'The line''s Independent Amount (line/agreement level). Repeated on deals — do NOT sum.',
-  Line_MTM_Base       COMMENT 'The line''s base mark-to-market (CARTOR). Line-level, repeated on deals — do NOT sum.',
-  Line_MTM_Stress     COMMENT 'The line''s MTM under 75% market stress (STRMARKETC75). Line-level, repeated on deals — do NOT sum.',
+  -- ---------------------------------------------------------------------------
+  -- LINE-LEVEL CONTEXT (Line_Stress_PFE, Line_Limit, Is_Breached, Line_IM/IA/MTM, etc.)
+  -- REMOVED from this view: the deal fact no longer LEFT JOINs the line fact.
+  -- These come through the MOSAIC MODEL instead — deal fact relates to
+  -- vw_pfe_ats_lines_detail on Line (conformed key). Keeping the fact-to-fact join
+  -- in SQL would hard-couple the views and duplicate line data on every deal row.
+  -- The deal fact now exposes only its own deal attributes + the two conformed keys
+  -- (Line for the exposure drill, Counterparty_Code for CP attribution).
+  -- ---------------------------------------------------------------------------
   -- (+) DEAL BEHAVIOUR WITHIN ITS LINE (window functions over the line partition)
   MTM_Share_Of_Line   COMMENT 'Abs(deal MTM) / line gross MTM. Concentration — which deals drive the line.',
   Is_Dominant_Deal    COMMENT 'Y when this deal is >= 25% of the line gross MTM (a whale).',
@@ -97,6 +96,7 @@ WITH base AS (
     CAST(NULLIF(REPLACE(d.`deal_m2m`,',',''),'null')         AS DOUBLE) AS mtm_num
   FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_deals_report` d
   WHERE COALESCE(CAST(d.`no_line_indicator` AS BOOLEAN), false) = false   -- (~) BOOLEAN-safe: real lines only (handles boolean or 'true'/'false' string, null-safe)
+    AND d.`line` IS NOT NULL AND trim(d.`line`) <> ''                     -- (~) exclude null/blank-line records: internal IM/cash stubs (e.g. USD_CASH deals in TCIM_IM_book, 50yr placeholder, no MTM, no line) — not counterparty deals-by-line. Removes the 6 'Other'-class rows.
 ),
 win AS (   -- line-partition aggregates: a deal's behaviour is relative to its line
   SELECT b.*,
@@ -172,16 +172,7 @@ SELECT
   CASE WHEN upper(d.`override`) = 'Y' THEN 'Overridden' ELSE 'Clean' END  AS Override_Norm,
 
   -- (+) LINE CONTEXT — joined from vw_pfe_ats_lines_detail on Line (was vw_pfe_line_detail/spine)
-  ld.Stress_PFE                                         AS Line_Stress_PFE,     -- (~) new fact name (was Stress_PFE_MM)
-  ld.Standard_PFE                                       AS Line_Standard_PFE,   -- (~) was Standard_PFE_MM
-  ld.Limit_Amount                                       AS Line_Limit,
-  ld.Utilization                                        AS Line_Utilization,    -- (~) was Stress_Credit_Utilization
-  ld.Is_Breached                                        AS Is_Breached,         -- raw Y/N flag from the line fact
-  ld.Worst_Scenario                                     AS Line_Worst_Scenario,
-  ld.IM                                                 AS Line_IM,             -- (+) line collateral context
-  ld.IA                                                 AS Line_IA,             -- (+)
-  ld.Line_MTM_Base                                      AS Line_MTM_Base,       -- (+)
-  ld.Line_MTM_Stress                                    AS Line_MTM_Stress,     -- (+)
+  -- (line-level context columns removed — resolved via Mosaic relationship deal.Line -> line fact)
 
   -- (+) DEAL BEHAVIOUR WITHIN ITS LINE
   ABS(d.mtm_num) / NULLIF(d.line_gross_mtm,0)            AS MTM_Share_Of_Line,
@@ -217,25 +208,29 @@ SELECT
   -- (~) OUTPUT NORMALIZED: always a real DATE regardless of source datatype
   --     (string yyyymmdd / string yyyy-mm-dd / DATE all -> one canonical DATE).
 FROM win d
-LEFT JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_ats_lines_detail` ld   -- (~) was vw_pfe_line_detail
-  ON ld.Line = trim(upper(d.`line`))   -- (~) conformed key: line fact's Line is trim(upper); match it here
-  -- date condition intentionally omitted: the line fact is single-date and emits its
-  -- own Business_Date; joining on the conformed Line alone is 1:1 (no fan-out).
+-- (~) LINE-FACT JOIN REMOVED: the deal fact no longer LEFT JOINs vw_pfe_ats_lines_detail.
+--     Line context is resolved in the MOSAIC MODEL via the deal.Line -> line-fact.Line
+--     relationship (conformed key). This keeps the views decoupled and avoids duplicating
+--     line data on every deal row. The deal fact stands alone: deal attributes + the two
+--     conformed keys (Line for exposure drill, Counterparty_Code for CP attribution).
 ;
 
 -- =============================================================================
 -- VALIDATION  (JOIN-RESOLUTION checks — run these; expected numbers in comments)
 -- =============================================================================
--- VJ-CLASS  deal Line_Class split. EXPECT: CP 4,604 distinct lines · HC 712 distinct lines.
+-- VJ-CLASS  deal Line_Class split. EXPECT: CP 4,604 distinct lines · HC 712 distinct lines. NO 'Other' (null/blank-line IM/cash stubs now excluded).
 SELECT Line_Class, COUNT(*) AS deal_rows, COUNT(DISTINCT Line) AS distinct_lines
 FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_deals_by_line
 GROUP BY Line_Class ORDER BY Line_Class;
--- VJ-DRILL  deal -> line fact on Line (exposure). EXPECT most deals match a line-fact row;
---   Line_Stress_PFE non-null. matched distinct lines ~5,315 (4,603 CP + 712 HC).
+-- VJ-DRILL  deal -> line fact on Line (the Mosaic exposure-drill relationship).
+--   Tests the join explicitly (the deal view no longer pre-joins the line fact).
+--   EXPECT deal_lines ~5,318 · matched ~5,315 (4,603 CP + 712 HC).
 SELECT
   COUNT(DISTINCT d.Line)                                              AS deal_lines,
-  COUNT(DISTINCT CASE WHEN d.Line_Stress_PFE IS NOT NULL THEN d.Line END) AS lines_matched_to_line_fact
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_deals_by_line d;
+  COUNT(DISTINCT ld.Line)                                             AS lines_matched_to_line_fact
+FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_deals_by_line d
+LEFT JOIN `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_ats_lines_detail ld
+  ON ld.Line = d.Line;
 -- VJ-CPDIM  deal -> CP dimension on Counterparty_Code (attribution). EXPECT high match to clients_report.
 SELECT
   COUNT(DISTINCT d.Counterparty_Code)                                AS deal_cp_codes,
