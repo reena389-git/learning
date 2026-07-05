@@ -35,12 +35,23 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_a
   Booking_Entity    COMMENT 'Booking entity. DERIVED: first parenthesised token of Line — regexp_extract(Line, ''\\(([^)]+)\\)'', 1). E.g. CP_(TDBK)_(SKBS_DBL) -> TDBK.',
   Industry          COMMENT 'Granular industry (sic_industry). Denormalized counterparty reference attribute; refreshed each load.',
   Client_Type       COMMENT 'Client type (business label). DERIVED 5-bucket higher-level industry classification from sic_code (Hedge Funds = SIC 7298). Industry-based rollup, not a literal client-type field.',
-  Line_Worst_Rating COMMENT 'Worst rating among the line''s associated clients (brr). LINE-GRAIN. Distinct from the counterparty''s own rating — not conformed.',
+  Line_Worst_Rating COMMENT 'Worst rating among the line''s associated clients (worst_rating_of_associated_clients). LINE-GRAIN.',
+  BRR               COMMENT 'Borrower Risk Rating (brr). The breach report used this as Rating; kept alongside Line_Worst_Rating so the dashboard can choose.',
   OTC_SFT           COMMENT 'OTC vs SFT split. Line-level.',
+  Line_Type         COMMENT 'Line type (C2C / CONT).',
+  Line_Currency     COMMENT 'Line currency.',
+  Country_Of_Risk   COMMENT 'Country of risk. Portfolio slicing attribute.',
+  CIF_Country_Name  COMMENT 'CIF country name (display).',
+  Region            COMMENT 'Region. Portfolio grouping attribute.',
   Stress_PFE        COMMENT 'Line stressed PFE = GREATEST of the 8 scenario maxima (ats_summary.max_of_all). ADDITIVE across lines; not across scenarios.',
   Standard_PFE      COMMENT 'Line standard/base PFE (cartor_max). Additive across lines.',
-  Limit_Amount      COMMENT 'Approved limit (peak bucket). Additive (utilization denominator).',
-  Utilization       COMMENT 'Stress PFE / Limit at LINE grain. NON-additive — recompute SUM(Stress_PFE)/SUM(Limit) at each roll-up level; never sum the stored ratio.',
+  Stress_Over_Base  COMMENT 'Incremental stress over baseline (max_all_less_cartor = max_of_all - cartor_max). Additive.',
+  Impact_Pct        COMMENT 'Impact ratio (percentage_of_impact = max_of_all / cartor_max). NON-additive ratio — do not sum.',
+  Limit_Amount      COMMENT 'Approved limit (GREATEST of the 5 tenor bucket limits). Additive.',
+  Effective_Limit   COMMENT 'BUCKET-MATCHED limit (breach-report method): the limit for the tenor bucket that produced the line''s max exposure (rn=1 worst-exposure scenario), with Standard_Exposure fallback. Additive. The PRECISE utilization denominator — use Sum(Stress_PFE)/Sum(Effective_Limit) for bucket-matched utilization.',
+  Max_Exp_Time_Bucket COMMENT 'The tenor bucket that produced the line''s max exposure (drives Effective_Limit).',
+  Max_Scenario_Name COMMENT 'The scenario that produced the line''s max exposure (rn=1 row).',
+  Utilization       COMMENT 'Stress PFE / Limit_Amount (GREATEST-limit method) at LINE grain. NON-additive — recompute SUM/SUM at each roll-up; never sum the stored ratio. For bucket-matched utilization use Effective_Limit instead.',
   Is_Breached       COMMENT 'Y/N. Window-MAX OR of the 5 *_Excess_Breach flags in vw_asts (no 0_3_mo flag). Dedup-proof; the only breach signal (approaching = BI filter on Utilization).',
   Worst_Scenario    COMMENT 'Scenario that produced the worst exposure (ats_summary.scenario_of_max). ats_summary scenario vocabulary — see vw_dim_scenario.',
   IM                COMMENT 'Initial Margin (line-level, 0-3 bucket). From pfe_exp_decomp_report max_usage_0_3_mo where product_group=''Lines_Report - With IM'', source=CARTOR. COALESCED to 0 (no IM posted = 0; ~99% of lines). NOTE: varies by scenario in source — base taken; definition to confirm with data owner.',
@@ -68,10 +79,18 @@ WITH ats_clean AS (
     industry                                                           AS industry_coarse,   -- drives Client_Type
     sic_code                                                           AS sic_code,
     worst_rating_of_associated_clients                                AS Line_Worst_Rating,
+    brr                                                               AS BRR,               -- (+) borrower risk rating (breach report used this as Rating)
     otc_sft                                                            AS OTC_SFT,
+    line_type                                                         AS Line_Type,         -- (+) C2C / CONT
+    line_currency                                                     AS Line_Currency,     -- (+)
+    country_of_risk                                                   AS Country_Of_Risk,   -- (+) portfolio slicing
+    cif_country_name                                                  AS CIF_Country_Name,  -- (+)
+    region                                                           AS Region,            -- (+) regional grouping
     scenario_of_max                                                    AS Worst_Scenario,
     try_cast(replace(CAST(max_of_all AS STRING),',','') AS DOUBLE)     AS Stress_PFE,
     try_cast(replace(CAST(cartor_max AS STRING),',','') AS DOUBLE)     AS Standard_PFE,
+    try_cast(replace(CAST(max_all_less_cartor  AS STRING),',','') AS DOUBLE) AS Stress_Over_Base,   -- (+) incremental stress over baseline
+    try_cast(replace(CAST(percentage_of_impact AS STRING),',','') AS DOUBLE) AS Impact_Pct,         -- (+) max_of_all / cartor_max ratio
     GREATEST(
       try_cast(replace(CAST(limit_3_mo  AS STRING),',','') AS DOUBLE),
       try_cast(replace(CAST(limit_1_yr  AS STRING),',','') AS DOUBLE),
@@ -104,6 +123,34 @@ breach AS (
   FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_asts`
   WHERE No_Line_Indicator = false
   GROUP BY Line
+),
+eff_limit AS (
+  -- BUCKET-MATCHED EFFECTIVE LIMIT (breach-report logic): for each line, take the
+  -- worst-exposure scenario row (rn=1 by Max_Scenario_Exposure DESC), then pick the
+  -- limit for the bucket that produced that max (Max_Exp_Time_Bucket). Fallback to
+  -- Standard_Exposure if that bucket's limit is 0/null. This is the precise utilization
+  -- denominator (vs GREATEST-of-all-limits). Also carries the driving bucket/scenario.
+  SELECT Line, Max_Exp_Time_Bucket, Max_Scenario_Name, Effective_Limit
+  FROM (
+    SELECT
+      Line,
+      Max_Exp_Time_Bucket,
+      Max_Scenario_Name,
+      CASE
+        WHEN Max_Exp_Time_Bucket = '0_3_mo'  AND Limit_3_mo  > 0 THEN Limit_3_mo
+        WHEN Max_Exp_Time_Bucket = '3_12_mo' AND Limit_1_Yr  > 0 THEN Limit_1_Yr
+        WHEN Max_Exp_Time_Bucket = '1_2_Yr'  AND Limit_2_Yr  > 0 THEN Limit_2_Yr
+        WHEN Max_Exp_Time_Bucket = '2_5_Yr'  AND Limit_5_Yr  > 0 THEN Limit_5_Yr
+        WHEN Max_Exp_Time_Bucket = '5_10_Yr' AND Limit_10_Yr > 0 THEN Limit_10_Yr
+        WHEN Max_Exp_Time_Bucket = '10_50_Yr' AND Limit_50_Yr > 0 THEN Limit_50_Yr
+        WHEN Standard_Exposure > 0 THEN Standard_Exposure
+        ELSE NULL
+      END                                                              AS Effective_Limit,
+      ROW_NUMBER() OVER (PARTITION BY Line ORDER BY Max_Scenario_Exposure DESC) AS rn
+    FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_asts`
+    WHERE No_Line_Indicator = false
+  ) z
+  WHERE rn = 1
 ),
 lines_cartor AS (
   -- IA + base MTM from the CARTOR (base) scenario row.
@@ -162,10 +209,21 @@ SELECT
     ELSE 'Corporates'
   END                                                                  AS Client_Type,
   a.Line_Worst_Rating,
+  a.BRR,
   a.OTC_SFT,
+  a.Line_Type,
+  a.Line_Currency,
+  a.Country_Of_Risk,
+  a.CIF_Country_Name,
+  a.Region,
   a.Stress_PFE,
   a.Standard_PFE,
+  a.Stress_Over_Base,
+  a.Impact_Pct,
   a.Limit_Amount,
+  el.Effective_Limit,
+  el.Max_Exp_Time_Bucket,
+  el.Max_Scenario_Name,
   a.Stress_PFE / NULLIF(a.Limit_Amount, 0)                             AS Utilization,
   COALESCE(b.Is_Breached, 'N')                                         AS Is_Breached,
   a.Worst_Scenario,
@@ -184,6 +242,7 @@ SELECT
   a.Business_Date
 FROM ats_clean a
 LEFT JOIN breach       b  ON b.Line  = a.Line
+LEFT JOIN eff_limit    el ON el.Line = a.Line
 LEFT JOIN lines_cartor lc ON lc.Line = a.Line
 LEFT JOIN lines_stress ls ON ls.Line = a.Line
 LEFT JOIN im              ON im.Line = a.Line
