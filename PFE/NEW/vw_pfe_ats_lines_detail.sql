@@ -137,12 +137,12 @@ eff_limit AS (
       Max_Exp_Time_Bucket,
       Max_Scenario_Name,
       CASE
-        WHEN Max_Exp_Time_Bucket = '0_3_mo'  AND Limit_3_mo  > 0 THEN Limit_3_mo
-        WHEN Max_Exp_Time_Bucket = '3_12_mo' AND Limit_1_Yr  > 0 THEN Limit_1_Yr
-        WHEN Max_Exp_Time_Bucket = '1_2_Yr'  AND Limit_2_Yr  > 0 THEN Limit_2_Yr
-        WHEN Max_Exp_Time_Bucket = '2_5_Yr'  AND Limit_5_Yr  > 0 THEN Limit_5_Yr
-        WHEN Max_Exp_Time_Bucket = '5_10_Yr' AND Limit_10_Yr > 0 THEN Limit_10_Yr
-        WHEN Max_Exp_Time_Bucket = '10_50_Yr' AND Limit_50_Yr > 0 THEN Limit_50_Yr
+        WHEN Max_Exp_Time_Bucket = 'max_usage_0_3_mo'   AND Limit_3_mo  > 0 THEN Limit_3_mo
+        WHEN Max_Exp_Time_Bucket = 'max_usage_3_12_mo'  AND Limit_1_Yr  > 0 THEN Limit_1_Yr
+        WHEN Max_Exp_Time_Bucket = 'max_usage_1_2_yr'   AND Limit_2_Yr  > 0 THEN Limit_2_Yr
+        WHEN Max_Exp_Time_Bucket = 'max_usage_2_5_yr'   AND Limit_5_Yr  > 0 THEN Limit_5_Yr
+        WHEN Max_Exp_Time_Bucket = 'max_usage_5_10_yr'  AND Limit_10_Yr > 0 THEN Limit_10_Yr
+        WHEN Max_Exp_Time_Bucket = 'max_usage_10_50_yr' AND Limit_50_Yr > 0 THEN Limit_50_Yr
         WHEN Standard_Exposure > 0 THEN Standard_Exposure
         ELSE NULL
       END                                                              AS Effective_Limit,
