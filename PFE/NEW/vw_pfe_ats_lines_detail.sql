@@ -52,6 +52,8 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_a
   Max_Exp_Time_Bucket COMMENT 'The tenor bucket that produced the line''s max exposure (drives Effective_Limit).',
   Max_Scenario_Name COMMENT 'The scenario that produced the line''s max exposure (rn=1 row).',
   Utilization       COMMENT 'Stress PFE / Limit_Amount (GREATEST-limit method) at LINE grain. NON-additive — recompute SUM/SUM at each roll-up; never sum the stored ratio. For bucket-matched utilization use Effective_Limit instead.',
+  Utilization_Band  COMMENT 'Risk band on line-grain bucket-matched utilization (Stress_PFE/Effective_Limit): >=100% (at/over limit), 85-100% (borderline), 70-85% (monitor), <70%, or No Limit. Call-to-action attribute — surfaces lines approaching limit before they breach. Computed in-view (row-level) so it is a clean attribute for grouping/filtering.',
+  Utilization_Band_Order COMMENT 'Numeric sort key for Utilization_Band (1=>=100% … 4=<70%, 5=No Limit). Sort visualizations by this so bands order worst-first without prefixing labels.',
   Is_Breached       COMMENT 'Y/N. Window-MAX OR of the 5 *_Excess_Breach flags in vw_asts (no 0_3_mo flag). Dedup-proof; the only breach signal (approaching = BI filter on Utilization).',
   Worst_Scenario    COMMENT 'Scenario that produced the worst exposure (ats_summary.scenario_of_max). ats_summary scenario vocabulary — see vw_dim_scenario.',
   IM                COMMENT 'Initial Margin (line-level, 0-3 bucket). From pfe_exp_decomp_report max_usage_0_3_mo where product_group=''Lines_Report - With IM'', source=CARTOR. COALESCED to 0 (no IM posted = 0; ~99% of lines). NOTE: varies by scenario in source — base taken; definition to confirm with data owner.',
@@ -225,6 +227,20 @@ SELECT
   el.Max_Exp_Time_Bucket,
   el.Max_Scenario_Name,
   a.Stress_PFE / NULLIF(a.Limit_Amount, 0)                             AS Utilization,
+  CASE
+    WHEN el.Effective_Limit IS NULL OR el.Effective_Limit = 0 THEN 'No Limit'
+    WHEN a.Stress_PFE / el.Effective_Limit >= 1.0  THEN '>=100%'
+    WHEN a.Stress_PFE / el.Effective_Limit >= 0.85 THEN '85-100%'
+    WHEN a.Stress_PFE / el.Effective_Limit >= 0.70 THEN '70-85%'
+    ELSE '<70%'
+  END                                                                  AS Utilization_Band,
+  CASE
+    WHEN el.Effective_Limit IS NULL OR el.Effective_Limit = 0 THEN 5
+    WHEN a.Stress_PFE / el.Effective_Limit >= 1.0  THEN 1
+    WHEN a.Stress_PFE / el.Effective_Limit >= 0.85 THEN 2
+    WHEN a.Stress_PFE / el.Effective_Limit >= 0.70 THEN 3
+    ELSE 4
+  END                                                                  AS Utilization_Band_Order,
   COALESCE(b.Is_Breached, 'N')                                         AS Is_Breached,
   a.Worst_Scenario,
   COALESCE(lc.IA, 0)                                                   AS IA,
