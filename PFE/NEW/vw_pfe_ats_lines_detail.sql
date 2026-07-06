@@ -34,6 +34,7 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_a
   Counterparty_Name COMMENT 'The counterparty or line long name, as shown to users.',
   Booking_Entity    COMMENT 'The TD booking entity, pulled from the first bracketed token of the line code (e.g. CP_(TDBK)_(...) gives TDBK).',
   Industry          COMMENT 'The counterparty''s detailed industry (SIC), carried alongside the line and refreshed each load for easy slicing.',
+  TD_Sub_Industry   COMMENT 'TD''s own sub-industry / sub-segment classification of the counterparty (the td_sub field), a finer or alternative cut to the SIC industry. Carried through for completeness and slicing.',
   Client_Type       COMMENT 'A simplified client grouping rolled up from the SIC code into five buckets (e.g. SIC 7298 becomes Hedge Funds). It''s an industry-based classification, not a separate client-type field in the source.',
   Line_Worst_Rating COMMENT 'The worst rating among the clients associated with this line.',
   BRR               COMMENT 'The borrower risk rating. The retired breach report used this as its rating field, so it''s kept here alongside Line_Worst_Rating in case the dashboard prefers it.',
@@ -78,6 +79,7 @@ WITH ats_clean AS (
     long_name                                                          AS Counterparty_Name,
     regexp_extract(line, '\\(([^)]+)\\)', 1)                           AS Booking_Entity,
     sic_industry                                                       AS Industry,
+    td_sub                                                             AS TD_Sub_Industry,   -- (+) TD sub-industry/segment classifier from ats_summary (carry-all: was previously dropped)
     industry                                                           AS industry_coarse,   -- drives Client_Type
     sic_code                                                           AS sic_code,
     worst_rating_of_associated_clients                                AS Line_Worst_Rating,
@@ -203,6 +205,7 @@ SELECT
   a.Counterparty_Name,
   a.Booking_Entity,
   a.Industry,
+  a.TD_Sub_Industry,
   CASE
     WHEN a.sic_code = '7298'                       THEN 'Hedge Funds'
     WHEN upper(a.industry_coarse) LIKE 'BANK%'     THEN 'Banks'
