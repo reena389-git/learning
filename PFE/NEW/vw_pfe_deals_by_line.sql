@@ -100,8 +100,8 @@ WITH base AS (
   SELECT
     d.*,
     -- numerics computed once so the band CASEs + behavioural windows below can reuse them
-    CAST(NULLIF(REPLACE(d.`years_to_maturity`,',',''),'null') AS DOUBLE) AS ytm_num,
-    CAST(NULLIF(REPLACE(d.`deal_m2m`,',',''),'null')         AS DOUBLE) AS mtm_num
+    try_cast(NULLIF(REPLACE(d.`years_to_maturity`,',',''),'null') AS DOUBLE) AS ytm_num,
+    try_cast(NULLIF(REPLACE(d.`deal_m2m`,',',''),'null')         AS DOUBLE) AS mtm_num
   FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_deals_report` d
   WHERE COALESCE(CAST(d.`no_line_indicator` AS BOOLEAN), false) = false   -- (~) BOOLEAN-safe: real lines only (handles boolean or 'true'/'false' string, null-safe)
     AND d.`line` IS NOT NULL AND trim(d.`line`) <> ''                     -- (~) exclude null/blank-line records: internal IM/cash stubs (e.g. USD_CASH deals in TCIM_IM_book, 50yr placeholder, no MTM, no line) — not counterparty deals-by-line. Removes the 6 'Other'-class rows.
@@ -145,11 +145,11 @@ SELECT
   d.`isda_indicator`                                    AS ISDA_Indicator,
   d.`sic_industry`                                      AS Industry,
   d.`td_account_rating`                                 AS Counterparty_Rating,
-  CAST(NULLIF(REPLACE(d.`deal_m2m`,    ',',''),'null') AS DOUBLE) AS MTM,
+  try_cast(NULLIF(REPLACE(d.`deal_m2m`,    ',',''),'null') AS DOUBLE) AS MTM,
   d.`deal_m2m_currency`                                 AS MTM_Currency,
-  CAST(NULLIF(REPLACE(d.`principal_1`, ',',''),'null') AS DOUBLE) AS Notional_1,
+  try_cast(NULLIF(REPLACE(d.`principal_1`, ',',''),'null') AS DOUBLE) AS Notional_1,
   d.`principal_1_currency`                              AS Notional_1_Currency,
-  CAST(NULLIF(REPLACE(d.`principal_2`, ',',''),'null') AS DOUBLE) AS Notional_2,
+  try_cast(NULLIF(REPLACE(d.`principal_2`, ',',''),'null') AS DOUBLE) AS Notional_2,
   d.`principal_2_currency`                              AS Notional_2_Currency,
   d.`trade_date`                                        AS Trade_Date,
   d.`maturity_date`                                     AS Maturity_Date,

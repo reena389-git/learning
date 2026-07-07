@@ -10,7 +10,7 @@
 --       Line_Worst_Rating, OTC_SFT, denormalized CP reference attrs, Client_Type,
 --       Booking_Entity (derived).  [was the separate vw_ats_summary — now inline,
 --       since the line fact is its only consumer.]
---     • vw_asts   -> the 5 breach flags -> Is_Breached (window-MAX OR, dedup-proof).
+--     • pfe_asts  -> the 5 breach flags -> Is_Breached (window-MAX OR, dedup-proof).
 --     • pfe_lines_report source=CARTOR       -> IA (initial_margin), Line_MTM_Base.
 --     • pfe_lines_report source=STRMARKETC75 -> Line_MTM_Stress.
 --     • pfe_exp_decomp_report product_group='Lines_Report - With IM', source=CARTOR -> IM
@@ -124,8 +124,8 @@ breach AS (
             OR `10_50_Yr_Excess_Breach` = 'TRUE'
            THEN 1 ELSE 0 END
     ) = 1 THEN 'Y' ELSE 'N' END                                        AS Is_Breached
-  FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_asts`
-  WHERE No_Line_Indicator = false
+  FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_asts`
+  WHERE COALESCE(CAST(No_Line_Indicator AS BOOLEAN), false) = false
   GROUP BY Line
 ),
 eff_limit AS (
@@ -141,18 +141,18 @@ eff_limit AS (
       Max_Exp_Time_Bucket,
       Max_Scenario_Name,
       CASE
-        WHEN Max_Exp_Time_Bucket = 'max_usage_0_3_mo'   AND Limit_3_mo  > 0 THEN Limit_3_mo
-        WHEN Max_Exp_Time_Bucket = 'max_usage_3_12_mo'  AND Limit_1_Yr  > 0 THEN Limit_1_Yr
-        WHEN Max_Exp_Time_Bucket = 'max_usage_1_2_yr'   AND Limit_2_Yr  > 0 THEN Limit_2_Yr
-        WHEN Max_Exp_Time_Bucket = 'max_usage_2_5_yr'   AND Limit_5_Yr  > 0 THEN Limit_5_Yr
-        WHEN Max_Exp_Time_Bucket = 'max_usage_5_10_yr'  AND Limit_10_Yr > 0 THEN Limit_10_Yr
-        WHEN Max_Exp_Time_Bucket = 'max_usage_10_50_yr' AND Limit_50_Yr > 0 THEN Limit_50_Yr
-        WHEN Standard_Exposure > 0 THEN Standard_Exposure
+        WHEN Max_Exp_Time_Bucket = 'max_usage_0_3_mo'   AND try_cast(replace(CAST(Limit_3_mo  AS STRING),',','') AS DOUBLE) > 0 THEN try_cast(replace(CAST(Limit_3_mo  AS STRING),',','') AS DOUBLE)
+        WHEN Max_Exp_Time_Bucket = 'max_usage_3_12_mo'  AND try_cast(replace(CAST(Limit_1_Yr  AS STRING),',','') AS DOUBLE) > 0 THEN try_cast(replace(CAST(Limit_1_Yr  AS STRING),',','') AS DOUBLE)
+        WHEN Max_Exp_Time_Bucket = 'max_usage_1_2_yr'   AND try_cast(replace(CAST(Limit_2_Yr  AS STRING),',','') AS DOUBLE) > 0 THEN try_cast(replace(CAST(Limit_2_Yr  AS STRING),',','') AS DOUBLE)
+        WHEN Max_Exp_Time_Bucket = 'max_usage_2_5_yr'   AND try_cast(replace(CAST(Limit_5_Yr  AS STRING),',','') AS DOUBLE) > 0 THEN try_cast(replace(CAST(Limit_5_Yr  AS STRING),',','') AS DOUBLE)
+        WHEN Max_Exp_Time_Bucket = 'max_usage_5_10_yr'  AND try_cast(replace(CAST(Limit_10_Yr AS STRING),',','') AS DOUBLE) > 0 THEN try_cast(replace(CAST(Limit_10_Yr AS STRING),',','') AS DOUBLE)
+        WHEN Max_Exp_Time_Bucket = 'max_usage_10_50_yr' AND try_cast(replace(CAST(Limit_50_Yr AS STRING),',','') AS DOUBLE) > 0 THEN try_cast(replace(CAST(Limit_50_Yr AS STRING),',','') AS DOUBLE)
+        WHEN try_cast(replace(CAST(Standard_Exposure AS STRING),',','') AS DOUBLE) > 0 THEN try_cast(replace(CAST(Standard_Exposure AS STRING),',','') AS DOUBLE)
         ELSE NULL
       END                                                              AS Effective_Limit,
-      ROW_NUMBER() OVER (PARTITION BY Line ORDER BY Max_Scenario_Exposure DESC) AS rn
-    FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_asts`
-    WHERE No_Line_Indicator = false
+      ROW_NUMBER() OVER (PARTITION BY Line ORDER BY try_cast(replace(CAST(Max_Scenario_Exposure AS STRING),',','') AS DOUBLE) DESC) AS rn
+    FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_asts`
+    WHERE COALESCE(CAST(No_Line_Indicator AS BOOLEAN), false) = false
   ) z
   WHERE rn = 1
 ),
