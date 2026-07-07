@@ -34,10 +34,10 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_a
   Counterparty_Name COMMENT 'The counterparty or line long name, as shown to users.',
   Booking_Entity    COMMENT 'The TD booking entity, pulled from the first bracketed token of the line code (e.g. CP_(TDBK)_(...) gives TDBK).',
   Industry          COMMENT 'The counterparty''s detailed industry (SIC), carried alongside the line and refreshed each load for easy slicing.',
-  TD_Sub_Industry   COMMENT 'TD''s own sub-industry / sub-segment classification of the counterparty (the td_sub field), a finer or alternative cut to the SIC industry. Carried through for completeness and slicing.',
+  TD_Sub_Industry   COMMENT 'A Y/N flag from td_sub indicating whether the counterparty is a TD subsidiary / intragroup entity rather than an external third party. Relevant for separating external counterparty exposure from intragroup. Meaning to be confirmed with the data owner. (Alias retained as-is; not an industry classification.)',
   Client_Type       COMMENT 'A simplified client grouping rolled up from the SIC code into five buckets (e.g. SIC 7298 becomes Hedge Funds). It''s an industry-based classification, not a separate client-type field in the source.',
   Line_Worst_Rating COMMENT 'The worst rating among the clients associated with this line.',
-  BRR               COMMENT 'The borrower risk rating. The retired breach report used this as its rating field, so it''s kept here alongside Line_Worst_Rating in case the dashboard prefers it.',
+  BRR               COMMENT 'The borrower / account risk rating for the line. Same rating concept as the deal fact''s Counterparty_Rating (td_account_rating); conform the two. Distinct from Line_Worst_Rating, which is the worst rating across the line''s clients.',
   OTC_SFT           COMMENT 'Whether the line is OTC derivatives or securities financing (SFT) — the main way the book is scoped.',
   Line_Type         COMMENT 'The line type (C2C or CONT).',
   Line_Currency     COMMENT 'The line''s currency.',
@@ -58,17 +58,17 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_a
   Is_Breached       COMMENT 'Whether the line has breached any of its tenor limits (Y/N). It combines the breach flags across the line''s scenario rows. For lines that are close but not yet over, use the utilization band instead.',
   Worst_Scenario    COMMENT 'The scenario that drove the line''s worst exposure (see vw_dim_scenario for the scenario names).',
   IM                COMMENT 'Initial margin held against the line (0-3 month bucket), from the exposure-decomposition feed. Shown as 0 where none is posted, which is the case for almost all lines. The source value shifts by scenario, so the base figure is used pending data-owner confirmation.',
-  IA                COMMENT 'Independent amount held against the line. Shown as 0 where none is posted — which is genuinely the case for ~99% of lines; only around 98 carry a value. Held at line/agreement level, not per deal.',
+  IA                COMMENT 'Independent amount held against the line. Shown as 0 where none is posted, which applies to about 99% of lines (roughly 98 lines carry a value). Held at line/agreement level, not per deal.',
   Line_MTM_Base     COMMENT 'The line''s current mark-to-market, unstressed. Adds up across lines.',
   Line_MTM_Stress   COMMENT 'The line''s mark-to-market under the 75% market stress (the one scenario where MTM differs from base). Adds up across lines.',
-  Line_Scn_Cartor_Base    COMMENT 'The line''s exposure under the Base/Cartor scenario. Sum across lines, but take the worst across scenarios.',
-  Line_Scn_Zero           COMMENT 'The line''s exposure under the Zero scenario. Sum across lines, worst across scenarios.',
-  Line_Scn_25th           COMMENT 'The line''s exposure under the 25th scenario. Sum across lines, worst across scenarios.',
-  Line_Scn_75th           COMMENT 'The line''s exposure under the 75th scenario. Sum across lines, worst across scenarios.',
-  Line_Scn_Stress75       COMMENT 'The line''s exposure under the Stress 75 scenario. Sum across lines, worst across scenarios.',
-  Line_Scn_Correlation_1  COMMENT 'The line''s exposure under the Correlation 1.0 scenario. Sum across lines, worst across scenarios.',
-  Line_Scn_Product        COMMENT 'The line''s exposure under the Product scenario. Sum across lines, worst across scenarios.',
-  Line_Scn_Stress_MPR_025 COMMENT 'The line''s exposure under the Stress MPR 0.25 scenario. Sum across lines, worst across scenarios.',
+  Line_Scn_Cartor_Base    COMMENT 'The line''s exposure under the Base / Cartor scenario (the unstressed baseline). Additive across lines; across scenarios take the worst.',
+  Line_Scn_Zero           COMMENT 'The line''s exposure under the Zero scenario (zero-correlation stress). Additive across lines; across scenarios take the worst.',
+  Line_Scn_25th           COMMENT 'The line''s exposure under the 25th-percentile correlation stress scenario. Additive across lines; across scenarios take the worst.',
+  Line_Scn_75th           COMMENT 'The line''s exposure under the 75th-percentile correlation stress scenario. Additive across lines; across scenarios take the worst.',
+  Line_Scn_Stress75       COMMENT 'The line''s exposure under the Stress 75 market scenario (75% market stress). Additive across lines; across scenarios take the worst.',
+  Line_Scn_Correlation_1  COMMENT 'The line''s exposure under the Correlation 1.0 scenario (full-correlation stress, all risk factors moving together). Additive across lines; across scenarios take the worst.',
+  Line_Scn_Product        COMMENT 'The line''s exposure under the Product scenario (the product-correlation stress). Additive across lines; across scenarios take the worst.',
+  Line_Scn_Stress_MPR_025 COMMENT 'The line''s exposure under the Stress MPR 0.25 scenario (margin period of risk stress at 0.25). Additive across lines; across scenarios take the worst.',
   Business_Date     COMMENT 'The as-of date for the data.'
 )
 AS
@@ -302,7 +302,7 @@ SELECT
 FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.vw_pfe_ats_lines_detail;
 -- V-POP2  NULL-and-ZERO pattern for IA/IM/MTM by Line_Class (verifies coalesce + IA sparsity).
 --   EXPECT (post-coalesce): ia_null=0, im_null=0 (all pushed to 0);
---   ia_zero ~10,536 (data reality — no independent amount posted on ~99% of lines);
+--   ia_zero ~10,536 (no independent amount posted on ~99% of lines);
 --   mtm_base_null ~107 (CP lines absent from lines_report; HC fully covered -> 0).
 SELECT
   Line_Class,

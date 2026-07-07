@@ -29,36 +29,37 @@
 -- =============================================================================
 
 CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_deals_by_line` (
-  Line                COMMENT 'EXPOSURE / DRILL key (= deals.line). The unified HC/CP exposure line: CP-format where the deal is direct (Line = Counterparty_Code), HC-format where it is an agent/facility. RELATES TO vw_pfe_ats_lines_detail.Line (deal->line-fact drill), matching 4,603 CP + 712 HC = 5,315 lines, no double-count. NOTE: this is the FACILITY/EXPOSURE key, NOT the counterparty — for counterparty attribution use Counterparty_Code (an HC line is a facility, not a counterparty).',
-  Line_Class          COMMENT 'CP or HC. DERIVED from the Line prefix. CP = the line IS the counterparty (direct); HC = agent/fund/house facility whose trades post to a CP (Counterparty_Code). Matches the line/scenario facts Line_Class.',
-  Facility_Line_Code  COMMENT 'Alias of Line — the HC/CP facility/exposure line code, named explicitly for the deal screen (the facility a deal is booked to).',
-  Booking_Entity      COMMENT 'Parsed from the first parenthesised token of Line (e.g. CP_(TDBK)_(...) -> TDBK).',
-  Counterparty_Name   COMMENT 'counterparty_long_name — the COUNTERPARTY''s name (tracks Counterparty_Code; varies by CP code, confirmed). NOT the facility name.',
-  Counterparty_Code   COMMENT 'counterparty_code (always CP format) — the COUNTERPARTY the trade posts to. This is the CP-ATTRIBUTION key: RELATES TO pfe_clients_report.counterparty_code (deal->CP dimension). For HC facility deals this is the underlying CP; for CP deals it equals Line. NEVER relate the deal to the CP dimension on Line — only on Counterparty_Code.',
-  Deal_Id             COMMENT 'deal_id — deal grain key.',
-  Deal_Name           COMMENT 'name.',
-  New_Deal_Flag       COMMENT 'new_deal_flag (Y/N) — new this load.',
-  Line_Type           COMMENT 'line_type (C2C, CONT, ...).',
-  Asset_Class         COMMENT 'deal_type as-is (the asset/product classifier).',
-  Asset_Class_Group   COMMENT '<confirm> higher-level grouping of deal_type (Rates/FX/Equity/Repo-SFT/Commodity/Other).',
-  ISDA_Indicator      COMMENT 'isda_indicator (Y/N).',
-  Industry            COMMENT 'sic_industry (granular). CONFORMS with vw_pfe_ats_lines_detail.Industry (same counterparty reference attribute).',
-  Counterparty_Rating COMMENT 'td_account_rating — the counterparty''s own account rating. DO NOT CONFORM with Line_Worst_Rating (worst across the line''s clients — different grain/concept).',
-  MTM                 COMMENT 'deal_m2m, CAST to DOUBLE. Consistently USD -> SUMMABLE.',
-  MTM_Currency        COMMENT 'deal_m2m_currency.',
-  Notional_1          COMMENT 'principal_1, CAST to DOUBLE. MULTI-CURRENCY -> NOT summable across deals without FX.',
-  Notional_1_Currency COMMENT 'principal_1_currency.',
-  Notional_2          COMMENT 'principal_2, CAST to DOUBLE. Same FX caveat.',
-  Notional_2_Currency COMMENT 'principal_2_currency.',
-  Trade_Date          COMMENT 'trade_date.',
-  Maturity_Date       COMMENT 'maturity_date.',
-  Years_To_Maturity   COMMENT 'years_to_maturity, CAST to DOUBLE.',
+  Line                COMMENT 'The facility/exposure line the deal is booked to, and the key that ties deals back to the line and scenario views. For direct counterparty (CP) lines this equals the counterparty code; for house/agent (HC) lines it is a facility code whose trades post through to a counterparty. Deal grain is finer than line, so many deals share one Line.',
+  Line_Class          COMMENT 'CP or HC — whether the line is a counterparty''s own line (direct) or a house/agent/fund facility whose trades post to a counterparty. Read from the Line code prefix; matches the line fact''s Line_Class.',
+  Facility_Line_Code  COMMENT 'The same value as Line, named explicitly for the deal screen so it reads as ''the facility this deal sits on''. Use either name; they are identical.',
+  Booking_Entity      COMMENT 'The TD booking entity (TDBK, TDSU, …), read from the first bracketed token of the Line code.',
+  Counterparty_Name   COMMENT 'The counterparty''s name — the party the trade actually posts to. It follows the counterparty code (so it can differ between deals on the same HC facility line), and is NOT the facility''s own name.',
+  Counterparty_Code   COMMENT 'The counterparty the trade posts to, always in CP format. This is the attribution key that links a deal to the client dimension (deal → counterparty), distinct from the facility Line the deal is booked under.',
+  Deal_Id             COMMENT 'The unique deal identifier — the grain of this table (one row per deal).',
+  Deal_Name           COMMENT 'The deal''s name/description.',
+  New_Deal_Flag       COMMENT 'Whether the deal is new in this load (Y/N).',
+  Line_Type           COMMENT 'The line type (e.g. C2C, CONT).',
+  Asset_Class         COMMENT 'The product / deal type, from deal_type (e.g. Swap, FX Forward, Repurchase Agreement). Also referred to by the business as product type. See Asset_Class_Group for the higher-level grouping.',
+  Asset_Class_Group   COMMENT 'A higher-level grouping of the asset class (Rates / FX / Equity / Repo-SFT / Commodity / Other) for easier slicing. (Grouping mapping pending final confirmation.)',
+  ISDA_Indicator      COMMENT 'Whether the deal is under an ISDA agreement (Y/N).',
+  Industry            COMMENT 'The counterparty''s detailed industry (sic_industry). Same source column and values as the line fact''s Industry; the two conform.',
+  Counterparty_Rating COMMENT 'The counterparty''s account rating (td_account_rating). This is the same rating concept as the line fact''s BRR (borrower/account rating); conform the two. Distinct from the line fact''s Line_Worst_Rating, which is the worst rating across all the line''s clients.',
+  MTM                 COMMENT 'The deal''s mark-to-market value, in USD. Consistently USD, so it can be summed across deals.',
+  MTM_Currency        COMMENT 'The currency of the deal''s mark-to-market (USD in this feed).',
+  Notional_1          COMMENT 'The deal''s primary notional/principal. Multi-currency across deals, so do not sum without converting to a common currency first.',
+  Notional_1_Currency COMMENT 'The currency of Notional_1.',
+  Notional_2          COMMENT 'The deal''s secondary notional/principal (for two-legged trades). Same multi-currency caveat as Notional_1 — convert before summing.',
+  Notional_2_Currency COMMENT 'The currency of Notional_2.',
+  Trade_Date          COMMENT 'The date the deal was traded.',
+  Maturity_Date       COMMENT 'The date the deal matures.',
+  Years_To_Maturity   COMMENT 'Years remaining until the deal matures (numeric), used to derive the maturity bands.',
   -- (+) LEVEL-3 EXPLORER LENSES (folded in — derived buckets for the deal screen)
-  Maturity_Band       COMMENT 'SELECTOR LENS: <=90d / 90d-1Yr / 1-2Yr / 2-5Yr / 5Yr+ from Years_To_Maturity.',
-  Tenor_Band          COMMENT 'RUNWAY COLOUR: Rolls off (<=1Yr) / Mid (1-5Yr) / Structural (>5Yr).',
-  Margin_Call_Norm    COMMENT 'SELECTOR LENS: Daily / Not daily (N/A), normalized from margin_call_frequency.',
-  New_Deal_Norm       COMMENT 'SELECTOR LENS: New / Existing from new_deal_flag.',
-  Override_Norm       COMMENT 'FLAG: Overridden / Clean from override (audit marker).',
+  Maturity_Band       COMMENT 'Groups each deal by remaining time to maturity: <=90d, 90d-1Yr, 1-2Yr, 2-5Yr, 5Yr+. Shows how soon the book rolls off. Derived from Years_To_Maturity. Sort visuals by Maturity_Band_Order.',
+  Maturity_Band_Order COMMENT 'Sort key for Maturity_Band (1=<=90d, 2=90d-1Yr, 3=1-2Yr, 4=2-5Yr, 5=5Yr+, 6=Unknown) so bands display in tenor order. Derived.',
+  Tenor_Band          COMMENT 'A three-way runway grouping of remaining tenor: ''Rolls off (<=1Yr)'', ''Mid (1-5Yr)'', ''Structural (>5Yr)''. A coarser companion to Maturity_Band. Derived from Years_To_Maturity.',
+  Margin_Call_Norm    COMMENT 'Margin-call frequency simplified to two values: ''Daily'' or ''Not daily / N/A''. Derived from margin_call_frequency. Margin calls are the periodic exchanges of collateral against exposure; daily calling reduces exposure between calls. See Margin_Call_Frequency for the raw value.',
+  New_Deal_Norm       COMMENT 'New-vs-existing label (''New'' or ''Existing''), derived from new_deal_flag (Y to New, otherwise Existing). New_Deal_Flag holds the raw Y/N.',
+  Override_Norm       COMMENT 'Override status as a readable label (''Overridden'' or ''Clean''), derived from override. Marks deals whose values were manually adjusted. (Redundant with Override — keep one.)',
   -- (+) LINE BREACH CONTEXT (from vw_line_stress_spine, joined on Line)
   -- ---------------------------------------------------------------------------
   -- LINE-LEVEL CONTEXT (Line_Stress_PFE, Line_Limit, Is_Breached, Line_IM/IA/MTM, etc.)
@@ -70,22 +71,30 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_d
   -- (Line for the exposure drill, Counterparty_Code for CP attribution).
   -- ---------------------------------------------------------------------------
   -- (+) DEAL BEHAVIOUR WITHIN ITS LINE (window functions over the line partition)
-  MTM_Share_Of_Line   COMMENT 'Abs(deal MTM) / line gross MTM. Concentration — which deals drive the line.',
-  Is_Dominant_Deal    COMMENT 'Y when this deal is >= 25% of the line gross MTM (a whale).',
-  Maturity_Position   COMMENT 'Longest / Long / Mid / Short — this deal''s tenor vs the line''s spread.',
-  Is_Longest_In_Line  COMMENT 'Y when this deal has the max ytm in its line (the structural tail).',
-  Direction_Vs_Line   COMMENT 'Adds / Hedges — deal MTM sign vs the line net MTM direction.',
-  Line_New_MTM_Share  COMMENT 'Share of line gross MTM that is NEW this load (line-level, repeated).',
-  Line_Override_Share COMMENT 'Share of line gross MTM under override (line-level, repeated).',
-  Override            COMMENT 'override (Y/N) — ties to req-4 Override Function.',
-  Override_Date       COMMENT 'override_date.',
-  OES_Indicator       COMMENT 'oes_indicator.',
-  QA_Number           COMMENT 'qa_number.',
-  IM_Model            COMMENT 'im_model.',
-  Margin_Call_Frequency COMMENT 'margin_call_frequency.',
-  Agreement_Group_Code  COMMENT 'agreement_group_code.',
-  Source              COMMENT 'source feed.',
-  Business_Date       COMMENT 'business_date (yyyymmdd string here).'
+  MTM_Share_Of_Line   COMMENT 'This deal''s share of its line''s total mark-to-market activity: abs(deal MTM) divided by the sum of abs(MTM) across all the line''s deals. Shows deal concentration within a line. Uses gross (absolute) MTM so offsetting deals do not distort the share. A line''s deal shares sum to 100%. Line-level denominator, repeated per deal row.',
+  Is_Dominant_Deal    COMMENT 'Y when a single deal is 25% or more of its line''s total gross MTM. Flags a line dominated by one large deal. Derived from MTM_Share_Of_Line.',
+  Maturity_Position   COMMENT 'Where this deal sits within its line''s range of deal maturities: Longest / Long / Mid / Short. ''Line''s spread'' means the span from the line''s shortest-dated to longest-dated deal; this places the deal within that span. Helps identify which deal forms the line''s long-dated tail. Derived.',
+  Is_Longest_In_Line  COMMENT 'Y when this deal has the longest remaining tenor on its line — the line''s structural tail. Derived.',
+  Direction_Vs_Line   COMMENT 'Whether the deal adds to or hedges the line''s net position. ''Adds'' means the deal''s MTM has the same sign as the line''s net MTM (increasing net exposure); ''Hedges'' means the opposite sign (offsetting it). Derived by comparing the deal MTM sign to the line''s net MTM.',
+  Line_New_MTM_Share  COMMENT 'The fraction of the line''s total gross MTM that comes from deals newly added this load. Flags lines whose exposure is driven by new business. Line-level ratio, repeated on each of the line''s deal rows; do not sum.',
+  Line_Override_Share COMMENT 'The fraction of the line''s total gross MTM that is under override. An audit signal for how much of the line is manually adjusted. Line-level ratio, repeated per deal row; do not sum.',
+  Override            COMMENT 'Whether the deal was manually overridden (Y/N), from override. Override_Norm is the labelled version of this same field — keep one.',
+  Override_Date       COMMENT 'The date the override was applied, if any.',
+  OES_Indicator       COMMENT 'The OES (Order Execution System) indicator for the deal, from oes_indicator (Y/N).',
+  QA_Number           COMMENT 'The QA reference number from source.',
+  IM_Model            COMMENT 'The initial-margin model associated with the deal.',
+  Margin_Call_Frequency COMMENT 'The raw margin-call frequency from source (see Margin_Call_Norm for the cleaned filter version).',
+  Agreement_Group_Code  COMMENT 'The agreement group code the deal belongs to.',
+  Source              COMMENT 'The source feed the deal came from.',
+  Non_Simulated_CONT  COMMENT 'The non-simulated contingent (CONT) amount for the deal — contractual exposure not included in the simulated PFE calculation. Held in its own currency (see Non_Simulated_CONT_Currency); convert before summing across currencies.',
+  Non_Simulated_CONT_Currency COMMENT 'The currency of Non_Simulated_CONT.',
+  C2C_Charge          COMMENT 'The counterparty-to-counterparty (C2C) charge on the deal. Held in its own currency (see C2C_Charge_Cur); convert before summing across currencies.',
+  C2C_Charge_Cur      COMMENT 'The currency of C2C_Charge.',
+  Product_Term_Exception COMMENT 'Any product-term exception recorded against the deal, from product_term_exception.',
+  Value_Date          COMMENT 'The value date of the deal (when it settles / takes value), normalised to a date. Distinct from Trade_Date.',
+  Line_Expiry         COMMENT 'The expiry date of the line the deal is booked to, as recorded on the deal, normalised to a date.',
+  Original_Location   COMMENT 'The original booking location recorded for the deal, from original_location.',
+  Business_Date       COMMENT 'The as-of date of the data (stored as a yyyymmdd string in this view).'
 )
 AS
 WITH base AS (
@@ -156,6 +165,15 @@ SELECT
     WHEN d.ytm_num <= 5.0         THEN '2 - 5Yr'
     ELSE '5Yr +'
   END                                                   AS Maturity_Band,
+  -- (+) numeric sort key so Maturity_Band displays in tenor order (not alphabetical)
+  CASE
+    WHEN d.ytm_num IS NULL        THEN 6
+    WHEN d.ytm_num <= 0.25        THEN 1
+    WHEN d.ytm_num <= 1.0         THEN 2
+    WHEN d.ytm_num <= 2.0         THEN 3
+    WHEN d.ytm_num <= 5.0         THEN 4
+    ELSE 5
+  END                                                   AS Maturity_Band_Order,
   -- (+) runway colour band (relief / mid / structural)
   CASE
     WHEN d.ytm_num IS NULL        THEN 'Unknown'
@@ -204,6 +222,16 @@ SELECT
   d.`margin_call_frequency`                             AS Margin_Call_Frequency,
   d.`agreement_group_code`                              AS Agreement_Group_Code,
   d.`source`                                            AS Source,
+  try_cast(replace(CAST(d.`non_simulated_cont` AS STRING),',','') AS DOUBLE) AS Non_Simulated_CONT,
+  d.`non_simulated_cont_currency`                       AS Non_Simulated_CONT_Currency,
+  try_cast(replace(CAST(d.`c2c_charge` AS STRING),',','') AS DOUBLE) AS C2C_Charge,
+  d.`c2c_charge_cur`                                     AS C2C_Charge_Cur,
+  d.`product_term_exception`                            AS Product_Term_Exception,
+  COALESCE(try_to_date(CAST(d.`value_date` AS STRING),'yyyyMMdd'),
+           try_cast(CAST(d.`value_date` AS STRING) AS DATE))         AS Value_Date,
+  COALESCE(try_to_date(CAST(d.`line_expiry` AS STRING),'yyyyMMdd'),
+           try_cast(CAST(d.`line_expiry` AS STRING) AS DATE))        AS Line_Expiry,
+  d.`original_location`                                  AS Original_Location,
   to_date(regexp_replace(CAST(d.`business_date` AS STRING),'-',''),'yyyyMMdd') AS Business_Date
   -- (~) OUTPUT NORMALIZED: always a real DATE regardless of source datatype
   --     (string yyyymmdd / string yyyy-mm-dd / DATE all -> one canonical DATE).
