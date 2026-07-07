@@ -59,7 +59,6 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_d
   Tenor_Band          COMMENT 'A three-way runway grouping of remaining tenor: ''Rolls off (<=1Yr)'', ''Mid (1-5Yr)'', ''Structural (>5Yr)''. A coarser companion to Maturity_Band. Derived from Years_To_Maturity.',
   Margin_Call_Norm    COMMENT 'Margin-call frequency simplified to two values: ''Daily'' or ''Not daily / N/A''. Derived from margin_call_frequency. Margin calls are the periodic exchanges of collateral against exposure; daily calling reduces exposure between calls. See Margin_Call_Frequency for the raw value.',
   New_Deal_Norm       COMMENT 'New-vs-existing label (''New'' or ''Existing''), derived from new_deal_flag (Y to New, otherwise Existing). New_Deal_Flag holds the raw Y/N.',
-  Override_Norm       COMMENT 'Override status as a readable label (''Overridden'' or ''Clean''), derived from override. Marks deals whose values were manually adjusted. (Redundant with Override — keep one.)',
   -- (+) LINE BREACH CONTEXT (from vw_line_stress_spine, joined on Line)
   -- ---------------------------------------------------------------------------
   -- LINE-LEVEL CONTEXT (Line_Stress_PFE, Line_Limit, Is_Breached, Line_IM/IA/MTM, etc.)
@@ -78,7 +77,7 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_d
   Direction_Vs_Line   COMMENT 'Whether the deal adds to or hedges the line''s net position. ''Adds'' means the deal''s MTM has the same sign as the line''s net MTM (increasing net exposure); ''Hedges'' means the opposite sign (offsetting it). Derived by comparing the deal MTM sign to the line''s net MTM.',
   Line_New_MTM_Share  COMMENT 'The fraction of the line''s total gross MTM that comes from deals newly added this load. Flags lines whose exposure is driven by new business. Line-level ratio, repeated on each of the line''s deal rows; do not sum.',
   Line_Override_Share COMMENT 'The fraction of the line''s total gross MTM that is under override. An audit signal for how much of the line is manually adjusted. Line-level ratio, repeated per deal row; do not sum.',
-  Override            COMMENT 'Whether the deal was manually overridden (Y/N), from override. Override_Norm is the labelled version of this same field — keep one.',
+  Override            COMMENT 'Whether the deal was manually overridden (Y/N), from override.',
   Override_Date       COMMENT 'The date the override was applied, if any.',
   OES_Indicator       COMMENT 'The OES (Order Execution System) indicator for the deal, from oes_indicator (Y/N).',
   QA_Number           COMMENT 'The QA reference number from source.',
@@ -187,7 +186,6 @@ SELECT
   -- (+) LENS 3 — new vs existing
   CASE WHEN upper(d.`new_deal_flag`) = 'Y' THEN 'New' ELSE 'Existing' END AS New_Deal_Norm,
   -- (+) FLAG — override audit
-  CASE WHEN upper(d.`override`) = 'Y' THEN 'Overridden' ELSE 'Clean' END  AS Override_Norm,
 
   -- (+) LINE CONTEXT — joined from vw_pfe_ats_lines_detail on Line (was vw_pfe_line_detail/spine)
   -- (line-level context columns removed — resolved via Mosaic relationship deal.Line -> line fact)

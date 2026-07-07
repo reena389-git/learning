@@ -26,7 +26,8 @@
 --          do not SUM them across scenarios.
 -- =====================================================================
 CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_asts_scenario` (
-  Scenario_Name      COMMENT 'The stress scenario, shown as a business-friendly name (e.g. Stress 75, Correlation 1.0, Product, 25th) mapped in place from the raw pfe_asts label. This is the scenario picker''s selectable value and the join to vw_dim_scenario. NOTE: the "0.25" correlation label is ambiguous in source (25th vs Stress MPR 0.25 share it) — flagged for the data owner; shown as "25th (0.25)".',
+  Scenario_Name      COMMENT 'The stress scenario, shown as a business-friendly name (e.g. Stress 75, Correlation 1.0, Product, 25th) mapped in place from the raw pfe_asts label. This is the scenario picker''s selectable value. NOTE: the "0.25" correlation label is ambiguous in source (25th vs Stress MPR 0.25 share it) — flagged for the data owner; shown as "25th (0.25)".',
+  Scenario_Order     COMMENT 'Sort key for Scenario_Name (1=Base, 2=Zero, 3=25th, 4=75th, 5=Stress 75, 6=Correlation 1.0, 7=Product, 8=Stress MPR 0.25) so scenarios display in a sensible order rather than alphabetically. Derived inline from the friendly Scenario_Name; replaces the sort role previously held by dim_scenario.',
   Line               COMMENT 'The credit line. Conformed key (trim/upper-normalised here) shared with the line fact and deal fact, so a line selection drills across all three. For CP lines the Line value is also the counterparty_code; HC lines are agent/facility lines with no counterparty-dimension match.',
   Line_Class         COMMENT 'CP or HC — whether the line is a counterparty''s own line or a house/agent/fund facility. Derived here from the Line code prefix. Same on every scenario row of a line.',
   Booking_Entity     COMMENT 'The TD booking entity (TDBK, TDSU, …), derived here from the first bracketed token of the Line code. Repeated on each scenario row.',
@@ -96,6 +97,18 @@ SELECT
     WHEN upper(Scenario_Name) IN ('ZERO','STRZERO')                 THEN 'Zero'
     ELSE Scenario_Name
   END                                                                   AS Scenario_Name,
+  -- Scenario_Order: sort key derived from the friendly name (replaces dim_scenario's sort role)
+  CASE
+    WHEN upper(Scenario_Name) = 'STRMARKETC75'                      THEN 5
+    WHEN upper(Scenario_Name) IN ('CORRELATION_1.0','CORRELATION1.0','STRCORRONE') THEN 6
+    WHEN upper(Scenario_Name) IN ('PRODCORRELATION','STRCORRPROD')  THEN 7
+    WHEN upper(Scenario_Name) IN ('CORRELATION_0.25','STRCORR025')  THEN 3
+    WHEN upper(Scenario_Name) IN ('CORRELATION_0.75','STRCORR075')  THEN 4
+    WHEN upper(Scenario_Name) IN ('ZERO','STRZERO')                 THEN 2
+    WHEN upper(Scenario_Name) IN ('CARTOR','BASE')                  THEN 1
+    WHEN upper(Scenario_Name) IN ('STRMPR025','STRESS_MPR_025')     THEN 8
+    ELSE 9
+  END                                                                   AS Scenario_Order,
   trim(upper(Line))                                                     AS Line,
   CASE WHEN Line LIKE 'CP%' THEN 'CP'
        WHEN Line LIKE 'HC%' THEN 'HC'
