@@ -45,20 +45,21 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_a
   CIF_Country_Name  COMMENT 'The country name from the CIF record (for display).',
   Region            COMMENT 'The region, used to group the portfolio geographically.',
   Stress_PFE        COMMENT 'The line''s peak potential future exposure under stress, taken as the worst of its 8 scenario outcomes. Adds up across lines, but not across scenarios (each line already holds its own worst case).',
-  Standard_PFE      COMMENT 'The line''s base (unstressed) potential future exposure. Adds up across lines.',
+  Line_Standard_PFE      COMMENT 'The line's base (unstressed) potential future exposure, taken from the cartor_max field — the maximum exposure under the Cartor (base) scenario. This is the unstressed counterpart to Stress_PFE. One value per line, additive across lines. Different from the scenario fact's Standard_Exposure_Bucket, which is a per-scenario, bucket-level figure.',
   Stress_Over_Base  COMMENT 'How much the stress adds on top of the base exposure (stress minus base). Adds up across lines.',
   Impact_Pct        COMMENT 'How many times larger the stressed exposure is than the base (a ratio). Don''t sum it — it''s a per-line figure.',
-  Limit_Amount      COMMENT 'The line''s approved limit, taken as the largest across the tenor buckets. Adds up across lines.',
-  Effective_Limit   COMMENT 'The approved limit for the specific tenor bucket where the line''s exposure actually peaks — so utilization is measured against the limit that truly applies, not just the biggest one. Where no bucket limit exists it falls back to the standard exposure. This is the preferred utilization denominator.',
+  Limit_Amount      COMMENT 'The single largest limit across the line''s six tenor buckets — a coarse headline limit, not tied to where exposure actually sits. Effective_Limit is the preferred denominator for utilisation. (Being retired; hidden in the dashboard.)',
+  Effective_Limit   COMMENT 'The limit of the specific tenor bucket where the line''s exposure peaks — the limit that actually governs that peak, so it is the correct denominator for utilisation. Falls back to the standard exposure where the peak bucket has no limit.',
   Max_Exp_Time_Bucket COMMENT 'The tenor bucket (e.g. 1-2yr) where the line''s exposure peaks. This is what selects the matching Effective_Limit.',
   Max_Scenario_Name COMMENT 'The scenario under which the line''s exposure peaks.',
-  Utilization       COMMENT 'Stress exposure divided by the largest-bucket limit, at line level. It''s a ratio, so don''t sum it — recompute it as summed-exposure over summed-limit when rolling up. The bucket-matched version (using Effective_Limit) is more precise.',
+  Utilization       COMMENT 'Stress_PFE divided by Effective_Limit — the line''s peak stressed exposure against the limit that governs it. A ratio: don''t sum it; roll it up as summed-exposure over summed-limit.',
   Utilization_Band  COMMENT 'Groups each line by how close it is to its limit (stress exposure over the bucket-matched limit): >=100%, 85-100%, 70-85%, <70%, or No Limit. Designed to catch lines approaching their limit before they actually breach.',
   Utilization_Band_Order COMMENT 'A simple 1-to-5 sort key so the bands display worst-first (>=100% down to No Limit) without needing number prefixes on the labels.',
-  Is_Breached       COMMENT 'Whether the line has breached any of its tenor limits (Y/N). It combines the breach flags across the line''s scenario rows. For lines that are close but not yet over, use the utilization band instead.',
+  Is_Breached       COMMENT 'Whether the line has breached any of its tenor limits, shown as 'Breach' / 'No Breach' for readable filtering. Set to Breach if any of the six tenor buckets' exposure exceeded its limit in any scenario. For lines close but not yet over, use the utilisation band.',
   Worst_Scenario    COMMENT 'The scenario that drove the line''s worst exposure (see vw_dim_scenario for the scenario names).',
-  IM                COMMENT 'Initial margin held against the line (0-3 month bucket), from the exposure-decomposition feed. Shown as 0 where none is posted, which is the case for almost all lines. The source value shifts by scenario, so the base figure is used pending data-owner confirmation.',
-  IA                COMMENT 'Independent amount held against the line. Shown as 0 where none is posted, which applies to about 99% of lines (roughly 98 lines carry a value). Held at line/agreement level, not per deal.',
+  IM                COMMENT 'Initial margin held against the line (0 where none). A line-level collateral figure.',
+  IA_IM_Total       COMMENT 'IA plus IM — total independent amount and initial margin held against the line, null-safe (each treated as 0 when absent). A combined collateral figure for business reporting.',
+  IA                COMMENT 'Independent amount held against the line (0 where none). A line/agreement-level collateral figure.',
   Line_MTM_Base     COMMENT 'The line''s current mark-to-market, unstressed. Adds up across lines.',
   Line_MTM_Stress   COMMENT 'The line''s mark-to-market under the 75% market stress (the one scenario where MTM differs from base). Adds up across lines.',
   Line_Scn_Cartor_Base    COMMENT 'The line''s exposure under the Base / Cartor scenario (the unstressed baseline). Additive across lines; across scenarios take the worst.',
@@ -92,7 +93,7 @@ WITH ats_clean AS (
     region                                                           AS Region,            -- (+) regional grouping
     scenario_of_max                                                    AS Worst_Scenario,
     try_cast(replace(CAST(max_of_all AS STRING),',','') AS DOUBLE)     AS Stress_PFE,
-    try_cast(replace(CAST(cartor_max AS STRING),',','') AS DOUBLE)     AS Standard_PFE,
+    try_cast(replace(CAST(cartor_max AS STRING),',','') AS DOUBLE)     AS Line_Standard_PFE,
     try_cast(replace(CAST(max_all_less_cartor  AS STRING),',','') AS DOUBLE) AS Stress_Over_Base,   -- (+) incremental stress over baseline
     try_cast(replace(CAST(percentage_of_impact AS STRING),',','') AS DOUBLE) AS Impact_Pct,         -- (+) max_of_all / cartor_max ratio
     GREATEST(
@@ -115,17 +116,21 @@ WITH ats_clean AS (
   FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_ats_summary`
 ),
 breach AS (
-  -- Is_Breached = ANY of the 5 flags TRUE across the line's scenario rows (window-MAX, dedup-proof).
+  -- Is_Breached = ANY of the 6 flags TRUE across the line's scenario rows (window-MAX, dedup-proof).
   SELECT
     Line,
     CASE WHEN MAX(
-      CASE WHEN `3_12_mo_Excess_Breach`  = 'TRUE' OR `1_2_Yr_Excess_Breach`  = 'TRUE'
-            OR `2_5_Yr_Excess_Breach`   = 'TRUE' OR `5_10_Yr_Excess_Breach` = 'TRUE'
-            OR `10_50_Yr_Excess_Breach` = 'TRUE'
+      CASE WHEN `0_3_mo_Excess_Breach`  = 'TRUE' OR `3_12_mo_Excess_Breach`  = 'TRUE'
+            OR `1_2_Yr_Excess_Breach`   = 'TRUE' OR `2_5_Yr_Excess_Breach`   = 'TRUE'
+            OR `5_10_Yr_Excess_Breach`  = 'TRUE' OR `10_50_Yr_Excess_Breach` = 'TRUE'
            THEN 1 ELSE 0 END
     ) = 1 THEN 'Y' ELSE 'N' END                                        AS Is_Breached
-  FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_asts`
-  WHERE COALESCE(CAST(No_Line_Indicator AS BOOLEAN), false) = false
+  FROM (
+    SELECT *, ROW_NUMBER() OVER (PARTITION BY Line, Scenario_Name, business_date ORDER BY report_run_at DESC) AS _run_rn
+    FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_asts`
+  ) pfe_asts
+  WHERE _run_rn = 1
+    AND COALESCE(CAST(No_Line_Indicator AS BOOLEAN), false) = false
   GROUP BY Line
 ),
 eff_limit AS (
@@ -151,8 +156,12 @@ eff_limit AS (
         ELSE NULL
       END                                                              AS Effective_Limit,
       ROW_NUMBER() OVER (PARTITION BY Line ORDER BY try_cast(replace(CAST(Max_Scenario_Exposure AS STRING),',','') AS DOUBLE) DESC) AS rn
-    FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_asts`
-    WHERE COALESCE(CAST(No_Line_Indicator AS BOOLEAN), false) = false
+    FROM (
+      SELECT *, ROW_NUMBER() OVER (PARTITION BY Line, Scenario_Name, business_date ORDER BY report_run_at DESC) AS _run_rn
+      FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_asts`
+    ) pfe_asts
+    WHERE _run_rn = 1
+      AND COALESCE(CAST(No_Line_Indicator AS BOOLEAN), false) = false
   ) z
   WHERE rn = 1
 ),
@@ -229,7 +238,7 @@ SELECT
   el.Effective_Limit,
   el.Max_Exp_Time_Bucket,
   el.Max_Scenario_Name,
-  a.Stress_PFE / NULLIF(a.Limit_Amount, 0)                             AS Utilization,
+  a.Stress_PFE / NULLIF(el.Effective_Limit, 0)                         AS Utilization,
   CASE
     WHEN el.Effective_Limit IS NULL OR el.Effective_Limit = 0 THEN 'No Limit'
     WHEN a.Stress_PFE / el.Effective_Limit >= 1.0  THEN '>=100%'
@@ -244,10 +253,11 @@ SELECT
     WHEN a.Stress_PFE / el.Effective_Limit >= 0.70 THEN 3
     ELSE 4
   END                                                                  AS Utilization_Band_Order,
-  COALESCE(b.Is_Breached, 'N')                                         AS Is_Breached,
+  CASE WHEN COALESCE(b.Is_Breached, 'N') = 'Y' THEN 'Breach' ELSE 'No Breach' END AS Is_Breached,
   a.Worst_Scenario,
   COALESCE(lc.IA, 0)                                                   AS IA,
   COALESCE(im.IM, 0)                                                   AS IM,
+  COALESCE(lc.IA, 0) + COALESCE(im.IM, 0)                              AS IA_IM_Total,
   lc.Line_MTM_Base,
   ls.Line_MTM_Stress,
   a.Line_Scn_Cartor_Base,

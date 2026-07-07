@@ -55,11 +55,12 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_a
   Limit_5_Yr         COMMENT 'The limit governing the 2-5 year bucket. Pair with Max_Usage_2_5_Yr for that bucket''s utilisation.',
   Limit_10_Yr        COMMENT 'The limit governing the 5-10 year bucket. Pair with Max_Usage_5_10_Yr for that bucket''s utilisation.',
   Limit_50_Yr        COMMENT 'The limit governing the 10-50 year bucket. Pair with Max_Usage_10_50_Yr for that bucket''s utilisation.',
+  `0_3_mo_Excess_Breach`   COMMENT 'Breach flag (TRUE/FALSE) for the 0-3 month bucket: TRUE means this bucket''s stressed exposure exceeded its limit in this scenario.',
   `3_12_mo_Excess_Breach`  COMMENT 'Breach flag (TRUE/FALSE) for the 3–12 month bucket: TRUE means this bucket''s stressed exposure exceeded its limit in this scenario. A line''s overall Is_Breached is TRUE if ANY bucket flag is TRUE in ANY scenario — why a line can breach here while its headline utilisation sits on a different bucket.',
   `1_2_Yr_Excess_Breach`   COMMENT 'Breach flag (TRUE/FALSE) for the 1–2 year bucket.',
   `2_5_Yr_Excess_Breach`   COMMENT 'Breach flag (TRUE/FALSE) for the 2–5 year bucket.',
   `5_10_Yr_Excess_Breach`  COMMENT 'Breach flag (TRUE/FALSE) for the 5–10 year bucket.',
-  `10_50_Yr_Excess_Breach` COMMENT 'Breach flag (TRUE/FALSE) for the 10–50 year bucket. (There is no 0–3 month breach flag in source — that bucket cannot raise a breach.)',
+  `10_50_Yr_Excess_Breach` COMMENT 'Breach flag (TRUE/FALSE) for the 10–50 year bucket. ',
   `0_3_mo_Excess_Percentage`   COMMENT 'By how much the 0-3 month bucket''s exposure exceeds its limit, as a percentage. Source column from pfe_asts.',
   `3_12_mo_Excess_Percentage`  COMMENT 'By how much the 3-12 month bucket''s exposure exceeds its limit, as a percentage. Source column from pfe_asts.',
   `1_2_Yr_Excess_Percentage`   COMMENT 'By how much the 1-2 year bucket''s exposure exceeds its limit, as a percentage. Source column from pfe_asts.',
@@ -72,7 +73,7 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_a
   Max_Scenario_Name  COMMENT 'The scenario that produced the row-level maximum exposure (raw source label).',
   Scenario_Code      COMMENT 'The raw scenario code from the source system (pfe_asts.Scenario). Kept for provenance; the friendly Scenario_Name above is the one to display/join.',
   Timestep           COMMENT 'Scenario timestep / horizon index from source. Not a grain dimension (typically null).',
-  Standard_Exposure  COMMENT 'The standard (unstressed) exposure aligned to the peak bucket, from base values. A comparison point against the stressed Max_Scenario_Exposure.',
+  Standard_Exposure_Bucket  COMMENT 'The unstressed exposure aligned to this scenario's peak tenor bucket. A per-scenario, bucket-level figure — the base counterpart to the stressed bucket exposure. Distinct from the line fact's Standard_PFE (the line's overall base PFE from the Cartor scenario).',
   Excess_Percentage  COMMENT 'Row-level excess percentage (how far the line-scenario is over its governing limit overall).',
   Exposure_Percentage COMMENT 'The line''s exposure as a percentage of its limit in this scenario. A source column from pfe_asts (not computed here).',
   Exposure_Percentage_0_3_mo   COMMENT 'Exposure as a percentage of the limit for the 0-3 month bucket. Source column from pfe_asts.',
@@ -139,6 +140,7 @@ SELECT
   try_cast(replace(CAST(Limit_5_Yr  AS STRING),',','') AS DOUBLE) AS Limit_5_Yr,
   try_cast(replace(CAST(Limit_10_Yr AS STRING),',','') AS DOUBLE) AS Limit_10_Yr,
   try_cast(replace(CAST(Limit_50_Yr AS STRING),',','') AS DOUBLE) AS Limit_50_Yr,
+  `0_3_mo_Excess_Breach`,
   `3_12_mo_Excess_Breach`,
   `1_2_Yr_Excess_Breach`,
   `2_5_Yr_Excess_Breach`,
@@ -156,7 +158,7 @@ SELECT
   Max_Scenario_Name,
   Scenario                                                             AS Scenario_Code,
   Timestep,
-  try_cast(replace(CAST(Standard_Exposure AS STRING),',','') AS DOUBLE) AS Standard_Exposure,
+  try_cast(replace(CAST(Standard_Exposure AS STRING),',','') AS DOUBLE) AS Standard_Exposure_Bucket,
   Excess_Percentage,
   Exposure_Percentage,
   Exposure_Percentage_0_3_mo,
@@ -167,8 +169,19 @@ SELECT
   Exposure_Percentage_10_50_yr,
   COALESCE(try_to_date(CAST(business_date AS STRING),'yyyyMMdd'),
            try_cast(CAST(business_date AS STRING) AS DATE))            AS Business_Date
-FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_asts`
-WHERE COALESCE(CAST(No_Line_Indicator AS BOOLEAN), false) = false
+FROM (
+  -- Dedupe guard: if the source ever holds more than one report run for the same
+  -- line × scenario × business_date, keep only the latest run (report_run_at DESC).
+  -- Partitioned by business_date so every business date is preserved.
+  SELECT *,
+    ROW_NUMBER() OVER (
+      PARTITION BY Line, Scenario_Name, business_date
+      ORDER BY report_run_at DESC
+    ) AS _run_rn
+  FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_asts`
+) pfe_asts
+WHERE _run_rn = 1
+  AND COALESCE(CAST(No_Line_Indicator AS BOOLEAN), false) = false
 ;
 
 -- =====================================================================

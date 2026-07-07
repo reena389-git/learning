@@ -39,8 +39,8 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_d
   Deal_Name           COMMENT 'The deal''s name/description.',
   New_Deal_Flag       COMMENT 'Whether the deal is new in this load (Y/N).',
   Line_Type           COMMENT 'The line type (e.g. C2C, CONT).',
-  Asset_Class         COMMENT 'The product / deal type, from deal_type (e.g. Swap, FX Forward, Repurchase Agreement). Also referred to by the business as product type. See Asset_Class_Group for the higher-level grouping.',
-  Asset_Class_Group   COMMENT 'A higher-level grouping of the asset class (Rates / FX / Equity / Repo-SFT / Commodity / Other) for easier slicing. (Grouping mapping pending final confirmation.)',
+  Product_Type        COMMENT 'The product / deal type, from deal_type (e.g. Swap, FX Forward, Repurchase Agreement). The business calls this product type. See Asset_Class for the higher-level grouping.',
+  Asset_Class   COMMENT 'A higher-level grouping of the product type (Rates / FX / Equity / Repo-SFT / Commodity / Other), derived from deal_type. Grouping mapping to be confirmed.',
   ISDA_Indicator      COMMENT 'Whether the deal is under an ISDA agreement (Y/N).',
   Industry            COMMENT 'The counterparty''s detailed industry (sic_industry). Same source column and values as the line fact''s Industry; the two conform.',
   Counterparty_Rating COMMENT 'The counterparty''s account rating (td_account_rating). This is the same rating concept as the line fact''s BRR (borrower/account rating); conform the two. Distinct from the line fact''s Line_Worst_Rating, which is the worst rating across all the line''s clients.',
@@ -132,7 +132,7 @@ SELECT
   d.`name`                                              AS Deal_Name,
   d.`new_deal_flag`                                     AS New_Deal_Flag,
   d.`line_type`                                         AS Line_Type,
-  d.`deal_type`                                         AS Asset_Class,
+  d.`deal_type`                                         AS Product_Type,
   -- <confirm> higher-level grouping. Mapped from the observed deal_type values.
   CASE
     WHEN d.`deal_type` IN ('Swap')                            THEN 'Rates'
@@ -141,7 +141,7 @@ SELECT
     WHEN d.`deal_type` IN ('Repurchase Agreement')           THEN 'Repo / SFT'
     WHEN d.`deal_type` IN ('Commodity Forward')              THEN 'Commodity'
     ELSE 'Other'
-  END                                                   AS Asset_Class_Group,
+  END                                                   AS Asset_Class,
   d.`isda_indicator`                                    AS ISDA_Indicator,
   d.`sic_industry`                                      AS Industry,
   d.`td_account_rating`                                 AS Counterparty_Rating,
