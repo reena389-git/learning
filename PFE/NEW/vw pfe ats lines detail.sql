@@ -231,7 +231,7 @@ SELECT
   a.CIF_Country_Name,
   a.Region,
   a.Stress_PFE,
-  a.Standard_PFE,
+  a.Line_Standard_PFE,
   a.Stress_Over_Base,
   a.Impact_Pct,
   a.Limit_Amount,
