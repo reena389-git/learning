@@ -73,7 +73,7 @@ CREATE OR REPLACE VIEW `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`vw_pfe_a
   Max_Scenario_Name  COMMENT 'The scenario that produced the row-level maximum exposure (raw source label).',
   Scenario_Code      COMMENT 'The raw scenario code from the source system (pfe_asts.Scenario). Kept for provenance; the friendly Scenario_Name above is the one to display/join.',
   Timestep           COMMENT 'Scenario timestep / horizon index from source. Not a grain dimension (typically null).',
-  Standard_Exposure_Bucket  COMMENT 'The unstressed exposure aligned to this scenario's peak tenor bucket. A per-scenario, bucket-level figure — the base counterpart to the stressed bucket exposure. Distinct from the line fact's Standard_PFE (the line's overall base PFE from the Cartor scenario).',
+  Standard_Exposure_Bucket  COMMENT 'The unstressed exposure aligned to this scenario''s peak tenor bucket. A per-scenario, bucket-level figure — the base counterpart to the stressed bucket exposure. Distinct from the line fact''s Standard_PFE (the line''s overall base PFE from the Cartor scenario).',
   Excess_Percentage  COMMENT 'Row-level excess percentage (how far the line-scenario is over its governing limit overall).',
   Exposure_Percentage COMMENT 'The line''s exposure as a percentage of its limit in this scenario. A source column from pfe_asts (not computed here).',
   Exposure_Percentage_0_3_mo   COMMENT 'Exposure as a percentage of the limit for the 0-3 month bucket. Source column from pfe_asts.',
