@@ -13,7 +13,7 @@
 --     • pfe_asts  -> the 5 breach flags -> Is_Breached (window-MAX OR, dedup-proof).
 --     • pfe_lines_report source=CARTOR       -> IA (initial_margin), Line_MTM_Base.
 --     • pfe_lines_report source=STRMARKETC75 -> Line_MTM_Stress.
---     • pfe_exp_decomp_report product_group='Lines_Report - With IM', source=CARTOR -> IM
+--     • pfe_exp_decomp_report product_group='IM', source=CARTOR -> IM
 --       (= max_usage_0_3_mo, the line-level 0-3 bucket Initial Margin).
 --
 --   COMPUTES (not just joins): Is_Breached (window-MAX OR of 5 flags); Utilization
@@ -189,11 +189,11 @@ lines_stress AS (
 ),
 im AS (
   -- IM = the line-level Initial Margin for the 0-3 bucket, from the exp_decomp
-  -- 'Lines_Report - With IM' slice (per requirement: "IM is the line level IM for 0-3 bucket").
+  -- 'IM' slice (per requirement: "IM is the line level IM for 0-3 bucket").
   -- exp_decomp grain is line × line_type × product_group × source (source = scenario).
   -- NOTE: pfe_exp_decomp_report has NO no_line_indicator column (unlike lines_report) — do NOT
-  -- filter on it. The IM slice (product_group='Lines_Report - With IM' + source='CARTOR') is
-  -- UNIQUE per line — confirmed: GROUP BY line,source,product_group HAVING COUNT(*)>1 = 0 rows.
+  -- filter on it. The IM slice (product_group='IM' + source='CARTOR') is
+  -- (verify) IM slice (product_group='IM' + source='CARTOR') should be UNIQUE per line.
   -- So it joins 1:1 to the line (no fan-out); no GROUP BY needed.
   -- (confirm with data owner): max_usage_0_3_mo varies by source/scenario (~doubles under
   -- stress) — unusual for a collateral term. Base (CARTOR) taken here; flag the definition.
@@ -201,7 +201,7 @@ im AS (
     trim(upper(line))                                                  AS Line,
     try_cast(replace(CAST(max_usage_0_3_mo AS STRING),',','') AS DOUBLE) AS IM
   FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_exp_decomp_report`
-  WHERE product_group = 'Lines_Report - With IM'
+  WHERE product_group = 'IM'
     AND source = 'CARTOR'
 )
 SELECT
