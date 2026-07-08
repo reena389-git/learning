@@ -201,7 +201,7 @@ im AS (
     trim(upper(line))                                                  AS Line,
     try_cast(replace(CAST(max_usage_0_3_mo AS STRING),',','') AS DOUBLE) AS IM
   FROM `d4001-centralus-tdvip-creditrisk`.`xvala_core`.`pfe_exp_decomp_report`
-  WHERE product_group = 'Lines_Report - With IM'
+  WHERE product_group = 'IM'
     AND source = 'CARTOR'
 )
 SELECT
