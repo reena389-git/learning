@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Collateral — an ontology, one noun at a time</title>
+<style>
+  :root{
+    --paper:#FBF9F4; --ink:#1C2830; --line:#C9C2B4;
+    --legal:#8A6A2F; --legalbg:#F4EDDD;
+    --trade:#2E4A66; --tradebg:#E9EEF4;
+    --event:#216A5E; --eventbg:#E5F0ED;
+    --derived:#5A6B75; --derivedbg:#EEF1F2;
+    --axiom:#A63B2A;
+    --mono:'SF Mono',Consolas,'Courier New',monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);
+       font:15px/1.55 'Segoe UI',system-ui,Arial,sans-serif;}
+  header{padding:22px 20px 6px;max-width:980px;margin:0 auto;}
+  header .eyebrow{font:600 11px/1 var(--mono);letter-spacing:.18em;color:var(--legal);text-transform:uppercase}
+  header h1{font-family:'Iowan Old Style',Georgia,'Times New Roman',serif;
+            font-size:clamp(22px,4vw,32px);margin:6px 0 0;font-weight:600}
+  .board{max-width:980px;margin:10px auto 0;padding:0 12px}
+  svg{width:100%;height:auto;display:block}
+
+  .node rect{fill:#fff;stroke:var(--line);stroke-width:1.2;rx:6}
+  .node .tab{font:600 9.5px var(--mono);letter-spacing:.12em;text-transform:uppercase}
+  .node .name{font-family:Georgia,serif;font-size:14.5px;font-weight:600;fill:var(--ink)}
+  .node .inst{font:10.5px var(--mono);fill:#5A6B75}
+  .node.legal rect{fill:var(--legalbg);stroke:var(--legal)}
+  .node.legal .tab{fill:var(--legal)}
+  .node.trade rect{fill:var(--tradebg);stroke:var(--trade)}
+  .node.trade .tab{fill:var(--trade)}
+  .node.event rect{fill:var(--eventbg);stroke:var(--event)}
+  .node.event .tab{fill:var(--event)}
+  .node.derived rect{fill:var(--derivedbg);stroke:var(--derived);stroke-dasharray:5 3}
+  .node.derived .tab{fill:var(--derived)}
+
+  .edge path{fill:none;stroke:#8B8272;stroke-width:1.4;marker-end:url(#arr)}
+  .edge.derivedE path{stroke-dasharray:5 4;stroke:var(--derived)}
+  .edge text{font:600 11px var(--mono);fill:#6B6353}
+
+  .stamp rect{fill:none;stroke:var(--axiom);stroke-width:1.6;rx:3}
+  .stamp text{font:700 9px var(--mono);letter-spacing:.1em;fill:var(--axiom)}
+
+  .node,.edge,.stamp{opacity:0;transition:opacity .45s ease}
+  .on{opacity:1 !important}
+  .dim{opacity:.22 !important}
+
+  .panel{max-width:980px;margin:6px auto 34px;padding:0 20px}
+  .panel .step{font:600 11px var(--mono);letter-spacing:.16em;color:var(--legal);text-transform:uppercase}
+  .panel h2{font-family:Georgia,serif;font-size:21px;margin:6px 0 8px;font-weight:600}
+  .panel p{margin:0 0 10px;max-width:74ch}
+  .boxlabel{font:700 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;margin:14px 0 6px}
+  .defs{background:#fff;border:1px solid var(--line);border-left:3px solid var(--legal);
+        padding:12px 16px;margin:0 0 6px;max-width:760px}
+  .defs dt{font-weight:700;margin-top:8px}
+  .defs dt:first-child{margin-top:0}
+  .defs dd{margin:2px 0 0 0;color:#3A4650}
+  .rel{background:#fff;border:1px solid var(--line);border-left:3px solid var(--trade);
+       padding:12px 16px;margin:0 0 6px;max-width:760px}
+  .rel p{margin:0 0 8px}
+  .rel p:last-child{margin:0}
+  .rel b{font-family:var(--mono);font-size:13px}
+  .ledger{background:#fff;border:1px solid var(--line);border-left:3px solid var(--event);
+          padding:12px 14px;font:12.5px/1.75 var(--mono);white-space:pre-wrap;margin:0 0 6px;max-width:760px;overflow-x:auto}
+  .ledger .bad{color:var(--axiom);font-weight:700}
+  .ledger .ok{color:var(--event);font-weight:700}
+  .nav{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
+  button{font:600 13px var(--mono);letter-spacing:.06em;background:var(--ink);color:#fff;
+         border:0;padding:10px 18px;border-radius:4px;cursor:pointer}
+  button:disabled{background:#B9B2A4;cursor:default}
+  button:focus-visible{outline:3px solid var(--legal);outline-offset:2px}
+  .dots{display:flex;gap:6px}
+  .dots i{width:8px;height:8px;border-radius:50%;background:#D5CEBE;display:block}
+  .dots i.cur{background:var(--legal)}
+  .tblwrap{overflow-x:auto;margin:0 0 6px;max-width:820px}
+  table.grid{border-collapse:collapse;font:11.5px var(--mono);background:#fff;min-width:660px}
+  table.grid th,table.grid td{border:1px solid var(--line);padding:5px 8px;text-align:left;white-space:nowrap}
+  table.grid th{background:var(--legalbg);font-weight:700}
+  table.grid td.warn{color:var(--axiom);font-weight:700}
+  table.grid td.dv{color:var(--derived);font-style:italic}
+  .code{background:#20282E;color:#E8E4D8;padding:12px 14px;font:12px/1.6 var(--mono);white-space:pre;overflow-x:auto;border-radius:4px;margin:0 0 6px;max-width:780px}
+  .tree{font:12.5px/1.8 var(--mono);background:#fff;border:1px solid var(--line);border-left:3px solid var(--legal);padding:12px 16px;margin:0 0 6px;max-width:780px;white-space:pre;overflow-x:auto}
+  table.cmp{border-collapse:collapse;background:#fff;min-width:660px;font-size:13px}
+  table.cmp th,table.cmp td{border:1px solid var(--line);padding:8px 10px;vertical-align:top;text-align:left}
+  table.cmp th{background:var(--tradebg)}
+  .boardflex{display:flex;gap:14px;align-items:flex-start}
+  .boardflex svg{flex:1;min-width:0}
+  #sidecar{width:275px;flex:0 0 275px;background:#fff;border:1px solid var(--line);
+           border-left:3px solid var(--trade);padding:12px 14px;font-size:12px;line-height:1.45}
+  #sidecar h3{font-family:Georgia,serif;font-size:13.5px;margin:0 0 6px}
+  #sidecar h4{font:700 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#55636B;margin:12px 0 5px}
+  #scEnts span{display:inline-block;background:var(--legalbg);border:1px solid var(--legal);
+               border-radius:10px;padding:1px 8px;margin:0 4px 4px 0;font:600 10.5px var(--mono)}
+  #scRels{list-style:none;margin:0;padding:0}
+  #scRels li{margin:0 0 7px;padding-left:10px;border-left:2px solid var(--line)}
+  #scRels li.oc{border-left:2px solid var(--event);background:var(--eventbg);padding:4px 6px 4px 8px}
+  #scRels li.oc b{color:var(--event)}
+  .edge.outcome path{stroke:var(--event);stroke-width:2.4}
+  .edge.outcome text{fill:var(--event);font-weight:700}
+  @media (max-width:760px){.boardflex{flex-direction:column}#sidecar{width:auto;flex:auto}}
+  .views{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 8px}
+  .vw{flex:1;min-width:230px;background:#fff;border:1px solid var(--line);padding:12px 14px}
+  .vw h4{font-family:Georgia,serif;font-size:14px;margin:0 0 2px}
+  .vw .aud{font:600 9.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#55636B;margin-bottom:8px}
+  .vw .mini{font:11px var(--mono);line-height:1.7;background:#FBF9F4;border:1px dashed var(--line);padding:10px;white-space:pre;overflow-x:auto}
+  .vw p{font-size:11.5px;margin:8px 0 0;color:#3A4650}
+  .gapchip{display:inline-block;border:1.5px dashed var(--axiom);color:var(--axiom);
+           font:700 10px var(--mono);padding:2px 8px;border-radius:3px}
+  @media (prefers-reduced-motion:reduce){.node,.edge,.stamp{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Risk data · worked model · no prior knowledge assumed</div>
+  <h1>Collateral — an ontology, one noun at a time</h1>
+</header>
+
+<div class="board">
+<div class="boardflex">
+<svg viewBox="0 0 960 600" role="img" aria-label="Collateral ontology diagram, built step by step">
+  <defs>
+    <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#8B8272"/>
+    </marker>
+  </defs>
+
+  <!-- edges: verb only; cardinality is written out in the panel -->
+  <g id="e_csa_isda" class="edge"><path d="M330,150 L330,110"/><text x="338" y="133">supports</text></g>
+  <g id="e_csa_cpty" class="edge"><path d="M250,168 C200,168 190,90 185,78"/><text x="198" y="126">between</text></g>
+  <g id="e_csa_tde"  class="edge"><path d="M250,190 L188,168"/><text x="200" y="194">and</text></g>
+  <g id="e_elig_csa" class="edge"><path d="M110,300 C120,260 220,220 268,212"/><text x="122" y="260">partOf</text></g>
+  <g id="e_thr_csa"  class="edge"><path d="M108,392 C140,330 230,230 272,216"/><text x="152" y="328">partOf</text></g>
+  <g id="e_thr_rat"  class="edge"><path d="M108,456 L108,484"/><text x="116" y="474">conditionedOn</text></g>
+  <g id="e_ns_csa"   class="edge"><path d="M330,300 L330,214"/><text x="338" y="262">definedBy</text></g>
+  <g id="e_trd_ns"   class="edge"><path d="M330,430 L330,364"/><text x="338" y="402">memberOf</text></g>
+  <g id="e_exp_ns"   class="edge"><path d="M470,326 L410,326"/><text x="414" y="318">for</text></g>
+  <g id="e_mc_ns"    class="edge"><path d="M470,204 C430,214 402,268 396,300"/><text x="398" y="232">calculatedFor</text></g>
+  <g id="e_mc_exp"   class="edge"><path d="M548,234 L548,300"/><text x="556" y="272">basedOn</text></g>
+  <g id="e_mc_pos"   class="edge"><path d="M628,204 C700,214 736,264 748,300"/><text x="666" y="228">basedOn</text></g>
+  <g id="e_mv_mc"    class="edge outcome"><path d="M548,430 L548,234"/><text x="556" y="352">satisfies</text></g>
+  <g id="e_mv_csa"   class="edge"><path d="M470,452 C420,452 372,300 348,216"/><text x="370" y="392">madeUnder</text></g>
+  <g id="e_mv_ast"   class="edge"><path d="M628,478 L700,516"/><text x="634" y="508">references</text></g>
+  <g id="e_pos_mv" class="edge derivedE outcome"><path d="M748,364 C720,410 660,444 632,452"/><text x="662" y="418">derivedFrom</text></g>
+
+  <!-- nodes -->
+  <g id="n_cpty" class="node legal"><rect x="30" y="40" width="158" height="60"/>
+    <text class="tab" x="42" y="58">party</text>
+    <text class="name" x="42" y="76">Counterparty</text>
+    <text class="inst" x="42" y="92">Central 1 Credit Union · BCCU</text></g>
+  <g id="n_tde" class="node legal"><rect x="30" y="130" width="158" height="60"/>
+    <text class="tab" x="42" y="148">party</text>
+    <text class="name" x="42" y="166">TD Entity</text>
+    <text class="inst" x="42" y="182">TD Bank · TDBK</text></g>
+  <g id="n_isda" class="node legal"><rect x="250" y="50" width="160" height="60"/>
+    <text class="tab" x="262" y="68">legal umbrella</text>
+    <text class="name" x="262" y="86">ISDA Master</text>
+    <text class="inst" x="262" y="102">+ Group TDBK_BCCU_GEN</text></g>
+  <g id="n_csa" class="node legal"><rect x="250" y="150" width="160" height="64"/>
+    <text class="tab" x="262" y="168">legal terms</text>
+    <text class="name" x="262" y="186">CSA</text>
+    <text class="inst" x="262" y="202">1689 · GENERAL_CSA · TAMS</text></g>
+  <g id="n_elig" class="node legal"><rect x="30" y="300" width="170" height="64"/>
+    <text class="tab" x="42" y="318">terms · schedule</text>
+    <text class="name" x="42" y="336">Eligibility Entry</text>
+    <text class="inst" x="42" y="352">CMB · CAD cash · GoC bonds</text></g>
+  <g id="n_thr" class="node legal"><rect x="30" y="392" width="170" height="64"/>
+    <text class="tab" x="42" y="410">terms · schedule</text>
+    <text class="name" x="42" y="428">Threshold Entry</text>
+    <text class="inst" x="42" y="444">Thr $75k · MTA $10k</text></g>
+  <g id="n_rat" class="node legal"><rect x="30" y="484" width="170" height="60"/>
+    <text class="tab" x="42" y="502">reference</text>
+    <text class="name" x="42" y="520">Credit Rating</text>
+    <text class="inst" x="42" y="536">BCCU: AA- (S&amp;P) · 1C int.</text></g>
+  <g id="n_ns" class="node trade"><rect x="250" y="300" width="160" height="64"/>
+    <text class="tab" x="262" y="318">trading</text>
+    <text class="name" x="262" y="336">Netting Set</text>
+    <text class="inst" x="262" y="352">NS-1689 · from CSA scope</text></g>
+  <g id="n_trd" class="node trade"><rect x="250" y="430" width="160" height="64"/>
+    <text class="tab" x="262" y="448">trading</text>
+    <text class="name" x="262" y="466">Trade</text>
+    <text class="inst" x="262" y="482">FX options · CDS (Murex/Calypso)</text></g>
+  <g id="n_exp" class="node trade"><rect x="470" y="300" width="158" height="64"/>
+    <text class="tab" x="482" y="318">trading · daily</text>
+    <text class="name" x="482" y="336">Exposure</text>
+    <text class="inst" x="482" y="352">net MtM +$14.115M</text></g>
+  <g id="n_mc" class="node event"><rect x="470" y="170" width="158" height="64"/>
+    <text class="tab" x="482" y="188">event · CMOS</text>
+    <text class="name" x="482" y="206">Margin Call</text>
+    <text class="inst" x="482" y="222">VM · $14.04M · disputed</text></g>
+  <g id="n_mv" class="node event"><rect x="470" y="430" width="158" height="70"/>
+    <text class="tab" x="482" y="448">event · Colline</text>
+    <text class="name" x="482" y="466">Collateral Movement</text>
+    <text class="inst" x="482" y="482">MV-0402 · VM · $13.87M CMB</text></g>
+  <g id="n_ast" class="node trade"><rect x="700" y="500" width="150" height="60"/>
+    <text class="tab" x="712" y="518">reference</text>
+    <text class="name" x="712" y="536">Asset</text>
+    <text class="inst" x="712" y="552">Canada Mortgage Bond</text></g>
+  <g id="n_pos" class="node derived"><rect x="700" y="300" width="170" height="64"/>
+    <text class="tab" x="712" y="318">derived — never stored</text>
+    <text class="name" x="712" y="336">Collateral Position</text>
+    <text class="inst" x="712" y="352">Σ movements · $0 → $13.59M</text></g>
+
+  <!-- axiom stamps -->
+  <g id="st_one" class="stamp" transform="rotate(-7 400 384)">
+    <rect x="352" y="370" width="96" height="26"/><text x="362" y="387">EXACTLY 1</text></g>
+  <g id="st_look" class="stamp" transform="rotate(-6 115 282)">
+    <rect x="52" y="270" width="126" height="26"/><text x="62" y="287">HAIRCUT LIVES HERE</text></g>
+  <g id="st_mand" class="stamp" transform="rotate(5 549 528)">
+    <rect x="474" y="514" width="150" height="26"/><text x="484" y="531">PURPOSE MANDATORY</text></g>
+  <g id="st_trig" class="stamp" transform="rotate(-5 700 156)">
+    <rect x="640" y="142" width="122" height="26"/><text x="650" y="159">THR + MTA + RATING</text></g>
+  <g id="st_net" class="stamp" transform="rotate(6 220 470)">
+    <rect x="150" y="456" width="140" height="26"/><text x="160" y="473">NETS ONLY IN ITS SET</text></g>
+</svg>
+<aside id="sidecar" aria-label="Entities and relationships currently on the board">
+  <h3>On the board</h3>
+  <div id="scEnts"></div>
+  <h4>Relationships, in words</h4>
+  <ul id="scRels"></ul>
+</aside>
+</div>
+</div>
+
+<div class="panel">
+  <div class="step" id="pStep"></div>
+  <h2 id="pTitle"></h2>
+  <div id="pBody"></div>
+  <div class="nav">
+    <button id="prev">← Back</button>
+    <button id="next">Next →</button>
+    <div class="dots" id="dots"></div>
+  </div>
+</div>
+
+<script>
+const steps = [
+
+{t:"First, the deal — the business story this model serves",
+ b:`<p>Before a single noun: here is the real situation, from our own systems.</p>
+    <p><b>TD Bank (TDBK) trades derivatives with Central 1 Credit Union (BCCU)</b> — FX options booked in Murex, credit default swaps in Calypso. Because those trades gain and lose value daily, the two firms signed an <b>ISDA Master in 1989</b> and, under it, <b>CSA 1689</b> — the collateral annex. The CSA says, in effect: <i>\u201cwe trust each other up to $75,000 of exposure (the Threshold); above that, collateral must be posted; and we will not bother each other for transfers under $10,000 (the MTA).\u201d</i> It also lists what may be posted — Canada Mortgage Bonds, CAD cash, Government of Canada bonds — each credited at a valuation percentage.</p>
+    <p><b>Then one Thursday in April:</b> the day\u2019s valuation shows the trades are <b>$14,115,000 in TD\u2019s favour</b>. CMOS runs the CSA arithmetic and issues margin event <b>390066</b> — a call for <b>$14,040,000</b>. BCCU\u2019s operations team reviews it, <b>disputes $450,000</b> of it (\u201cvaluation dispute on FX portfolio\u201d), agrees the rest, and posts a Canada Mortgage Bond. Credit Ops now owns an open dispute, ageing at 3 days, whose evidence is spread across four systems.</p>
+    <p><b>That story is the use case.</b> Every card that follows is one of its nouns; every edge is a sentence from it; every axiom is a way it goes wrong in production. Use <b>Next</b> — each step defines its terms, states its relationships in the sidecar, and shows the arithmetic in full.</p>`,
+ show:[]},
+
+{t:"The parties, the umbrella — and the agreement family, up front",
+ b:`<p>Two parties: <b>Central 1 Credit Union (BCCU)</b> — from the legal-entity master, LEI 549300XXHOD8SXSZKY72 — and <b>TD Bank (TDBK)</b>, our entity on the deal. Between them, the <b>ISDA Master</b> (1989) governs all their OTC derivatives, and agreements hang beneath it.</p>
+    <div class="boxlabel">The agreement family — subclasses, from the start</div>
+    <p>\u201cAgreement\u201d is an abstract parent with a family of subclasses — and our own data names them. BCCU\u2019s <b>GENERAL_CSA (1689)</b> is one; regulatory margin adds <b>REG_VM</b> and the <b>REG_IMC / REG_IMP</b> pair; the SFT world brings <b>GMRA</b> (repo) and <b>GMSLA</b> (stock lending); prime brokerage its <b>PBA</b>. Each subclass inherits everything an agreement has — parties, schedules, movements, positions — and each is run by a different stack:</p>
+    <div class="tblwrap"><table class="grid">
+      <tr><th>subclass</th><th>market</th><th>operated by</th></tr>
+      <tr><td>GENERAL_CSA / REG_VM / REG_IMC / REG_IMP</td><td>OTC derivatives margin</td><td>CMOS orchestrates · Colline executes</td></tr>
+      <tr><td>GMRA</td><td>repo</td><td>SFT stack — outside CMOS today</td></tr>
+      <tr><td>GMSLA</td><td>securities lending</td><td>SFT stack — outside CMOS today</td></tr>
+      <tr><td>PBA</td><td>prime brokerage</td><td>Softek (separate legal framework)</td></tr>
+    </table></div>
+    <p>One more real entity our files insist on: the <b>Agreement Group</b> (TDBK_BCCU_GEN) — the umbrella collecting the VM CSA and the reg-IM agreements for one party pair. \u201cCollateral with BCCU\u201d is a question about the group, not any single document.</p>
+    <div class="boxlabel">Relationships, in words</div>
+    <div class="rel">
+      <p><b>CSA → ISDA Master:</b> every CSA supports <b>exactly one</b> ISDA; one ISDA commonly carries a VM CSA plus the reg-IM pair.</p>
+      <p><b>Agreement → parties:</b> between <b>exactly one</b> counterparty and <b>exactly one</b> TD entity. Different pair → different agreement.</p>
+      <p><b>Agreement → Agreement Group:</b> every agreement belongs to <b>exactly one</b> group (TDBK_BCCU_GEN).</p>
+    </div>
+    <div class="boxlabel">Our example so far — straight from TAMS</div>
+    <div class="ledger">ISDA Master   TDBK ↔ BCCU        signed 1989-11-10
+CSA 1689      GENERAL_CSA        group TDBK_BCCU_GEN · base ccy USD · status Amended
+description   TDBK_BCCU_GENERAL_CSA</div>`,
+ show:["n_cpty","n_tde","n_isda","n_csa","e_csa_isda","e_csa_cpty","e_csa_tde"]},
+
+{t:"What the CSA actually says — the two schedules",
+ b:`<p>A CSA isn't one row of data. Its substance is two <i>schedules</i> — lists of entries — and both are literally tables in TAMS today.</p>
+    <div class="boxlabel">Terms on this step</div>
+    <div class="defs"><dl>
+      <dt>Eligibility Entry</dt><dd>One line of the CSA's eligible-collateral schedule. It answers: <i>what</i> asset type may be posted (e.g., US Treasuries with ≤10 years to maturity), <i>by whom</i> (TD, BCCU, or both), and at what <b>haircut</b>. Cash, government bonds, sometimes equities — each gets its own entry. TAMS table: csa_asset_eligibility.</dd>
+      <dt>Haircut</dt><dd>A percentage discount applied to collateral's market value, because the asset's own price can fall while we hold it. A 2% haircut means a bond worth $100 in the market only <i>counts as</i> $98 of protection. Formula: <b>credited value = market value × (1 − haircut)</b>. Cash usually gets 0%; longer/riskier bonds get more.</dd>
+      <dt>Threshold Entry</dt><dd>One line of the CSA's threshold schedule (TAMS: csa_threshold). Three amounts live here:</dd>
+      <dt style="margin-left:16px">Threshold</dt><dd style="margin-left:16px">The amount of exposure each side tolerates <i>uncollateralized</i> — a trust allowance. Collateral is only required for exposure <b>above</b> the threshold. BCCU's threshold here is $75,000: the first $75,000 TD is owed goes unsecured.</dd>
+      <dt style="margin-left:16px">MTA — Minimum Transfer Amount</dt><dd style="margin-left:16px">The smallest transfer either side will actually make — a noise filter so back offices don't wire $12k every day. If the required transfer is below the MTA ($10,000 here), <b>no call happens at all</b>; the shortfall simply waits until it grows past the MTA.</dd>
+      <dt style="margin-left:16px">IA — Independent Amount</dt><dd style="margin-left:16px">An extra cushion posted <i>regardless</i> of current trade value (common for hedge-fund clients). Zero in our example.</dd>
+      <dt>Rating trigger</dt><dd>Threshold entries are conditional on the counterparty's <b>credit rating</b>. The schedule has one row per rating tier: if the counterparty falls through a trigger tier (rating OR NAV — TAMS supports both), its threshold drops — all exposure must then be collateralized. Terms are <i>time-varying by rating</i>, which is why Credit Rating is a class on this board.</dd>
+    </dl></div>
+    <div class="boxlabel">Relationships, in words</div>
+    <div class="rel">
+      <p><b>Eligibility Entry → CSA:</b> each entry belongs to <b>exactly one</b> CSA; a CSA has <b>one or more</b> entries (one per collateral type × posting party).</p>
+      <p><b>Threshold Entry → CSA:</b> each entry belongs to <b>exactly one</b> CSA; a CSA has <b>one or more</b> (one per requirement type × obligated party × rating tier).</p>
+      <p><b>Threshold Entry → Credit Rating:</b> each entry is conditioned on <b>one</b> rating tier; which entry applies today depends on the counterparty's current rating.</p>
+    </div>
+    <div class="boxlabel">Our example so far</div>
+    <div class="ledger">1689 eligibility   Canada Mortgage Bonds (CHT) · valuation 98%   (= haircut 2%)
+1689 eligibility   CAD CASH · valuation 100% · GoC bonds, Ontario provincials …
+1689 thresholds    BCCU Threshold $75,000 · MTA $10,000 · IA $0 · base USD
+note               TAMS stores a VALUATION PERCENTAGE (100 − haircut) — do not double-convert</div>
+    <p>These two classes are your v_csa_collateral_schedule and v_csa_threshold_schedule views, one for one.</p>`,
+ show:["n_cpty","n_tde","n_isda","n_csa","e_csa_isda","e_csa_cpty","e_csa_tde",
+       "n_elig","n_thr","n_rat","e_elig_csa","e_thr_csa","e_thr_rat"]},
+
+{t:"The trading side — netting set and trades",
+ b:`<div class="boxlabel">Terms on this step</div>
+    <div class="defs"><dl>
+      <dt>Netting Set</dt><dd>The pool of trades whose values <b>legally offset</b> if the counterparty defaults, because they sit under the same master agreement. If trade 1 is +$5M in our favour and trade 2 is −$3M against us, our real claim is $2M — <i>inside</i> the set. Across two different counterparties (two different agreements), no such offset exists. The netting set's scope comes straight from the agreement.</dd>
+      <dt>Trade</dt><dd>An individual transaction — BCCU\u2019s FX options and CDS — trade 1424 is an FX option from Murex, booked in a trading system (Calypso, Murex…). "$100M" is the <i>notional</i>, the reference size the payments are computed on; it is not money at risk itself.</dd>
+    </dl></div>
+    <div class="boxlabel">Relationships, in words</div>
+    <div class="rel">
+      <p><b>Netting Set → Agreement:</b> every netting set is defined by <b>exactly one</b> agreement.</p>
+      <p><b>Trade → Netting Set:</b> a trade is a member of <b>at most one</b> netting set ("at most" — a trade with a counterparty that has no master agreement nets with nothing).</p>
+    </div>
+    <div class="boxlabel">Why this matters beyond collateral</div>
+    <p>This one edge is the structural root of a rule you already teach downstream: exposure and PFE are <b>non-additive across counterparties</b>. Offsetting happens only inside a netting set — so you can never add two counterparties' numbers and get anything meaningful.</p>
+    <div class="ledger">NS-1689  defined by CSA 1689 (TDBK ↔ BCCU)
+trades   FX options + CDS under the 1989 ISDA — e.g. trade 1424 (FX option, Murex)
+NOTE     trade 1424 is applicable to THREE agreements at once:
+         1424:REG_VM | 7730:REG_IMC | 7729:REG_IMP — one trade, one VM home,
+         two IM homes. Trade↔Agreement is many-to-many, resolved by margin scope</div>`,
+ show:["n_csa","n_cpty","n_tde","n_isda","e_csa_isda","e_csa_cpty","e_csa_tde",
+       "n_ns","n_trd","e_ns_csa","e_trd_ns"],
+ dim:["n_elig","n_thr","n_rat","e_elig_csa","e_thr_csa","e_thr_rat"]},
+
+{t:"The daily number — Exposure",
+ b:`<div class="boxlabel">Terms on this step</div>
+    <div class="defs"><dl>
+      <dt>MtM — mark-to-market (also NPV)</dt><dd>What a trade is worth <i>today</i> if you valued it at current market prices — the net present value of everything still owed both ways. It moves every day with the market.</dd>
+      <dt>Exposure</dt><dd>The <b>sum of MtM over every trade in the netting set</b>, one number per netting set per as-of-date. Sign convention here: <b>positive = the trades are in TD's favour</b> — if BCCU defaulted right now, BCCU's estate would owe TD this amount. That is precisely the amount TD wants secured by collateral. In our stack the trade-level NPVs come from RCAPS.</dd>
+    </dl></div>
+    <div class="boxlabel">Relationships, in words</div>
+    <div class="rel"><p><b>Exposure → Netting Set:</b> each exposure figure is for <b>exactly one</b> netting set on <b>exactly one</b> as-of-date. New day, new exposure instance.</p></div>
+    <div class="boxlabel">Our example — 8 July 2026</div>
+    <div class="ledger">sum of MtM across the trades in NS-1689 (2 Apr 2026):
+  trades in TD's favour      +$15.46M
+  trades against TD          −$1.345M
+  ──────────────────────────────────────
+  Exposure (net MtM)         <span class="ok">+$14,115,000</span>   TD is owed; TD wants security</div>`,
+ show:["n_csa","n_ns","n_trd","e_ns_csa","e_trd_ns","n_exp","e_exp_ns"],
+ dim:["n_cpty","n_tde","n_isda","e_csa_isda","e_csa_cpty","e_csa_tde","n_elig","n_thr","n_rat","e_elig_csa","e_thr_csa","e_thr_rat"]},
+
+{t:"First event: the Margin Call — every step of the arithmetic",
+ b:`<div class="boxlabel">Terms on this step</div>
+    <div class="defs"><dl>
+      <dt>Margin Call</dt><dd>A formal demand: "based on today's numbers and our CSA, transfer collateral." It is an <b>event</b> with identity and lifecycle — issued, agreed, <i>disputed</i>, settled. CMOS computes it, one per netting set per day.</dd>
+      <dt>VM — Variation Margin</dt><dd>Collateral covering the <i>current</i> value of the trades (today's exposure). Recalculated daily. This call is VM.</dd>
+      <dt>IM — Initial Margin</dt><dd>A separate cushion against <i>potential future</i> moves between a default and closing out the trades. Post-2016 rules require it segregated at a third-party custodian, and it may not be reused. Not in today's example, but the model must hold it.</dd>
+      <dt>Credit Support Amount</dt><dd>The collateral the CSA <i>entitles</i> us to hold: exposure minus threshold, floored at zero.</dd>
+      <dt>Delivery Amount</dt><dd>What must actually move today: entitlement minus what we already hold. Only becomes a call if it clears the MTA.</dd>
+    </dl></div>
+    <div class="boxlabel">The calculation, line by line</div>
+    <div class="ledger">step 1  Exposure today                          E = $14,115,000
+step 2  BCCU's Threshold                        T = $75,000
+        entitlement  = max(0, E − T)
+                     = max(0, 14,115,000 − 75,000) = $14,040,000
+        (the first $75,000 is BCCU's trust allowance — unsecured)
+step 3  collateral already held, credited value C = $0
+step 4  Delivery Amount = entitlement − held    = $14,040,000
+step 5  MTA test: 14,040,000 ≥ 10,000 ?  <span class="ok">yes → a call may be issued</span>
+        (a $9,000 shortfall would wait — below the MTA, no call at all)
+step 6  <span class="ok">CMOS issues margin event 390066 — VM call: $14,040,000 to BCCU</span>
+        status: Margin Request Issued            (this is the dailyexposure row)</div>
+    <div class="boxlabel">Relationships, in words</div>
+    <div class="rel">
+      <p><b>Margin Call → Netting Set:</b> calculated for <b>exactly one</b> netting set on <b>exactly one</b> date.</p>
+      <p><b>Margin Call → Exposure / Position:</b> based on <b>one</b> exposure figure and <b>one</b> position figure — plus the threshold entry that matches the counterparty's <i>current</i> rating.</p>
+    </div>
+    <p>Notice the call's legitimacy is <i>derivable</i>: it exists because the model says it must — every input traceable — not because a row appeared in a table.</p>`,
+ show:["n_csa","n_ns","n_exp","e_exp_ns","e_ns_csa","n_mc","e_mc_ns","e_mc_exp","n_thr","e_thr_csa","n_rat","e_thr_rat"],
+ dim:["n_trd","e_trd_ns","n_cpty","n_tde","n_isda","e_csa_isda","e_csa_cpty","e_csa_tde","n_elig","e_elig_csa"]},
+
+{t:"Second event: the Collateral Movement",
+ b:`<p>BCCU reviews the call — and <b>disputes $450,000 of it</b> (\u201cvaluation dispute on FX portfolio\u201d, event 390066, age 3 days). It agrees the remaining <b>$13,590,000</b> and answers with a bond. The dispute is its own noun — an entity Credit Ops now owns; so is the delivery.</p>
+    <div class="boxlabel">Terms on this step</div>
+    <div class="defs"><dl>
+      <dt>Collateral Movement</dt><dd>One transfer of one asset, in one direction, on one date, under one agreement. The event Colline instructs and tracks. Its identifier is the <b>Colline reference ID</b> (C-88123) — the universal join key downstream systems need.</dd>
+      <dt>Purpose code</dt><dd>Why this movement happened. Four values: <b>VM</b> (answers a variation-margin call), <b>IM</b> (initial margin, to segregation), <b>EXS</b> (return of excess — we held too much and are giving some back), <b>SUB</b> (substitution — swap one asset for another, no call involved). EXS and SUB answer <i>no</i> call — which is why the satisfies relationship below says "at most one."</dd>
+      <dt>Rehypothecation flag</dt><dd>Y/N: may the receiver <i>reuse</i> this collateral (repledge it elsewhere)? Drives liquidity and encumbrance treatment downstream — a rehypothecable bond received is usable inventory; a segregated one is not.</dd>
+      <dt>Asset</dt><dd>The specific security moved, identified by ISIN from the security master. It has its own market value, which changes daily.</dd>
+      <dt>Settlement channel</dt><dd>How it physically moves: securities via Calypso IFI, cash via Loan IQ, segregated IM via a triparty agent (BNY / JPM / Euroclear).</dd>
+    </dl></div>
+    <div class="boxlabel">How much bond must BCCU post? (haircut, applied)</div>
+    <div class="ledger">agreed to cover (credited value needed)     $13,590,000   (call − disputed)
+valuation percentage for CMB on 1689         98%          (haircut 2%)
+market value required = 13,590,000 ÷ 0.98    = $13,867,347
+BCCU posts a round lot:  Canada Mortgage Bond, market value $13,870,000
+credited value = 13,870,000 × 0.98           = <span class="ok">$13,592,600  ≥ 13,590,000 ✓</span></div>
+    <div class="boxlabel">Relationships, in words</div>
+    <div class="rel">
+      <p><b>Movement → Margin Call:</b> satisfies <b>at most one</b> call (zero for EXS/SUB). A call may be satisfied by <b>several</b> movements.</p>
+      <p><b>Movement → Agreement:</b> made under <b>exactly one</b> agreement. Never zero, never two.</p>
+      <p><b>Movement → Asset:</b> references <b>exactly one</b> asset.</p>
+    </div>
+    <div class="ledger">movement  MV-0402 · under CSA 1689 · asset Canada Mortgage Bond (CHT)
+purpose   VM · rehypo N · settles via Calypso IFI · status: instructed
+dispute   $450,000 · Pending Review · age 3 days · owner: Credit Ops</div>`,
+ show:["n_csa","n_mc","n_mv","n_ast","e_mv_mc","e_mv_csa","e_mv_ast","e_mc_ns","n_ns","n_elig","e_elig_csa"],
+ dim:["n_exp","e_exp_ns","e_ns_csa","n_thr","e_thr_csa","n_trd","e_trd_ns","n_cpty","n_tde","n_isda","e_csa_isda","e_csa_cpty","e_csa_tde","n_rat","e_thr_rat"]},
+
+{t:"The derived noun: Collateral Position",
+ b:`<p>One card is drawn dashed on purpose.</p>
+    <div class="boxlabel">Terms on this step</div>
+    <div class="defs"><dl>
+      <dt>Collateral Position</dt><dd>What is currently held, per agreement × asset × as-of-date, in credited (post-haircut) value. The $0 in the call arithmetic was this number.</dd>
+      <dt>Derived — never stored independently</dt><dd>The position is <b>always the sum of settled movements</b>. Nobody keys in "we hold $13.59M from BCCU." If a position figure ever disagrees with the sum of its movements, the position is wrong <i>by definition</i> — there is exactly one way to compute it.</dd>
+    </dl></div>
+    <div class="boxlabel">The arithmetic</div>
+    <div class="ledger">position(1689, before)   = Σ settled movements = $0
+MV-0402 settles           + $13,592,600 credited
+position(1689, after)     = <span class="ok">$13,592,600</span>
+entitlement               = $14,040,000 → shortfall $447,400 ≈ the disputed $450k
+                            <span class="ok">the open dispute IS the remaining gap — visible in the model</span></div>
+    <div class="boxlabel">Relationships, in words</div>
+    <div class="rel">
+      <p><b>Position → Movements:</b> derived from <b>all settled movements</b> under the agreement (dashed edge = derived, not stored).</p>
+      <p><b>Attribution:</b> whose collateral is this? Provable by walking Movement → Agreement → Counterparty. It is never stamped on independently — so it can never silently drift.</p>
+    </div>
+    <p><b>This is where the outcomes are generated — keep your eye on the Movement.</b> It is the only event that changes what we hold: it satisfies the Margin Call, and it alone builds the Position. Everything to its left (agreements, terms, exposure) sets the stage; the Movement is the act. The two teal edges on the board mark that outcome flow.</p>
+     <p>This is the exact analog of the paper's revenue-attribution rule: the connection must be <i>inferable from the graph</i>, not asserted alongside it.</p>`,
+ show:["n_csa","n_mv","n_pos","e_pos_mv","n_mc","e_mc_pos","e_mv_csa","n_ast","e_mv_ast"],
+ dim:["n_ns","e_mc_ns","e_mv_mc","n_exp","e_exp_ns","e_ns_csa","n_thr","e_thr_csa","n_trd","e_trd_ns","n_cpty","n_tde","n_isda","e_csa_isda","e_csa_cpty","e_csa_tde","n_elig","n_rat","e_elig_csa","e_thr_rat"]},
+
+{t:"Axioms I — rules written into the model",
+ b:`<p>An <b>axiom</b> is a rule expressed <i>inside</i> the model itself, so a machine can enforce it on every record, automatically — instead of living in a validation script someone maintains, or in someone's head. Two appear as red stamps on the board.</p>
+    <div class="boxlabel">Axiom 1 — EXACTLY 1 (on Movement → Agreement)</div>
+    <p>Every movement is made under exactly one agreement. Two consequences, both enforced at load: an <b>orphan</b> movement (no agreement) is rejected — no more unclassifiable records flowing downstream; and a movement citing <b>two</b> agreements is rejected — the same $310k bond can never count toward two CSAs. That is the no-double-counting rule, as cardinality.</p>
+    <div class="boxlabel">Axiom 2 — HAIRCUT LIVES HERE (on Eligibility Entry)</div>
+    <p>The haircut is a property of the CSA's eligibility entry — <b>never</b> of the movement. Credited value is always a <i>lookup</i>: find the entry on this movement's agreement matching this asset type and posting party, and apply it. If a feed arrives with a haircut stamped on the movement itself, that's a modelled inconsistency — because stored copies drift when the CSA is renegotiated.</p>
+    <div class="ledger">good   credited = 13,870,000 × (valuation % looked up on 1689: 0.98) = <span class="ok">$13,592,600</span>
+bad    movement MV-0409 arrives citing CSA 1689 <span class="bad">and</span> CSA 7730 (the REG_IMC)
+       → madeUnder cardinality violated → <span class="bad">rejected at load</span>
+bad    movement carries its own valuation % of 95
+       → contradicts 1689's schedule (98) → <span class="bad">flagged as inconsistent</span></div>`,
+ show:["n_csa","n_mv","n_elig","e_mv_csa","e_elig_csa","st_one","st_look","n_ast","e_mv_ast"],
+ dim:["n_pos","e_pos_mv","n_mc","e_mc_pos","e_mv_mc","n_ns","e_mc_ns","n_exp","e_exp_ns","e_ns_csa","n_thr","e_thr_csa","n_trd","e_trd_ns","n_cpty","n_tde","n_isda","e_csa_isda","e_csa_cpty","e_csa_tde","n_rat","e_thr_rat"]},
+
+{t:"Axioms II — your production problems, stated as model rules",
+ b:`<div class="boxlabel">Axiom 3 — PURPOSE MANDATORY (on Movement)</div>
+    <p>Every movement must carry a purpose code (VM / IM / EXS / SUB) and a rehypothecation flag. This is not hypothetical hygiene: today these exact fields <b>drop on the Colline → Calypso message-bus leg</b>, and the liquidity systems (LAMP/CLB) receive movements they cannot classify for encumbrance and regulatory reporting. Under the model, the same record is a <b>load-time inconsistency</b> — caught at the door, not discovered three systems downstream weeks later.</p>
+    <div class="boxlabel">Axiom 4 — THR + MTA + RATING (on Margin Call)</div>
+    <p>A call exists <i>if and only if</i>: <b>max(0, Exposure − Threshold) − Held ≥ MTA</b>, with the threshold resolved against the counterparty's <b>current</b> rating. Watch it work on a downgrade:</p>
+    <div class="ledger">BCCU falls through a trigger tier (rating OR NAV — TAMS supports both) → T = $0
+new entitlement = max(0, 14,115,000 − 0)          = $14,115,000
+held (after MV-0402)                               = $13,592,600
+new Delivery Amount                                = $522,400
+MTA test: 522,400 ≥ 10,000  <span class="ok">→ new VM call — triggered by the tier change alone</span></div>
+    <div class="boxlabel">Axiom 5 — NETS ONLY IN ITS SET (on Trade)</div>
+    <p>A trade offsets only within its own agreement's netting set. "Exposure and PFE are non-additive across counterparties" stops being a footnote analysts must remember and becomes a constraint no query can violate.</p>
+    <div class="ledger">movement MV-0415 arrives: purpose <span class="bad">NULL</span> · rehypo <span class="bad">NULL</span>
+today   → lands in the lake; LAMP/CLB can't classify; investigation opens
+model   → <span class="bad">rejected at load: mandatory properties missing</span> — with the reason attached</div>`,
+ show:["n_mv","n_mc","n_trd","n_ns","n_thr","n_rat","st_mand","st_trig","st_net","e_mv_mc","e_trd_ns","e_thr_rat","e_mc_ns"],
+ dim:["n_csa","n_elig","e_mv_csa","e_elig_csa","st_one","st_look","n_ast","e_mv_ast","n_pos","e_pos_mv","e_mc_pos","n_exp","e_exp_ns","e_ns_csa","e_thr_csa","n_cpty","n_tde","n_isda","e_csa_isda","e_csa_cpty","e_csa_tde"]},
+
+{t:"The whole board — and what deliberately stays out",
+ b:`<p>Everything on. This is the ontology: fourteen nouns, their relationships with cardinality (listed in words in the sidecar), one derived class, five stamped axioms. The two teal edges mark where the outcomes are generated: the Movement satisfies the call and builds the Position — every other card sets the stage for that act. Every card names its system of record — TAMS, CMOS, Colline, Calypso, RCAPS, the security and legal-entity masters — so nothing here is invented; it's what your landscape already knows, written down once, as data.</p>
+    <div class="boxlabel">What is deliberately NOT here — the semantic layer</div>
+    <p>The <i>computed definitions</i> stay out: eligible collateral value, disputed amount, encumbered vs unencumbered, collateral coverage ratio. Those belong to the <b>semantic layer</b> (metric views) sitting on top. The ontology holds what things <i>are</i> and how they <i>relate</i>; the semantic layer holds how numbers are <i>computed</i> from them. Kept separate, you can add a new collateral type to the model without touching a formula, and refine a formula without restructuring the model.</p>
+    <div class="boxlabel">The payoff for an agent</div>
+    <p>Ask "why is BCCU's margin call disputed?" and an agent can answer <i>because the map is data</i>: call → its netting set → its agreement → the threshold and eligibility schedules in force at that rating → the movements and their assets → the credited values. Every hop above is an edge on this board; every number is derivable the way we derived it. That walk is exactly the collateral exception agent from the deck — and it's only possible because the meaning was written down.</p>
+    <div class="boxlabel">Also in the full model — entities your own files insist on</div>
+    <p>The formal model (the PowerDesigner DDL) carries six more entities harvested from the real extracts, kept off this teaching board for clarity: <b>Agreement Group</b> (TDBK_BCCU_GEN), <b>Trade-Agreement Applicability</b> (the many-to-many with margin scope, IM model and jurisdiction — the rule engine\u2019s output), <b>Margin Event</b> (390066 — the spine Exposure, the Call and the Dispute all hang from), <b>Dispute</b>, <b>Settlement Instruction</b> (standing SSIs per agreement × asset type), and <b>Interest Rate Term</b> (interest on cash collateral).</p>`,
+ show:["n_cpty","n_tde","n_isda","n_csa","n_elig","n_thr","n_rat","n_ns","n_trd","n_exp","n_mc","n_mv","n_ast","n_pos",
+       "e_csa_isda","e_csa_cpty","e_csa_tde","e_elig_csa","e_thr_csa","e_thr_rat","e_ns_csa","e_trd_ns","e_exp_ns",
+       "e_mc_ns","e_mc_exp","e_mc_pos","e_mv_mc","e_mv_csa","e_mv_ast","e_pos_mv",
+       "st_one","st_look","st_mand","st_trig","st_net"]},
+
+/* ================= PART TWO — FROM ONTOLOGY TO THE MACHINE ================= */
+
+{t:"The OBT — what the physical layer actually looks like", noBoard:true,
+ b:`<p>Now the layer the paper never shows: the physical table. Risk applications don't store the graph — they flatten it. Here is the gold table on TDVIP, one big table (OBT), as engineering would genuinely build it for performance:</p>
+    <div class="boxlabel">You already produce OBTs — your extracts ARE them</div>
+    <p>The CMOS extract files are exactly this shape. <b>dailyexposure_cmos</b>: one row per margin event, carrying the exposure, the call, its status — AND copies of the schedule (Base Threshold and Base Min Transfer columns are ThresholdEntry values, denormalized in). <b>trades_cmos</b>: one row per trade, with the many-to-many packed into a string — <span style="font-family:Consolas">Applicable Agreements = 1424:REG_VM|7730:REG_IMC|7729:REG_IMP</span> — three relationships hiding in one column. <b>agreements_cmos</b>: agreement + parties + every schedule flattened into one enormous row. Each is an OBT; each will MAP to the model, not be replaced by it.</p>
+    <p><b>creditrisk.collateral.positions_gold</b> — one row per <i>movement × as-of-date</i>:</p>
+    <div class="tblwrap"><table class="grid">
+      <tr><th>as_of_date</th><th>cpty_id</th><th>cpty_name</th><th>agr_id</th><th>agr_type</th><th>ns_id</th><th>colline_ref</th><th>purpose</th><th>rehypo</th><th>isin</th><th>mkt_value</th><th>haircut</th><th>credited_val</th><th>thresh_amt</th><th>exposure_mtm</th><th>call_amt</th><th>call_status</th></tr>
+      <tr><td>2026-07-09</td><td>BCCU</td><td>Central 1 Credit Union</td><td>A-4471</td><td>CSA</td><td>NS-77</td><td>C-88123</td><td>VM</td><td>Y</td><td>US912828XG</td><td>310,000</td><td class="warn">0.02</td><td class="dv">303,800</td><td class="warn">1,000,000</td><td class="warn">3,200,000</td><td>300,000</td><td>SETTLED</td></tr>
+      <tr><td>2026-07-09</td><td>BCCU</td><td>Central 1 Credit Union</td><td>R-7720</td><td>GMRA</td><td>—</td><td>C-90455</td><td>VM</td><td>Y</td><td>US91282CJK</td><td>4,183,700</td><td class="warn">0.02</td><td class="dv">4,100,026</td><td class="warn">0</td><td class="warn">4,050,000</td><td>0</td><td>—</td></tr>
+      <tr><td>2026-07-09</td><td>BCCU</td><td>Central 1 Credit Union</td><td>L-3310</td><td>GMSLA</td><td>—</td><td>C-90887</td><td>VM</td><td>N</td><td>CASH-USD</td><td>800,000</td><td class="warn">0.00</td><td class="dv">800,000</td><td class="warn">0</td><td class="warn">790,000</td><td>0</td><td>—</td></tr>
+    </table></div>
+    <div class="boxlabel">Read the colors — three things hiding in this table</div>
+    <div class="defs"><dl>
+      <dt>Entities are flattened, not gone</dt><dd>Each row carries pieces of <b>seven</b> classes at once: Movement (colline_ref, purpose, rehypo) · Asset (isin, mkt_value) · Agreement (agr_id, agr_type) · Netting Set (ns_id) · Counterparty (cpty_id, cpty_name) · Threshold Entry (thresh_amt) · Exposure and Margin Call. The model didn't disappear — it went implicit.</dd>
+      <dt>Red = copies of another entity's truth</dt><dd>haircut, thresh_amt, exposure_mtm are <b>denormalized copies</b>. The haircut's real home is the CSA's eligibility entry in TAMS; exposure's grain is the <i>netting set</i>, repeated here on every movement row. Copies are fine for speed — dangerous when nobody wrote down that they ARE copies.</dd>
+      <dt>Italic = derived, materialized</dt><dd>credited_val is Axiom 2's formula, precomputed: mkt_value × (1 − haircut). Legitimate — <i>as long as it's declared as a derivation, so it can be revalidated</i>.</dd>
+    </dl></div>
+    <p>One more trap, visible in the red exposure column: exposure_mtm repeats on every row of the same netting set. <b>SUM(exposure_mtm) over movements is nonsense</b> — you'd count NS-77's $3.2M once per movement. Grain mistakes are exactly how OBTs mislead. Remember this for two steps' time.</p>`,
+ show:[]},
+
+{t:"The mapping — where OBT meets ontology", noBoard:true,
+ b:`<p>The mapping is the missing artifact in most shops: a declaration of <b>which ontology element every column implements</b>, plus the table's grain. It is short, and it changes everything — because once it exists, the OBT is a documented <i>projection</i> of the model instead of the place where meaning hides.</p>
+    <div class="tblwrap"><table class="grid">
+      <tr><th>column</th><th>ontology element</th><th>role</th></tr>
+      <tr><td>colline_ref, purpose, rehypo</td><td>CollateralMovement .id / .purpose / .rehypothecable</td><td>native — this table's grain entity</td></tr>
+      <tr><td>isin, mkt_value</td><td>Asset · AssetValuation.value</td><td>reference + daily value</td></tr>
+      <tr><td>agr_id, agr_type</td><td>Agreement (subclass discriminator: CSA/PBA/GMRA/GMSLA)</td><td>the madeUnder edge, flattened</td></tr>
+      <tr><td>ns_id</td><td>NettingSet</td><td>edge, flattened (null for SFT)</td></tr>
+      <tr><td>cpty_id / cpty_name</td><td>Counterparty (via Agreement)</td><td>id = edge · name = <b>copy</b> of master</td></tr>
+      <tr><td class="warn">haircut</td><td>EligibilityEntry.haircut</td><td class="warn">COPY — SoR is TAMS; reconcile nightly (Axiom 2)</td></tr>
+      <tr><td class="warn">thresh_amt</td><td>ThresholdEntry.threshold @ current rating</td><td class="warn">COPY — SoR is TAMS</td></tr>
+      <tr><td class="warn">exposure_mtm</td><td>Exposure.netMtM</td><td class="warn">COPY at coarser grain (netting set) — never SUM over movements</td></tr>
+      <tr><td class="dv">credited_val</td><td>derived: mkt_value × (1 − EligibilityEntry.haircut)</td><td class="dv">materialized derivation — revalidatable</td></tr>
+      <tr><td>call_amt, call_status</td><td>MarginCall.amount / .status</td><td>event attributes</td></tr>
+    </table></div>
+    <div class="boxlabel">And the same mapping, per real extract file</div>
+    <div class="tblwrap"><table class="grid">
+      <tr><th>extract (the OBT)</th><th>grain</th><th>entities it carries</th><th>watch for</th></tr>
+      <tr><td>agreements_cmos</td><td>agreement</td><td>Agreement · Group · Parties · Threshold + IM schedules · eligibility (packed)</td><td>schedules flattened into ~60 columns; ratings packed in one string</td></tr>
+      <tr><td>dailyexposure_cmos</td><td>margin event</td><td>MarginEvent · Exposure · MarginCall (+ schedule COPIES)</td><td class="warn">Base Threshold / Min Transfer are copies of TAMS terms</td></tr>
+      <tr><td>disputes_cmos</td><td>dispute</td><td>Dispute → MarginEvent (event id)</td><td>joins to exposure only via Event Id</td></tr>
+      <tr><td>trades_cmos / repo_trades</td><td>trade</td><td>Trade · Applicability (packed)</td><td class="warn">Applicable Agreements = M:N in a string — unpack to the associative entity</td></tr>
+      <tr><td>settlementinstructions</td><td>agreement × asset × type</td><td>SettlementInstruction · Custodians</td><td>two custodian chains per row (ours + theirs)</td></tr>
+    </table></div>
+    <div class="boxlabel">Plus two one-line declarations</div>
+    <div class="ledger">GRAIN     one row = CollateralMovement × as-of-date
+COVERAGE  CSA ✓ (CMOS/Colline)   GMRA ✓, GMSLA ✓ (SFT feed, T+1)   PBA ✗ — Softek not landed yet</div>
+    <p>Note what the coverage line buys you: the model now <i>knows what it doesn't contain</i>. An honest gap beats a silent one — you'll see why in the query step.</p>`,
+ show:[]},
+
+{t:"Conformance \u2014 five systems, one entity", noBoard:true,
+ b:`<p>The last step mapped ONE table to the model. Conformance is what happens when several applications each have their own table touching the SAME business thing. Watch one counterparty appear five ways:</p>
+    <div class="tblwrap"><table class="grid">
+      <tr><th>system</th><th>its table</th><th>its column</th><th>its value for the same party</th></tr>
+      <tr><td>CMOS (margin)</td><td>cmos.positions_gold</td><td>cpty_code</td><td>CENTRAL 1 CU:BCCU</td></tr>
+      <tr><td>XVALA (PFE)</td><td>xvala.exposure_gold</td><td>counterparty_id</td><td>BCCU</td></tr>
+      <tr><td>TAMS (agreements)</td><td>tams.agreement</td><td>party_le_id</td><td>LE-8842</td></tr>
+      <tr><td>SFT (repo / lending)</td><td>sft_core.positions</td><td>cpty</td><td>CENTRAL1</td></tr>
+      <tr><td>Softek (prime)</td><td>(not landed)</td><td>client_no</td><td>10447</td></tr>
+    </table></div>
+    <p>All five are <b>Central 1 Credit Union</b>. Today, every consumer discovers that the hard way \u2014 writing its own five-way join, with its own guesses. <b>Conformance is nothing more than declaring it once:</b></p>
+    <div class="ledger">conformed entity   Counterparty BCCU   (golden record \u2014 client master, enterprise reference data)
+cmos.positions_gold    cpty_code       \u2192 Counterparty  via client-master cross-reference
+xvala.exposure_gold    counterparty_id \u2192 Counterparty  (already the conformed id)
+tams.agreement         party_le_id     \u2192 Counterparty  via legal-entity map
+sft_core.positions     cpty            \u2192 Counterparty  via client-master cross-reference</div>
+    <p><b>The model is where conformance lives.</b> The application tables never change \u2014 each app declares its mapping once (its contract_entity, its key, the cross-reference that resolves it), and the shared entity does the joining for everyone. Shared entities like Counterparty come from central reference data (the enterprise CDM); Risk adds the entities it alone owns (netting set, CSA schedules) \u2014 the Risk conformed model is a superset of the central one.</p>
+    <div class="boxlabel">You have run this pattern before</div>
+    <p>This is exactly what the Strategy (MicroStrategy) semantic layer does: it sees flat tables, and you declare Attributes and their relationships over them \u2014 the tool keeps its own model of what the columns mean. Same act here, with two upgrades: the model is <b>firm-scope instead of tool-scope</b> (readable by dashboards, SQL, Genie and agents alike, not only by one BI tool), and the conformed entities are <b>shared across applications</b> instead of rebuilt per project.</p>`,
+ show:[]},
+
+{t:"Unity Catalog steps in — the declarations, line by line", noBoard:true,
+ b:`<p>Everything from the last step is expressible in Unity Catalog today — no new product. Three artifacts:</p>
+    <div class="boxlabel">1 · Comments and keys on the table (the ontology fragment)</div>
+    <div class="code">COMMENT ON TABLE positions_gold IS
+  'One row per collateral movement per as-of-date. Grain entity:
+   CollateralMovement. haircut/thresh_amt are COPIES of TAMS terms
+   (reconciled nightly). exposure_mtm is netting-set grain, repeated.
+   Coverage: CSA, GMRA, GMSLA. PBA (Softek) not landed.';
+
+ALTER TABLE positions_gold ADD CONSTRAINT pk_pos
+  PRIMARY KEY (colline_ref, as_of_date);
+ALTER TABLE positions_gold ADD CONSTRAINT fk_agr
+  FOREIGN KEY (agr_id) REFERENCES tams.agreement(agr_id);
+ALTER TABLE positions_gold ADD CONSTRAINT chk_purpose
+  CHECK (purpose IN ('VM','IM','EXS','SUB'));   -- Axiom 3, enforced</div>
+    <p>The PK/FK are informational (declared relationships an agent can read); the CHECK constraint is <b>enforced</b> — Axiom 3 physically rejecting the NULL-purpose record at the door.</p>
+    <div class="boxlabel">2 · The metric view (the semantic layer)</div>
+    <div class="code">version: 1.1
+source: creditrisk.collateral.positions_gold
+dimensions:
+  - name: counterparty      expr: cpty_name
+    synonyms: [client, cpty, "counter party"]
+  - name: agreement_type    expr: agr_type
+    synonyms: [market, product line, agreement kind]
+measures:
+  - name: eligible_collateral_value
+    expr: SUM(mkt_value * (1 - haircut))        # Axiom 2, one place
+    synonyms: [collateral held, credited collateral]
+  - name: disputed_amount
+    expr: SUM(CASE WHEN call_status='DISPUTED' THEN call_amt END)
+  - name: exposure
+    expr: SUM(DISTINCT_BY(exposure_mtm, ns_id)) # netting-set grain guard</div>
+    <p>Read the last measure: the grain trap from the OBT step is <b>solved in one governed place</b>. Nobody who queries through this view can double-count exposure, because the view knows exposure's grain. That is "grain enforced by the engine."</p>
+    <div class="boxlabel">3 · Exposure to agents</div>
+    <div class="code">-- Genie space grounded on the metric view (synonyms above feed it)
+-- Managed MCP server publishes:  genie.collateral, uc.functions
+-- Unity Catalog permissions apply to the agent identically to a human</div>`,
+ show:[]},
+
+{t:"The question, end to end — AI path down, answer path up", noBoard:true,
+ b:`<p>Head of credit asks, in plain English, through the assistant:</p>
+    <div class="ledger"><b>"How much eligible collateral do we hold from Central 1 Credit Union,
+ by agreement type — and is anything in dispute?"</b></div>
+    <div class="boxlabel">The path down (each hop is a layer from Part One)</div>
+    <div class="defs"><dl>
+      <dt>1 · MCP</dt><dd>The assistant (an MCP client) calls the governed Genie tool on the managed MCP server. Authenticated as the user; UC permissions checked; call logged.</dd>
+      <dt>2 · Entity resolution</dt><dd>"Central 1 Credit Union" → counterparty dimension → BCCU (the golden record — one BCCU, however the user typed it).</dd>
+      <dt>3 · Semantic layer</dt><dd>"eligible collateral" and "in dispute" resolve to the governed measures — <i>not</i> to the agent's own guess at a formula. "By agreement type" resolves to the declared dimension.</dd>
+      <dt>4 · Compilation</dt><dd>Genie emits SQL against the metric view:</dd>
+    </dl></div>
+    <div class="code">SELECT agreement_type,
+       MEASURE(eligible_collateral_value)  AS collateral,
+       MEASURE(disputed_amount)            AS disputed
+FROM   creditrisk.collateral.positions_mv
+WHERE  counterparty = 'Central 1 Credit Union'
+GROUP  BY agreement_type;</div>
+    <div class="defs"><dl>
+      <dt>5 · Execution</dt><dd>The engine expands the measures and runs <b>one scan of the pre-joined OBT</b>. No fifteen-way join at query time — the OBT <i>is</i> the materialized traversal of the graph, built once in the pipeline. This is where your performance concern is answered: declare in the logical layer, materialize the hot path in the physical one.</dd>
+    </dl></div>
+    <div class="boxlabel">The answer path up — with provenance</div>
+    <div class="ledger">Central 1 Credit Union · eligible collateral · 2026-07-09
+  CSA    (OTC margin)      $  303,800     1 disputed call: $300,000 → C-88123 under review
+  GMRA   (repo)            $4,100,026     —
+  GMSLA  (stock loan)      $  800,000     —
+  ─────────────────────────────────────
+  total landed             <span class="ok">$5,203,826</span>
+  <span class="bad">coverage note: PBA (prime, Softek) not on platform — excluded, not zero</span>
+source: positions_mv v1.1 · measures eligible_collateral_value, disputed_amount · as-of 2026-07-09</div>
+    <p>Two things to savor. The cross-market total exists <b>only because the subclasses share one parent</b> — no source system could produce it. And the PBA line: because coverage was declared in the mapping, the agent reports the gap <i>honestly</i> instead of returning a silently wrong total. That single line is the difference between an answer you can take to a regulator and one you can't.</p>`,
+ show:[]},
+
+{t:"Who does what \u2014 the declarations, Genie, and the layer above Genie", noBoard:true,
+ b:`<p>Three tiers, and it matters who owns which. Nothing in this stack \u201cstitches by itself\u201d \u2014 conformance is authored once, Genie executes it within a product, agents compose it across products.</p>
+    <div class="boxlabel">Tier 1 \u2014 the declarations (authored: engineers + data team)</div>
+    <div class="ledger">Unity Catalog   comments \u00b7 keys \u00b7 tags (contract_entity, grain) \u00b7 CHECK constraints
+Model tables    entity \u00b7 relationship \u00b7 table-mapping   (the conformance from the last step)
+Metric view     the measures, defined once:
+  dimensions:  counterparty (synonyms: client, cpty) \u00b7 agreement_type (synonyms: market)
+  measures:    eligible_collateral_value = SUM(mkt_value * (1 - haircut))
+               disputed_amount = SUM(CASE WHEN call_status='DISPUTED' THEN call_amt END)</div>
+    <div class="boxlabel">Tier 2 \u2014 Genie (executes, within one product)</div>
+    <p><b>What Genie does:</b> grounded on the curated space (the metric view, the comments, the synonyms, sample queries), it turns a plain-English question into SQL and runs it \u2014 measures resolved from the metric view, not guessed; permissions enforced by the catalog. Ask <i>\u201celigible collateral from BCCU by agreement type\u201d</i> and it compiles the MEASURE query from the earlier step and scans the pre-joined table once.</p>
+    <p><b>What Genie does NOT do:</b> it will not discover that CENTRAL 1 CU:BCCU and BCCU are the same party, will not invent a cross-application join it was never told about, and will not choose among overlapping tables from different apps. Those are Tier-1 facts. If the declaration is missing, Genie does not fill the gap \u2014 it inherits it.</p>
+    <div class="boxlabel">Tier 3 \u2014 the agent, above Genie (composes, across products)</div>
+    <p>Ask <i>\u201cwhy is BCCU\u2019s margin call disputed?\u201d</i> and no single space can answer \u2014 the evidence spans products. The agent (an MCP client) orchestrates governed tools: resolve BCCU via the client master \u2192 ask the model which entities connect a call to its evidence \u2192 query the collateral Genie space for positions \u2192 the terms product for the CSA schedules \u2192 the movements product for what settled \u2192 assemble the break analysis \u2192 route to Credit Ops to approve. Every call logged, every definition versioned.</p>
+    <div class="boxlabel">When a source is not landed</div>
+    <p>Softek (prime) is not on the platform \u2014 so what happens to \u201ctotal collateral\u201d? Three honest options: <b>report the gap</b> (today \u2014 the coverage line makes it explicit); <b>federate at query time</b> \u2014 a query engine reads the remote system live (Lakehouse Federation in the Databricks world; a virtual graph engine like Stardog in the graph world) \u2014 fine for low-volume investigation, slow for heavy analytics; or <b>land the data</b> \u2014 the strategic answer, and Decision 4 of the briefing deck. Federation is a bridge, not a destination.</p>`,
+ show:[]},
+
+{t:"Two ways to run the same meaning — UC-native vs an ontology tool", noBoard:true,
+ b:`<p>Last step: the same model, run two ways. This is the comparison for the white-paper author — concepts identical, machinery different.</p>
+    <div class="tblwrap"><table class="cmp">
+      <tr><th style="width:24%"></th><th>Unity Catalog–native (what you just walked)</th><th>Dedicated ontology tool (formal OWL / Foundry-style)</th></tr>
+      <tr><td><b>Where the model lives</b></td><td>Distributed declarations: comments, PK/FK, contracts, metric-view YAML — stitched by convention</td><td>One explicit graph: classes, properties, axioms in a triplestore / object layer</td></tr>
+      <tr><td><b>Relationships</b></td><td>Declared (informational PK/FK, metric-view joins); readable by agents, not enforced</td><td>First-class edges; cardinality is part of the model itself</td></tr>
+      <tr><td><b>Axiom enforcement</b></td><td>Procedural: CHECK constraints, pipeline expectations, nightly reconciliations — each rule hand-built</td><td>Logical: a reasoner rejects inconsistent data as a consequence of the model</td></tr>
+      <tr><td><b>Cross-domain traversal</b></td><td>Agent stitches views; works within declared scopes (Genie space limits apply)</td><td>Native — "what paths exist from Movement to Counterparty across all domains" is one query</td></tr>
+      <tr><td><b>Query performance</b></td><td>Compiled SQL over materialized OBTs — fast by construction</td><td>Graph traversal is slow at scale; serious deployments <i>also</i> materialize hot paths — same trick, same OBT underneath</td></tr>
+      <tr><td><b>Skills & cost</b></td><td>SQL + YAML your teams already have; platform already owned</td><td>Ontologists, OWL/SPARQL, a new product, a new operating burden</td></tr>
+      <tr><td><b>Right scope</b></td><td><b>Level 1 everywhere</b> — every app, every product, now</td><td><b>Level 2 for the few seams that earn it</b> — cross-market collateral integrity, attribution proofs</td></tr>
+    </table></div>
+    <div class="boxlabel">The honest bottom line</div>
+    <p>Both stacks end at the same physical answer: a materialized, pre-joined table serving a compiled query. <b>The difference is not how queries run fast — it's where meaning is authored, and what checks it.</b> UC-native authors meaning in declarations your engineers already know and checks it procedurally; the ontology tool authors it in one formal graph and checks it logically. Start with the first everywhere; graduate a fragment to the second only where a wrong answer is expensive enough to pay for a reasoner — which, in this walkthrough, is exactly the cross-agreement collateral seam you just queried.</p>`,
+ show:[]},
+
+{t:"One model, three pictures \u2014 diagrams generated, never stale", noBoard:true,
+ b:`<p>A model people cannot SEE is a model people will not use \u2014 a picture is worth a thousand declarations. The discipline is only about direction: the model lives as data (the declarations made all along this walkthrough), and the diagrams are <b>rendered from it</b> \u2014 always current, one per audience. Nobody draws; everybody sees.</p>
+    <div class="views">
+      <div class="vw"><div class="aud">For the engineer</div><h4>The ER view of my schema</h4>
+        <div class="mini">positions_gold
+ PK colline_ref + as_of_date
+ FK agreement_id \u2500\u2500\u25ba tams.agreement
+ FK isin        \u2500\u2500\u25ba secmaster.asset
+ CHECK purpose IN (VM,IM,EXS,SUB)</div>
+        <p>Generated from the keys, constraints and comments declared at CREATE TABLE. Filling in the metadata visibly <i>produces</i> your diagram \u2014 the reward for the work.</p></div>
+      <div class="vw"><div class="aud">For the business</div><h4>The concept map</h4>
+        <div class="mini">Counterparty \u2500 signs \u2500\u25ba Agreement
+Agreement \u2500 sets terms for \u2500\u25ba Margin Call
+Margin Call \u25c4\u2500 answered by \u2500 Movement
+Movement \u2500 builds \u2500\u25ba Position   \u2190 outcome</div>
+        <p>Entities and plain verbs \u2014 no tables, no keys. The Part One board, rendered for people who never write SQL.</p></div>
+      <div class="vw"><div class="aud">For the data team</div><h4>The mapping &amp; coverage view</h4>
+        <div class="mini">MODEL    Agreement    Movement     Position
+            \u2502            \u2502            \u2502
+TABLES   tams.agr \u2500 positions_gold \u2500 (derived)</div>
+        <p>Model above, physical tables below, lines showing which table implements which entity \u2014 and the gaps drawn, not hidden: <span class="gapchip">PBA / prime \u2014 not landed</span></p></div>
+    </div>
+    <div class="boxlabel">The rule that makes people trust it</div>
+    <p><b>\u201cIf it is not in the diagram, it is not in the model.\u201d</b> True by construction, because the diagrams are regenerated from the model tables \u2014 the picture cannot drift from the truth, which is what hand-drawn diagrams could never promise.</p>`,
+ show:[]},
+];
+
+const NODE_NAME={n_cpty:"Counterparty",n_tde:"TD Entity",n_isda:"ISDA Master",n_csa:"CSA",
+ n_elig:"Eligibility Entry",n_thr:"Threshold Entry",n_rat:"Credit Rating",n_ns:"Netting Set",
+ n_trd:"Trade",n_exp:"Exposure",n_mc:"Margin Call",n_mv:"Collateral Movement",n_ast:"Asset",n_pos:"Collateral Position"};
+const EDGE_TXT={
+ e_csa_isda:"A <b>CSA supports exactly one ISDA Master</b>; one ISDA Master may have several CSAs.",
+ e_csa_cpty:"An <b>agreement is between exactly one Counterparty</b>\u2026",
+ e_csa_tde:"\u2026<b>and exactly one TD Entity</b>. A different pair means a different agreement.",
+ e_elig_csa:"Each <b>Eligibility Entry belongs to exactly one CSA</b>; a CSA has one or more (one per collateral type \u00d7 posting party).",
+ e_thr_csa:"Each <b>Threshold Entry belongs to exactly one CSA</b>; one per requirement type \u00d7 party \u00d7 rating tier.",
+ e_thr_rat:"Threshold terms are <b>conditioned on the current Credit Rating</b>.",
+ e_ns_csa:"A <b>Netting Set is defined by exactly one Agreement</b>.",
+ e_trd_ns:"A <b>Trade is a member of at most one Netting Set</b> (none if no master agreement exists).",
+ e_exp_ns:"<b>Exposure is computed for exactly one Netting Set</b>, per as-of-date.",
+ e_mc_ns:"A <b>Margin Call is calculated for exactly one Netting Set</b> on one date.",
+ e_mc_exp:"\u2026based on that day\u2019s <b>Exposure</b>\u2026",
+ e_mc_pos:"\u2026and the <b>Collateral Position already held</b>.",
+ e_mv_mc:"OUTCOME \u2014 the <b>Movement satisfies at most one Margin Call</b> (none for EXS/SUB); one call may take several movements.",
+ e_mv_csa:"A <b>Movement is made under exactly one Agreement</b> \u2014 never zero, never two.",
+ e_mv_ast:"A <b>Movement references exactly one Asset</b>.",
+ e_pos_mv:"OUTCOME \u2014 the <b>Position is derived from settled Movements</b>; never stored independently. The Movement alone builds what we hold."};
+let i = 0;
+const all = document.querySelectorAll('.node,.edge,.stamp');
+const pStep = document.getElementById('pStep'),
+      pTitle = document.getElementById('pTitle'),
+      pBody = document.getElementById('pBody'),
+      prev = document.getElementById('prev'),
+      next = document.getElementById('next'),
+      dots = document.getElementById('dots');
+
+steps.forEach(()=>{ dots.appendChild(document.createElement('i')); });
+
+function render(){
+  const s = steps[i];
+  all.forEach(el=>el.classList.remove('on','dim'));
+  (s.show||[]).forEach(id=>{const el=document.getElementById(id); if(el) el.classList.add('on');});
+  (s.dim||[]).forEach(id=>{const el=document.getElementById(id); if(el) el.classList.add('dim');});
+  pStep.textContent = 'Step ' + (i+1) + ' of ' + steps.length;
+  pTitle.textContent = s.t;
+  pBody.innerHTML = s.b;
+  document.querySelector('.board').style.display = s.noBoard ? 'none' : '';
+  prev.disabled = (i===0);
+  next.disabled = (i===steps.length-1);
+  next.textContent = (i===steps.length-1) ? 'Done' : 'Next →';
+  const ents=document.getElementById('scEnts'), rels=document.getElementById('scRels');
+  if(ents&&rels){
+    ents.innerHTML=''; rels.innerHTML='';
+    (s.show||[]).forEach(id=>{
+      if(NODE_NAME[id]){const sp=document.createElement('span');sp.textContent=NODE_NAME[id];ents.appendChild(sp);}
+    });
+    (s.show||[]).forEach(id=>{
+      if(EDGE_TXT[id]){const li=document.createElement('li');
+        if(EDGE_TXT[id].indexOf('OUTCOME')===0) li.className='oc';
+        li.innerHTML=EDGE_TXT[id]; rels.appendChild(li);}
+    });
+    if(!rels.children.length){const li=document.createElement('li');li.innerHTML='<i>No relationships on the board yet \u2014 they appear as the model builds.</i>';rels.appendChild(li);}
+  }
+  dots.querySelectorAll('i').forEach((d,k)=>d.classList.toggle('cur',k===i));
+  window.scrollTo({top:0,behavior:'instant'});
+}
+prev.onclick = ()=>{ if(i>0){i--; render();} };
+next.onclick = ()=>{ if(i<steps.length-1){i++; render();} };
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight') next.click();
+  if(e.key==='ArrowLeft') prev.click();
+});
+render();
+</script>
+</body>
+</html>
