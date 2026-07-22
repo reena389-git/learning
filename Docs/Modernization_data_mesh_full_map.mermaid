@@ -1,0 +1,51 @@
+flowchart TB
+
+%% ==================================================================
+%% THE FULL MAP — two planes, the mesh, the aggregate, and Risk's place
+%% Solid = exists today · Dashed = target-state move
+%% ==================================================================
+
+subgraph OP["OPERATIONAL PLANE — runs the business (unchanged)"]
+  direction LR
+  OT1["TMS 1"] & OT2["TMS 2"] & OT3["… TMS 15"]
+  ORA["Risk applications<br/>(calculators — outside Databricks)"]
+  OT1 & OT2 & OT3 -->|"services: small, transactional,<br/>request-response — the RIGHT tool here"| ORA
+  ORA -->|"services / CSV to downstream<br/>(continues in parallel)"| ODS["Downstream systems"]
+end
+
+subgraph AP["ANALYTICAL PLANE — Databricks (bulk, temporal, aggregated)"]
+  direction TB
+
+  subgraph SRC_ALIGNED["SOURCE-ALIGNED DOMAIN PRODUCTS (mesh principle 1: domain ownership)"]
+    direction LR
+    P1["TMS 1 product"] & P2["TMS 2 product"] & P3["… TMS 15 product"]
+  end
+
+  AGG["THE AGGREGATE PRODUCT — 'trades', conformed<br/>= what the hub called 'the CDM'<br/>Same consolidation work, mesh vocabulary:<br/>central team re-scoped as the aggregate's DOMAIN OWNER<br/>+ shared reference products (counterparty, instrument)"]
+
+  RB["RISK CONSUMER-ALIGNED BOUNDARY<br/>Risk-conformed entities (SUPERSET of the aggregate)<br/>· thin UC views where 1:1 with CDM (read-in-place, no copy)<br/>· real products where Risk merges non-CDM sources / enriches<br/>· ONE Risk↔CDM alignment artifact"]
+
+  subgraph RP["RISK PIPELINE (risk schemas)"]
+    RBz["bronze: app outputs as-is"] --> RSv["silver: typed"] --> RCf["Risk-conformed<br/>(Path B mappings)"] --> RG["GOLD — born conformed"]
+  end
+
+  BIZ["Business — cross-domain joins, BI, Genie, agents"]
+
+  P1 & P2 & P3 --> AGG
+  AGG --> RB
+  RB -->|"conformed reference for gold joins<br/>(read-in-place)"| RG
+  RG --> BIZ
+end
+
+%% ---------------- plane crossings ----------------
+OT1 & OT2 & OT3 -->|"land (ETL / streams)"| P1 & P2 & P3
+ORA -->|"outputs land (today)"| RBz
+RB -.->|"PATH A (target): apps consume EOD INPUTS here —<br/>BATCH, storage-level, read-in-place.<br/>Replaces the timing-out bulk service calls"| ORA
+
+NOTE["THE PLANE RULE (Dehghani's founding premise):
+services integrate the OPERATIONAL plane — small, transactional, per-request.
+The ANALYTICAL plane is consumed in BULK from storage-level output ports.
+An EOD process pulling large data through a request-response service
+is an operational port misused for analytical consumption — the timeout
+is the architecture telling you which plane you are really in."]
+AP --- NOTE

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Conformance, Planes & Products — a walkthrough</title>
+<style>
+  :root{
+    --ink:#1c2830; --paper:#fbf9f4; --grey:#6b7670; --line:#d8d2c4;
+    --op:#2e4a66; --opbg:#e9eef4;          /* operational plane */
+    --ap:#1f7a47; --apbg:#e9f3ec;          /* analytical plane */
+    --gold:#8a6a2f; --goldbg:#f4eddd;      /* products / legal-gold */
+    --warn:#9c6b16; --warnbg:#f6efe0;      /* cautions */
+    --hot:#216a5e;
+  }
+  *{box-sizing:border-box} body{margin:0;font:15px/1.55 Georgia,serif;color:var(--ink);background:var(--paper)}
+  header{padding:26px 34px 10px}
+  header .eyebrow{font:700 11px/1 Consolas,monospace;letter-spacing:2px;color:var(--ap)}
+  header h1{margin:6px 0 2px;font-size:26px}
+  header p{margin:0;color:var(--grey);font-style:italic}
+  .wrap{display:grid;grid-template-columns:1fr 340px;gap:0;align-items:start}
+  .stage{padding:8px 10px 30px 34px}
+  svg{width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:8px}
+  .panel{padding:14px 18px;margin:14px 0 0;background:#fff;border:1px solid var(--line);border-radius:8px}
+  .panel h2{margin:0 0 8px;font-size:19px}
+  .panel p{margin:8px 0}
+  .panel b{color:#123}
+  .boxlabel{font:700 10.5px/1 Consolas,monospace;letter-spacing:1.5px;color:var(--ap);margin:14px 0 6px}
+  .terms{background:#f6f9f6;border:1px solid #cfe0d3;border-radius:6px;padding:10px 14px;font-size:13.5px}
+  .terms dt{font-weight:700;margin-top:7px}
+  .terms dd{margin:1px 0 0 0}
+  .quote{background:var(--apbg);border-left:4px solid var(--ap);padding:10px 14px;font-style:italic}
+  .warnbox{background:var(--warnbg);border-left:4px solid var(--warn);padding:8px 12px}
+  .ledger{font:12.5px/1.6 Consolas,monospace;background:#20282e;color:#e8e4d8;border-radius:6px;padding:10px 14px;white-space:pre-wrap}
+  .grid{border-collapse:collapse;font-size:13px;margin:6px 0}
+  .grid th,.grid td{border:1px solid var(--line);padding:5px 9px;text-align:left;vertical-align:top}
+  .grid th{background:#eef2ee}
+  aside{position:sticky;top:0;padding:16px 22px 30px 6px}
+  aside .card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin-bottom:12px}
+  aside h3{margin:0 0 8px;font:700 11px/1 Consolas,monospace;letter-spacing:1.5px;color:var(--grey)}
+  .chip{display:inline-block;margin:2px 3px 2px 0;padding:2px 9px;border-radius:10px;font:600 11.5px/1.5 Consolas,monospace;border:1px solid}
+  .c-op{background:var(--opbg);border-color:var(--op);color:var(--op)}
+  .c-ap{background:var(--apbg);border-color:var(--ap);color:var(--ap)}
+  .c-gold{background:var(--goldbg);border-color:var(--gold);color:var(--gold)}
+  .c-warn{background:var(--warnbg);border-color:var(--warn);color:var(--warn)}
+  nav{display:flex;gap:10px;align-items:center;padding:10px 34px 30px}
+  nav button{font:700 14px Georgia,serif;padding:8px 22px;border-radius:6px;border:1px solid var(--ap);background:#fff;color:var(--ap);cursor:pointer}
+  nav button:disabled{opacity:.35;cursor:default}
+  nav .where{color:var(--grey);font-style:italic}
+  /* svg classes */
+  .nd{rx:7}
+  .nd-op{fill:var(--opbg);stroke:var(--op);stroke-width:1.3}
+  .nd-ap{fill:var(--apbg);stroke:var(--ap);stroke-width:1.3}
+  .nd-gold{fill:var(--goldbg);stroke:var(--gold);stroke-width:1.3}
+  .nd-warn{fill:var(--warnbg);stroke:var(--warn);stroke-width:1.4}
+  .frame{fill:none;stroke-width:1.1;stroke-dasharray:none;rx:10}
+  .fr-op{stroke:var(--op)} .fr-ap{stroke:var(--ap)}
+  .frlbl{font:700 10px Consolas,monospace;letter-spacing:1.5px}
+  .nm{font:700 12px Georgia,serif;fill:var(--ink)}
+  .nm2{font:600 10px Georgia,serif;fill:var(--ink)}
+  .sub{font:9px Consolas,monospace;fill:#5a6b75}
+  .ed{stroke:#8b8272;stroke-width:1.3;fill:none;marker-end:url(#arr)}
+  .ed-d{stroke-dasharray:5 4}
+  .ed-hot{stroke:var(--hot);stroke-width:1.8}
+  .elbl{font:700 9.5px Consolas,monospace;fill:#6b6353}
+  .hide{display:none}
+  .dim{opacity:.18}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">RISK DATA PLATFORM · CONCEPTS WALKTHROUGH</div>
+  <h1>Planes, Products & Conformance — where Risk fits, and why words matter</h1>
+  <p>The complete picture — where TD Securities stands, the semantic gaps, who owns what (and who has declined to), and the target. Every term defined the first time it is used.</p>
+</header>
+
+<div class="wrap">
+<div class="stage">
+<svg viewBox="0 0 980 620" id="board">
+  <defs><marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#8b8272"/></marker></defs>
+
+  <!-- OPERATIONAL PLANE -->
+  <rect id="frame_op" class="frame fr-op" x="14" y="26" width="952" height="180"/>
+  <text id="frlbl_op" class="frlbl" x="26" y="44" fill="#2e4a66">OPERATIONAL PLANE — runs the business · services · request-response</text>
+
+  <g id="p_src"><rect class="nd nd-op" x="30" y="60" width="128" height="58"/><text class="nm" x="42" y="82">Calypso · Murex</text><text class="nm2" x="42" y="97">Surface · … (15)</text><text class="sub" x="42" y="110">vendor databases</text></g>
+  <g id="p_ver"><rect class="nd nd-op" x="230" y="58" width="170" height="66"/><text class="nm" x="244" y="80">Veritas</text><text class="nm2" x="244" y="95">distribution services</text><text class="sub" x="244" y="109">rules &amp; conversions live here</text></g>
+  <g id="p_rapps"><rect class="nd nd-op" x="470" y="58" width="170" height="66"/><text class="nm" x="484" y="80">Risk applications</text><text class="nm2" x="484" y="95">CMOS · XVALA · ALFA …</text><text class="sub" x="484" y="109">calculate · enrich · simulate</text></g>
+  <g id="p_down"><rect class="nd nd-op" x="710" y="58" width="150" height="58"/><text class="nm" x="724" y="80">Downstream</text><text class="sub" x="724" y="96">services · CSV</text></g>
+
+  <path id="e_sv" class="ed" d="M158,90 L230,90"/><text id="l_sv" class="elbl" x="166" y="82">services</text>
+  <path id="e_vr" class="ed" d="M400,90 L470,90"/><text id="l_vr" class="elbl" x="410" y="82">services</text>
+  <path id="e_rd" class="ed" d="M640,88 L710,88"/><text id="l_rd" class="elbl" x="648" y="80">distributes</text>
+
+  <g id="w_proxy"><rect class="nd nd-warn" x="230" y="140" width="170" height="34"/><text class="nm2" x="242" y="154">PROXY DOMAIN</text><text class="sub" x="242" y="167">semantics owned by middleman</text></g>
+  <g id="w_sem1"><rect class="nd nd-warn" x="352" y="46" width="86" height="20"/><text class="sub" x="360" y="60">semantics v1</text></g>
+
+  <!-- ANALYTICAL PLANE -->
+  <rect id="frame_ap" class="frame fr-ap" x="14" y="228" width="952" height="374"/>
+  <text id="frlbl_ap" class="frlbl" x="26" y="246" fill="#1f7a47">ANALYTICAL PLANE — Databricks · bulk · temporal · read-in-place</text>
+
+  <g id="p_sa"><rect class="nd nd-ap" x="30" y="268" width="150" height="62"/><text class="nm" x="42" y="290">Source-aligned</text><text class="nm2" x="42" y="305">products (×15)</text><text class="sub" x="42" y="318">one per TMS, as-is</text></g>
+  <g id="p_agg"><rect class="nd nd-gold" x="240" y="262" width="196" height="74"/><text class="nm" x="254" y="284">AGGREGATE product</text><text class="nm2" x="254" y="299">"the CDM" · trades + reference</text><text class="sub" x="254" y="313">consolidation done ONCE</text><text class="sub" x="254" y="326">owner: central team, as a domain</text></g>
+  <g id="w_sem2"><rect class="nd nd-warn" x="352" y="244" width="86" height="20"/><text class="sub" x="360" y="258">semantics v2</text></g>
+
+  <g id="p_bnd"><rect class="nd nd-ap" x="500" y="258" width="200" height="82"/><text class="nm" x="514" y="280">RISK BOUNDARY</text><text class="nm2" x="514" y="295">Risk-conformed entities</text><text class="sub" x="514" y="309">SUPERSET of the aggregate</text><text class="sub" x="514" y="322">views where 1:1 · products where +</text><text class="sub" x="514" y="335">one Risk↔CDM artifact</text></g>
+
+  <g id="p_brz"><rect class="nd nd-ap" x="760" y="262" width="90" height="40"/><text class="nm2" x="770" y="279">bronze</text><text class="sub" x="770" y="293">outputs as-is</text></g>
+  <g id="p_slv"><rect class="nd nd-ap" x="760" y="318" width="90" height="40"/><text class="nm2" x="770" y="335">silver</text><text class="sub" x="770" y="349">typed</text></g>
+  <g id="p_cnf"><rect class="nd nd-ap" x="760" y="374" width="90" height="44"/><text class="nm2" x="770" y="391">conformed</text><text class="sub" x="770" y="405">Path B maps</text></g>
+  <g id="p_gld"><rect class="nd nd-gold" x="742" y="438" width="126" height="52"/><text class="nm" x="754" y="459">RISK GOLD</text><text class="sub" x="754" y="474">born conformed</text></g>
+  <g id="p_biz"><rect class="nd nd-ap" x="500" y="520" width="368" height="52"/><text class="nm" x="514" y="542">Business · BI · Genie · agents</text><text class="sub" x="514" y="558">cross-domain joins, one meaning</text></g>
+
+  <path id="e_srcsa" class="ed" d="M94,118 L94,268"/><text id="l_srcsa" class="elbl" x="100" y="200">land (ETL)</text>
+  <path id="e_saagg" class="ed" d="M180,299 L240,299"/>
+  <path id="e_aggbnd" class="ed" d="M436,299 L500,299"/><text id="l_aggbnd" class="elbl" x="444" y="291">consume</text>
+  <path id="e_outbrz" class="ed" d="M640,124 C700,180 780,200 800,262"/><text id="l_outbrz" class="elbl" x="740,196" y="196" x="716" y="196">outputs land</text>
+  <path id="e_bz1" class="ed" d="M805,302 L805,318"/><path id="e_bz2" class="ed" d="M805,358 L805,374"/><path id="e_bz3" class="ed" d="M805,418 L805,438"/>
+  <path id="e_bndgld" class="ed" d="M700,330 C720,380 726,420 742,452"/><text id="l_bndgld" class="elbl" x="668" y="396">reference,</text><text id="l_bndgld2" class="elbl" x="668" y="408">read-in-place</text>
+  <path id="e_gldbiz" class="ed" d="M790,490 L740,520"/>
+  <path id="e_pathA" class="ed ed-d ed-hot" d="M560,258 C540,200 540,160 555,124"/><text id="l_pathA" class="elbl" x="452" y="180" fill="#216a5e">PATH A (target): apps take</text><text id="l_pathA2" class="elbl" x="452" y="192" fill="#216a5e">EOD inputs here — BATCH</text>
+  <g id="w_ports"><rect class="nd" x="216" y="182" width="238" height="34" fill="#fff" stroke="#216a5e" stroke-width="1.6" stroke-dasharray="6 4"/><text class="nm2" x="228" y="196" fill="#216a5e">ONE PRODUCT · TWO PORTS</text><text class="sub" x="228" y="209">same semantics · different latency/format</text></g>
+</svg>
+
+<div class="panel" id="panelBody"></div>
+<nav>
+  <button id="prev">← Back</button>
+  <span class="where" id="where"></span>
+  <button id="next">Next →</button>
+</nav>
+</div>
+
+<aside>
+  <div class="card"><h3>ON THE BOARD</h3><div id="side"></div></div>
+  <div class="card"><h3>TERMS ON THIS STEP</h3><div id="terms" class="terms" style="border:none;background:none;padding:0"></div></div>
+</aside>
+</div>
+
+<script>
+const ALL=["frame_op","frlbl_op","p_src","p_ver","p_rapps","p_down","e_sv","l_sv","e_vr","l_vr","e_rd","l_rd","w_proxy","w_sem1","frame_ap","frlbl_ap","p_sa","p_agg","w_sem2","p_bnd","p_brz","p_slv","p_cnf","p_gld","p_biz","e_srcsa","l_srcsa","e_saagg","e_aggbnd","l_aggbnd","e_outbrz","l_outbrz","e_bz1","e_bz2","e_bz3","e_bndgld","l_bndgld","l_bndgld2","e_gldbiz","e_pathA","l_pathA","l_pathA2","w_ports"];
+const steps=[
+
+{t:"Why this document exists",
+ b:`<p>TD Securities is deciding how analytical data should flow: a central <b>CDM</b>, or a <b>data mesh</b> where every trading system publishes its own product. The words in that debate — <i>domain, product, conformed, aggregate, plane, port</i> — are doing heavy lifting, and people are using them differently. This walkthrough defines each term on the step where it earns its keep, on our real landscape.</p>
+ <div class="boxlabel">Three words people conflate — fixed now</div>
+ <table class="grid"><tr><th>term</th><th>what it is</th><th>what it is NOT</th></tr>
+ <tr><td><b>data model</b></td><td>the description: entities, relationships, definitions (our collateral CDM in PowerDesigner)</td><td>not a place data lives</td></tr>
+ <tr><td><b>conformed entity</b></td><td>ONE agreed meaning + the mappings that attribute real columns to it ("Counterparty = client-master cp_code; CMOS's cpty_code resolves to it via xref")</td><td>not a table you load — <i>we conform meanings, not rows</i></td></tr>
+ <tr><td><b>data product</b></td><td>a pipeline OUTPUT built to a contract: data + metadata + owner + quality promises, published for others</td><td>not a schema, not a model — it is the thing consumers actually take</td></tr></table>`,
+ show:[],
+ terms:[["data model","the formal description of business things and their relationships — documentation, never storage."],["conformed entity","one shared meaning plus mappings; a claim about existing data, not a new home for it."],["data product","a published, owned, contracted output. Products hold data; models and entities hold meaning."]]},
+
+{t:"The floor we actually stand on: vendor systems, zero data maturity",
+ b:`<p>Our trading systems — <b>Calypso, Murex, Surface</b> and a dozen more — are proprietary vendor products. Their databases follow the <i>vendor's</i> schema. There is no TDS-modeled database underneath any of them, and the desks that run them own no data capability.</p>
+ <p>This matters because the mesh's first principle — <b>domain ownership</b> — assumes each business domain can model, publish and stand behind its own data. Here, the premise has nowhere to attach: <b>the vendors own the schemas, and the domains own no modelers.</b> Whoever proposes "each domain publishes its own product" is really proposing that <i>someone else</i> builds fifteen products wearing the domains' names.</p>`,
+ show:["frame_op","frlbl_op","p_src"],
+ terms:[["domain","a business area treated as the owner of its data (mesh vocabulary). Ours are vendor systems run by desks — owners in name, not yet in capability."],["domain ownership","mesh principle #1: the people who produce data are accountable for publishing it well. Requires data capability inside the domain."]]},
+
+{t:"The operational plane — and the middleman who quietly owns the meaning",
+ b:`<p>Systems talk to each other through <b>services</b>: small, transactional, request-response exchanges — "give me this trade", "book that movement". This world is the <b>operational plane</b>: the data that runs the business, right now, one request at a time. It works, it is mature, and nothing in this document changes it.</p>
+ <p>But look where the semantics live. <b>Veritas</b>, the distribution services layer, consumes the vendor databases, applies the rules and conversions, and redistributes. The trading domains never modeled anything — so the meaning of "trade" on the operational plane is effectively owned by the <b>middleman</b>, not the source. Veritas is a <b>proxy domain</b>: it does the domain's semantic work because the domain can't.</p>`,
+ show:["frame_op","frlbl_op","p_src","p_ver","e_sv","l_sv","w_proxy","w_sem1"],
+ terms:[["operational plane","the data behind running systems: transactional state, consumed via services, small and immediate."],["service / API","request-response access — the right port for operational exchanges, the wrong one for bulk."],["proxy domain","a central team that owns a domain's semantics because the domain lacks the capability. Ours: Veritas (operational), and — next steps — the CDM team (analytical)."]]},
+
+{t:"Risk today: consume, calculate, redistribute",
+ b:`<p>Risk applications — CMOS, XVALA, ALFA — consume from Veritas (and some sources directly), run the calculations, and produce what only Risk produces: <b>exposures, margin events, simulations, metrics</b>. They redistribute through services and CSVs to downstream systems and the business.</p>
+ <p>Notice what this already is: domain systems exchanging data they own, through published interfaces. <b>Today's landscape is a data mesh minus the hard part</b> — there is domain distribution, but no shared meaning across it. Every consumer resolves codes and semantics locally, fifteen different ways. That missing layer — conformance — is the entire subject of the analytical plane below.</p>`,
+ show:["frame_op","frlbl_op","p_src","p_ver","p_rapps","p_down","e_sv","l_sv","e_vr","l_vr","e_rd","l_rd","w_proxy","w_sem1"],
+ terms:[["(observation, not a term)","legacy ≈ mesh without federated governance. The debate is not whether to adopt mesh — it is whether to finally add the conformance the mesh always required."]]},
+
+{t:"The analytical plane arrives — and the timeout that names it",
+ b:`<p>Risk runs end-of-day processing over <i>large</i> data — and today pulls it through the services layer, which <b>times out</b>. That timeout is not an ops problem; it is a category error announcing itself.</p>
+ <p>The <b>analytical plane</b> is the other half of the data world: temporal, aggregated, cross-domain, consumed in <b>bulk</b>. Its port is not request-response; it is <b>storage-level batch access</b> — reading governed tables in place. Databricks is our analytical plane. The rule that decides every "should this go through a service?" argument:</p>
+ <div class="quote">Services integrate the operational plane — small, transactional, per-request. The analytical plane is consumed in bulk from storage-level output ports. An EOD process pulling large data through a request-response service is an operational port misused for analytical consumption — the timeout is the architecture telling you which plane you are in.</div>`,
+ show:["frame_op","frlbl_op","p_src","p_ver","p_rapps","p_down","e_sv","e_vr","e_rd","frame_ap","frlbl_ap"],
+ terms:[["analytical plane","data as history and aggregate: reporting, models, AI. Bulk, batch, joined across domains."],["output port","the access mechanism a product publishes: a service port (operational) or a table/batch port (analytical). One product may have several."],["read-in-place","consuming a governed table where it lives (Unity Catalog) instead of copying it — how the analytical plane avoids data movement."]]},
+
+{t:"Source-aligned products: land the domains as they are",
+ b:`<p>The first analytical structure: each TMS feed lands as a <b>source-aligned product</b> — the domain's data, as-is, one product per system, schema'd and owned but <i>not yet reconciled with anyone else</i>. Fifteen systems, fifteen products, fifteen vocabularies.</p>
+ <p>This is honest and necessary — it preserves lineage back to the vendor truth. But it is not consumable for cross-domain questions: "total exposure to BCCU" still means visiting fifteen products and resolving fifteen counterparty codes. Source-aligned products are ingredients, not meals.</p>`,
+ show:["frame_op","frlbl_op","p_src","p_ver","p_rapps","p_down","e_sv","e_vr","e_rd","frame_ap","frlbl_ap","p_sa","e_srcsa","l_srcsa"],
+ terms:[["source-aligned product","a domain's data published near-raw: faithful to the source, owned, contracted — and semantically local. Also called a singular product."]]},
+
+{t:"The aggregate — where consolidation happens ONCE",
+ b:`<p>Someone must reconcile the fifteen: match the counterparties, align the trade identifiers, settle what "notional" means. That work is unavoidable; <b>the only choice is who does it, and how many times.</b> In a hub architecture the central team does it once and calls the result the CDM. In a pure mesh, every consumer does it — Risk, Finance, Treasury each re-reconciling the same fifteen products, differently. That is today's disease with product badges.</p>
+ <p>Mesh doctrine has its own answer: the <b>aggregate data product</b> — a product whose job is consolidating other products, with a named domain owner. So the war dissolves into a renaming: <b>"the CDM" and "the aggregate trades product" are the same work</b>; the mesh framing just insists the central team be accountable for it <i>as a product owner</i>, with contracts and consumers, not as a gatekeeper. Cross-domain reference — counterparty, instrument, netting — lives here too: no single trading domain can own entities that span them all.</p>`,
+ show:["frame_op","frlbl_op","p_src","p_ver","p_rapps","p_down","e_sv","e_vr","e_rd","frame_ap","frlbl_ap","p_sa","e_srcsa","p_agg","e_saagg"],
+ terms:[["aggregate data product","a product that consolidates other products into one conformed, consumable body — with an owner, a contract, and consumers. The CDM, correctly named."],["hub-and-spoke","the centralized version of the same idea: one integration point, everyone consumes from it."],["data mesh (4 principles)","domain ownership · data as a product · self-serve platform · federated computational governance — the last being enforced shared standards, the part every failed mesh skipped."]]},
+
+{t:"Reading the mesh proposal against our maturity — pattern versus premise",
+ b:`<p>The new proposal — each trading domain publishes its own product to the CDM standard, consumers integrate the products — is textbook mesh. The difficulty is not the pattern; it is that <b>a pattern adopted without its premise delivers the failure the pattern was invented to fix.</b> Mesh's premise is capable domains. Ours are vendor databases run by desks with no data teams (step 2). So "each domain publishes" resolves, in practice, to <i>some central group builds fifteen products wearing the domains' names</i> — the hub, disguised, with fifteen doors instead of one.</p>
+ <p>The respectful-but-firm questions that test whether the proposal is deep or borrowed:</p>
+ <table class="grid"><tr><th>question</th><th>why it decides everything</th></tr>
+ <tr><td><b>Who staffs each domain's product team?</b></td><td>if the answer is a shared central pool, it is a hub with extra steps — name it honestly</td></tr>
+ <tr><td><b>What enforces the standard?</b></td><td>federated governance means automated conformance tests every product must pass — hope is not a mechanism</td></tr>
+ <tr><td><b>Who owns the aggregate?</b></td><td>the consolidation work exists either way; pure mesh silently reassigns it to every consumer</td></tr>
+ <tr><td><b>Who owns cross-domain entities?</b></td><td>counterparty, instrument, netting belong to no trading domain — someone must own the shared reference</td></tr></table>
+ <p>Asked this way, the conversation stops being hub-versus-mesh and becomes what it always was: <b>ownership, enforcement, and one consolidation point</b> — with mesh vocabulary available for whoever needs the pattern to carry the decision.</p>`,
+ show:["frame_op","frlbl_op","p_src","p_ver","p_rapps","p_down","e_sv","e_vr","e_rd","frame_ap","frlbl_ap","p_sa","e_srcsa","p_agg","e_saagg"],
+ terms:[["pattern vs premise","every architecture pattern encodes assumptions; adopting the pattern without them reproduces the old failure under a new name."],["federated computational governance","the mesh principle everyone skips: shared standards enforced by machinery (contract tests in CI), not by aspiration."]]},
+
+{t:"Conformance: meanings first, rows at the product boundary",
+ b:`<p>Now the word itself. <b>To conform is to agree on meaning</b> — one definition of Counterparty, one identifier scheme, and <b>mappings</b> attributing every local column to it ("CMOS's cpty_code → Counterparty, via the client-master cross-reference"). The conformed entity never becomes a table; <i>we conform meanings, not rows</i>.</p>
+ <p>Rows meet conformance at exactly one place: <b>the product build</b>. When the aggregate (or any gold product) is constructed, the pipeline <i>executes</i> the mapping — stamps the conformed key onto the row, resolves reference attributes — so the product is <b>born conformed</b> and ten thousand consumers never re-run the resolution. Two disciplines keep it honest: keep the local code alongside the conformed key (provenance, reconciliation), and declare copies as copies.</p>
+ <div class="ledger">brownfield: local codes + mapping resolves at query (xref hop)
+greenfield: conformed key stamped at build — the hop disappears
+metric:     % of gold tables carrying conformed keys natively</div>`,
+ show:["frame_op","frlbl_op","p_src","p_ver","p_rapps","p_down","e_sv","e_vr","e_rd","frame_ap","frlbl_ap","p_sa","e_srcsa","p_agg","e_saagg"],
+ terms:[["conformance","agreement on meaning, expressed as definitions + mappings, executed into rows only at product boundaries."],["mapping","the machine-readable attribution: this column IS that entity's attribute, resolved this way (possibly via a registered function)."],["born conformed","a product whose rows carry conformed keys natively because the mapping ran at build time."]]},
+
+{t:"The Risk boundary — consumer-aligned, and a superset",
+ b:`<p>Risk needs more than the aggregate carries: trade data from systems outside the CDM, plus everything Risk itself creates. So Risk maintains its own conformed layer — the <b>Risk-conformed entities</b> — a <b>superset</b> of the aggregate's model, aligned to it through <b>one artifact</b> owned by the Risk data team.</p>
+ <p><b>This boundary is also where interoperability lives.</b> On the analytical plane, cross-domain and cross-application work — joining CMOS outputs to XVALA outputs to market data — is only possible where the datasets share meaning. Conformed entities ARE the interoperability contract: two products interoperate exactly where they attribute their columns to the same entities. And conformance is built <b>from within the domain, outward</b>: Risk conforms its own house first (the Risk-conformed entities), then connects outward to any enterprise model through one alignment. Our collateral model is the working proof — one Risk-authored domain model whose Agreement family covers CMOS (the CSA world), the SFT stack (GMRA/GMSLA) and prime (PBA), so one entity answers across all three even while two of them have not yet landed data.</p>
+<p>And the standing rule, both directions: <b>apps map once, to Risk-conformed — never each to the CDM.</b> Inputs are consumed <i>through</i> this boundary; outputs are attributed <i>to</i> it. In mesh vocabulary this is Risk's <b>consumer-aligned product</b>; in domain-driven design it is an <b>anti-corruption layer</b> — the domain presents external data in its own stable terms at its border. Cost control: where a Risk entity is 1:1 with a CDM entity, the boundary is a <b>thin view — read-in-place, zero copy</b>; it materializes only where Risk genuinely merges or enriches.</p>`,
+ show:["frame_op","frlbl_op","p_src","p_ver","p_rapps","p_down","e_sv","e_vr","e_rd","frame_ap","frlbl_ap","p_sa","e_srcsa","p_agg","e_saagg","p_bnd","e_aggbnd","l_aggbnd"],
+ terms:[["consumer-aligned product","a product shaped for a consuming domain's needs — Risk's boundary is one."],["superset","Risk-conformed covers everything the CDM covers, plus Risk-only sources and Risk-created entities. Alignment lives in one maintained artifact."],["anti-corruption layer","DDD name for the same idea: a translation boundary that keeps external models from leaking into your own."],["interoperability","the ability of independently built datasets and applications to be combined correctly — achieved exactly where they map to the same conformed entities."]]},
+
+{t:"Twenty applications, one target — the mapping arithmetic",
+ b:`<p>Risk has ~twenty applications, each historically consuming its own sources and doing its own private "conformity" — integrations, code resolution, enrichment — in silos. When the conformed layers arrive, each app needs a mapping. <b>To what?</b> The arithmetic answers:</p>
+ <div class="ledger">each app maps to CDM directly:   20 CDM mappings
+  + apps also consume Veritas →  20 Veritas reconciliations
+  = 40 semantic artifacts, 20 owners, churn absorbed 20 times
+
+each app maps ONCE to Risk-conformed:
+    20 app mappings (to OUR model, in our vocabulary)
+  +  1 Risk ↔ CDM alignment artifact      (Risk data team)
+  +  1 Veritas ↔ Risk-conformed mapping   (Risk data team)
+  = 22 artifacts — and the two hard ones owned by the one team that sees both sides</div>
+ <p><b>Ownership inside the pattern:</b> app teams author their own mapping — they know their local vocabulary; this is producers-declare doing its work. The Risk data team stewards the entity definitions and owns the two external alignments. The mapping <i>is</i> the conformity work each silo was already doing privately — now written once, against a shared target, visible in the coverage dashboard.</p>
+ <div class="warnbox"><b>And the closing fact:</b> Veritas today is ungoverned — no conformance standard, no published model. An ungoverned meaning cannot be a mapping target; a mapping to a moving, undocumented semantics is worthless the day it is written. Which makes Risk-conformed not merely the preferred target but <b>the only governed semantic surface available to risk applications at all.</b></div>`,
+ show:["frame_op","frlbl_op","p_src","p_ver","p_rapps","p_down","e_sv","e_vr","e_rd","w_proxy","frame_ap","frlbl_ap","p_sa","e_srcsa","p_agg","e_saagg","p_bnd","e_aggbnd"],
+ terms:[["mapping topology","who maps to what: point-to-point (N consumers × M models) versus hub (N + a constant). The classic integration argument, one level up — at the semantics."],["governed surface","a model with a named owner, published definitions and a change process. Only governed surfaces can be mapping targets."]]},
+
+{t:"The Risk pipeline: outputs land, meaning attaches (Path B)",
+ b:`<p>Risk's own outputs — the metrics, events, simulations the apps compute outside Databricks — land in the risk schemas: <b>bronze</b> exactly as distributed today (CSVs, local codes — the mature systems change nothing), <b>silver</b> typed and schema'd, then <b>Path B</b>: platform mappings resolve the local codes to Risk-conformed entities, and the <b>gold products</b> are built born-conformed for the business. The old services/CSV distribution continues in parallel — gold is an additional surface, not a cutover.</p>
+ <p>Path B is permanent, not scaffolding: history already landed with local codes, and Risk's <i>created</i> entities (a margin event, a simulation) never came from the CDM at all — they conform to Risk-conformed entities or nothing.</p>`,
+ show:["frame_op","frlbl_op","p_src","p_ver","p_rapps","p_down","e_sv","e_vr","e_rd","frame_ap","frlbl_ap","p_sa","e_srcsa","p_agg","e_saagg","p_bnd","e_aggbnd","p_brz","p_slv","p_cnf","p_gld","p_biz","e_outbrz","l_outbrz","e_bz1","e_bz2","e_bz3","e_bndgld","l_bndgld","l_bndgld2","e_gldbiz"],
+ terms:[["bronze / silver / gold","as-received → typed & validated → contracted consumables. Metadata grows toward gold; conformance is a gold obligation."],["Path B","conform the OUTPUTS: platform mappings attribute landed data to Risk-conformed entities. Starts now; shrinks but never vanishes."]]},
+
+{t:"Path A: re-point the apps' inputs — and retire the timeout",
+ b:`<p>The target move, per application, on each app's timeline: the calculators stop pulling EOD bulk through Veritas services and instead <b>consume their inputs from the Risk boundary — batch, storage-level, read-in-place</b>. Two things happen at once: the timing-out bulk service calls disappear (right plane, right port), and the apps' <i>outputs</i> start arriving <b>born-aligned</b> — carrying conformed identifiers natively — so Path B's mapping for that app shrinks to the Risk-only residue.</p>
+ <div class="ledger">sequence, not either/or:
+  PATH B  now      outputs conformed by mapping (history, unrepointed apps, risk-only entities)
+  PATH A  per app  inputs from the boundary → outputs born-aligned → B shrinks
+progress metrics:  % app inputs sourced via boundary · % gold tables with native keys</div>
+ <div class="boxlabel">The feedback loop — how conformance propagates upstream on its own</div>
+ <p>Watch what happens once an application consumes conformed inputs: its internal world starts speaking conformed identifiers, so its <b>outputs arrive born-aligned — including the ones it still distributes through services.</b> The operational plane's payloads end up carrying conformed keys too, not by mandate but by gravity: the apps changed what vocabulary they think in. The services stay — right port for that plane, forever; what changes is what travels through them.</p>
+ <div class="ledger">the loop, closed:
+  outputs land unconformed  →  PATH B attributes them (platform mappings)
+  →  conformed products published at the Risk boundary
+  →  PATH A: apps re-point EOD inputs to the boundary
+  →  apps now think in conformed identifiers
+  →  outputs born-aligned — even via the old services
+  →  Path B shrinks to the permanent floor (history + Risk-created entities)</div>
+ <div class="boxlabel">Per-application migration — each app walks its own path</div>
+ <p>The loop closes <b>per application, on each app's own timeline</b> — twenty apps, twenty small closures, never a big bang. Each application carries its own migration state, tracked in the coverage dashboard:</p>
+ <table class="grid"><tr><th>stage</th><th>meaning</th><th>measured by</th></tr>
+ <tr><td>0 · silo</td><td>local codes everywhere; private conformity only</td><td>no mappings authored</td></tr>
+ <tr><td>1 · declared</td><td>outputs mapped to Risk-conformed (Path B live)</td><td>% of the app's landed tables with entity + grain mappings</td></tr>
+ <tr><td>2 · consuming</td><td>EOD inputs re-pointed to the boundary (Path A live)</td><td>% of the app's inputs sourced via the boundary</td></tr>
+ <tr><td>3 · born-aligned</td><td>outputs carry conformed keys natively; services payloads included</td><td>% of the app's gold tables with native conformed keys</td></tr></table>
+ <p>The dashboard reports stage and percentages <i>per team, visible to everyone</i> — the same measured-not-asserted principle as the metadata standard. An app at stage 1 is compliant; an app at stage 3 is done; and nothing anywhere waits for the slowest.</p>
+<p>Services survive exactly where they belong: the operational plane's small transactional exchanges.</p>`,
+ show:["frame_op","frlbl_op","p_src","p_ver","p_rapps","p_down","e_sv","e_vr","e_rd","frame_ap","frlbl_ap","p_sa","e_srcsa","p_agg","e_saagg","p_bnd","e_aggbnd","p_brz","p_slv","p_cnf","p_gld","p_biz","e_outbrz","e_bz1","e_bz2","e_bz3","e_bndgld","e_gldbiz","e_pathA","l_pathA","l_pathA2"],
+ terms:[["Path A","conform the INPUTS: apps consume EOD data from the boundary in batch. Fixes semantics at the source and retires the misused service port."],["the feedback loop","conformed products feed the apps; the apps then emit conformed outputs everywhere — conformance propagates upstream by gravity, per app, tracked by stage."]]},
+
+{t:"The two middlemen — one landscape, two meanings",
+ b:`<p>Now the uncomfortable picture, drawn honestly. Over the <i>same</i> vendor sources sit <b>two semantic authorities</b>: <b>Veritas</b>, whose rules and conversions define what the operational plane means, and <b>the CDM team</b>, independently defining what the analytical plane means. Two proxy domains. Two models. <b>No common parent.</b></p>
+ <p>The topology itself keeps shifting: at times the organization says CDM will consume <i>from Veritas</i> for real-time and <i>directly from sources</i> for batch — undecided, and either way the gap between the two models remains, now with two plumbing diagrams.</p><p>Why this bites, concretely: Risk's applications consume Veritas semantics intraday; Risk's analytics consume CDM semantics end-of-day. The day an intraday number disagrees with an EOD number, nobody can say whether it is <i>timing</i> (legitimate) or <i>semantics</i> (a defect) — and that ambiguity is permanent until the models share a parent. Every dual-plane consumer pays the mapping tax twice. And the moment Genie and agents sit over both surfaces, the drift stops being latent: <b>an agent asked to reconcile intraday vs EOD will find the semantic gap and report it to a business user as a data-quality incident.</b> AI is about to make this loud.</p>`,
+ show:["frame_op","frlbl_op","p_src","p_ver","p_rapps","p_down","e_sv","e_vr","e_rd","w_proxy","w_sem1","frame_ap","frlbl_ap","p_sa","e_srcsa","p_agg","w_sem2","e_saagg","p_bnd","e_aggbnd","p_brz","p_slv","p_cnf","p_gld","p_biz","e_outbrz","e_bz1","e_bz2","e_bz3","e_bndgld","e_gldbiz"],
+ terms:[["canonical model","the single owned set of entity definitions all projections inherit from. The unanswered question in our landscape: who owns it — Veritas? CDM? Neither has been named."],["semantic drift","two independently maintained meanings of the same business thing, diverging silently until a reconciliation exposes them."]]},
+
+{t:"The gap nobody owns — \u201cthat is the application\u2019s responsibility\u201d",
+ b:`<p>The question was put to the organization directly: <i>if Veritas and the CDM run as two parallel tracks, who maps Veritas into the CDM when an application wants to move its consumption?</i> The answer on record: <b>\u201cthat is the responsibility of the application.\u201d</b></p>
+ <p>Name what that policy does. The enterprise has declined to own the gap between its own two middlemen — and billed every consumer for it. The same Veritas\u2194CDM reconciliation will be built by every consuming application, independently, each slightly differently; none authoritative; none maintained when either side changes. The cost is paid N times, and worse: the policy <b>industrializes semantic drift</b> — N private, divergent resolutions of the same gap. It is the mesh-without-governance failure mode in its purest form, and it makes the two-model problem <i>permanent</i>, because the only thing that ever closes such a gap — a single accountable owner of the alignment — has been explicitly refused.</p>
+ <div class="warnbox"><b>The sentence that should worry someone:</b> when an intraday number and an end-of-day number disagree in front of a regulator, the answer on file is — <i>\u201ceach application resolved that difference in its own way.\u201d</i></div>`,
+ show:["frame_op","frlbl_op","p_src","p_ver","p_rapps","p_down","e_sv","e_vr","e_rd","w_proxy","w_sem1","frame_ap","frlbl_ap","p_sa","e_srcsa","p_agg","w_sem2","e_saagg","p_bnd","e_aggbnd","p_brz","p_slv","p_cnf","p_gld","p_biz","e_outbrz","e_bz1","e_bz2","e_bz3","e_bndgld","e_gldbiz"],
+ terms:[["accountability gap","work that must exist but has no named owner — so it is done many times, differently, or not at all."],["industrialized drift","when a policy guarantees that divergent private resolutions of the same semantic gap will multiply."]]},
+
+{t:"The resolution: one product, two ports",
+ b:`<p>The doctrine both camps cite already contains the fix. A data product — Dehghani's <i>data quantum</i> — is <b>one semantic body exposed through multiple output ports</b>. One conformed meaning of Trade; a <b>service port</b> for the operational plane and a <b>table/batch port</b> for the analytical plane. Same definitions, same conformed keys, same enumerations — different latency, format and access pattern.</p>
+ <div class="quote">Veritas and the CDM should be two output ports of the same conformed product family — not two products. Same semantics, different ports.</div>
+ <p>Realistic path, given the maturity: not a re-platform. (1) Force the governance question into the open — <b>"who owns canonical entity definitions?"</b> — with a face-saving mesh answer available: the aggregate's domain owner owns semantics; Veritas implements their operational port. (2) Start an <b>entity-level alignment artifact</b> between Veritas and CDM for the handful both serve — trade, counterparty, position — with an owner and a review cadence. (3) Risk's part is already built, next step.</p>`,
+ show:["frame_op","frlbl_op","p_src","p_ver","p_rapps","p_down","e_sv","e_vr","e_rd","frame_ap","frlbl_ap","p_sa","e_srcsa","p_agg","e_saagg","p_bnd","e_aggbnd","p_brz","p_slv","p_cnf","p_gld","p_biz","e_outbrz","e_bz1","e_bz2","e_bz3","e_bndgld","e_gldbiz","w_ports"],
+ terms:[["data quantum","Dehghani's unit: data + metadata + code + policy, encapsulated as one product — which may publish several ports."],["port model","one meaning, many access patterns. The cure for one-middleman-per-plane."]]},
+
+{t:"Risk keeps the receipts",
+ b:`<p><b>And the shrewd response to \u201cit\u2019s the application\u2019s responsibility\u201d: accept it — once, at the boundary, on behalf of all twenty.</b> If the mapping burden falls on applications, Risk is one consumer, and it discharges that responsibility exactly once, at the Risk-conformed boundary, for every application behind it. The layer was being built anyway; the cost-shifting just made it unarguable.</p>
+ <p>Risk cannot decree the Veritas/CDM merger — and does not need to. Because Risk's boundary maps <b>both</b> surfaces to the <b>same</b> Risk-conformed entities (apps consume Veritas today; analytics consume CDM tomorrow), the mapping table becomes the <b>instrument that detects the divergence</b>: wherever the Veritas-mapping and the CDM-mapping for one Risk entity disagree, that is documented, queryable evidence of the semantic gap. Data, not opinion, for the governance forum.</p>
+ <p><b>Risk's position in the whole debate, in one breath:</b> state requirements, not preferences — conformed keys on whatever we consume; contracts with declared grain and coverage; one consolidation point for trades, whoever owns it; conformance <i>tested</i> (contract checks in CI), not asserted. Then map once at our boundary, and let the upstream argument resolve itself either way without touching a single Risk application, gold product, or business user.</p>`,
+ show:["frame_op","frlbl_op","p_src","p_ver","p_rapps","p_down","e_sv","e_vr","e_rd","frame_ap","frlbl_ap","p_sa","e_srcsa","p_agg","e_saagg","p_bnd","e_aggbnd","p_brz","p_slv","p_cnf","p_gld","p_biz","e_outbrz","e_bz1","e_bz2","e_bz3","e_bndgld","e_gldbiz","w_ports"],
+ terms:[["conformance tested, not asserted","automated contract checks — schema, grain, enumerations, key coverage — run in CI against every product version. The enforcement half of federated governance."]]},
+
+{t:"Part Two \u00b7 From concepts to objects — the governance schema",
+ b:`<p>Everything above becomes three Delta tables in one governed schema. This IS the \u201cgoverned semantic surface\u201d the document keeps demanding — named owner, published definitions, versioned change process — built from parts we already run. <b>Authored in Git, loaded by CI, never hand-edited</b>: the file is the model, the tables are its queryable projection.</p>
+ <div class="ledger">CREATE TABLE governance.entity (
+  entity_name, definition, conformed_key, question);
+-- WHY: the shared meanings, once, above all tables. The 'question'
+-- column carries each entity's business question (our PD comments) —
+-- it doubles as Genie synonym seed. WHO READS: humans, Genie, agents.
+
+CREATE TABLE governance.relationship (
+  from_entity, verb, to_entity, cardinality, note);
+-- WHY: the verbs — the model's sentences. This is what lets an agent
+-- ORIENT: "dispute hangs off event; event is valued by exposure" —
+-- the evidence path, instead of a guess. WHO READS: agents, lineage.
+
+CREATE TABLE governance.table_mapping (
+  table_name, column_name, entity, attribute,
+  role,         -- native | borrowed | copy | measure_input | grain
+  resolution);  -- how it resolves; may point at a registered function
+-- WHY: the conformity work the twenty silos each did privately,
+-- written once against the shared target. The 'copy' rows are the
+-- honesty mechanism; 'resolution' rows are the routing.
+-- WHO READS: query compilation, coverage dashboard, reconciliation.</div>
+ <p><b>Why tables and not just the Git file:</b> three things a file cannot do — <b>join</b> (the coverage dashboard is a join against information_schema; CI validation is SQL), <b>permission &amp; audit</b> (UC grants and access logs per query), <b>scale</b> (agents need filtered retrieval, not a whole file in context). Industry pattern exactly: file for authoring, engine for serving.</p>`,
+ show:["frame_ap","frlbl_ap","p_bnd","p_gld","p_biz"],
+ terms:[["governance schema","one schema holding the model-as-data: entity, relationship, table_mapping (+ alignment). The queryable projection of the Git-authored model."],["model as code","the Git artifact is the model; CI projects it into tables, tags, comments, constraints and metric views. One source, five projections."]]},
+
+{t:"Part Two \u00b7 Three extensions this landscape earned",
+ b:`<p>The wider picture — two middlemen, twenty apps, an orphaned gap — adds exactly three things to the schema, each with a job:</p>
+ <div class="ledger">1) surface column on table_mapping
+   surface STRING  -- 'veritas' | 'cdm' | 'app_local' | 'risk'
+-- WHY: the boundary maps BOTH external semantics. Same entity,
+-- surface='veritas' vs surface='cdm' → every disagreement is a
+-- documented divergence ROW. The receipts, as schema.
+
+2) governance.entity_alignment  (the ONE Risk\u2194CDM artifact, first-class)
+   risk_entity, external_model,   -- 'CDM' | 'VERITAS'
+   external_entity, status,       -- aligned | partial | risk_only | divergent
+   note
+-- WHY: 'risk_only' rows make the SUPERSET visible (MarginEvent,
+-- NettingSet until CCR lands). 'divergent' rows are the forum agenda —
+-- the fork-risk mitigation as a queryable object, not a good intention.
+
+3) provenance on every mapping
+   author STRING,   -- the app team: producers declare their own
+   steward STRING
+-- WHY: the twenty-apps ownership pattern enforced by the data itself;
+-- the coverage dashboard reports per team.</div>
+ <p>And the query that turns policy into evidence — the answer to \u201cit\u2019s the application\u2019s responsibility\u201d, running nightly:</p>
+ <div class="ledger">SELECT risk_entity, v.resolution AS veritas_says, c.resolution AS cdm_says
+FROM   governance.table_mapping v JOIN governance.table_mapping c
+       USING (entity, attribute)
+WHERE  v.surface='veritas' AND c.surface='cdm'
+AND    v.resolution &lt;&gt; c.resolution;   -- each row: a documented semantic gap</div>`,
+ show:["frame_op","frlbl_op","p_ver","w_sem1","frame_ap","frlbl_ap","p_agg","w_sem2","p_bnd"],
+ terms:[["entity_alignment","the single owned artifact connecting Risk-conformed to each external model — statuses, gaps and all."],["divergence row","one queryable, dated piece of evidence that the two middlemen disagree. Receipts, not opinions."]]},
+
+{t:"Part Two \u00b7 Serving it — and collateral as the first population",
+ b:`<p>Three tiny SQL functions make the model interrogable — <span style="font-family:Consolas">tables_implementing(entity)</span> (routing: which product answers), <span style="font-family:Consolas">relationships_of(entity)</span> (orientation: the sentences around a thing), <span style="font-family:Consolas">resolution_for(table, column)</span> (meaning: how a column resolves, incl. copy warnings). Published through <b>managed MCP</b> alongside the Genie space and SQL: governed plugs — caller\u2019s permissions enforced, every call logged. The agent\u2019s loop over them: resolve the name \u2192 orient via relationships \u2192 route via mappings \u2192 fetch numbers via Genie/metric views \u2192 chase copies against sources \u2192 human gate. Metadata does the thinking; governed tools do the touching.</p>
+ <div class="boxlabel">Collateral: the first rows in every table</div>
+ <table class="grid"><tr><th>governance object</th><th>first population — from the collateral work</th></tr>
+ <tr><td>entity</td><td>the ~20 collateral entities, each with its \u201cAnswers:\u201d question from the PD comments</td></tr>
+ <tr><td>relationship</td><td>the verb set — signs, umbrella for, defines, contains, secures, runs, made under, answers, reported as \u2026</td></tr>
+ <tr><td>table_mapping</td><td>the CMOS extracts (surface='app_local'): dailyexposure\u2019s schedule COPIES declared, trades\u2019 packed applicability unpacked, grain rows per table</td></tr>
+ <tr><td>entity_alignment</td><td>NettingSet \u2192 risk_only (until CCR lands) \u00b7 PBA / SFT \u2192 covered-by-model, data-not-landed \u00b7 Counterparty \u2192 aligned (client master)</td></tr></table>
+ <p>Which closes the document\u2019s loop: <b>conformance built from within the domain, outward.</b> The collateral model proves the method at domain scale — one Risk-authored model covering CMOS, SFT and prime; mappings that make flat extracts answer business questions; coverage that says \u201cexcluded, not zero\u201d. The governance schema industrializes that same method for all twenty applications, and the boundary connects it outward to whatever the enterprise finally decides to be.</p>`,
+ show:["frame_ap","frlbl_ap","p_sa","p_agg","p_bnd","p_brz","p_slv","p_cnf","p_gld","p_biz","e_saagg","e_aggbnd","e_bz1","e_bz2","e_bz3","e_bndgld","e_gldbiz"],
+ terms:[["serving functions","small UDFs that answer routing / orientation / meaning questions over the governance tables — the model server, in SQL."],["managed MCP","Databricks-hosted, governed tool endpoints (Genie, functions, SQL) agents call with the user\u2019s own permissions, logged."]]},
+
+{t:"Part Three \u00b7 Model, star, dimension — three words, three jobs",
+ b:`<p>Before the rollout method, the vocabulary locked down — because these three get mixed daily:</p>
+ <table class="grid"><tr><th>word</th><th>job</th><th>lives</th></tr>
+ <tr><td><b>domain model</b></td><td>MEANING: entities at natural grain, verbs, cardinality, subtypes, axioms — analysis-neutral</td><td>PD / Git; entity + relationship tables</td></tr>
+ <tr><td><b>star schema</b></td><td>CONSUMPTION: a fact (measures at one grain) ringed by denormalized dimensions — shaped for fast slicing</td><td>gold; a documented projection OF the model</td></tr>
+ <tr><td><b>conformed dimension</b></td><td>a conformed ENTITY materialized for the star world — managed once, reused by every fact (Kimball\u2019s bus)</td><td>gold reference products</td></tr></table>
+ <p><b>Can a star, plus definitions, BE the model?</b> Only as scaffolding. Five things the star vocabulary structurally cannot say — and collateral needs all five: <b>dimension-to-dimension relationships</b> (ISDA defines NettingSet; CSA secures it — no home in a star, yet exactly what agents ask for as the evidence path); <b>cardinality beyond n:1</b> (movement\u2192event 0..1; trade\u2194agreement M:N); <b>subtypes</b> (the agreement kinds collapse to a type column, losing exclusive-and-complete); <b>entities not yet consumed anywhere</b> (NettingSet as risk_only — star-derived models only know what is served, so coverage honesty dies); <b>axioms</b> (holding = \u03a3 settled movements has nowhere to live).</p>
+ <p>So: <b>one canonical format in Git — entity / relationship / mapping — with two legitimate routes into it.</b> Route 1 (collateral): author the model, project the stars. Route 2 (simpler apps): harvest their star reading into the same schema, then top up what the star could not say. Litmus per subdomain: <i>does its meaning survive being told as facts-against-references?</i> The sentence for teams: <b>the star can be the scaffolding you climb to reach the model — but what gets committed is always the model, because the star says how data is served and only the model says what it means.</b></p>`,
+ show:["frame_ap","frlbl_ap","p_bnd","p_gld","p_biz"],
+ terms:[["star schema","fact + dimensions: a consumption shape. A projection of the model, never the model."],["conformed dimension","the conformed entity, materialized for stars — Kimball\u2019s integration mechanism, generated from the model layer."],["scaffolding rule","stars may be harvested INTO the canonical format; they are never the canonical format."]]},
+
+{t:"Part Three \u00b7 Deriving models from what the apps actually have",
+ b:`<p>The apps\u2019 landed CSVs are <b>fact-shaped</b>: measurement rows at some grain with dimension references — and copies — flattened in. The per-app exercise yields two artifacts: the <b>domain model</b> (meaning) and the <b>star / mapping reading</b> of their existing files (consumption, copies flagged). But how the model gets derived depends on what the app can give you:</p>
+ <div class="warnbox"><b>Collateral was the easy case, and it is worth knowing why.</b> The TAMS/CMOS JSONs did something quietly enormous: their NESTING encoded the relationships — thresholdList[] inside an agreement, agreements[] inside a group, imCalculation inside an applicability entry. The tree structure is cardinality made visible; we read the model off it. A flat CSV has destroyed exactly that information — flattening is a lossy projection, and what it loses is what the model needs: which columns cluster into which entity, and what depended on what.</div>
+ <p>For flat-only apps the model is <b>reconstructed from evidence</b>, four signals: <b>functional dependencies</b> (agreement_id \u2192 base_currency, always \u2192 one entity — profiler-computable) \u00b7 <b>key repetition</b> (a threshold repeating across an agreement\u2019s event rows = a flattened parent attribute, the copy pattern) \u00b7 <b>grain analysis</b> (what uniquely keys a row = the fact\u2019s entity) \u00b7 <b>one hour with the app SME</b> — \u201cwhat are the THINGS in your world, and which one does a row describe?\u201d recovers what flattening erased.</p>
+ <p><b>The instrument that scales this to twenty apps: the bus matrix as a declaration form.</b> Rows = applications, columns = candidate conformed entities; every cell answers four questions — <i>Have it? Own it or sourced? From where? Keyed how?</i> — because \u201cshared entity, LOCAL COPY\u201d (a 2016 calendar load) and \u201cgenuinely local entity\u201d (a bespoke stress calendar) look identical until asked. And the form fills itself: the <b>profiler drafts</b> each row from landed evidence (name patterns + value fingerprints joined against the conformed masters + format signatures, staged in entity_detection), the team pronounces <b>verdicts, not essays</b> (confirm / correct / reject + the two facts only they know: own-vs-sourced, and from where), verdicts become table_mapping rows — and every confirmation <b>sharpens the fingerprints</b> (entity_signature), so app N+1 drafts better than app N. The Excel is just today\u2019s photograph of the tables.</p>`,
+ show:["frame_ap","frlbl_ap","p_sa","p_agg","p_bnd","p_brz","p_slv","p_cnf"],
+ terms:[["lossy flattening","nesting encodes relationships; a CSV erases them. JSON-rich apps yield models by reading; flat-only apps by reconstruction."],["bus matrix","apps \u00d7 conformed entities, four-question cells. Kimball\u2019s contract between teams — here, a pivot over the governance tables."],["fingerprint learning","confirmed mappings enrich entity signatures (names, value sets, formats); detection improves as a by-product of confirmation."]]},
+
+{t:"Part Three \u00b7 Zero maturity and \u201cAI will do it\u201d — take them at their word",
+ b:`<p>The teams do not know stars, models, entities or relationships — and say \u201cAI will do it.\u201d Wrong as an outcome, <b>almost right as a workflow</b> — and the almost is the leverage: <b>AI drafts everything; a human\u2019s only job is to say true or false to sentences about their own system.</b></p>
+ <p>The team-facing method, with the modeling words banned: three operational questions any system-runner can answer — <i>what is one row of this file? \u00b7 which column-groups describe the same thing? \u00b7 where does that thing\u2019s data come from?</i> Before the meeting, profiler + LLM turn the clusters and samples into <b>plain-sentence claims</b>: \u201cone row of dailyexposure appears to be one margin check of one agreement on one day\u201d \u00b7 \u201cthese nine columns describe the counterparty; values match the client master 97%\u201d \u00b7 \u201cbase_threshold repeats per agreement — a copied term, original in TAMS.\u201d The team spends <b>45 minutes marking true / false / \u201cactually it\u2019s\u2026\u201d</b> — and the corrections are the gold no profiler can detect. Your team compiles verdicts into the artifacts; the app team gets back one page of their own system explained in sentences — often the first time anyone has.</p>
+ <div class="warnbox"><b>Two protections, non-negotiable:</b> AI drafts are QUARANTINED (entity_detection) until confirmed — an unconfirmed claim never enters the governance tables, because an AI-guessed mapping presented as truth is the plausible-nonsense failure mode with our signature on it. And sessions ride the operational moments already owned — the silver-layer work, the publish gate — so confirming is the path of least resistance.</div>
+ <p>And the sentence back up the chain when \u201cAI will do it\u201d is said dismissively: <b>\u201cAgreed — AI will do it. Our job is the 45 minutes per team that makes AI\u2019s answers true instead of plausible.\u201d</b> The collateral demos prove both directions: Genie answers BECAUSE declarations exist — and hallucinates joins where they do not.</p>`,
+ show:["frame_ap","frlbl_ap","p_brz","p_slv","p_cnf","p_gld","p_biz"],
+ terms:[["verdict workflow","AI drafts claims from evidence; humans confirm/correct/reject; only verdicts enter governance. Drafting is cheap, truth is human."],["quarantine rule","unconfirmed AI claims never serve consumers — staged in detection tables, promoted only on confirmation."]]},
+
+{t:"The whole map — and the paragraph to say out loud",
+ b:`<p>Everything on one board. And the narration, ready for any room:</p>
+ <div class="quote">Data mesh has two planes. The operational plane integrates through services — small, transactional, request-response — and our legacy estate already does this well; nothing changes there. The analytical plane is different by nature: temporal, bulk, cross-domain. There, each domain publishes source-aligned products, but consumers should not re-consolidate fifteen of them — consolidation and conformance happen once, in an aggregate product with a named domain owner, and consumers take the aggregate through batch, storage-level ports. Risk then presents that data to its own applications through its consumer-aligned boundary — the Risk-conformed entities. Services move the business; products move the analysis; the aggregate is where meaning gets settled once.</div>
+ <div class="boxlabel">And the three sentences that survive any reorganization</div>
+ <p><b>1.</b> We conform meanings, not rows — rows meet conformance only at product boundaries, where products are born conformed.<br>
+ <b>2.</b> Apps map once, to the Risk-conformed boundary — inputs and outputs both — so upstream churn (hub, mesh, or the middlemen merging) is absorbed in landing pipelines, invisible above.<br>
+ <b>3.</b> One meaning per business thing, however many ports serve it — and whoever owns the aggregate owns the meaning.</p>`,
+ show:ALL,
+ terms:[["(recap)","planes · ports · source-aligned / aggregate / consumer-aligned · conformed entity vs product · Path A / Path B · proxy domain · one product, two ports."]]},
+];
+
+let i=0;
+const $=id=>document.getElementById(id);
+function render(){
+  const st=steps[i];
+  ALL.forEach(id=>{const el=$(id); if(!el) return; el.classList.remove("hide","dim");
+    if(st.show.length && !st.show.includes(id)) el.classList.add(st.show.length>8?"dim":"hide");
+    if(!st.show.length) el.classList.add("dim");});
+  $("panelBody").innerHTML="<h2>"+(i+1)+" · "+st.t+"</h2>"+st.b;
+  $("where").textContent="step "+(i+1)+" of "+steps.length;
+  $("prev").disabled=(i===0); $("next").disabled=(i===steps.length-1);
+  $("side").innerHTML=st.show.length? st.show.filter(x=>x.startsWith("p_")||x.startsWith("w_")).map(x=>{
+    const cls=x.startsWith("w_")?"c-warn":(["p_sa","p_agg","p_gld"].includes(x)?"c-gold":(x.startsWith("p_s")||["p_ver","p_rapps","p_down","p_src"].includes(x)?"c-op":"c-ap"));
+    return '<span class="chip '+cls+'">'+x.replace(/^p_|^w_/,"")+'</span>';}).join("") : '<span style="color:#6b7670;font-style:italic">the empty canvas — everything enters step by step</span>';
+  $("terms").innerHTML="<dl>"+st.terms.map(t=>"<dt>"+t[0]+"</dt><dd>"+t[1]+"</dd>").join("")+"</dl>";
+  window.scrollTo({top:0});
+}
+$("prev").onclick=()=>{i=Math.max(0,i-1);render()};
+$("next").onclick=()=>{i=Math.min(steps.length-1,i+1);render()};
+render();
+</script>
+</body>
+</html>
