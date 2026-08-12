@@ -1,0 +1,130 @@
+record_id,issuer_name,parent_name,address,city,country,exposure,true_issuer
+800068,Investech,,100 Grayston Drive,Sandton,South Africa,13000000,Investec
+800088,Bank of Nova Scota,Bank of Nova Scotia,44 King Street West,Toronto,,88000000,Bank of Nova Scotia
+800081,Nova Scotia Bank,Bank of Nova Scotia,,,Canada,16000000,Bank of Nova Scotia
+800096,Bank of America NA,Bank of America Corp,100 N Tryon St,Charlotte,USA,30000000,Bank of America
+800024,Jp Morgan Chse,JPMorgan Chase & Co,383 Madison Ave,New York,USA,76000000,JPMorgan Chase
+800022,JPMorgn Chase,JPMorgan Chase & Co,383 Madison Ave,,USA,47000000,JPMorgan Chase
+800128,Scot,,,,,5000000,AMBIGUOUS
+800066,Invstec Bank,Investec Group,100 Grayston Drive,,South Africa,37000000,Investec
+800045,Duetsche Bank,,Taunusanlage 12,Frankfurt am Main,Germany,69000000,Deutsche Bank
+800087,Bank of Nova Scota,,,,Canada,62000000,Bank of Nova Scotia
+800073,Bank of Nova Scotia,Bank of Nova Scotia,44 King Street West,Toronto,,81000000,Bank of Nova Scotia
+800111,Bank of China,,1 Fuxingmen Nei,Beijing,China,66000000,Bank of China
+800054,Investec Bank Ltd,Investec Group,100 Grayston Drive,Sandton,South Africa,10000000,Investec
+800122,Bank of China Limited,,1 Fuxingmen Nei,Beijing,China,10000000,Bank of China
+800044,Duetsche Bank,Deutsche Bank AG,Taunusanlage 12,Frankfurt,Germany,6000000,Deutsche Bank
+800061,Investec Bank Limted,,100 Grayston Drive,Sandton,South Africa,85000000,Investec
+800124,Bank of China Limited,,1 Fuxingmen Nei,Beijing,China,20000000,Bank of China
+800009,J.P. Morgan,,,New York,USA,84000000,JPMorgan Chase
+800085,BNS,Bank of Nova Scotia,,Toronto,Canada,41000000,Bank of Nova Scotia
+800080,Nova Scotia Bank,Bank of Nova Scotia,44 King Street West,Toronto,Canada,64000000,Bank of Nova Scotia
+800006,JP Morgan Chase,,,New York,USA,50000000,JPMorgan Chase
+800074,Scotiabank,Bank of Nova Scotia,44 King Street West,Toronto,Canada,11000000,Bank of Nova Scotia
+800013,JPMorgan,,383 Madison Avenue,New York,USA,15000000,JPMorgan Chase
+800019,J.P.Morgan Chase,,383 Madison Ave,,USA,20000000,JPMorgan Chase
+800007,JP Morgan Chase,JPMorgan Chase & Co,383 Madison Avenue,New York,USA,59000000,JPMorgan Chase
+800032,DB AG,Deutsche Bank AG,Taunusanlage 12,Frankfurt,Germany,1000000,Deutsche Bank
+800077,Scotiabank,Bank of Nova Scotia,44 King Street West,Toronto,Canada,29000000,Bank of Nova Scotia
+800012,JPMorgan,,,New York,USA,84000000,JPMorgan Chase
+800093,Bank of America,Bank of America Corp,,Charlotte,USA,16000000,Bank of America
+800127,JPM,,,,,5000000,AMBIGUOUS
+800011,J.P. Morgan,,,New York,,54000000,JPMorgan Chase
+800033,DB AG,,Taunusanlage 12,Frankfurt am Main,Germany,51000000,Deutsche Bank
+800021,JPMorgn Chase,JPMorgan Chase & Co,383 Madison Avenue,New York,USA,82000000,JPMorgan Chase
+800083,BNS,Bank of Nova Scotia,44 King Street West,Toronto,Canada,88000000,Bank of Nova Scotia
+800005,JP Morgan Chase,JPMorgan Chase & Co,,New York,USA,82000000,JPMorgan Chase
+800055,Investec,,100 Grayston Drive,Sandton,South Africa,9000000,Investec
+800039,Deutsche Bank A.G.,,Taunusanlage 12,Frankfurt,Germany,74000000,Deutsche Bank
+800071,Bank of Nova Scotia,Bank of Nova Scotia,44 King St West,Toronto,Canada,44000000,Bank of Nova Scotia
+800030,DB AG,,Taunusanlage 12,Frankfurt,Germany,32000000,Deutsche Bank
+800125,Investech Bnk,,,,,5000000,AMBIGUOUS
+800118,BOC,Bank of China Ltd,1 Fuxingmen Nei,Beijing,China,84000000,Bank of China
+800100,BofA,,100 North Tryon St,Charlotte,USA,84000000,Bank of America
+800063,Investec Bank Limted,Investec Group,,Sandton,South Africa,67000000,Investec
+800051,Investec Bank Limited,Investec Group,,Sandton,South Africa,20000000,Investec
+800049,Db Ag,Deutsche Bank AG,Taunusanlage 12,Frankfurt am Main,Germany,45000000,Deutsche Bank
+800020,J.P.Morgan Chase,JPMorgan Chase & Co,383 Madison Ave,New York,USA,90000000,JPMorgan Chase
+800115,Bank of China Ltd,,1 Fuxingmen Nei,Beijing,China,28000000,Bank of China
+800090,Scotia Bank,Bank of Nova Scotia,44 King St West,Toronto,,57000000,Bank of Nova Scotia
+800035,Deutsche Bk,Deutsche Bank AG,,Frankfurt am Main,Germany,70000000,Deutsche Bank
+800101,BofA,Bank of America Corp,100 North Tryon St,Charlotte,USA,22000000,Bank of America
+800025,Deutsche Bank AG,,,Frankfurt am Main,Germany,36000000,Deutsche Bank
+800008,J.P. Morgan,JPMorgan Chase & Co,,New York,USA,24000000,JPMorgan Chase
+800099,BofA,Bank of America Corp,,Charlotte,USA,89000000,Bank of America
+800123,Bank of China Limited,Bank of China Ltd,1 Fuxingmen Nei,Beijing,China,27000000,Bank of China
+800023,Jp Morgan Chse,,383 Madison Avenue,New York,USA,22000000,JPMorgan Chase
+800029,Deutsche Bank,Deutsche Bank AG,Taunusanlage 12,Frankfurt,Germany,63000000,Deutsche Bank
+800026,Deutsche Bank AG,Deutsche Bank AG,Taunusanlage 12,Frankfurt,Germany,89000000,Deutsche Bank
+800102,Bank of Amerca,Bank of America Corp,,Charlotte,USA,17000000,Bank of America
+800018,JPM Chase,JPMorgan Chase & Co,383 Madison Avenue,New York,USA,88000000,JPMorgan Chase
+800003,JPMorgan Chase & Co,JPMorgan Chase & Co,383 Madison Avenue,New York,,15000000,JPMorgan Chase
+800110,Bank of America Corp,,100 North Tryon St,Charlotte,USA,2000000,Bank of America
+800108,B of A,,100 North Tryon St,Charlotte,USA,58000000,Bank of America
+800027,Deutsche Bank,,Taunusanlage 12,Frankfurt,Germany,18000000,Deutsche Bank
+800119,Bank of Chna,Bank of China Ltd,1 Fuxingmen Nei,Beijing,,57000000,Bank of China
+800046,Duetsche Bank,Deutsche Bank AG,Taunusanlage 12,Frankfurt,Germany,58000000,Deutsche Bank
+800086,Bank of Nova Scota,Bank of Nova Scotia,44 King St West,Toronto,,15000000,Bank of Nova Scotia
+800028,Deutsche Bank,,,,Germany,57000000,Deutsche Bank
+800037,Deutsche Bank A.G.,Deutsche Bank AG,,,Germany,36000000,Deutsche Bank
+800064,Invstec Bank,,,Sandton,South Africa,5000000,Investec
+800084,BNS,,44 King St West,Toronto,Canada,44000000,Bank of Nova Scotia
+800116,Bank of China Ltd,Bank of China Ltd,1 Fuxingmen Nei,Beijing,China,68000000,Bank of China
+800082,Nova Scotia Bank,Bank of Nova Scotia,44 King St West,Toronto,Canada,11000000,Bank of Nova Scotia
+800104,Bank of Amerca,Bank of America Corp,,Charlotte,USA,35000000,Bank of America
+800076,Scotiabank,Bank of Nova Scotia,,Toronto,Canada,80000000,Bank of Nova Scotia
+800120,Bank of Chna,Bank of China Ltd,,,China,29000000,Bank of China
+800031,DB AG,Deutsche Bank AG,,Frankfurt,Germany,78000000,Deutsche Bank
+800042,DEUTCHE BANK,Deutsche Bank AG,Taunusanlage 12,Frankfurt am Main,Germany,63000000,Deutsche Bank
+800106,B of A,Bank of America Corp,,,USA,79000000,Bank of America
+800126,D B,,,,,5000000,AMBIGUOUS
+800038,Deutsche Bank A.G.,Deutsche Bank AG,Taunusanlage 12,,Germany,15000000,Deutsche Bank
+800113,Bank of China,,,,China,24000000,Bank of China
+800092,Scotia Bank,Bank of Nova Scotia,44 King St West,Toronto,Canada,57000000,Bank of Nova Scotia
+800060,INVESTC BANK,Investec Group,,Sandton,South Africa,87000000,Investec
+800059,INVESTC BANK,Investec Group,100 Grayston Drive,Sandton,South Africa,18000000,Investec
+800109,Bank of America Corp,Bank of America Corp,,Charlotte,USA,56000000,Bank of America
+800097,Bank of America NA,Bank of America Corp,100 N Tryon St,,USA,25000000,Bank of America
+800089,Bank of Nova Scota,Bank of Nova Scotia,,,Canada,25000000,Bank of Nova Scotia
+800014,JPMorgan,,383 Madison Avenue,New York,USA,20000000,JPMorgan Chase
+800036,Deutsche Bk,Deutsche Bank AG,Taunusanlage 12,Frankfurt,Germany,69000000,Deutsche Bank
+800002,JPMorgan Chase & Co,JPMorgan Chase & Co,,New York,USA,42000000,JPMorgan Chase
+800121,Bank of Chna,Bank of China Ltd,1 Fuxingmen Nei,Beijing,China,83000000,Bank of China
+800095,Bank of America NA,Bank of America Corp,100 North Tryon St,Charlotte,USA,48000000,Bank of America
+800047,Db Ag,,Taunusanlage 12,Frankfurt,Germany,74000000,Deutsche Bank
+800001,JPMorgan Chase & Co,JPMorgan Chase & Co,,New York,USA,19000000,JPMorgan Chase
+800034,Deutsche Bk,Deutsche Bank AG,Taunusanlage 12,Frankfurt,Germany,79000000,Deutsche Bank
+800098,Bank of America NA,,,Charlotte,USA,44000000,Bank of America
+800004,JP Morgan Chase,JPMorgan Chase & Co,383 Madison Avenue,New York,USA,55000000,JPMorgan Chase
+800094,Bank of America,,100 North Tryon St,Charlotte,USA,17000000,Bank of America
+800065,Invstec Bank,Investec Group,100 Grayston Drive,Sandton,South Africa,18000000,Investec
+800010,J.P. Morgan,JPMorgan Chase & Co,383 Madison Avenue,New York,USA,60000000,JPMorgan Chase
+800117,BOC,,1 Fuxingmen Nei,Beijing,China,17000000,Bank of China
+800112,Bank of China,Bank of China Ltd,1 Fuxingmen Nei,Beijing,China,29000000,Bank of China
+800000,JPMorgan Chase & Co,JPMorgan Chase & Co,383 Madison Avenue,New York,USA,6000000,JPMorgan Chase
+800062,Investec Bank Limted,Investec Group,100 Grayston Drive,,South Africa,36000000,Investec
+800016,JPM Chase,JPMorgan Chase & Co,,New York,USA,84000000,JPMorgan Chase
+800017,JPM Chase,JPMorgan Chase & Co,383 Madison Avenue,New York,USA,42000000,JPMorgan Chase
+800058,INVESTC BANK,,,Sandton,South Africa,11000000,Investec
+800050,Investec Bank Limited,Investec Group,100 Grayston Drive,Sandton,South Africa,19000000,Investec
+800056,Investec,Investec Group,,Sandton,South Africa,47000000,Investec
+800114,Bank of China Ltd,,1 Fuxingmen Nei,Beijing,China,88000000,Bank of China
+800075,Scotiabank,Bank of Nova Scotia,44 King St West,Toronto,Canada,23000000,Bank of Nova Scotia
+800107,B of A,,100 North Tryon St,Charlotte,USA,9000000,Bank of America
+800079,The Bank of Nova Scotia,Bank of Nova Scotia,,,Canada,59000000,Bank of Nova Scotia
+800105,Bank of Amerca,Bank of America Corp,100 North Tryon St,Charlotte,USA,59000000,Bank of America
+800043,Duetsche Bank,,,Frankfurt,Germany,25000000,Deutsche Bank
+800072,Bank of Nova Scotia,Bank of Nova Scotia,,Toronto,Canada,2000000,Bank of Nova Scotia
+800015,JPM Chase,JPMorgan Chase & Co,,,USA,46000000,JPMorgan Chase
+800053,Investec Bank Ltd,Investec Group,100 Grayston Drive,Sandton,South Africa,26000000,Investec
+800067,Investech,Investec Group,100 Grayston Drive,Sandton,South Africa,16000000,Investec
+800091,Scotia Bank,Bank of Nova Scotia,44 King St West,Toronto,Canada,60000000,Bank of Nova Scotia
+800040,DEUTCHE BANK,,Taunusanlage 12,Frankfurt,Germany,10000000,Deutsche Bank
+800070,Bank of Nova Scotia,Bank of Nova Scotia,44 King Street West,Toronto,Canada,20000000,Bank of Nova Scotia
+800103,Bank of Amerca,Bank of America Corp,100 N Tryon St,Charlotte,USA,18000000,Bank of America
+800048,Db Ag,Deutsche Bank AG,Taunusanlage 12,,,7000000,Deutsche Bank
+800069,Investech,,,Sandton,South Africa,76000000,Investec
+800078,The Bank of Nova Scotia,Bank of Nova Scotia,44 King St West,Toronto,Canada,85000000,Bank of Nova Scotia
+800057,Investec,Investec Group,100 Grayston Drive,Sandton,South Africa,75000000,Investec
+800041,DEUTCHE BANK,Deutsche Bank AG,Taunusanlage 12,Frankfurt,Germany,82000000,Deutsche Bank
+800052,Investec Bank Ltd,Investec Group,100 Grayston Drive,Sandton,South Africa,38000000,Investec

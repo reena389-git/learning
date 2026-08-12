@@ -1,0 +1,13 @@
+table,rows,cols,grain
+agreements,7500,72,agreement per reporting_date (snapshot)
+organization,2000,9,party per reporting_date
+trades,40000,33,trade
+daily_exposure,29999,41,margin event
+disputes,1000,12,dispute
+settlement_instructions,5935,16,agreement-asset SSI
+collateral_eligibility,1831,10,agreement-asset eligibility
+asset_holdings,10000,107,held position
+asset_settlements,15000,21,movement
+repo_trades,5000,17,repo trade
+repo_daily_exposure,5000,24,repo event
+fx_rates,30,6,ccy-date rate

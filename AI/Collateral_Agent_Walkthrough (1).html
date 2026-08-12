@@ -1,0 +1,367 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><title>Collateral Agent — Walkthrough</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+         line-height: 1.6; color: #1f2430; max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+  h1 { color: #1F3A5F; border-bottom: 3px solid #2E6DA4; padding-bottom: 8px; }
+  h2 { color: #1F3A5F; margin-top: 44px; border-left: 5px solid #2E6DA4; padding-left: 12px; }
+  h3 { color: #2E6DA4; margin-top: 28px; }
+  code { background: #eef2f7; padding: 2px 6px; border-radius: 4px; font-family: SFMono-Regular, Consolas, monospace; font-size: 0.92em; }
+  pre { background: #1e2733; color: #e6edf3; padding: 16px; border-radius: 8px; overflow-x: auto;
+        font-family: SFMono-Regular, Consolas, monospace; font-size: 0.85em; line-height: 1.5; }
+  pre code { background: none; color: inherit; padding: 0; }
+  .box { border-radius: 8px; padding: 14px 18px; margin: 16px 0; }
+  .def { background: #eaf1f8; border-left: 5px solid #2E6DA4; }
+  .why { background: #fff7e6; border-left: 5px solid #b8860b; }
+  .warn { background: #fdecea; border-left: 5px solid #c0392b; }
+  .ok  { background: #eafaf1; border-left: 5px solid #27ae60; }
+  .tag { display:inline-block; background:#2E6DA4; color:#fff; border-radius: 4px; padding:1px 8px; font-size:0.78em; margin-right:6px; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #cfd8e3; padding: 8px 10px; text-align: left; vertical-align: top; font-size: 0.92em; }
+  th { background: #1F3A5F; color: #fff; }
+  .toc a { text-decoration: none; color: #2E6DA4; }
+  .toc li { margin: 4px 0; }
+  .status-done { color: #27ae60; font-weight: bold; }
+  .status-todo { color: #b8860b; font-weight: bold; }
+  .small { color:#666; font-size:0.9em; }
+  .svgwrap { text-align:center; margin: 20px 0; }
+</style>
+</head><body>
+<h1>Collateral Agent — Code Walkthrough &amp; Learning Notes</h1>
+<p class="small">Living document. Updated after building the corporate-actions tool, deploying the agent,
+and working out the full Unity Catalog permission model. Corrections from the first draft are folded in.</p>
+
+<div class="box def">
+<b>How to read this</b><br>
+<span class="tag">DEF</span> plain-English definition &nbsp; <span class="tag">WHY</span> reasoning &nbsp;
+<span class="tag">PYTHON</span> language refresher &nbsp; <span class="tag">GOTCHA</span> a trap we hit and how it was fixed.
+</div>
+
+<h2 id="toc">Contents</h2>
+<ul class="toc">
+  <li><a href="#libs">1. The library landscape</a></li>
+  <li><a href="#py">2. Python refreshers (decorators, docstrings, variables-vs-strings, braces)</a></li>
+  <li><a href="#route">3. Routing: docstring vs system prompt (corrected)</a></li>
+  <li><a href="#build">4. The BUILD notebook — line by line</a></li>
+  <li><a href="#deploy">5. The DEPLOY notebook + the objects it creates in UC</a></li>
+  <li><a href="#perms">6. The Unity Catalog permission model (the tree)</a></li>
+  <li><a href="#obs">7. Payload table vs Experiments/Traces (they are different)</a></li>
+  <li><a href="#ucfn">9. Registering a tool as a governed UC function</a></li>
+  <li><a href="#todo">8. Checklist of topics</a></li>
+</ul>
+
+<!-- =============================== -->
+<h2 id="libs">1. The library landscape</h2>
+<p>The libraries stack in layers — general open-source at the bottom, Databricks-specific at the top.</p>
+<table>
+<tr><th>Library</th><th>What it is</th><th>What you used</th></tr>
+<tr><td><b>LangChain</b> <code>langchain_core</code></td><td>Foundational open-source LLM framework. Defines the standard vocabulary (tool, message, model).</td><td><code>@tool</code> decorator.</td></tr>
+<tr><td><b>LangGraph</b></td><td>Built on LangChain, for building AGENTS — the engine that runs the reason-act loop (modelled as a graph of steps).</td><td><code>create_react_agent</code>.</td></tr>
+<tr><td><b>databricks-langchain</b></td><td>Databricks' adapter layer — makes LangChain talk to Databricks models &amp; Genie.</td><td><code>ChatDatabricks</code>, <code>GenieAgent</code>.</td></tr>
+<tr><td><b>MLflow</b></td><td>Lifecycle: tracing, packaging, registry, serving contracts.</td><td><code>autolog</code>, <code>log_model</code>, <code>register_model</code>, <code>ResponsesAgent</code>.</td></tr>
+<tr><td><b>databricks-agents</b></td><td>High-level deploy helper.</td><td><code>agents.deploy</code>.</td></tr>
+</table>
+<div class="box why"><b>One insight</b><br>LangChain/LangGraph are vendor-neutral; the <code>databricks-*</code> libs are thin ADAPTERS onto your governed platform. That is why 'swap the model' is a one-line change.</div>
+
+<!-- =============================== -->
+<h2 id="py">2. Python refreshers</h2>
+
+<h3>2.1 Decorators — <code>@tool</code></h3>
+<div class="box def"><b>Decorator</b><br>A function that WRAPS another function to add behavior. <code>@tool</code> turns your function into a tool object by reading its NAME, its PARAMETERS+type-hints, and its DOCSTRING.</div>
+
+<h3>2.2 Variables vs strings (the bug that broke the deploy)</h3>
+<div class="box warn"><b>GOTCHA we hit</b><br>In the deploy we wrote <code>DatabricksGenieSpace(genie_space_id='GENIE_SPACE_ID')</code> — with QUOTES. Quotes make it the literal TEXT "GENIE_SPACE_ID", not the variable's value. So the deploy looked for a Genie space literally named 'GENIE_SPACE_ID' and failed ('For input string: ""').</div>
+<div class="box def"><b>The rule</b><br><code>GENIE_SPACE_ID</code> (no quotes) = the VARIABLE -> its value (the real UUID). <code>'GENIE_SPACE_ID'</code> (quotes) = the literal STRING. Quote literal text (like a table name); do NOT quote a variable you want the value of. Fix was to remove the quotes: <code>genie_space_id=GENIE_SPACE_ID</code>.</div>
+
+<h3>2.3 f-strings and braces</h3>
+<div class="box def"><b>f-string</b><br><code>f"..."</code> lets <code>{{x}}</code> insert a variable. ONE brace pair = substitute a variable. Triple-quoted <code>f"""..."""</code> is just a MULTI-LINE f-string (used for the multi-line SQL). In your real notebook the agent input is SINGLE braces: <code>agent.invoke({{"messages": [{{"role":"user","content": q}}]}})</code> — a normal dict containing a list containing a dict. (Any doubled braces you saw earlier were an artifact of THIS document being generated by an f-string, where <code>{{</code> escapes to a literal <code>{{</code>.)</div>
+
+<h3>2.4 Re-running cells — what to re-run</h3>
+<div class="box why"><b>The rule</b><br>Re-run only the cell you changed, PLUS any downstream cells that depend on its output. <code>%%writefile agent.py</code> only writes the file WHEN RUN — editing its text does nothing until you execute it, and the deploy reads the FILE on disk, not your cell text. When we fixed the quotes in the LOG cell, we re-ran LOG -> REGISTER -> DEPLOY, but not agent.py (it was unchanged).</div>
+
+<!-- =============================== -->
+<h2 id="route">3. Routing — docstring vs system prompt (corrected)</h2>
+<div class="box def"><b>Both are needed; different jobs</b><br>The DOCSTRING on each tool is what the model routes ON — it is the tool's 'use this when…' spec that the model matches the question against. The SYSTEM PROMPT is the routing POLICY — overall preferences and any explicit hints ('for X call ToolA; for Y call ToolB'). Docstrings alone can route; the system prompt reinforces and disambiguates. Earlier this document overstated the docstring as 'the routing logic' — the accurate statement: docstring = what it routes ON, system prompt = how it routes.</div>
+<div class="box ok"><b>What you proved</b><br>With two tools (CollateralOperations, CorporateActions), the SAME agent routed a collateral question to the Genie tool and a name-change question to the SQL tool. Same brain, different question, different tool = a multi-tool agent.</div>
+
+<!-- =============================== -->
+<h2 id="build">4. The BUILD notebook — line by line</h2>
+<p>File: <code>Custom_Collateral_Agent</code>. Where the agent lives and grows; tools are added here.</p>
+<table>
+<tr><th>Cell</th><th>What / why</th></tr>
+<tr><td>1 install</td><td><code>%pip install ...</code> + <code>dbutils.library.restartPython()</code> — restart is required so new libs load.</td></tr>
+<tr><td>2 config</td><td><code>LLM_ENDPOINT</code> (the served model name) and <code>GENIE_SPACE_ID</code> (the space UUID) in one place.</td></tr>
+<tr><td>3 tracing</td><td><code>mlflow.langchain.autolog()</code> records every step as a trace — makes the loop visible.</td></tr>
+<tr><td>4 brain</td><td><code>ChatDatabricks(endpoint=LLM_ENDPOINT)</code> — a LangChain chat model pointed at a governed Databricks endpoint. <code>.invoke().content</code> = the text reply.</td></tr>
+<tr><td>5 Genie tool</td><td><code>GenieAgent(...)</code> wraps the Genie SPACE as a tool (does the async query+poll). Its <code>description</code> is a routing hint.</td></tr>
+<tr><td>6 tools+agent</td><td>Defines both <code>@tool</code> functions, then <code>create_react_agent(model=llm, tools=[...], prompt=SYSTEM_PROMPT)</code> builds the reason-act loop. Tools must be defined ABOVE the agent that uses them.</td></tr>
+</table>
+<div class="box def"><b>create_react_agent + invoke</b><br>Builds the loop: model reasons -> requests a tool -> LangGraph RUNS the tool -> result back to model -> repeat -> final answer. <code>agent.invoke({{'messages':[{{'role':'user','content': q}}]}})</code> runs it; input is a messages LIST; <code>result['messages'][-1].content</code> is the final answer.</div>
+
+<!-- =============================== -->
+<h2 id="deploy">5. The DEPLOY notebook + the UC objects it creates</h2>
+<p>File: <code>deploy_collateral_agent</code>. Packages the agent as a file, logs it, registers it in UC, and deploys it.</p>
+
+<h3>5.1 The four constructs</h3>
+<table>
+<tr><th>Construct</th><th>What / why</th></tr>
+<tr><td><code>%%writefile agent.py</code></td><td>Writes the cell to a FILE (you ship files, not notebook variables). MLflow 'Models from Code' logs this file and replays it at serving time.</td></tr>
+<tr><td><code>class ...(ResponsesAgent)</code> + <code>predict()</code></td><td>The serving CONTRACT. Model Serving calls <code>predict(request)</code> on every request; it reads <code>request.input</code>, runs the same agent loop, returns a <code>ResponsesAgentResponse</code>.</td></tr>
+<tr><td><code>ResponsesAgentRequest / Response</code></td><td>Standard OBJECT shapes for input/output. Input field is <b>input</b> (NOT messages); output is under <b>output</b> (NOT choices). This is the OpenAI-COMPATIBLE format — a format standard, not the vendor.</td></tr>
+<tr><td><code>set_model</code> / <code>log_model</code> / <code>register_model</code> / <code>agents.deploy</code></td><td>Point MLflow at the servable object -> record it (declaring resources) -> promote to a governed UC object -> provision the live endpoint.</td></tr>
+</table>
+
+<div class="box warn"><b>GOTCHA — calling the endpoint uses different field names than a chat model</b><br>Your agent uses the ResponsesAgent contract. So: SEND <code>{{'input':[{{'role':'user','content':q}}]}}</code> (not 'messages'); READ the answer at <code>response['output'][0]['content'][0]['text']</code> (not 'choices'). We first got a schema error 'missing inputs [input]... extra inputs [messages]' — that told us exactly to switch 'messages' -> 'input'.</div>
+
+<h3>5.2 The objects the deploy creates in Unity Catalog</h3>
+<table>
+<tr><th>Object</th><th>What it is</th><th>Role</th></tr>
+<tr><td>Model (<code>collateral_assistant_AGENT</code>, v1..)</td><td>The registered agent artifact</td><td>Governed object: permissions, lineage, versions, owner.</td></tr>
+<tr><td>Active endpoint (<code>collateral-assistant</code>)</td><td>The live running instance</td><td>Where requests actually execute (the stable front door).</td></tr>
+<tr><td><b>Agent Payload table</b> (<code>..._AGENT_payload</code>)</td><td>The INFERENCE table</td><td>Records production USER request/response payloads — the audit of who asked what and what came back.</td></tr>
+<tr><td>Volume -> <code>code</code></td><td>The packaged <code>agent.py</code> + artifacts</td><td>The actual code the endpoint runs. (An empty 'Pipeline' subfolder is just unused scaffolding.)</td></tr>
+<tr><td>Function (<code>collateral_assistant_AGENT</code>)</td><td>SQL-callable wrapper</td><td>Lets you call the agent from SQL (ai_query style).</td></tr>
+</table>
+<div class="box def"><b>Versions live on the MODEL, not the endpoint</b><br>You specify a version only at DEPLOY time (<code>agents.deploy(model_version=N)</code>). When you CALL the endpoint you do NOT pass a version — the endpoint always serves whatever version is currently deployed. This lets you upgrade agents (or traffic-split) without changing any caller's code.</div>
+
+<!-- =============================== -->
+<h2 id="perms">6. The Unity Catalog permission model</h2>
+<p>This is the heart of what we learned by deploying. A deployed agent runs with the CREATOR's identity but a
+SCOPED credential — it does NOT inherit your full interactive access. It needs (a) resources DECLARED at deploy
+time, and (b) the full grant CHAIN on the data. The risk catalog grants only <code>BROWSE</code> by default, so
+every level must be granted explicitly.</p>
+
+
+<div class="svgwrap">
+<svg viewBox="0 0 900 640" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;font-family:Arial">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#2E6DA4"/>
+    </marker>
+  </defs>
+
+  <!-- LEFT COLUMN: the object hierarchy + privilege needed at each level -->
+  <text x="20" y="28" font-size="16" font-weight="bold" fill="#1F3A5F">The traversal chain (must satisfy EVERY level)</text>
+
+  <!-- Catalog -->
+  <rect x="40" y="50" width="360" height="70" rx="8" fill="#eaf1f8" stroke="#2E6DA4"/>
+  <text x="55" y="75" font-size="14" font-weight="bold" fill="#1F3A5F">CATALOG</text>
+  <text x="55" y="95" font-size="12" fill="#333">d4001-centralus-tdvip-creditrisk</text>
+  <text x="55" y="112" font-size="12" fill="#c0392b" font-weight="bold">needs: USE CATALOG  (BROWSE = see only, NOT enough)</text>
+
+  <line x1="220" y1="120" x2="220" y2="150" stroke="#2E6DA4" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Schema -->
+  <rect x="40" y="152" width="360" height="70" rx="8" fill="#eaf1f8" stroke="#2E6DA4"/>
+  <text x="55" y="177" font-size="14" font-weight="bold" fill="#1F3A5F">SCHEMA</text>
+  <text x="55" y="197" font-size="12" fill="#333">cmos_core</text>
+  <text x="55" y="214" font-size="12" fill="#c0392b" font-weight="bold">needs: USE SCHEMA  (ownership gives you this)</text>
+
+  <line x1="220" y1="222" x2="220" y2="252" stroke="#2E6DA4" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Tables/Views -->
+  <rect x="40" y="254" width="360" height="86" rx="8" fill="#eaf1f8" stroke="#2E6DA4"/>
+  <text x="55" y="279" font-size="14" font-weight="bold" fill="#1F3A5F">TABLES / VIEWS</text>
+  <text x="55" y="298" font-size="11" fill="#333">assetholdingsmetricview, daily_exposure,</text>
+  <text x="55" y="313" font-size="11" fill="#333">asset_holdings, agreements, fx_rates</text>
+  <text x="55" y="332" font-size="12" fill="#c0392b" font-weight="bold">needs: SELECT on each (+ SELECT on a view's</text>
+
+  <text x="55" y="360" font-size="11" fill="#666">underlying tables too, since the view reads them)</text>
+
+  <!-- privilege ladder key -->
+  <rect x="40" y="380" width="360" height="140" rx="8" fill="#fff7e6" stroke="#b8860b"/>
+  <text x="55" y="402" font-size="13" font-weight="bold" fill="#8a5a00">Privilege meanings (the gates)</text>
+  <text x="55" y="424" font-size="12" fill="#333">BROWSE   = discover it exists (metadata only)</text>
+  <text x="55" y="443" font-size="12" fill="#333">USE CATALOG = pass THROUGH the catalog gate</text>
+  <text x="55" y="462" font-size="12" fill="#333">USE SCHEMA  = pass THROUGH the schema gate</text>
+  <text x="55" y="481" font-size="12" fill="#333">SELECT   = actually READ the data</text>
+  <text x="55" y="504" font-size="11" fill="#8a5a00">You need the WHOLE chain: USE CAT -> USE SCHEMA -> SELECT</text>
+
+  <!-- RIGHT COLUMN: model / endpoint identity -->
+  <text x="470" y="28" font-size="16" font-weight="bold" fill="#1F3A5F">Who the deployed agent runs AS</text>
+
+  <rect x="470" y="50" width="400" height="120" rx="8" fill="#eafaf1" stroke="#27ae60"/>
+  <text x="485" y="74" font-size="14" font-weight="bold" fill="#1F3A5F">Endpoint identity = the CREATOR</text>
+  <text x="485" y="96" font-size="12" fill="#333">Runs on-behalf-of you (mable6933@gmail.com)</text>
+  <text x="485" y="115" font-size="12" fill="#333">BUT with a SCOPED credential, limited to the</text>
+  <text x="485" y="132" font-size="12" fill="#333">resources DECLARED at deploy time.</text>
+  <text x="485" y="155" font-size="12" fill="#c0392b" font-weight="bold">-> your full interactive access is NOT inherited.</text>
+
+  <line x1="670" y1="170" x2="670" y2="200" stroke="#2E6DA4" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="470" y="202" width="400" height="120" rx="8" fill="#eaf1f8" stroke="#2E6DA4"/>
+  <text x="485" y="226" font-size="14" font-weight="bold" fill="#1F3A5F">Two things BOTH required</text>
+  <text x="485" y="248" font-size="12" fill="#333">1. DECLARE resources at deploy time</text>
+  <text x="485" y="265" font-size="11" fill="#666">   (resources=[DatabricksGenieSpace, DatabricksTable...])</text>
+  <text x="485" y="286" font-size="12" fill="#333">2. GRANT the traversal chain (left) to the</text>
+  <text x="485" y="303" font-size="11" fill="#666">   run-as principal on the risk catalog</text>
+
+  <line x1="670" y1="322" x2="670" y2="352" stroke="#2E6DA4" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="470" y="354" width="400" height="140" rx="8" fill="#fff7e6" stroke="#b8860b"/>
+  <text x="485" y="378" font-size="13" font-weight="bold" fill="#8a5a00">WHO to grant to</text>
+  <text x="485" y="400" font-size="12" fill="#333">TEST (learning): GRANT ... TO `account users`</text>
+  <text x="485" y="417" font-size="11" fill="#666">   = EVERYONE in the account (broad; proves it's</text>
+  <text x="485" y="432" font-size="11" fill="#666">   a permission issue). NOT for production.</text>
+  <text x="485" y="456" font-size="12" fill="#333">PRODUCTION: grant to the specific run-as</text>
+  <text x="485" y="473" font-size="11" fill="#666">   principal only (least privilege).</text>
+
+  <text x="470" y="530" font-size="12" fill="#c0392b" font-weight="bold">Same root cause behind ALL our failures:</text>
+  <text x="470" y="550" font-size="12" fill="#333">the risk catalog grants only BROWSE by default.</text>
+  <text x="470" y="568" font-size="12" fill="#333">CREATE MODEL, USE CATALOG, SELECT each need an</text>
+  <text x="470" y="586" font-size="12" fill="#333">EXPLICIT grant -> nothing is inherited for free.</text>
+</svg>
+</div>
+
+
+<h3>6.1 The privilege ladder (definitions)</h3>
+<table>
+<tr><th>Privilege</th><th>Level</th><th>Meaning</th></tr>
+<tr><td>BROWSE</td><td>Catalog/Schema</td><td>DISCOVER that it exists (metadata only). Cannot query. (This is all the risk catalog grants to users by default — one row: <code>account users : BROWSE : CATALOG</code>.)</td></tr>
+<tr><td>USE CATALOG</td><td>Catalog</td><td>Pass THROUGH the catalog gate to reach schemas inside. A gateway privilege — does nothing by itself.</td></tr>
+<tr><td>USE SCHEMA</td><td>Schema</td><td>Pass THROUGH the schema gate to reach tables. (Schema OWNERSHIP grants you this on your schema — but NOT USE CATALOG on the parent.)</td></tr>
+<tr><td>SELECT</td><td>Table/View</td><td>Actually READ the data. For a VIEW, you also need SELECT on the tables the view reads.</td></tr>
+<tr><td>CREATE TABLE</td><td>Schema</td><td>Comes with schema ownership — why table-create worked in cmos_core.</td></tr>
+<tr><td>CREATE MODEL</td><td>Schema</td><td>A SEPARATE privilege — NOT included in schema ownership by default. Why model registration FAILED in cmos_core (only BROWSE at the catalog) and had to go to <code>workspace</code>.</td></tr>
+</table>
+
+
+<h3>6.1b BROWSE vs USE CATALOG — the distinction, in full</h3>
+<div class="box def"><b>These sound similar but do very different things</b><br>
+<b>BROWSE</b> = you can <i>see that the object exists</i> and read its metadata (names, schemas,
+comments) — but you <b>cannot query or use</b> it. Discovery-only. Like seeing a book's title and
+table of contents on a shelf, but not being allowed to open it. (The risk catalog grants exactly this
+to <code>account users</code> — one row: <code>account users : BROWSE : CATALOG</code>.)<br><br>
+<b>USE CATALOG</b> = you can <i>traverse INTO</i> the catalog to reach objects inside it. A
+gateway/pass-through privilege. It does nothing to the data by itself — it just lets your access flow
+<i>through</i> the catalog gate to the schemas and tables below. Like a key to the building lobby: it
+does not open your office, it just lets you reach the floor your office is on.<br><br>
+<b>Why owning the schema is not enough:</b> UC uses a TRAVERSAL model — to reach any object you must
+pass every gate on the path: <code>USE CATALOG</code> on the catalog AND <code>USE SCHEMA</code> on the
+schema. Owning the SCHEMA gives you <code>USE SCHEMA</code> (and CREATE TABLE) on it — but NOT
+<code>USE CATALOG</code> on the parent catalog above it. So a schema owner can still be blocked at the
+catalog gate if the catalog only grants BROWSE. That is exactly what happened: you own
+<code>cmos_core</code>, but the deployed agent was stuck at the catalog gate until <code>USE CATALOG</code>
+was granted.</div>
+<h3>6.2 The three failures, one root cause</h3>
+<div class="box warn"><b>All caused by 'BROWSE-only' on the risk catalog</b><br>1) Model registration into cmos_core FAILED — needs CREATE MODEL (not granted). Went to <code>workspace</code> instead. 2) The deployed agent could not READ cmos_core data — needs USE CATALOG -> USE SCHEMA -> SELECT (not granted). 3) Even as schema OWNER, you lacked USE CATALOG on the parent catalog. The fix that finally worked: GRANT USE CATALOG + USE SCHEMA + SELECT on the risk catalog to the run-as principal. After that, the endpoint returned real collateral numbers.</div>
+
+<h3>6.3 Who to grant to — <code>account users</code> vs the specific principal</h3>
+<div class="box def"><b>account users</b><br><code>account users</code> = EVERY user in the Databricks account (anyone using the account). It is the broadest grant. We used it to TEST (does granting fix it? yes -> confirms a permission issue). In PRODUCTION you would NOT grant sensitive risk data to everyone — you grant to the specific run-as principal only (least privilege). So: <code>account users</code> = fine for learning, wrong for prod.</div>
+<div class="box def"><b>The grants that fixed it</b><br>GRANT USE CATALOG ON CATALOG `d4001-...` TO `&lt;principal&gt;`; GRANT USE SCHEMA ON SCHEMA `d4001-...`.cmos_core TO `&lt;principal&gt;`; GRANT SELECT ON VIEW/TABLE ... (metricview, daily_exposure, asset_holdings, agreements, fx_rates) TO `&lt;principal&gt;`. Declaring the tables in resources=[...] scopes the credential; the GRANTs authorize it. You need BOTH.</div>
+
+<!-- =============================== -->
+<h2 id="obs">7. Payload table vs Experiments / Traces</h2>
+<div class="box def"><b>They are DIFFERENT records</b><br>PAYLOAD TABLE (in Catalog, <code>..._AGENT_payload</code>) = the PRODUCTION log of USER requests and responses — the external 'what went in / what came out'. Used for audit and quality review of real usage. EXPERIMENTS / TRACES (MLflow) = the INTERNAL workings of each run — the reason-act loop: which tool the agent called, arguments, tool results, model calls. Used to debug HOW the agent reasoned. Analogy: Payload table = the trip receipts (what the customer asked, what they got). Experiments = the engine telemetry (how the car actually drove each trip). Same runs, two different lenses.</div>
+
+<!-- =============================== -->
+
+<h2 id="ucfn">9. Registering a tool as a governed Unity Catalog FUNCTION</h2>
+
+<div class="box ok"><b>Why register a function in UC</b><br>
+Registering it as a UC function turns it into a governed catalog object — exactly like a table:
+<ul>
+<li>It lives in the catalog permanently (<code>catalog.schema.function_name</code>).</li>
+<li>It has permissions (who can execute it), lineage (what it reads), an owner.</li>
+<li>Any agent, notebook, or SQL query can call it — it is a shared, governed asset.</li>
+<li>The agent framework can attach it as a tool via its UC name, not inline Python.</li>
+</ul>
+So this is the same "promote from notebook-local to governed-and-shared" pattern as model
+registration — but for a function. The inline <code>@tool</code> version only exists inside the build
+notebook; the registered UC function exists independently.</div>
+
+<div class="box why"><b>Workflow: a SEPARATE, one-time setup notebook</b><br>
+Registering a function is one-time infrastructure (like the table-creation notebook), NOT part of the
+build or deploy notebooks. Run it once; afterward the function is in the catalog for everything to use.
+Then, in the agent notebook, you SWAP the inline tool for the registered one via
+<code>UCFunctionToolkit</code>.</div>
+
+<div class="box def"><b>When UC functions are the right tool (per Databricks docs)</b><br>
+Recommended specifically for STRUCTURED DATA RETRIEVAL where the query is known ahead of time and the
+agent supplies the parameters — exactly like CorporateActions (a SQL lookup with one parameter). For
+other logic, MCP servers or inline agent code are often better (faster, per-user auth).</div>
+
+<h3>9.1 Method A — a SQL function (recommended for a data lookup)</h3>
+<p>Simplest: pure SQL, no Python context, no warehouse id in code. The <code>COMMENT</code> becomes the
+tool description the agent reads.</p>
+<pre><code>CREATE OR REPLACE FUNCTION `d4001-centralus-tdvip-creditrisk`.cmos_core.corp_actions_lookup(
+    entity_name STRING COMMENT 'Counterparty or issuer name to look up'
+)
+RETURNS TABLE(entity_old STRING, entity_new STRING, action_type STRING,
+             effective_date STRING, notes STRING)
+COMMENT 'Look up corporate actions (name changes, mergers) for a counterparty by name.'
+RETURN
+  SELECT entity_old, entity_new, action_type, effective_date, notes
+  FROM `d4001-centralus-tdvip-creditrisk`.cmos_core.corporate_actions
+  WHERE lower(entity_old) LIKE lower('%' || entity_name || '%')
+     OR lower(entity_new) LIKE lower('%' || entity_name || '%');</code></pre>
+
+<h3>9.2 Method B — a Python function (for arbitrary logic)</h3>
+<p>Via the Databricks Function Client. Rules: type hints + Google-style docstring (UC builds the
+signature + tool description from them), and the function must be SELF-CONTAINED (imports go INSIDE,
+because it runs in its own context, not your notebook).</p>
+<pre><code>from unitycatalog.ai.core.databricks import DatabricksFunctionClient
+client = DatabricksFunctionClient()
+
+def corp_actions_lookup_py(entity_name: str) -> str:
+    """Look up corporate actions (name changes, mergers) for a counterparty.
+    Args:
+        entity_name: The counterparty or issuer name to look up.
+    Returns:
+        Matching records as text, or a 'none found' message.
+    """
+    from databricks.sdk import WorkspaceClient
+    w = WorkspaceClient()
+    sql = ("SELECT entity_old, entity_new, action_type, effective_date, notes "
+           "FROM `d4001-centralus-tdvip-creditrisk`.cmos_core.corporate_actions "
+           f"WHERE lower(entity_old) LIKE lower('%{entity_name}%') "
+           f"   OR lower(entity_new) LIKE lower('%{entity_name}%')")
+    resp = w.statement_execution.execute_statement(statement=sql, warehouse_id="YOUR_WAREHOUSE_ID")
+    rows = resp.result.data_array if resp.result else None
+    if not rows:
+        return f"No corporate actions found for '{entity_name}'."
+    return "\n".join(f"{r[0]} -> {r[1]} [{r[2]}, {r[3]}]. {r[4]}" for r in rows)
+
+info = client.create_python_function(func=corp_actions_lookup_py,
+                                     catalog="d4001-centralus-tdvip-creditrisk",
+                                     schema="cmos_core", replace=True)</code></pre>
+<div class="box warn"><b>GOTCHA — the warehouse id</b><br>
+The Python function runs its SQL via the statement-execution API, which needs a real
+<code>warehouse_id</code> (SQL Warehouses -> your warehouse -> ID, or
+<code>[wh.id for wh in WorkspaceClient().warehouses.list()]</code>). The SQL function (Method A) avoids
+this entirely — another reason SQL is simpler for a pure lookup.</div>
+
+<h3>9.3 Attaching the registered function to the agent</h3>
+<pre><code>from databricks_langchain import UCFunctionToolkit
+FUNC_NAME = "d4001-centralus-tdvip-creditrisk.cmos_core.corp_actions_lookup"
+toolkit = UCFunctionToolkit(function_names=[FUNC_NAME])
+uc_tools = toolkit.tools    # LangChain-compatible tools
+
+# build the agent with the GOVERNED tool instead of the inline @tool:
+# agent = create_react_agent(model=llm, tools=[CollateralOperations] + uc_tools, prompt=SYSTEM_PROMPT)</code></pre>
+
+<h3>9.4 Permission to USE it</h3>
+<div class="box def"><b>EXECUTE — the function's version of SELECT</b><br>
+To CALL a function you need <code>EXECUTE</code> on it (analogous to SELECT on a table):
+<code>GRANT EXECUTE ON FUNCTION ....corp_actions_lookup TO `&lt;principal&gt;`;</code><br>
+And to CREATE the function you need <code>CREATE FUNCTION</code> on the schema — the cousin of
+CREATE MODEL. Expect the same BROWSE-only wall in <code>cmos_core</code>; fall back to
+<code>workspace.default</code> if denied. So the privilege family now: CREATE TABLE (ownership),
+CREATE MODEL (separate grant), CREATE FUNCTION (separate grant), EXECUTE (to use a function).</div>
+<h2 id="todo">8. Checklist</h2>
+<table>
+<tr><th>#</th><th>Topic</th><th>Status</th></tr>
+<tr><td>1</td><td>Code walkthrough (this doc)</td><td class="status-done">DONE</td></tr>
+<tr><td>2</td><td>Register CorporateActions as a governed UC FUNCTION (see section 9)</td><td class="status-done">DONE (section 9)</td></tr>
+<tr><td>3</td><td>Understand the UC objects the deploy created</td><td class="status-done">DONE (section 5.2)</td></tr>
+<tr><td>4</td><td>Call the endpoint externally (input field, output field, deployed = scoped creds, grants)</td><td class="status-done">DONE — returned real numbers</td></tr>
+<tr><td>5</td><td>MLflow: traces, experiments, runs, artifacts — what they are and how to read them</td><td class="status-todo">TO DO</td></tr>
+</table>
+
+<h3>Open governance items (for follow-up with an admin)</h3>
+<ul>
+<li>The risk catalog <code>d4001-centralus-tdvip-creditrisk</code> grants only <b>BROWSE</b> to <code>account users</code>. To use it properly for models/agents, an admin should grant <b>CREATE MODEL</b> (for registration) and the <b>USE CATALOG</b> chain (for the deployed agent's run-as principal) — scoped to the right principals, not <code>account users</code>.</li>
+<li>Cross-catalog split: the model lives in <code>workspace.default</code> while the data lives in <code>...creditrisk.cmos_core</code> (a consequence of the CREATE MODEL wall). Works, but means the deploy validates dependencies across catalogs — the creator needs <b>Can View</b> on every declared resource.</li>
+</ul>
+
+<p class="small">End of current document — sections for #2 (UC function) and #5 (MLflow) get appended as we do them.</p>
+</body></html>

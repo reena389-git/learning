@@ -1,0 +1,24 @@
+alias_name,cp_code,match_reason
+CENTRAL 1 CREDIT UNION,BCCU,exact
+CENTRAL 1,BCCU,short
+INVESTEC BANK LIMITED,INBL,exact
+INVESTEC BANK LIMTED,INBL,misspelling
+INVESTC BANK,INBL,misspelling
+BANK OF NOVA SCOTIA,BNSC,former_name
+SCOTIABANK,BNSC,exact
+BNS,BNSC,abbreviation
+DEUTSCHE BANK A.G.,DBFR,exact
+DEUTSCHE BANK,DBFR,short
+DEUTSCHE,DBFR,short
+DB,DBFR,abbreviation
+D.B.,DBFR,abbreviation
+JPMORGAN CHASE BANK NA,JPMC,exact
+JP MORGAN,JPMC,short
+JPM,JPMC,abbreviation
+FIRST REPUBLIC BANK,JPMC,merged_into
+FIRST REPUBLIC,JPMC,merged_into
+CITIBANK NA,CITI,exact
+CITI,CITI,short
+CITIBANC,CITI,misspelling
+MORGAN STANLEY INTL,MSIL,exact
+MORGAN STANLY,MSIL,misspelling

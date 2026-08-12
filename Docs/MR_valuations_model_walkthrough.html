@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Market Risk Valuations — the model, walked through</title>
+<style>
+:root{--ink:#1c2830;--g:#1f7a47;--gd:#0e3d29;--blue:#2e4a66;--bluebg:#e9eef4;--green:#216a5e;--greenbg:#e5f0ed;--gold:#8a6a2f;--goldbg:#f4eddd;--grey:#6b7670;--line:#d8d2c4}
+body{margin:0;font:15px/1.55 Georgia,serif;color:var(--ink);background:#fbf9f4}
+header{padding:22px 30px 8px}.eyebrow{font:700 11px Consolas;letter-spacing:2px;color:var(--g)}
+h1{margin:6px 0 2px;font-size:24px}header p{margin:0;color:var(--grey);font-style:italic}
+.wrap{display:grid;grid-template-columns:1fr 320px;align-items:start}
+.stage{padding:6px 8px 26px 30px}svg{width:100%;background:#fff;border:1px solid var(--line);border-radius:8px}
+.panel{padding:12px 16px;margin-top:12px;background:#fff;border:1px solid var(--line);border-radius:8px}
+.panel h2{margin:0 0 6px;font-size:18px}
+.ledger{font:12.5px/1.6 Consolas;background:#20282e;color:#e8e4d8;border-radius:6px;padding:10px 13px;white-space:pre-wrap}
+.grid{border-collapse:collapse;font-size:13px;margin:6px 0}.grid th,.grid td{border:1px solid var(--line);padding:4px 8px;text-align:left;vertical-align:top}.grid th{background:#eef2ee}
+.q{background:#e9f3ec;border-left:4px solid var(--g);padding:8px 12px;font-style:italic}
+aside{position:sticky;top:0;padding:14px 20px 26px 4px}
+aside .card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin-bottom:10px}
+aside h3{margin:0 0 6px;font:700 10.5px Consolas;letter-spacing:1.5px;color:var(--grey)}
+.terms dt{font-weight:700;margin-top:6px}.terms dd{margin:0}
+nav{display:flex;gap:10px;align-items:center;padding:8px 30px 26px}
+nav button{font:700 14px Georgia;padding:7px 20px;border-radius:6px;border:1px solid var(--g);background:#fff;color:var(--g);cursor:pointer}
+nav button:disabled{opacity:.35}.where{color:var(--grey);font-style:italic}
+.nd{rx:7}.nb{fill:var(--bluebg);stroke:var(--blue);stroke-width:1.3}
+.ng{fill:var(--greenbg);stroke:var(--green);stroke-width:1.3}
+.ngo{fill:var(--goldbg);stroke:var(--gold);stroke-width:1.3}
+.nm{font:700 12px Georgia;fill:var(--ink)}.sub{font:8.5px Consolas;fill:#5a6b75}
+.ed{stroke:#8b8272;stroke-width:1.3;fill:none;marker-end:url(#a)}
+.el{font:700 9px Consolas;fill:#6b6353}.hide{display:none}.dim{opacity:.16}
+</style></head><body>
+<header><div class="eyebrow">MARKET RISK · VALUATIONS — THE MODEL</div>
+<h1>Valuations — nouns, verbs, and one worked example</h1>
+<p>Same conventions as the collateral model: blue = consumed (shared entities), green = produced by Risk, gold = the day's inputs. One example runs through every step.</p></header>
+<div class="wrap"><div class="stage">
+<svg viewBox="0 0 980 560" id="b">
+<defs><marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#8b8272"/></marker></defs>
+<g id="n_ins"><rect class="nd nb" x="30" y="30" width="150" height="52"/><text class="nm" x="42" y="52">Instrument</text><text class="sub" x="42" y="70">USD 5Y swap · SecMaster</text></g>
+<g id="n_pos"><rect class="nd nb" x="30" y="120" width="150" height="52"/><text class="nm" x="42" y="142">Trade / Position</text><text class="sub" x="42" y="160">P-771 · $100M payer IRS</text></g>
+<g id="n_book"><rect class="nd nb" x="30" y="210" width="150" height="52"/><text class="nm" x="42" y="232">Book</text><text class="sub" x="42" y="250">RATES-NY → desk → LE</text></g>
+<g id="n_snap"><rect class="nd ngo" x="30" y="330" width="150" height="56"/><text class="nm" x="42" y="352">Market Snapshot</text><text class="sub" x="42" y="372">EOD-NY 2 Apr · curves, vols</text></g>
+<g id="n_rf"><rect class="nd nb" x="30" y="420" width="150" height="56"/><text class="nm" x="42" y="442">Risk Factor</text><text class="sub" x="42" y="462">USD-SOFR-5Y · EURUSD vol</text></g>
+<g id="n_fx"><rect class="nd nb" x="30" y="500" width="150" height="44"/><text class="nm" x="42" y="520">FX Rate</text><text class="sub" x="42" y="536">USDCAD 1.3520 · EOD</text></g>
+<g id="n_run"><rect class="nd ng" x="330" y="200" width="190" height="80"/><text class="nm" x="344" y="224">VALUATION RUN</text><text class="sub" x="344" y="242">VR-0402 · OFFICIAL · 2 Apr</text><text class="sub" x="344" y="256">model DCF v4.2 · engine 9.1</text><text class="sub" x="344" y="270">THE SPINE — provenance lives here</text></g>
+<g id="n_val"><rect class="nd ng" x="640" y="90" width="180" height="64"/><text class="nm" x="654" y="112">Valuation</text><text class="sub" x="654" y="130">PV +$1,245,000 USD</text><text class="sub" x="654" y="144">C$1,683,240 reporting</text></g>
+<g id="n_sen"><rect class="nd ng" x="640" y="220" width="180" height="72"/><text class="nm" x="654" y="242">Sensitivity</text><text class="sub" x="654" y="260">delta $46,500 / bp (5Y)</text><text class="sub" x="654" y="274">gamma $120/bp² · vega n/a</text></g>
+<g id="n_adj"><rect class="nd ng" x="640" y="350" width="180" height="60"/><text class="nm" x="654" y="372">Valuation Adjustment</text><text class="sub" x="654" y="390">IPV −$15,000 · 2 Apr</text></g>
+<path id="e1" class="ed" d="M180,146 L330,226"/><text id="l1" class="el" x="215" y="170">prices</text>
+<path id="e2" class="ed" d="M105,120 L105,82"/><text id="l2" class="el" x="112" y="104">defined by</text>
+<path id="e3" class="ed" d="M105,210 L105,172"/><text id="l3" class="el" x="112" y="196">booked in</text>
+<path id="e4" class="ed" d="M180,352 L340,278"/><text id="l4" class="el" x="220" y="330">uses exactly one</text>
+<path id="e5" class="ed" d="M520,224 L640,130"/><text id="l5" class="el" x="548" y="176">produces</text>
+<path id="e6" class="ed" d="M520,248 L640,252"/><text id="l6" class="el" x="548" y="242">produces</text>
+<path id="e7" class="ed" d="M520,268 L640,372"/><text id="l7" class="el" x="540" y="330">produces</text>
+<path id="e8" class="ed" d="M180,444 L640,266"/><text id="l8" class="el" x="380" y="376">with respect to</text>
+<path id="e9" class="ed" d="M180,514 L640,140"/><text id="l9" class="el" x="330" y="420">converted at</text>
+<path id="e10" class="ed" d="M730,350 L730,154"/><text id="l10" class="el" x="737" y="330">corrects</text>
+</svg>
+<div class="panel" id="p"></div>
+<nav><button id="pv">← Back</button><span class="where" id="w"></span><button id="nx">Next →</button></nav>
+</div><aside><div class="card"><h3>TERMS ON THIS STEP</h3><div class="terms" id="t"></div></div></aside></div>
+<script>
+const ALL=["n_ins","n_pos","n_book","n_snap","n_rf","n_fx","n_run","n_val","n_sen","n_adj","e1","l1","e2","l2","e3","l3","e4","l4","e5","l5","e6","l6","e7","l7","e8","l8","e9","l9","e10","l10"];
+const S=[
+{t:"The story — one position, one evening",b:`<p>Trader in <b>RATES-NY</b> holds position <b>P-771</b>: a $100M 5-year US-dollar interest-rate swap (we pay fixed). Every evening the official valuation cycle runs: take tonight's market prices, apply the pricing model, and answer three questions: <b>what is it worth, how much can it move, and what corrections apply?</b> Everything in this model exists to make that nightly answer trustworthy, repeatable, and explainable.</p><div class="q">April 2nd: the run values P-771 at <b>+$1,245,000</b>, measures its rate sensitivity at <b>$46,500 per basis point</b>, and books a <b>−$15,000</b> price-verification adjustment. This walkthrough explains every one of those numbers.</div>`,
+ x:["n_ins","n_pos","n_book"],
+ d:[["position","a holding in a trade/instrument, sitting in a book. The thing being valued."],["book","where positions live: book → desk → legal entity — the aggregation ladder."]]},
+{t:"The consumed entities — and your question: are Book and Risk Factor separate ontologies?",b:`<p><b>No — they are shared entities, not separate ontologies.</b> Same rule as counterparty in the collateral model: an entity is defined ONCE in the Risk-conformed layer, and every subdomain model that needs it points at that one definition. Book comes from finance/organizational reference; Instrument from SecMaster; FX and calendars from market reference. This valuations model does not define them — it <b>consumes</b> them (that is what blue means).</p><p>One nuance: <b>Risk Factor is Risk-created reference</b> — Market Risk owns the taxonomy of "things that move prices" (each curve point, each vol point, each spot rate). It is still defined once and shared: the same USD-SOFR-5Y factor is used by valuations, VaR, and FRTB capital. Created here, shared everywhere — like the margin event was collateral's.</p>`,
+ x:["n_ins","n_pos","n_book","n_rf","n_fx"],
+ d:[["shared entity","defined once in the conformed layer, referenced by every model that needs it. Not a separate ontology."],["risk factor","a named market driver: the 5-year USD rate, EURUSD spot, a volatility point. Prices move because factors move."]]},
+{t:"The day's inputs — the market snapshot",b:`<p>The <b>Market Snapshot</b> is the frozen set of market inputs a run uses: which curves, which volatility surfaces, which closing prices, as of which cut (EOD New York, April 2nd). It is gold on the board because it is <i>the day's evidence</i> — every official number must be able to say exactly which snapshot produced it.</p><div class="ledger">snapshot EOD-NY-0402
+  USD SOFR curve   (points: 1M … 30Y — 5Y at 3.842%)
+  USDCAD spot      1.3520
+  vol surfaces     USD swaption grid …</div><p>Axiom (same family as collateral's copies): if a market value is ever carried on a valuation row for convenience, it is an <b>as-applied copy</b> — the snapshot remains the source.</p>`,
+ x:["n_snap","n_rf"],
+ d:[["market snapshot","the day's frozen inputs: curves, surfaces, quotes, with source and cut time."],["as-applied copy","a value repeated on an output row for speed; declared as a copy, never treated as source."]]},
+{t:"The spine — the Valuation Run",b:`<p>Exactly like collateral's margin event, valuations have a spine: the <b>Valuation Run</b> — one execution of the cycle for a book on a date. It records the four facts that make every output explainable: <b>which positions · which snapshot (exactly one) · which pricing model and version · which engine and version</b>. Run type matters: <b>OFFICIAL</b> (the books-and-records number), FLASH (intraday estimate), WHAT-IF (hypothetical). All provenance lives on the run — written once, inherited by every number it produces.</p><div class="ledger">run VR-0402 · book RATES-NY · as-of 2 Apr 2026 · type OFFICIAL
+model DiscountedCashflow v4.2 · engine RCAPS 9.1 · snapshot EOD-NY-0402</div>`,
+ x:["n_pos","n_snap","n_run","e1","l1","e4","l4"],
+ d:[["valuation run","one execution: book × date × type × model+engine version. The provenance spine."],["OFFICIAL / FLASH / WHAT-IF","the run's status. Only OFFICIAL enters books and reports — a grain guard, not a label."]]},
+{t:"The first output — the Valuation",b:`<p>The run <b>produces</b> one <b>Valuation</b> per position: grain = <b>position × as-of × run</b>. It carries PV in the natural currency and, <b>converted at</b> the declared FX rate, in reporting currency — both stored, both citing the rate used.</p><div class="ledger">valuation  P-771 · 2 Apr · run VR-0402
+pv_usd        +$1,245,000     (what the swap is worth to us tonight)
+pv_cad        +C$1,683,240    (× 1.3520, EOD rate — rate cited on the row)
+status        OFFICIAL</div><p><b>The uniqueness axiom</b> — valuations' equivalent of "one movement, one agreement": <b>at most one OFFICIAL valuation per position per date.</b> Two officials for the same position on the same day is not a variant — it is a defect, rejected at load.</p>`,
+ x:["n_pos","n_run","n_val","n_fx","e1","l1","e5","l5","e9","l9"],
+ d:[["valuation","one position's worth, on one date, from one run. PV = present value: today's worth of all future cashflows."]]},
+{t:"Your Greeks question — delta, gamma, vega ARE here: they are the Sensitivities",b:`<p>You asked whether delta/gamma/vega factor in — <b>they are this entity.</b> A <b>Sensitivity</b> answers: <i>if one risk factor moves one unit, how much does my value move?</i> Grain: <b>position × risk factor × as-of × run</b>. The Greeks are simply the sensitivity types, in plain words:</p><table class="grid"><tr><th>Greek</th><th>plain meaning</th><th>P-771 tonight</th></tr>
+<tr><td><b>delta</b></td><td>value change per unit move of the factor (per 1bp of the 5Y rate)</td><td>$46,500 / bp — the DV01</td></tr>
+<tr><td><b>gamma</b></td><td>how delta itself changes as the factor moves (curvature)</td><td>$120 / bp²</td></tr>
+<tr><td><b>vega</b></td><td>value change per 1-point move in volatility</td><td>n/a for a vanilla swap (an option book would show it)</td></tr></table>
+<p><b>Industry grounding:</b> this is the standard decomposition — FRTB's sensitivities-based approach and ISDA's CRIF exchange format both express risk exactly as <b>delta / vega / curvature amounts per named risk factor</b>. Modeling Sensitivity as position × factor × type is not TDS-specific; it is the regulatory lingua franca, which is why it aligns cleanly to anything the enterprise or regulators ask for.</p>`,
+ x:["n_pos","n_run","n_sen","n_rf","e6","l6","e8","l8"],
+ d:[["sensitivity","value change per unit move of ONE named risk factor. The Greeks are its types."],["CRIF / FRTB","the industry-standard formats that exchange exactly these rows: factor, type, amount."]]},
+{t:"The corrections — Valuation Adjustments",b:`<p>Model prices are not automatically fair value. <b>Valuation Adjustments</b> record the corrections, each its own row with a type and a method: <b>IPV</b> (independent price verification — comparing the desk's marks to external consensus), reserves (close-out, concentration), and fair-value adjustments. Tonight: IPV finds our curve marks $15,000 rich vs consensus → adjustment <b>−$15,000</b>, which <b>corrects</b> the valuation. Fair value = model PV + Σ adjustments — and because each adjustment is a row, the bridge from model price to reported price is always visible, line by line.</p>`,
+ x:["n_run","n_val","n_adj","e7","l7","e10","l10"],
+ d:[["IPV","independent price verification: are the marks honest vs external sources?"],["adjustment","a named, dated correction row. Fair value = model PV + the sum of these."]]},
+{t:"Measures and the grain traps",b:`<p>Measures live in the metric-view layer, never as entities — with the guards that make them safe:</p><table class="grid"><tr><th>measure</th><th>additive?</th><th>the trap the guard prevents</th></tr>
+<tr><td>pv_reporting</td><td>yes, across positions</td><td>only AFTER FX conversion at the declared rate — never sum mixed currencies</td></tr>
+<tr><td>sensitivity_amount</td><td><b>only within one factor + type</b></td><td>summing delta across different factors (5Y rate delta + FX delta) is meaningless — market risk's version of the ratio-rollup bug</td></tr>
+<tr><td>adjustment_amount</td><td>yes</td><td>—</td></tr>
+<tr><td>VaR</td><td>NOT a measure here</td><td>VaR is a downstream engine's output with its own run entity — it consumes these sensitivities; it is not computed by summing them</td></tr></table>`,
+ x:["n_val","n_sen","n_adj"],
+ d:[["grain guard","the declaration that stops a legal-looking SUM from producing nonsense."]]},
+{t:"Three cousins, three grains — valuation vs collateral vs xVA, finally untangled",b:`<p>The word confusion you flagged, resolved in one table. All three families start from the same PVs — then aggregate at different grains for different questions:</p>
+<table class="grid"><tr><th>model</th><th>grain</th><th>question</th><th>tonight's number</th></tr>
+<tr><td><b>Valuation</b> (this model)</td><td>position × date × run</td><td>what is each thing worth?</td><td>P-771: +$1,245,000</td></tr>
+<tr><td><b>Collateral / margin</b></td><td>agreement × date (margin event)</td><td>how much security do we demand today?</td><td>BCCU exposure $14,115,000 → call $14,040,000</td></tr>
+<tr><td><b>xVA / capital</b></td><td>netting set × date × FUTURE time</td><td>what could exposure BECOME, and what does that cost?</td><td>simulated exposure paths → CVA charge</td></tr></table>
+<p>The flow between them: <b>valuations produce the PVs → collateral sums them per agreement (net MtM) and runs the CSA arithmetic → xVA simulates their futures per netting set.</b> One word — "value/exposure" — three grains; the models keep them apart, and the alignment table records that they are cousins, not synonyms. Same discipline as everything else we built: one meaning per entity, verbs on every line, provenance on the spine, and every number able to explain itself.</p>`,
+ x:ALL,
+ d:[["the homonym rule","valuation PV ≠ margin exposure ≠ xVA exposure. Different grains, different questions, explicitly related."]]}];
+let i=0;const $=x=>document.getElementById(x);
+function r(){const st=S[i];ALL.forEach(id=>{const e=$(id);e.classList.remove("hide","dim");if(!st.x.includes(id))e.classList.add(st.x.length>15?"dim":"hide");});
+$("p").innerHTML="<h2>"+(i+1)+" · "+st.t+"</h2>"+st.b;$("w").textContent="step "+(i+1)+" of "+S.length;
+$("pv").disabled=!i;$("nx").disabled=(i===S.length-1);
+$("t").innerHTML="<dl>"+st.d.map(x=>"<dt>"+x[0]+"</dt><dd>"+x[1]+"</dd>").join("")+"</dl>";window.scrollTo({top:0});}
+$("pv").onclick=()=>{i=Math.max(0,i-1);r()};$("nx").onclick=()=>{i=Math.min(S.length-1,i+1);r()};r();
+</script></body></html>

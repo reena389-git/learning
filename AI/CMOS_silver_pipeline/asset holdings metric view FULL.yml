@@ -1,0 +1,66 @@
+version: 1.1
+
+source: "`d4001-centralus-tdvip-creditrisk`.cmos_core.asset_holdings"
+
+comment: >-
+  CMOS silver collateral holdings, governed for analytics. Source grain is one row
+  per held position per reporting_date (daily snapshot). Filtered to the LATEST
+  reporting_date so measures are not summed across snapshots. Collateral amounts come
+  from reported_collateral_value (never sum valuation_haircut). FX to CAD via fx_rates.
+
+filter: reporting_date = (SELECT MAX(reporting_date) FROM `d4001-centralus-tdvip-creditrisk`.cmos_core.asset_holdings)
+
+joins:
+  - name: agr
+    source: "`d4001-centralus-tdvip-creditrisk`.cmos_core.agreements"
+    on: source.agreement_ext_id = agr.external_id AND source.reporting_date = agr.reporting_date
+  - name: fx
+    source: "`d4001-centralus-tdvip-creditrisk`.cmos_core.fx_rates"
+    on: source.booking_currency = fx.ccy AND source.reporting_date = fx.date
+
+dimensions:
+  - name: Counterparty Code
+    expr: counterpartycode
+  - name: Counterparty
+    expr: counterparty
+  - name: Agreement (ext id)
+    expr: agreement_ext_id
+  - name: Agreement Description
+    expr: agr.agreement_description
+  - name: Agreement Type
+    expr: agr.agreement_type
+  - name: Asset Class
+    expr: asset_class
+  - name: Asset Type
+    expr: asset_type
+  - name: Booking Currency
+    expr: booking_currency
+  - name: Margin Type
+    expr: margin_type
+  - name: Reporting Date
+    expr: reporting_date
+
+measures:
+  - name: Total Collateral (booking ccy)
+    expr: SUM(reported_collateral_value)
+    comment: Haircut-adjusted collateral value in the position's booking currency.
+
+  - name: Total Market Value (booking ccy)
+    expr: SUM(reported_market_value)
+
+  - name: Total Collateral (CAD)
+    expr: SUM(reported_collateral_value * ((fx.bid_rate + fx.offer_rate) / 2))
+    comment: Collateral converted to CAD using the mid fx rate for the booking currency on the same reporting_date.
+
+  - name: Position Count
+    expr: COUNT(1)
+
+  - name: Distinct Agreements
+    expr: COUNT(DISTINCT agreement_ext_id)
+
+  # Genie's fix: uses the REAL per-position haircut column on asset_holdings.
+  # VERIFY: this assumes haircut is stored as a decimal (0.02 = 2%). If it is a
+  # whole number (e.g. 2.0 or 96.0), the result needs /100 or a different formula.
+  - name: Avg Haircut (weighted)
+    expr: SUM(reported_market_value * haircut) / NULLIF(SUM(reported_market_value), 0)
+    comment: Weighted average haircut per position (assumes haircut stored as a decimal).

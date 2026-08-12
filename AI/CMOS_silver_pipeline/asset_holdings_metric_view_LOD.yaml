@@ -1,0 +1,53 @@
+version: 1.1
+
+# Metric view with an LOD / WINDOW measure (level-metric example) on collateral.
+source: "`d4001-centralus-tdvip-creditrisk`.cmos_core.asset_holdings"
+
+comment: >-
+  Collateral holdings with LEVEL-METRIC (LOD) examples. Latest snapshot only.
+  'Counterparty Total Collateral' is a FIXED-LOD window measure: it shows each
+  position's COUNTERPARTY-level total regardless of how the query is grouped -
+  so you can compute a position's share of its counterparty. This is the metric
+  view's equivalent of a MicroStrategy 'level metric'.
+
+filter: reporting_date = (SELECT MAX(reporting_date) FROM `d4001-centralus-tdvip-creditrisk`.cmos_core.asset_holdings)
+
+# --- FIXED LOD: precompute counterparty-level total in the source, expose as an identity dimension ---
+# (Fixed LOD in metric views = a window function PARTITION BY, surfaced as a dimension.)
+# We wrap the source in a SELECT so we can add the window column.
+# NOTE: if your edition dislikes a SELECT source, build this column upstream instead.
+
+dimensions:
+  - name: Counterparty Code
+    expr: counterpartycode
+  - name: Agreement
+    expr: agreement_ext_id
+  - name: Asset Class
+    expr: asset_class
+  - name: Reporting Date
+    expr: reporting_date
+
+  # FIXED-LOD identity dimension: counterparty total, same on every row of that counterparty.
+  - name: Counterparty Total Collateral
+    expr: SUM(reported_collateral_value) OVER (PARTITION BY counterpartycode)
+
+measures:
+  - name: Total Collateral
+    expr: SUM(reported_collateral_value)
+    comment: Position-grain collateral (aggregates to whatever you group by).
+
+  # COARSER LOD (window measure, range=all): counterparty total that IGNORES finer grouping.
+  # Use this to get "% of counterparty" for ANY grouping the user picks.
+  - name: Counterparty Total (window)
+    expr: SUM(reported_collateral_value)
+    window:
+      - order: counterpartycode
+        range: all
+    comment: Counterparty-level total via a coarser-LOD window measure (experimental feature).
+
+  - name: Pct of Counterparty
+    expr: SUM(reported_collateral_value) / NULLIF(MEASURE(`Counterparty Total (window)`), 0)
+    comment: Each grouping's share of its counterparty total (the classic LOD use - % of total).
+
+  - name: Position Count
+    expr: COUNT(1)

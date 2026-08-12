@@ -1,0 +1,1832 @@
+agreement_external_id,asset_class,asset_type,maturity_term_from,maturity_term_to,from_rating_level,to_rating_level,valuation_haircut,rescued_data,reporting_day
+0926,Sovereign,Government of Canada Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+0926,Cash,CAD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+2875,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+2875,Sovereign,Israel Government Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+2875,Cash,CAD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+2875,Corporate,US Common Stock,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+5965,Cash,USD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+5965,Sovereign,Canada Mortgage Bonds,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+0931,Sovereign,US Treasury,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0931,Sovereign,Government of Canada Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+0931,Sovereign,Canada Mortgage Bonds,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+4392,Corporate,US Corporate,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+4392,Sovereign,Government of Canada Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+4392,Cash,USD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0561,Sovereign,German Government Note,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+0561,Cash,USD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0561,Sovereign,Israel Government Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+A1496,Provincial,Ontario Provincial Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+A1496,Corporate,US Common Stock,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+A1496,Corporate,US Corporate,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+5441,Sovereign,Government of Canada Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+5441,Sovereign,Israel Government Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+5441,Cash,USD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+5441,Sovereign,German Government Note,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+5764,Sovereign,German Government Note,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+5764,Sovereign,Government of Canada Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+5764,Cash,USD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+K291,Cash,USD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+K291,Sovereign,Government of Canada Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+K291,Sovereign,US Treasury,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+9961,Corporate,US Common Stock,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+9961,Cash,CAD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+9961,Sovereign,Israel Government Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+9961,Sovereign,German Government Note,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+2836,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+2836,Corporate,US Corporate,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+2836,Sovereign,German Government Note,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+1715,Cash,USD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+1715,Provincial,Ontario Provincial Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+1715,Corporate,US Common Stock,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+0697,Corporate,US Common Stock,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+0697,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+2931,Cash,USD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+2931,Sovereign,German Government Note,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+2931,Corporate,US Common Stock,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+2931,Sovereign,Canada Mortgage Bonds,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+2598,Sovereign,German Government Note,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+2598,Corporate,US Common Stock,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+2598,Corporate,US Corporate,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+2598,Cash,CAD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+2729,Corporate,US Common Stock,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+2729,Sovereign,Israel Government Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+2729,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+7944,Cash,USD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+7944,Sovereign,German Government Note,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+7944,Sovereign,Canada Mortgage Bonds,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+1209,Provincial,Ontario Provincial Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+1209,Sovereign,US Treasury,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+1209,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0661,Corporate,US Common Stock,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+0661,Sovereign,US Treasury,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0616,Cash,CAD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0616,Cash,USD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0616,Corporate,US Corporate,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+0616,Sovereign,Israel Government Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+A6083,Sovereign,Canada Mortgage Bonds,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+A6083,Sovereign,US Treasury,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+1937,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+1937,Corporate,US Common Stock,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+0219,Corporate,US Corporate,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+0219,Corporate,US Common Stock,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+0219,Sovereign,German Government Note,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+0219,Sovereign,US Treasury,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0423,Sovereign,German Government Note,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+0423,Provincial,Ontario Provincial Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+9235,Sovereign,Canada Mortgage Bonds,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+9235,Sovereign,Israel Government Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+9235,Corporate,US Common Stock,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+A1162,Sovereign,US Treasury,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+A1162,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+A1313,Cash,CAD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+A1313,Sovereign,Israel Government Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+A1313,Provincial,Ontario Provincial Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+5529,Corporate,US Corporate,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+5529,Cash,USD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+2673,Corporate,US Common Stock,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+2673,Corporate,US Corporate,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+2673,Provincial,Ontario Provincial Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+2673,Sovereign,Canada Mortgage Bonds,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+A684,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+A684,Sovereign,Canada Mortgage Bonds,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+0938,Sovereign,US Treasury,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0938,Cash,CAD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+1701,Cash,CAD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+1701,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+1701,Sovereign,Government of Canada Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+1701,Provincial,Ontario Provincial Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+1173,Corporate,US Corporate,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+1173,Corporate,US Common Stock,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+0998,Cash,CAD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0998,Sovereign,US Treasury,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+8935,Sovereign,US Treasury,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+8935,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+8935,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+8935,Corporate,US Common Stock,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+0242,Sovereign,Government of Canada Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+0242,Cash,CAD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0242,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+K9698,Sovereign,US Treasury,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+K9698,Provincial,Ontario Provincial Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+1253,Sovereign,German Government Note,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+1253,Sovereign,Canada Mortgage Bonds,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+0466,Sovereign,German Government Note,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+0466,Cash,USD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0887,Corporate,US Common Stock,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+0887,Sovereign,German Government Note,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+0887,Sovereign,US Treasury,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+A5231,Corporate,US Common Stock,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+A5231,Cash,USD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+A5231,Sovereign,Israel Government Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+0726,Sovereign,US Treasury,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0726,Cash,USD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0726,Sovereign,Israel Government Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+0726,Sovereign,Government of Canada Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+9749,Corporate,US Common Stock,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+9749,Sovereign,Government of Canada Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+9749,Provincial,Ontario Provincial Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+9749,Cash,CAD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0268,Cash,CAD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0268,Provincial,Ontario Provincial Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+0268,Sovereign,US Treasury,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0597,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+0597,Cash,USD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0597,Corporate,US Common Stock,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+0597,Sovereign,Israel Government Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+K9726,Sovereign,Government of Canada Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+K9726,Cash,CAD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+K9726,Sovereign,US Treasury,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+K9726,Provincial,Ontario Provincial Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+3407,Sovereign,Government of Canada Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+3407,Sovereign,German Government Note,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+3407,Sovereign,Canada Mortgage Bonds,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+A4069,Provincial,Ontario Provincial Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+A4069,Corporate,US Common Stock,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+A4069,Sovereign,US Treasury,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+A4069,Sovereign,Government of Canada Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+0231,Cash,CAD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0231,Sovereign,Israel Government Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+0231,Corporate,US Common Stock,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+0231,Provincial,Ontario Provincial Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+1554,Cash,CAD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+1554,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+8690,Corporate,US Common Stock,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+8690,Sovereign,German Government Note,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+0881,Sovereign,Israel Government Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+0881,Cash,CAD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0881,Cash,USD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+9673,Sovereign,Israel Government Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+9673,Sovereign,Canada Mortgage Bonds,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+9673,Corporate,US Common Stock,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+7422,Corporate,US Corporate,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+7422,Cash,USD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+7422,Provincial,Ontario Provincial Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+7422,Sovereign,Israel Government Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+K3399,Corporate,US Common Stock,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+K3399,Sovereign,Israel Government Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+K3399,Corporate,US Corporate,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+2399,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+2399,Corporate,US Common Stock,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+2399,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0995,Corporate,US Corporate,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+0995,Provincial,Ontario Provincial Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+2029,Sovereign,Israel Government Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+2029,Sovereign,US Treasury,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+2029,Corporate,US Corporate,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+2029,Provincial,Ontario Provincial Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+3174,Provincial,Ontario Provincial Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+3174,Sovereign,US Treasury,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+3174,Corporate,US Corporate,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+3174,Sovereign,Israel Government Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+A7763,Cash,CAD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+A7763,Sovereign,Government of Canada Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+5210,Sovereign,Israel Government Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+5210,Sovereign,Government of Canada Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+2537,Sovereign,Israel Government Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+2537,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+2537,Cash,CAD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+2537,Sovereign,US Treasury,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+2376,Provincial,Ontario Provincial Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+2376,Sovereign,German Government Note,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+2376,Sovereign,US Treasury,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+2376,Corporate,US Common Stock,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+0176,Sovereign,Government of Canada Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+0176,Sovereign,German Government Note,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+0176,Corporate,US Common Stock,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+0176,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+1017,Corporate,US Common Stock,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+1017,Sovereign,Government of Canada Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+1017,Sovereign,Israel Government Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+1017,Sovereign,US Treasury,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0614,Corporate,US Corporate,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+0614,Sovereign,US Treasury,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0614,Sovereign,Government of Canada Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+5668,Cash,USD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+5668,Corporate,US Common Stock,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+5668,Sovereign,US Treasury,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0615,Sovereign,US Treasury,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0615,Sovereign,Canada Mortgage Bonds,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+0615,Corporate,US Corporate,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+0615,Sovereign,Government of Canada Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+4150,Sovereign,Israel Government Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+4150,Corporate,US Common Stock,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+4150,Sovereign,Canada Mortgage Bonds,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+4150,Provincial,Ontario Provincial Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+2157,Corporate,US Common Stock,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+2157,Sovereign,German Government Note,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+2157,Provincial,Ontario Provincial Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+2157,Cash,USD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+A7899,Sovereign,Canada Mortgage Bonds,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+A7899,Corporate,US Common Stock,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+3713,Sovereign,Canada Mortgage Bonds,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+3713,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+7060,Provincial,Ontario Provincial Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+7060,Cash,CAD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+7060,Sovereign,Government of Canada Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+0997,Cash,CAD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0997,Provincial,Ontario Provincial Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+0997,Sovereign,Government of Canada Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+0997,Corporate,US Common Stock,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+9020,Cash,USD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+9020,Provincial,Ontario Provincial Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+9020,Corporate,US Corporate,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+9020,Cash,CAD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0472,Sovereign,Canada Mortgage Bonds,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+0472,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+0472,Corporate,US Corporate,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+0472,Sovereign,Israel Government Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+7653,Sovereign,Government of Canada Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+7653,Corporate,US Common Stock,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+9780,Corporate,US Common Stock,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+9780,Cash,USD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+9780,Sovereign,German Government Note,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+9780,Sovereign,Canada Mortgage Bonds,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+9912,Sovereign,Israel Government Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+9912,Corporate,US Corporate,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+9912,Sovereign,US Treasury,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+7118,Cash,USD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+7118,Sovereign,Canada Mortgage Bonds,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+7118,Sovereign,German Government Note,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+0853,Sovereign,Canada Mortgage Bonds,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+0853,Sovereign,Government of Canada Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+9061,Corporate,US Corporate,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+9061,Sovereign,Canada Mortgage Bonds,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+9061,Cash,USD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+K3025,Corporate,US Corporate,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+K3025,Sovereign,German Government Note,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+6012,Sovereign,US Treasury,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+6012,Sovereign,German Government Note,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+6012,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+6012,Corporate,US Corporate,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+5967,Cash,USD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+5967,Sovereign,Canada Mortgage Bonds,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+5967,Sovereign,Israel Government Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+5967,Sovereign,US Treasury,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+K7652,Sovereign,US Treasury,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+K7652,Sovereign,Canada Mortgage Bonds,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+K7652,Cash,USD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+5999,Sovereign,Government of Canada Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+5999,Sovereign,Canada Mortgage Bonds,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+A7419,Provincial,Ontario Provincial Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+A7419,Sovereign,US Treasury,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+A7419,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+A7419,Corporate,US Common Stock,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+1509,Sovereign,Israel Government Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+1509,Sovereign,US Treasury,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+1509,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+K7975,Sovereign,Israel Government Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+K7975,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+K7975,Sovereign,Canada Mortgage Bonds,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+K7975,Cash,CAD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0466,Corporate,US Common Stock,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+0466,Sovereign,US Treasury,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0466,Sovereign,Government of Canada Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+0466,Sovereign,Canada Mortgage Bonds,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+0111,Sovereign,German Government Note,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+0111,Sovereign,US Treasury,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0111,Sovereign,Government of Canada Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+0111,Sovereign,Canada Mortgage Bonds,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+1993,Provincial,Ontario Provincial Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+1993,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+1993,Cash,CAD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+1993,Sovereign,US Treasury,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0780,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0780,Cash,CAD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0780,Sovereign,Israel Government Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+0780,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+3835,Cash,CAD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+3835,Provincial,Ontario Provincial Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+3651,Cash,CAD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+3651,Sovereign,Government of Canada Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+3651,Provincial,Ontario Provincial Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+3651,Cash,USD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+3020,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+3020,Cash,USD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+3020,Sovereign,Israel Government Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+8143,Cash,USD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+8143,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+8143,Sovereign,US Treasury,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0450,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+0450,Cash,CAD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+3535,Corporate,US Corporate,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+3535,Sovereign,German Government Note,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+3535,Sovereign,Israel Government Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+3535,Cash,USD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+6571,Sovereign,Israel Government Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+6571,Corporate,US Corporate,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+9081,Corporate,US Corporate,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+9081,Cash,CAD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+9081,Cash,USD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+9081,Provincial,Ontario Provincial Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+0494,Provincial,Ontario Provincial Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+0494,Sovereign,German Government Note,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+0494,Sovereign,Israel Government Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+K8453,Sovereign,Government of Canada Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+K8453,Cash,CAD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+K8453,Sovereign,US Treasury,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+K8453,Corporate,US Corporate,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+7081,Sovereign,German Government Note,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+7081,Sovereign,Government of Canada Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+K6681,Corporate,US Corporate,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+K6681,Sovereign,German Government Note,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+K6681,Provincial,Ontario Provincial Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+K6681,Sovereign,Israel Government Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+7872,Sovereign,German Government Note,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+7872,Sovereign,US Treasury,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+7872,Cash,USD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0153,Sovereign,US Treasury,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+0153,Sovereign,Israel Government Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+A2412,Provincial,Ontario Provincial Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+A2412,Corporate,US Corporate,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+A2412,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+A2412,Sovereign,German Government Note,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+7185,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+7185,Sovereign,Government of Canada Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+7185,Provincial,Ontario Provincial Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+9952,Sovereign,Canada Mortgage Bonds,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+9952,Sovereign,Israel Government Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+9952,Sovereign,US Treasury,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+4309,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+4309,Sovereign,Israel Government Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+4309,Sovereign,Canada Mortgage Bonds,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+4309,Sovereign,US Treasury,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+6267,Corporate,US Corporate,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+6267,Sovereign,Israel Government Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+5290,Provincial,Ontario Provincial Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+5290,Cash,USD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0417,Sovereign,German Government Note,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-03
+0417,Sovereign,Israel Government Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+0417,Sovereign,Canada Mortgage Bonds,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+0423,Sovereign,Government of Canada Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-03
+0423,Cash,CAD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0423,Sovereign,Israel Government Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+2307,Sovereign,US Treasury,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-03
+2307,Corporate,US Corporate,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-03
+2307,Corporate,US Common Stock,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-03
+4520,Sovereign,Canada Mortgage Bonds,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-03
+4520,Cash,CAD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+0956,Sovereign,Israel Government Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-03
+0956,Cash,USD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-03
+6438,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+6438,Sovereign,Israel Government Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+7803,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+7803,Corporate,US Common Stock,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+1192,Provincial,Ontario Provincial Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+1192,Sovereign,German Government Note,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+K5502,Sovereign,German Government Note,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+K5502,Cash,USD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+K5502,Sovereign,Canada Mortgage Bonds,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+K5502,Sovereign,US Treasury,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+6524,Sovereign,Canada Mortgage Bonds,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+6524,Cash,USD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+K6315,Corporate,US Corporate,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+K6315,Sovereign,German Government Note,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+A3203,Cash,USD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+A3203,Corporate,US Common Stock,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+A3203,Sovereign,Canada Mortgage Bonds,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+0709,Cash,USD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0709,Provincial,Ontario Provincial Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+3485,Sovereign,Israel Government Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+3485,Sovereign,German Government Note,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+3485,Sovereign,Canada Mortgage Bonds,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+0162,Cash,CAD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0162,Sovereign,Israel Government Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+7631,Corporate,US Corporate,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+7631,Provincial,Ontario Provincial Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+7631,Sovereign,Canada Mortgage Bonds,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+0160,Corporate,US Corporate,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+0160,Cash,CAD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0160,Sovereign,Israel Government Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+0904,Cash,USD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0904,Sovereign,US Treasury,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+K1973,Sovereign,German Government Note,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+K1973,Cash,USD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+K1973,Sovereign,US Treasury,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+K1973,Corporate,US Common Stock,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+0743,Provincial,Ontario Provincial Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+0743,Corporate,US Corporate,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+0208,Sovereign,Government of Canada Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+0208,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+0938,Sovereign,Israel Government Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+0938,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+0938,Corporate,US Common Stock,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+0938,Sovereign,Government of Canada Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+5974,Provincial,Ontario Provincial Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+5974,Cash,USD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+5974,Cash,CAD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+K9421,Cash,CAD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+K9421,Sovereign,Israel Government Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+K9421,Provincial,Ontario Provincial Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+K9421,Corporate,US Corporate,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+4830,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+4830,Cash,CAD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+4830,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+4830,Sovereign,German Government Note,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+7693,Sovereign,German Government Note,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+7693,Sovereign,Government of Canada Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+6717,Cash,CAD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+6717,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+6717,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0314,Corporate,US Corporate,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+0314,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+0314,Cash,USD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+9325,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+9325,Provincial,Ontario Provincial Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+9325,Sovereign,Government of Canada Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+2491,Corporate,US Common Stock,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+2491,Sovereign,US Treasury,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+2491,Sovereign,German Government Note,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+2491,Cash,USD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+A4540,Provincial,Ontario Provincial Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+A4540,Sovereign,US Treasury,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+0157,Corporate,US Corporate,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+0157,Sovereign,Government of Canada Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+0157,Sovereign,US Treasury,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+0157,Sovereign,Israel Government Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+6089,Corporate,US Common Stock,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+6089,Corporate,US Corporate,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+6089,Sovereign,Government of Canada Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+5965,Provincial,Ontario Provincial Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+5965,Sovereign,Israel Government Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+5965,Sovereign,Government of Canada Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+5965,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+9581,Sovereign,US Treasury,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+9581,Cash,CAD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+9581,Corporate,US Corporate,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+9581,Corporate,US Common Stock,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+0726,Cash,CAD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0726,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+7557,Corporate,US Corporate,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+7557,Cash,USD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+7887,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+7887,Provincial,Ontario Provincial Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+0472,Sovereign,German Government Note,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+0472,Cash,CAD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0472,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+1788,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+1788,Corporate,US Common Stock,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+1788,Cash,USD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+1788,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+0111,Sovereign,German Government Note,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+0111,Corporate,US Common Stock,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+0111,Sovereign,Israel Government Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+0111,Sovereign,Canada Mortgage Bonds,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+K8641,Provincial,Ontario Provincial Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+K8641,Cash,CAD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+K8641,Sovereign,German Government Note,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+0164,Provincial,Ontario Provincial Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+0164,Corporate,US Common Stock,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+0164,Cash,CAD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0164,Corporate,US Corporate,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+K6139,Cash,USD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+K6139,Provincial,Ontario Provincial Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+K6139,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+K6139,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+8048,Cash,CAD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+8048,Corporate,US Corporate,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+8048,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+8048,Sovereign,Israel Government Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+0122,Sovereign,Government of Canada Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+0122,Cash,CAD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+3069,Sovereign,Israel Government Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+3069,Cash,CAD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+4652,Sovereign,German Government Note,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+4652,Sovereign,Government of Canada Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+4652,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+4652,Sovereign,Israel Government Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+0659,Sovereign,Israel Government Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+0659,Corporate,US Corporate,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+0659,Provincial,Ontario Provincial Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+7149,Corporate,US Common Stock,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+7149,Cash,CAD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+7149,Provincial,Ontario Provincial Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+1163,Corporate,US Corporate,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+1163,Corporate,US Common Stock,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+0659,Sovereign,Canada Mortgage Bonds,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+0659,Sovereign,German Government Note,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+0659,Corporate,US Common Stock,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+0661,Corporate,US Common Stock,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+0661,Sovereign,Canada Mortgage Bonds,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+0510,Provincial,Ontario Provincial Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+0510,Sovereign,Israel Government Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+0510,Corporate,US Corporate,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+7414,Sovereign,Israel Government Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+7414,Cash,CAD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+7414,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+9015,Cash,USD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+9015,Corporate,US Common Stock,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+9015,Sovereign,Government of Canada Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+9015,Cash,CAD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+9673,Sovereign,Canada Mortgage Bonds,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+9673,Cash,USD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+9673,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+9673,Sovereign,Israel Government Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+4249,Provincial,Ontario Provincial Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+4249,Sovereign,German Government Note,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+4249,Cash,USD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+4249,Sovereign,Canada Mortgage Bonds,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+A6170,Sovereign,German Government Note,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+A6170,Provincial,Ontario Provincial Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+A6170,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+7827,Corporate,US Common Stock,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+7827,Cash,CAD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+7827,Cash,USD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+7827,Sovereign,US Treasury,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+0353,Corporate,US Corporate,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+0353,Sovereign,Government of Canada Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+0353,Sovereign,US Treasury,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+8573,Corporate,US Corporate,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+8573,Cash,CAD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+8573,Sovereign,Canada Mortgage Bonds,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+8573,Cash,USD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0244,Sovereign,Government of Canada Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+0244,Corporate,US Common Stock,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+0244,Sovereign,US Treasury,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+4279,Sovereign,Canada Mortgage Bonds,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+4279,Corporate,US Common Stock,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+5284,Corporate,US Common Stock,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+5284,Cash,CAD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+5284,Sovereign,Canada Mortgage Bonds,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+5284,Sovereign,German Government Note,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+A9469,Sovereign,Canada Mortgage Bonds,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+A9469,Cash,CAD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+A9469,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+A9469,Sovereign,German Government Note,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+8377,Sovereign,German Government Note,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+8377,Cash,USD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+8377,Corporate,US Common Stock,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+8377,Sovereign,US Treasury,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+3944,Sovereign,US Treasury,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+3944,Cash,USD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+3944,Corporate,US Corporate,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+5320,Cash,USD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+5320,Sovereign,Government of Canada Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+0615,Sovereign,Government of Canada Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+0615,Cash,USD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0615,Corporate,US Common Stock,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+0615,Sovereign,Israel Government Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+K3945,Sovereign,German Government Note,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+K3945,Corporate,US Corporate,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+K3945,Sovereign,Government of Canada Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+9236,Provincial,Ontario Provincial Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+9236,Sovereign,Canada Mortgage Bonds,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+9236,Corporate,US Corporate,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+9236,Sovereign,Israel Government Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+K2309,Sovereign,Government of Canada Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+K2309,Corporate,US Common Stock,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+K2309,Cash,USD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+K3528,Corporate,US Corporate,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+K3528,Cash,CAD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+K3528,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+6894,Sovereign,Canada Mortgage Bonds,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+6894,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+6894,Sovereign,Israel Government Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+A2705,Cash,CAD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+A2705,Corporate,US Corporate,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+A2705,Sovereign,Canada Mortgage Bonds,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+7435,Sovereign,Israel Government Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+7435,Sovereign,Canada Mortgage Bonds,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+2153,Corporate,US Corporate,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+2153,Cash,USD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+2153,Cash,CAD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+A4812,Cash,USD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+A4812,Sovereign,German Government Note,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+A4812,Sovereign,Canada Mortgage Bonds,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+A4812,Sovereign,US Treasury,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+3478,Cash,CAD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+3478,Sovereign,Israel Government Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+3478,Corporate,US Common Stock,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+7192,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+7192,Sovereign,German Government Note,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+A3322,Corporate,US Corporate,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+A3322,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+A3322,Cash,CAD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+A2980,Sovereign,German Government Note,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+A2980,Sovereign,US Treasury,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+A2980,Cash,CAD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+A2980,Corporate,US Common Stock,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+K190,Sovereign,German Government Note,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+K190,Corporate,US Common Stock,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+K190,Cash,USD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+6111,Provincial,Ontario Provincial Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+6111,Corporate,US Common Stock,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+A452,Sovereign,German Government Note,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+A452,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+A452,Sovereign,Israel Government Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+A452,Cash,CAD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+5188,Provincial,Ontario Provincial Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+5188,Cash,CAD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+5188,Cash,USD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+K2418,Sovereign,Government of Canada Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+K2418,Corporate,US Corporate,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+K2418,Provincial,Ontario Provincial Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+K2418,Sovereign,Israel Government Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+9380,Sovereign,Canada Mortgage Bonds,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+9380,Sovereign,Israel Government Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+9380,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+9380,Cash,CAD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+K6286,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+K6286,Sovereign,US Treasury,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+K6286,Cash,USD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0212,Sovereign,Canada Mortgage Bonds,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+0212,Corporate,US Common Stock,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+0212,Sovereign,German Government Note,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+0212,Sovereign,Government of Canada Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+6926,Corporate,US Common Stock,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+6926,Sovereign,Canada Mortgage Bonds,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+6926,Sovereign,German Government Note,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+6926,Cash,CAD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0316,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+0316,Corporate,US Corporate,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+0316,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+6099,Cash,USD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+6099,Provincial,Ontario Provincial Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+6099,Sovereign,Canada Mortgage Bonds,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+6099,Sovereign,US Treasury,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+0423,Sovereign,US Treasury,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+0423,Cash,CAD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+K9525,Provincial,Ontario Provincial Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+K9525,Corporate,US Common Stock,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+K9525,Sovereign,US Treasury,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+K9525,Sovereign,Israel Government Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+8697,Cash,CAD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+8697,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+8697,Corporate,US Common Stock,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+0795,Corporate,US Common Stock,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+0795,Cash,CAD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0402,Cash,CAD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0402,Corporate,US Corporate,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+0402,Corporate,US Common Stock,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+0494,Corporate,US Common Stock,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+0494,Cash,USD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0494,Sovereign,Canada Mortgage Bonds,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+0494,Sovereign,US Treasury,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+9122,Corporate,US Corporate,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+9122,Cash,USD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+9122,Sovereign,German Government Note,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+9122,Sovereign,Government of Canada Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+A9577,Corporate,US Common Stock,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+A9577,Sovereign,Israel Government Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+A9577,Cash,CAD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+A9577,Cash,USD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0327,Sovereign,US Treasury,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+0327,Corporate,US Corporate,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+0327,Cash,USD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+K9768,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+K9768,Sovereign,Government of Canada Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+A9180,Sovereign,Government of Canada Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+A9180,Sovereign,Israel Government Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+5871,Corporate,US Corporate,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+5871,Sovereign,German Government Note,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+5871,Sovereign,Canada Mortgage Bonds,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+5871,Cash,CAD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0183,Sovereign,Government of Canada Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+0183,Provincial,Ontario Provincial Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+0426,Sovereign,US Treasury,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+0426,Sovereign,Government of Canada Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+0426,Corporate,US Corporate,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+0426,Cash,CAD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+7611,Sovereign,US Treasury,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+7611,Cash,CAD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+7611,Sovereign,German Government Note,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+2766,Cash,USD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+2766,Cash,CAD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+2766,Sovereign,Government of Canada Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+2766,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+0168,Cash,CAD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0168,Sovereign,Government of Canada Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+0168,Corporate,US Corporate,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+0168,Sovereign,Israel Government Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+2683,Sovereign,Government of Canada Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+2683,Sovereign,US Treasury,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+2683,Provincial,Ontario Provincial Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+6136,Cash,USD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+6136,Cash,CAD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+6136,Sovereign,German Government Note,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+6136,Corporate,US Common Stock,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+A3441,Cash,CAD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+A3441,Sovereign,German Government Note,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+A3441,Sovereign,Government of Canada Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+A3441,Cash,USD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0211,Sovereign,US Treasury,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+0211,Cash,USD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+0211,Sovereign,German Government Note,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+5541,Sovereign,Israel Government Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+5541,Sovereign,German Government Note,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+5541,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-10
+5541,Corporate,US Corporate,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+K9726,Sovereign,German Government Note,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+K9726,Sovereign,US Treasury,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+K9726,Cash,USD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+K9726,Cash,CAD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+5768,Corporate,US Corporate,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+5768,Cash,CAD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+5768,Sovereign,US Treasury,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+5768,Sovereign,Canada Mortgage Bonds,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+K3687,Sovereign,Israel Government Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-10
+K3687,Cash,CAD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+7025,Cash,USD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+7025,Sovereign,Canada Mortgage Bonds,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+7025,Provincial,Ontario Provincial Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+3352,Provincial,Ontario Provincial Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+3352,Corporate,US Corporate,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-10
+3352,Sovereign,US Treasury,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+8136,Sovereign,Canada Mortgage Bonds,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+8136,Cash,CAD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+8136,Corporate,US Common Stock,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+8136,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+A2239,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-10
+A2239,Sovereign,German Government Note,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+A2239,Corporate,US Common Stock,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+3065,Cash,CAD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-10
+3065,Corporate,US Common Stock,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-10
+7426,Sovereign,Canada Mortgage Bonds,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-10
+7426,Provincial,Ontario Provincial Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-10
+K311,Corporate,US Corporate,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+K311,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+K311,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+K311,Sovereign,Canada Mortgage Bonds,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+6339,Corporate,US Corporate,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+6339,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+6339,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+6339,Sovereign,Government of Canada Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+0658,Sovereign,Israel Government Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+0658,Cash,CAD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+0658,Sovereign,Canada Mortgage Bonds,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+8989,Cash,USD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+8989,Sovereign,US Treasury,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+4590,Sovereign,Government of Canada Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+4590,Sovereign,US Treasury,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+4590,Corporate,US Corporate,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+4590,Sovereign,Israel Government Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+K2043,Sovereign,US Treasury,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+K2043,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0720,Sovereign,German Government Note,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0720,Sovereign,Government of Canada Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+0720,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0720,Sovereign,US Treasury,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+K9768,Sovereign,Canada Mortgage Bonds,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+K9768,Cash,USD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+K9768,Sovereign,US Treasury,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+K9768,Corporate,US Common Stock,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+0740,Sovereign,US Treasury,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+0740,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+0740,Corporate,US Corporate,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+7296,Corporate,US Common Stock,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+7296,Sovereign,German Government Note,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+7296,Cash,USD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+5764,Provincial,Ontario Provincial Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+5764,Corporate,US Corporate,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+A9710,Provincial,Ontario Provincial Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+A9710,Cash,USD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+A9710,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+A5467,Corporate,US Corporate,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+A5467,Cash,CAD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+K7652,Sovereign,Government of Canada Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+K7652,Corporate,US Common Stock,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+A4203,Sovereign,German Government Note,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+A4203,Sovereign,Canada Mortgage Bonds,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+A4203,Sovereign,Government of Canada Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+0494,Sovereign,German Government Note,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0494,Cash,CAD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+0494,Corporate,US Common Stock,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+K9049,Provincial,Ontario Provincial Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+K9049,Sovereign,Israel Government Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+K9049,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+8697,Sovereign,Government of Canada Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+8697,Sovereign,Canada Mortgage Bonds,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+K5523,Sovereign,German Government Note,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+K5523,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+K5523,Sovereign,Government of Canada Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+0329,Sovereign,Canada Mortgage Bonds,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+0329,Sovereign,Israel Government Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+0329,Corporate,US Corporate,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+0329,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+5518,Sovereign,Canada Mortgage Bonds,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+5518,Sovereign,US Treasury,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+4902,Sovereign,Canada Mortgage Bonds,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+4902,Sovereign,US Treasury,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+4902,Cash,USD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+4902,Sovereign,Israel Government Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+8393,Corporate,US Common Stock,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+8393,Sovereign,Canada Mortgage Bonds,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+8393,Corporate,US Corporate,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+8393,Cash,USD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+1011,Corporate,US Common Stock,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+1011,Sovereign,Canada Mortgage Bonds,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+1011,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+7653,Sovereign,Israel Government Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+7653,Corporate,US Corporate,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+7653,Provincial,Ontario Provincial Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0863,Sovereign,Canada Mortgage Bonds,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+0863,Corporate,US Corporate,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+5320,Sovereign,Government of Canada Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+5320,Sovereign,Canada Mortgage Bonds,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+0553,Sovereign,US Treasury,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+0553,Provincial,Ontario Provincial Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0553,Corporate,US Corporate,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+7567,Sovereign,US Treasury,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+7567,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+7567,Sovereign,German Government Note,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+9928,Cash,CAD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+9928,Cash,USD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+9928,Corporate,US Corporate,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+0142,Sovereign,German Government Note,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0142,Sovereign,Government of Canada Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+A6918,Corporate,US Corporate,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+A6918,Sovereign,Canada Mortgage Bonds,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+A6918,Sovereign,Government of Canada Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+A9146,Cash,CAD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+A9146,Corporate,US Corporate,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+A9146,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+0375,Corporate,US Common Stock,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+0375,Sovereign,US Treasury,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+0375,Provincial,Ontario Provincial Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0626,Provincial,Ontario Provincial Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0626,Cash,USD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+9049,Corporate,US Common Stock,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+9049,Corporate,US Corporate,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+9049,Cash,USD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+9049,Sovereign,US Treasury,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+4632,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+4632,Sovereign,Government of Canada Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+K8483,Sovereign,Israel Government Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+K8483,Sovereign,Government of Canada Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+K8483,Provincial,Ontario Provincial Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+K5571,Corporate,US Corporate,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+K5571,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+K5571,Cash,USD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+K5571,Sovereign,US Treasury,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+5308,Sovereign,German Government Note,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+5308,Cash,USD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+5308,Sovereign,US Treasury,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+0260,Sovereign,German Government Note,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0260,Cash,USD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+0260,Provincial,Ontario Provincial Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+7185,Sovereign,US Treasury,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+7185,Sovereign,Canada Mortgage Bonds,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+7185,Provincial,Ontario Provincial Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+K6413,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+K6413,Sovereign,Israel Government Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+K2477,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+K2477,Sovereign,Israel Government Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+0780,Provincial,Ontario Provincial Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0780,Sovereign,Israel Government Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+0780,Cash,CAD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+0780,Sovereign,US Treasury,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+A5338,Sovereign,US Treasury,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+A5338,Cash,USD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+A5338,Sovereign,Government of Canada Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+A5338,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+K8144,Sovereign,German Government Note,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+K8144,Cash,USD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+K8144,Cash,CAD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+K8144,Provincial,Ontario Provincial Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+8596,Cash,USD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+8596,Cash,CAD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+8596,Sovereign,German Government Note,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+8596,Sovereign,Canada Mortgage Bonds,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+2342,Cash,CAD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+2342,Sovereign,Government of Canada Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+2342,Sovereign,Canada Mortgage Bonds,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+2342,Provincial,Ontario Provincial Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+K2133,Cash,USD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+K2133,Sovereign,Canada Mortgage Bonds,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+K2133,Corporate,US Corporate,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+A264,Corporate,US Common Stock,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+A264,Sovereign,Israel Government Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+A264,Cash,USD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+A264,Sovereign,US Treasury,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+9133,Corporate,US Corporate,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+9133,Cash,USD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+9133,Sovereign,Israel Government Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+8017,Corporate,US Corporate,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+8017,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+8017,Cash,CAD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+8017,Provincial,Ontario Provincial Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0505,Corporate,US Common Stock,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+0505,Sovereign,Canada Mortgage Bonds,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+0505,Provincial,Ontario Provincial Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+7916,Sovereign,US Treasury,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+7916,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+7100,Provincial,Ontario Provincial Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+7100,Sovereign,Israel Government Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+A5360,Corporate,US Corporate,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+A5360,Sovereign,Israel Government Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+A5360,Cash,CAD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+0878,Corporate,US Corporate,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+0878,Sovereign,Israel Government Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+6537,Corporate,US Common Stock,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+6537,Corporate,US Corporate,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+6537,Sovereign,German Government Note,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+3708,Provincial,Ontario Provincial Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+3708,Cash,CAD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+3708,Corporate,US Common Stock,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+5116,Sovereign,German Government Note,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+5116,Sovereign,Canada Mortgage Bonds,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+5116,Cash,CAD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+5116,Corporate,US Common Stock,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+K416,Provincial,Ontario Provincial Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+K416,Sovereign,US Treasury,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+7022,Corporate,US Common Stock,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+7022,Sovereign,Israel Government Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+4694,Corporate,US Corporate,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+4694,Provincial,Ontario Provincial Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+4694,Sovereign,German Government Note,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+7170,Corporate,US Common Stock,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+7170,Cash,USD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+7334,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+7334,Sovereign,US Treasury,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+7334,Corporate,US Common Stock,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+4943,Sovereign,Canada Mortgage Bonds,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+4943,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+4943,Corporate,US Corporate,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+4943,Sovereign,Israel Government Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+0520,Cash,USD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+0520,Sovereign,Canada Mortgage Bonds,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+0520,Provincial,Ontario Provincial Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0520,Sovereign,German Government Note,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+7887,Sovereign,German Government Note,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+7887,Corporate,US Common Stock,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+7887,Corporate,US Corporate,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+0777,Sovereign,German Government Note,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0777,Sovereign,Israel Government Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+2102,Sovereign,German Government Note,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+2102,Sovereign,Government of Canada Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+K2046,Sovereign,German Government Note,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+K2046,Cash,CAD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+K2046,Sovereign,US Treasury,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+8531,Sovereign,Israel Government Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+8531,Corporate,US Corporate,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+8531,Corporate,US Common Stock,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+8531,Sovereign,German Government Note,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+2029,Cash,CAD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+2029,Provincial,Ontario Provincial Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+2029,Corporate,US Corporate,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+9374,Sovereign,German Government Note,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+9374,Provincial,Ontario Provincial Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+9374,Corporate,US Corporate,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+0176,Sovereign,German Government Note,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0176,Cash,USD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+0176,Provincial,Ontario Provincial Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0176,Sovereign,Government of Canada Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+K3528,Provincial,Ontario Provincial Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+K3528,Cash,CAD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+K3528,Cash,USD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+0466,Corporate,US Common Stock,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+0466,Cash,CAD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+0466,Sovereign,Israel Government Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+0466,Cash,USD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+A6854,Cash,USD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+A6854,Sovereign,Government of Canada Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+5280,Provincial,Ontario Provincial Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+5280,Corporate,US Common Stock,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+5280,Cash,CAD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+5280,Sovereign,Israel Government Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+5314,Sovereign,German Government Note,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+5314,Sovereign,US Treasury,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+5314,Cash,CAD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+2047,Sovereign,German Government Note,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+2047,Sovereign,Government of Canada Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+2047,Corporate,US Common Stock,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+2047,Cash,CAD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+7120,Corporate,US Common Stock,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+7120,Sovereign,Canada Mortgage Bonds,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+7120,Corporate,US Corporate,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+7120,Sovereign,Government of Canada Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+K5603,Corporate,US Corporate,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+K5603,Sovereign,US Treasury,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+0662,Sovereign,Israel Government Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+0662,Sovereign,US Treasury,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+0662,Sovereign,German Government Note,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0662,Corporate,US Common Stock,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+K9193,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+K9193,Cash,CAD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+K9193,Sovereign,German Government Note,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+6939,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+6939,Sovereign,Canada Mortgage Bonds,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+6939,Sovereign,Government of Canada Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+6939,Cash,CAD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+2347,Corporate,US Corporate,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+2347,Corporate,US Common Stock,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+2347,Sovereign,German Government Note,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+2347,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+1173,Sovereign,Israel Government Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+1173,Corporate,US Corporate,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+1173,Corporate,US Common Stock,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+1173,Sovereign,Canada Mortgage Bonds,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+7229,Corporate,US Corporate,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+7229,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+7229,Sovereign,Canada Mortgage Bonds,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+7229,Provincial,Ontario Provincial Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+7697,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+7697,Cash,USD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+7697,Sovereign,Israel Government Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+7697,Sovereign,Government of Canada Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+0725,Corporate,US Corporate,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+0725,Sovereign,German Government Note,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+6786,Sovereign,Israel Government Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+6786,Provincial,Ontario Provincial Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+6786,Sovereign,Government of Canada Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+8377,Cash,CAD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+8377,Sovereign,US Treasury,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+0829,Corporate,US Corporate,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+0829,Sovereign,German Government Note,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+7896,Cash,CAD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+7896,Sovereign,Canada Mortgage Bonds,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+7118,Sovereign,German Government Note,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+7118,Corporate,US Corporate,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+7118,Cash,CAD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+7118,Sovereign,Canada Mortgage Bonds,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+0243,Sovereign,Israel Government Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+0243,Corporate,US Common Stock,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+0209,Provincial,Ontario Provincial Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0209,Sovereign,Israel Government Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+0209,Sovereign,Canada Mortgage Bonds,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+0209,Corporate,US Common Stock,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+9225,Sovereign,Canada Mortgage Bonds,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+9225,Sovereign,Government of Canada Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+9225,Corporate,US Corporate,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+9225,Corporate,US Common Stock,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+4413,Sovereign,Government of Canada Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+4413,Corporate,US Common Stock,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+0434,Sovereign,German Government Note,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0434,Sovereign,Israel Government Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+0434,Sovereign,US Treasury,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+2716,Cash,USD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+2716,Sovereign,Israel Government Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+2716,Corporate,US Common Stock,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+2716,Corporate,US Corporate,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+1253,Cash,USD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+1253,Sovereign,German Government Note,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+1253,Corporate,US Common Stock,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+1253,Sovereign,Government of Canada Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+3790,Sovereign,Canada Mortgage Bonds,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+3790,Sovereign,Government of Canada Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+3790,Sovereign,US Treasury,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+K2358,Cash,USD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+K2358,Corporate,US Common Stock,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+5037,Cash,USD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+5037,Sovereign,Israel Government Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+5037,Corporate,US Corporate,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+5037,Sovereign,US Treasury,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+0211,Cash,USD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+0211,Sovereign,Canada Mortgage Bonds,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+0211,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+1600,Corporate,US Corporate,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+1600,Sovereign,Canada Mortgage Bonds,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+1600,Sovereign,US Treasury,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+1600,Cash,CAD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+0218,Sovereign,Government of Canada Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+0218,Corporate,US Common Stock,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+0218,Cash,CAD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+0218,Sovereign,Israel Government Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+0505,Corporate,US Corporate,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+0505,Sovereign,Government of Canada Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+9700,Provincial,Ontario Provincial Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+9700,Sovereign,German Government Note,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+9700,Corporate,US Corporate,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+9700,Sovereign,Government of Canada Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+1733,Sovereign,German Government Note,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+1733,Sovereign,Israel Government Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+A812,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+A812,Cash,CAD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+A812,Sovereign,US Treasury,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+0231,Corporate,US Corporate,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-17
+0231,Sovereign,German Government Note,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+0231,Cash,USD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+0231,Cash,CAD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+9581,Sovereign,Canada Mortgage Bonds,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-17
+9581,Corporate,US Common Stock,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+9581,Cash,CAD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+5846,Sovereign,Israel Government Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+5846,Corporate,US Common Stock,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+5846,Cash,CAD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+5846,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+2405,Cash,USD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-17
+2405,Sovereign,US Treasury,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-17
+4083,Corporate,US Common Stock,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-17
+4083,Sovereign,Israel Government Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+4083,Provincial,Ontario Provincial Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+4083,Sovereign,Government of Canada Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+K9525,Sovereign,Government of Canada Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-17
+K9525,Provincial,Ontario Provincial Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+K9525,Sovereign,German Government Note,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-17
+K9525,Sovereign,Israel Government Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-17
+0119,Sovereign,US Treasury,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+0119,Cash,CAD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0119,Sovereign,Canada Mortgage Bonds,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+0661,Sovereign,Government of Canada Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+0661,Provincial,Ontario Provincial Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0661,Corporate,US Common Stock,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+0661,Corporate,US Corporate,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+7567,Cash,USD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+7567,Sovereign,Canada Mortgage Bonds,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+A1162,Sovereign,Government of Canada Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+A1162,Corporate,US Common Stock,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+A1162,Sovereign,Israel Government Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+3129,Sovereign,Government of Canada Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+3129,Provincial,Ontario Provincial Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+3129,Sovereign,German Government Note,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+2716,Sovereign,Israel Government Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+2716,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+2716,Cash,CAD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+2716,Corporate,US Corporate,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+1356,Sovereign,Israel Government Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+1356,Sovereign,Canada Mortgage Bonds,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+1356,Corporate,US Corporate,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+1356,Sovereign,US Treasury,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+K6823,Sovereign,Israel Government Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+K6823,Corporate,US Common Stock,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+3729,Cash,CAD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+3729,Corporate,US Common Stock,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+6099,Sovereign,Government of Canada Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+6099,Sovereign,German Government Note,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+6099,Sovereign,Canada Mortgage Bonds,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+A6918,Corporate,US Common Stock,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+A6918,Provincial,Ontario Provincial Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0878,Sovereign,German Government Note,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0878,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+8955,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+8955,Sovereign,US Treasury,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+4362,Sovereign,Canada Mortgage Bonds,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+4362,Sovereign,Israel Government Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+7367,Corporate,US Common Stock,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+7367,Sovereign,US Treasury,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+7367,Provincial,Ontario Provincial Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0142,Sovereign,German Government Note,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0142,Sovereign,Government of Canada Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+0142,Cash,CAD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0243,Cash,CAD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0243,Sovereign,Government of Canada Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+0243,Corporate,US Common Stock,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+0243,Sovereign,Canada Mortgage Bonds,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+4631,Sovereign,Canada Mortgage Bonds,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+4631,Corporate,US Common Stock,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+4631,Sovereign,German Government Note,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0679,Sovereign,US Treasury,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+0679,Sovereign,German Government Note,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0679,Provincial,Ontario Provincial Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0679,Cash,CAD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+5727,Sovereign,Canada Mortgage Bonds,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+5727,Sovereign,Israel Government Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+5727,Corporate,US Corporate,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+5903,Sovereign,Government of Canada Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+5903,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+5903,Sovereign,US Treasury,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+5903,Corporate,US Common Stock,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+8697,Sovereign,Israel Government Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+8697,Provincial,Ontario Provincial Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+8697,Corporate,US Common Stock,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+8697,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+A9573,Sovereign,US Treasury,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+A9573,Cash,CAD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+A9573,Corporate,US Common Stock,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+A9573,Provincial,Ontario Provincial Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0124,Sovereign,Government of Canada Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+0124,Sovereign,German Government Note,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+7727,Sovereign,Government of Canada Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+7727,Sovereign,US Treasury,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+7727,Cash,USD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+6524,Provincial,Ontario Provincial Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+6524,Sovereign,Israel Government Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+0766,Sovereign,Canada Mortgage Bonds,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+0766,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+A2980,Corporate,US Corporate,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+A2980,Sovereign,Government of Canada Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+A2980,Sovereign,Canada Mortgage Bonds,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+A2980,Sovereign,German Government Note,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+K6618,Corporate,US Common Stock,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+K6618,Sovereign,Israel Government Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+A5360,Sovereign,Government of Canada Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+A5360,Sovereign,German Government Note,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+A5360,Cash,CAD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+6111,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+6111,Sovereign,US Treasury,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+6111,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+6111,Cash,USD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+A1015,Cash,CAD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+A1015,Sovereign,Canada Mortgage Bonds,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+A1015,Sovereign,US Treasury,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+A1015,Sovereign,German Government Note,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+K8538,Corporate,US Corporate,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+K8538,Sovereign,German Government Note,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+5320,Cash,CAD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+5320,Sovereign,US Treasury,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+0363,Cash,CAD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0363,Sovereign,Canada Mortgage Bonds,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+0363,Sovereign,Government of Canada Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+1017,Sovereign,Government of Canada Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+1017,Sovereign,German Government Note,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+1017,Cash,USD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0112,Corporate,US Common Stock,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+0112,Cash,USD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0112,Sovereign,US Treasury,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+0634,Cash,CAD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0634,Sovereign,Canada Mortgage Bonds,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+3953,Provincial,Ontario Provincial Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+3953,Sovereign,Israel Government Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+3953,Sovereign,US Treasury,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+0405,Sovereign,Government of Canada Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+0405,Cash,USD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0405,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0405,Corporate,US Common Stock,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+8989,Corporate,US Corporate,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+8989,Provincial,Ontario Provincial Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+8989,Sovereign,Canada Mortgage Bonds,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+8989,Cash,USD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+K3985,Cash,USD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+K3985,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+K3985,Provincial,Ontario Provincial Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+K3985,Corporate,US Common Stock,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+0595,Provincial,Ontario Provincial Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0595,Corporate,US Corporate,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+0595,Sovereign,US Treasury,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+K3366,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+K3366,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+0978,Sovereign,Government of Canada Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+0978,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+0978,Cash,CAD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0978,Provincial,Ontario Provincial Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0645,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+0645,Sovereign,German Government Note,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+8321,Sovereign,Israel Government Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+8321,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+A2099,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+A2099,Corporate,US Corporate,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+5824,Corporate,US Common Stock,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+5824,Provincial,Ontario Provincial Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+5824,Sovereign,US Treasury,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+0467,Cash,USD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0467,Corporate,US Common Stock,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+0467,Cash,CAD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0422,Sovereign,Canada Mortgage Bonds,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+0422,Sovereign,Israel Government Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+0422,Cash,USD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+5076,Sovereign,Canada Mortgage Bonds,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+5076,Cash,CAD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+5076,Sovereign,Government of Canada Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+8518,Sovereign,Government of Canada Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+8518,Cash,CAD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0137,Corporate,US Common Stock,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+0137,Sovereign,US Treasury,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+0137,Sovereign,Israel Government Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+0137,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+3710,Sovereign,Government of Canada Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+3710,Sovereign,German Government Note,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+4139,Sovereign,US Treasury,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+4139,Cash,CAD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0873,Sovereign,Israel Government Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+0873,Cash,CAD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0873,Corporate,US Common Stock,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+0573,Sovereign,US Treasury,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+0573,Corporate,US Corporate,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+0573,Cash,USD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+2292,Corporate,US Corporate,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+2292,Cash,USD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+2292,Sovereign,Israel Government Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+2537,Sovereign,Canada Mortgage Bonds,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+2537,Cash,CAD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+2537,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+6217,Corporate,US Corporate,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+6217,Sovereign,German Government Note,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+6217,Sovereign,Israel Government Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+7025,Corporate,US Corporate,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+7025,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+0676,Provincial,Ontario Provincial Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0676,Sovereign,US Treasury,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+0676,Cash,USD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0676,Corporate,US Common Stock,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+2227,Cash,CAD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+2227,Sovereign,German Government Note,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+2227,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+2227,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+9380,Sovereign,Government of Canada Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+9380,Provincial,Ontario Provincial Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+4652,Cash,USD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+4652,Sovereign,Government of Canada Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+4652,Sovereign,US Treasury,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+2677,Corporate,US Common Stock,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+2677,Cash,CAD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+2677,Sovereign,Government of Canada Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+2677,Provincial,Ontario Provincial Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0597,Sovereign,US Treasury,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+0597,Cash,CAD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0597,Sovereign,Canada Mortgage Bonds,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+0455,Provincial,Ontario Provincial Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0455,Sovereign,Canada Mortgage Bonds,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+0455,Cash,CAD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+A5784,Cash,CAD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+A5784,Corporate,US Common Stock,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+A5784,Sovereign,Government of Canada Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+0526,Corporate,US Common Stock,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+0526,Corporate,US Corporate,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+0526,Sovereign,Israel Government Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+4670,Provincial,Ontario Provincial Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+4670,Corporate,US Corporate,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+K7883,Cash,CAD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+K7883,Corporate,US Corporate,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+K2035,Cash,USD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+K2035,Sovereign,US Treasury,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+K2035,Sovereign,Israel Government Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+0466,Sovereign,US Treasury,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+0466,Cash,CAD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0466,Sovereign,Government of Canada Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+2875,Sovereign,German Government Note,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+2875,Cash,CAD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+2875,Sovereign,Israel Government Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+2875,Provincial,Ontario Provincial Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+5768,Cash,USD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+5768,Sovereign,Israel Government Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+5768,Sovereign,Government of Canada Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+2449,Provincial,Ontario Provincial Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+2449,Sovereign,US Treasury,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+2449,Corporate,US Common Stock,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+1798,Provincial,Ontario Provincial Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+1798,Sovereign,German Government Note,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0738,Provincial,Ontario Provincial Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0738,Cash,USD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0738,Corporate,US Corporate,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+0270,Cash,USD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0270,Sovereign,German Government Note,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0725,Sovereign,Canada Mortgage Bonds,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+0725,Sovereign,German Government Note,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0725,Cash,CAD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0725,Sovereign,Government of Canada Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+A4540,Sovereign,Israel Government Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+A4540,Cash,CAD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+A4540,Sovereign,German Government Note,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+A4540,Sovereign,Government of Canada Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+6568,Cash,CAD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+6568,Corporate,US Common Stock,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+6568,Sovereign,Canada Mortgage Bonds,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+6568,Provincial,Ontario Provincial Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+A986,Sovereign,Canada Mortgage Bonds,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+A986,Cash,USD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+A986,Sovereign,Israel Government Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+7428,Corporate,US Corporate,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+7428,Sovereign,Israel Government Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+A3666,Cash,CAD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+A3666,Sovereign,Israel Government Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+A3666,Cash,USD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+2359,Sovereign,Israel Government Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+2359,Sovereign,Canada Mortgage Bonds,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+0662,Cash,CAD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0662,Corporate,US Corporate,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+0662,Provincial,Ontario Provincial Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+A832,Provincial,Ontario Provincial Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+A832,Cash,CAD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+A832,Sovereign,US Treasury,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+A832,Sovereign,Israel Government Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+7803,Cash,USD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+7803,Provincial,Ontario Provincial Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+7803,Sovereign,German Government Note,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0213,Sovereign,German Government Note,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0213,Corporate,US Common Stock,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+0213,Sovereign,Canada Mortgage Bonds,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+4112,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+4112,Provincial,Ontario Provincial Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+4112,Corporate,US Corporate,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+3356,Corporate,US Common Stock,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+3356,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+3356,Sovereign,Israel Government Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+K7212,Sovereign,German Government Note,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+K7212,Sovereign,Israel Government Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+K7212,Cash,USD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0252,Sovereign,US Treasury,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+0252,Corporate,US Common Stock,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+0252,Sovereign,Canada Mortgage Bonds,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+0252,Cash,USD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0233,Sovereign,Government of Canada Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+0233,Sovereign,US Treasury,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+0233,Sovereign,German Government Note,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+7635,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+7635,Corporate,US Common Stock,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+7635,Provincial,Ontario Provincial Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+7635,Cash,CAD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+8307,Sovereign,Canada Mortgage Bonds,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+8307,Sovereign,German Government Note,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+8307,Cash,USD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+3604,Cash,CAD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+3604,Corporate,US Corporate,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+3071,Sovereign,Israel Government Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+3071,Sovereign,Canada Mortgage Bonds,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+3020,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+3020,Sovereign,Israel Government Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+3020,Sovereign,US Treasury,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+A1147,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+A1147,Cash,USD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+A1147,Corporate,US Common Stock,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+K6195,Sovereign,Israel Government Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+K6195,Sovereign,US Treasury,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+K6195,Sovereign,Government of Canada Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+7201,Provincial,Ontario Provincial Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+7201,Sovereign,Government of Canada Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+7201,Corporate,US Common Stock,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+3653,Sovereign,Canada Mortgage Bonds,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+3653,Cash,CAD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+3653,Provincial,Ontario Provincial Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+7627,Cash,USD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+7627,Corporate,US Corporate,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+7330,Corporate,US Corporate,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+7330,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+7330,Sovereign,Government of Canada Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+7330,Cash,CAD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+8566,Sovereign,Government of Canada Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+8566,Cash,CAD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+8566,Corporate,US Corporate,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+8566,Corporate,US Common Stock,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+9700,Sovereign,German Government Note,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+9700,Sovereign,Canada Mortgage Bonds,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+9700,Cash,USD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+9700,Cash,CAD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+K1341,Corporate,US Common Stock,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+K1341,Sovereign,US Treasury,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+K1341,Sovereign,Canada Mortgage Bonds,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+2252,Cash,USD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+2252,Provincial,Ontario Provincial Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+1557,Sovereign,Israel Government Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+1557,Cash,CAD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+1557,Corporate,US Corporate,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+1557,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0434,Sovereign,Government of Canada Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+0434,Sovereign,German Government Note,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+2917,Sovereign,German Government Note,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+2917,Corporate,US Common Stock,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+2917,Sovereign,Canada Mortgage Bonds,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-06-24
+0350,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0350,Sovereign,German Government Note,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0350,Sovereign,Government of Canada Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-06-24
+A6515,Provincial,Ontario Provincial Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+A6515,Sovereign,German Government Note,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+A6515,Sovereign,Israel Government Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+A9577,Corporate,US Common Stock,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+A9577,Cash,USD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0374,Sovereign,German Government Note,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+0374,Cash,CAD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0374,Cash,USD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-06-24
+0374,Sovereign,US Treasury,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-06-24
+K1596,Corporate,US Corporate,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-06-24
+K1596,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-06-24
+K1596,Sovereign,Israel Government Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-06-24
+K1596,Corporate,US Common Stock,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-06-24
+5418,Corporate,US Corporate,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+5418,Sovereign,Canada Mortgage Bonds,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+1192,Sovereign,US Treasury,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+1192,Corporate,US Common Stock,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+6097,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+6097,Cash,CAD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+5724,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+5724,Cash,USD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+5724,Sovereign,Israel Government Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+5724,Sovereign,US Treasury,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+1987,Sovereign,German Government Note,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+1987,Corporate,US Corporate,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+1987,Sovereign,Government of Canada Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+8132,Corporate,US Corporate,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+8132,Sovereign,US Treasury,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+8132,Sovereign,German Government Note,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+A2457,Corporate,US Common Stock,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+A2457,Provincial,Ontario Provincial Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+A2457,Sovereign,German Government Note,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+A531,Sovereign,Government of Canada Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+A531,Sovereign,German Government Note,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+A531,Cash,USD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+A2708,Corporate,US Corporate,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+A2708,Cash,USD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+A2708,Provincial,Ontario Provincial Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+9157,Provincial,Ontario Provincial Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+9157,Sovereign,Government of Canada Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+9157,Sovereign,German Government Note,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+0829,Cash,USD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0829,Sovereign,Government of Canada Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+4413,Cash,CAD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+4413,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+4413,Sovereign,German Government Note,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+1217,Provincial,Ontario Provincial Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+1217,Sovereign,US Treasury,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+1217,Corporate,US Common Stock,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+7224,Corporate,US Common Stock,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+7224,Sovereign,Government of Canada Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+7224,Cash,CAD CASH,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+3109,Corporate,US Corporate,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+3109,Provincial,Ontario Provincial Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+3109,Sovereign,Israel Government Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+3109,Cash,CAD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0466,Sovereign,German Government Note,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+0466,Sovereign,Canada Mortgage Bonds,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+0466,Sovereign,US Treasury,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+0466,Cash,USD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0233,Sovereign,Government of Canada Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+0233,Cash,CAD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+3174,Sovereign,Canada Mortgage Bonds,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+3174,Provincial,Ontario Provincial Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+0658,Corporate,US Corporate,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+0658,Cash,CAD CASH,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0658,Cash,USD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+K7652,Sovereign,Canada Mortgage Bonds,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+K7652,Corporate,US Corporate,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+4091,Sovereign,Israel Government Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+4091,Sovereign,German Government Note,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+4091,Sovereign,Canada Mortgage Bonds,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+4091,Corporate,US Common Stock,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+4164,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+4164,Corporate,US Common Stock,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+A5660,Sovereign,US Treasury,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+A5660,Sovereign,Canada Mortgage Bonds,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+A5660,Corporate,US Common Stock,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+A5660,Provincial,Ontario Provincial Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+7916,Sovereign,US Treasury,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+7916,Cash,CAD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0719,Sovereign,US Treasury,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+0719,Corporate,US Corporate,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+0719,Cash,CAD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+A681,Provincial,Ontario Provincial Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+A681,Sovereign,Government of Canada Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+3065,Sovereign,US Treasury,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+3065,Corporate,US Corporate,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+3408,Sovereign,German Government Note,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+3408,Sovereign,Government of Canada Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+3408,Cash,USD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+3408,Provincial,Ontario Provincial Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+7887,Sovereign,Israel Government Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+7887,Provincial,Ontario Provincial Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+7887,Cash,CAD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+4030,Sovereign,German Government Note,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+4030,Corporate,US Corporate,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+4030,Sovereign,US Treasury,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+A9048,Sovereign,Canada Mortgage Bonds,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+A9048,Provincial,Ontario Provincial Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+A9048,Cash,CAD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+A9048,Sovereign,German Government Note,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+0573,Sovereign,German Government Note,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+0573,Sovereign,Government of Canada Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+0258,Sovereign,Canada Mortgage Bonds,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+0258,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+0258,Cash,CAD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+K291,Sovereign,US Treasury,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+K291,Provincial,Ontario Provincial Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+0550,Sovereign,Israel Government Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+0550,Sovereign,Government of Canada Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+8739,Sovereign,German Government Note,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+8739,Corporate,US Corporate,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+K8641,Sovereign,US Treasury,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+K8641,Corporate,US Common Stock,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+K8641,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+K782,Sovereign,Canada Mortgage Bonds,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+K782,Corporate,US Corporate,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+K782,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+K782,Sovereign,US Treasury,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+K4210,Cash,CAD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+K4210,Corporate,US Common Stock,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+K4210,Sovereign,Canada Mortgage Bonds,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+A9696,Cash,CAD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+A9696,Sovereign,Israel Government Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+A9696,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+A9696,Sovereign,US Treasury,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+0102,Corporate,US Common Stock,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+0102,Sovereign,US Treasury,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+0102,Sovereign,Canada Mortgage Bonds,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+K1483,Corporate,US Common Stock,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+K1483,Sovereign,Israel Government Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+K6770,Sovereign,German Government Note,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+K6770,Sovereign,Canada Mortgage Bonds,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+K6770,Sovereign,Government of Canada Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+K6770,Cash,CAD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+6257,Sovereign,Government of Canada Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+6257,Sovereign,Canada Mortgage Bonds,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+6257,Sovereign,US Treasury,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+1962,Cash,USD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+1962,Cash,CAD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+1962,Sovereign,Israel Government Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+K5502,Sovereign,German Government Note,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+K5502,Sovereign,Israel Government Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+K5502,Corporate,US Common Stock,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+K5502,Cash,USD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+6465,Sovereign,Canada Mortgage Bonds,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+6465,Sovereign,Israel Government Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+5204,Corporate,US Common Stock,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+5204,Cash,CAD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+5204,Sovereign,US Treasury,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+4695,Cash,USD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+4695,Sovereign,German Government Note,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+4695,Corporate,US Corporate,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+6181,Cash,CAD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+6181,Provincial,Ontario Provincial Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+4918,Sovereign,Canada Mortgage Bonds,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+4918,Sovereign,German Government Note,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+4918,Sovereign,Israel Government Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+4918,Cash,CAD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+3485,Sovereign,German Government Note,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+3485,Sovereign,Israel Government Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+3485,Cash,USD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+3485,Cash,CAD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+A6318,Sovereign,US Treasury,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+A6318,Sovereign,German Government Note,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+6650,Sovereign,Canada Mortgage Bonds,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+6650,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+6650,Corporate,US Corporate,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+6650,Sovereign,Israel Government Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+0589,Cash,USD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0589,Corporate,US Common Stock,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+0589,Sovereign,Canada Mortgage Bonds,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+0589,Sovereign,Government of Canada Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+1484,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+1484,Cash,USD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+6934,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+6934,Corporate,US Corporate,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+6934,Sovereign,Government of Canada Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+0659,Corporate,US Common Stock,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+0659,Sovereign,Israel Government Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+0659,Sovereign,German Government Note,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+8366,Corporate,US Common Stock,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+8366,Provincial,Ontario Provincial Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+7337,Sovereign,Government of Canada Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+7337,Sovereign,German Government Note,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+7337,Corporate,US Common Stock,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+7337,Sovereign,Canada Mortgage Bonds,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+2157,Corporate,US Common Stock,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+2157,Corporate,US Corporate,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+0597,Sovereign,Government of Canada Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+0597,Corporate,US Common Stock,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+0597,Provincial,Ontario Provincial Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+0597,Sovereign,Israel Government Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+2677,Sovereign,Government of Canada Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+2677,Provincial,Ontario Provincial Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+2677,Corporate,US Common Stock,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+0512,Corporate,US Common Stock,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+0512,Cash,USD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0512,Cash,CAD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0512,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+0112,Sovereign,Israel Government Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+0112,Sovereign,Canada Mortgage Bonds,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+0112,Corporate,US Corporate,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+8299,Corporate,US Corporate,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+8299,Sovereign,German Government Note,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+K3268,Corporate,US Corporate,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+K3268,Sovereign,Government of Canada Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+K3268,Sovereign,US Treasury,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+9374,Sovereign,US Treasury,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+9374,Corporate,US Corporate,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+9374,Sovereign,Government of Canada Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+A1352,Sovereign,US Treasury,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+A1352,Cash,CAD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0509,Corporate,US Common Stock,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+0509,Corporate,US Corporate,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+0509,Sovereign,German Government Note,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+A1741,Sovereign,US Treasury,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+A1741,Cash,USD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+A1741,Sovereign,Canada Mortgage Bonds,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+A1741,Cash,CAD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+5903,Sovereign,US Treasury,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+5903,Sovereign,German Government Note,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+5903,Corporate,US Common Stock,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+5903,Sovereign,Government of Canada Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+0961,Sovereign,Israel Government Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+0961,Corporate,US Common Stock,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+A2561,Corporate,US Common Stock,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+A2561,Provincial,Ontario Provincial Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+A2561,Sovereign,Israel Government Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+7367,Sovereign,Israel Government Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+7367,Sovereign,German Government Note,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+7367,Corporate,US Common Stock,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+7367,Provincial,Ontario Provincial Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+3682,Sovereign,Israel Government Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+3682,Provincial,Ontario Provincial Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+3682,Cash,CAD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0835,Corporate,US Corporate,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+0835,Sovereign,US Treasury,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+0835,Sovereign,Government of Canada Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+0835,Cash,USD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0193,Sovereign,Israel Government Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+0193,Corporate,US Common Stock,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+0193,Cash,USD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0193,Sovereign,Canada Mortgage Bonds,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+7631,Cash,CAD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+7631,Sovereign,US Treasury,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+7631,Sovereign,Israel Government Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+7631,Cash,USD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+1937,Cash,USD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+1937,Sovereign,German Government Note,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+7381,Provincial,Ontario Provincial Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+7381,Sovereign,US Treasury,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+7381,Sovereign,Canada Mortgage Bonds,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+7381,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+7414,Sovereign,Government of Canada Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+7414,Corporate,US Corporate,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+7414,Sovereign,US Treasury,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+4202,Sovereign,German Government Note,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+4202,Corporate,US Corporate,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+6863,Corporate,US Corporate,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+6863,Cash,USD CASH,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+3356,Sovereign,Canada Mortgage Bonds,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+3356,Corporate,US Corporate,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+0751,Sovereign,Canada Mortgage Bonds,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+0751,Cash,CAD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0280,Sovereign,Israel Government Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+0280,Cash,USD CASH,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+5764,Sovereign,Government of Canada Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+5764,Cash,USD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+5764,Sovereign,German Government Note,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+8136,Provincial,Ontario Provincial Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+8136,Sovereign,US Treasury,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+8136,Cash,CAD CASH,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+8136,Corporate,US Corporate,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+4647,Sovereign,Canada Mortgage Bonds,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+4647,Sovereign,Israel Government Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+4647,Sovereign,US Treasury,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+4647,Cash,CAD CASH,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+7192,Corporate,US Corporate,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+7192,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+7511,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+7511,Sovereign,Canada Mortgage Bonds,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+7511,Sovereign,Government of Canada Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+7511,Sovereign,US Treasury,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+K5413,Cash,USD CASH,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+K5413,Sovereign,Canada Mortgage Bonds,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+1096,Sovereign,German Government Note,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+1096,Sovereign,Israel Government Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+8017,Corporate,US Common Stock,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+8017,Sovereign,German Government Note,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+9017,Corporate,US Corporate,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+9017,Corporate,US Common Stock,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+9017,Sovereign,Government of Canada Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+9017,Cash,CAD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+5194,Corporate,US Corporate,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+5194,Cash,CAD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+5194,Cash,USD CASH,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+5194,Corporate,US Common Stock,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+5379,Sovereign,Israel Government Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+5379,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+5379,Corporate,US Corporate,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+5379,Cash,USD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+K6434,Cash,USD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+K6434,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+K6434,Corporate,US Common Stock,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+K6434,Provincial,Ontario Provincial Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+0300,Sovereign,Israel Government Bond,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+0300,Sovereign,Canada Mortgage Bonds,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+0300,Sovereign,US Treasury,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+2415,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+2415,Provincial,Ontario Provincial Bond,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+2415,Sovereign,German Government Note,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+K3528,Sovereign,German Government Note,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+K3528,Provincial,Ontario Provincial Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+K3528,Cash,USD CASH,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+K3528,Corporate,US Common Stock,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+0524,Sovereign,Israel Government Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+0524,Cash,USD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+A2705,Sovereign,Government of Canada Bond,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+A2705,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+K9768,Sovereign,Canada Mortgage Bonds,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+K9768,Sovereign,Israel Government Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+K9768,Corporate,US Common Stock,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+1683,Sovereign,US Treasury,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,99.0,,2026-07-01
+1683,Provincial,Ontario Provincial Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+1683,Cash,CAD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0578,Cash,CAD CASH,1.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0578,Cash,USD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+K1597,Provincial,Ontario Provincial Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+K1597,Corporate,US Corporate,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+K1597,Corporate,US Common Stock,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+1163,Cash,USD CASH,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+1163,Sovereign,Government of Canada Bond,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+1163,Corporate,US Corporate,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+0470,Sovereign,Israel Government Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+0470,Corporate,US Corporate,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+0470,Cash,USD CASH,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0470,Sovereign,Government of Canada Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+K3906,Provincial,Ontario Provincial Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+K3906,Sovereign,Government of Canada Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+0642,Sovereign,Israel Government Bond,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+0642,Cash,USD CASH,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+0642,Provincial,Ontario Provincial Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+0642,Sovereign,Government of Canada Bond,5.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+A6918,Sovereign,Government of Canada Bond,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+A6918,Corporate,US Common Stock,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+A6918,Sovereign,German Government Note,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+A6918,Cash,USD CASH,0.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+7229,Sovereign,German Government Note,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+7229,Cash,USD CASH,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+7229,Corporate,US Corporate,10.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+7229,Sovereign,Israel Government Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+0615,Sovereign,Israel Government Bond,5.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+0615,Sovereign,German Government Note,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+0615,Sovereign,Canada Mortgage Bonds,0.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+4982,Cash,USD CASH,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,100.0,,2026-07-01
+4982,Corporate,US Corporate,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,92.0,,2026-07-01
+4982,Corporate,US Common Stock,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+2156,Corporate,US Common Stock,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+2156,Provincial,Ontario Provincial Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+2156,Sovereign,Government of Canada Bond,1.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+2156,Sovereign,German Government Note,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+0375,Provincial,Ontario Provincial Bond,5.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+0375,Sovereign,Government of Canada Bond,10.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+0375,Sovereign,Israel Government Bond,1.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,94.0,,2026-07-01
+K4116,Provincial,Ontario Provincial Bond,1.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01
+K4116,Sovereign,Government of Canada Bond,5.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+0166,Sovereign,Government of Canada Bond,10.0,1.0,AAA/Aaa/AAA,AA/Aa2/AA,98.5,,2026-07-01
+0166,Sovereign,Canada Mortgage Bonds,10.0,30.0,AAA/Aaa/AAA,AA/Aa2/AA,98.0,,2026-07-01
+0166,Corporate,US Common Stock,0.0,10.0,AAA/Aaa/AAA,AA/Aa2/AA,85.0,,2026-07-01
+0166,Provincial,Ontario Provincial Bond,0.0,5.0,AAA/Aaa/AAA,AA/Aa2/AA,96.0,,2026-07-01

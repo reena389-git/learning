@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Provenance, the Run, and the SHA — a worked example</title>
+<style>
+body{margin:0;font:15px/1.55 Georgia,serif;color:#1c2830;background:#fbf9f4;padding:26px 40px;max-width:1080px}
+.eyebrow{font:700 11px Consolas;letter-spacing:2px;color:#1f7a47}
+h1{margin:6px 0 4px;font-size:25px;color:#0e3d29}h2{font-size:18px;color:#0e3d29;margin:26px 0 6px}
+.sub{color:#6b7670;font-style:italic;margin:0 0 10px}
+.card{background:#fff;border:1px solid #d8d2c4;border-radius:8px;padding:14px 18px;margin:12px 0}
+table{border-collapse:collapse;font-size:12.5px;margin:8px 0;width:100%}
+th,td{border:1px solid #d8d2c4;padding:5px 8px;text-align:left;vertical-align:top}
+th{background:#eef2ee;font-family:Consolas;font-size:11px}
+td{font-family:Consolas;font-size:11.5px}
+.src1{background:#e9eef4}.src2{background:#e5f0ed}.src3{background:#f4eddd}.src4{background:#fdf3f3}
+.out{background:#eaf3ec;font-weight:700}
+.q{background:#e9f3ec;border-left:4px solid #1f7a47;padding:9px 13px;font-style:italic;margin:10px 0}
+.warn{background:#f6efe0;border-left:4px solid #9c6b16;padding:8px 12px;margin:10px 0}
+.ledger{font:12px/1.55 Consolas;background:#20282e;color:#e8e4d8;border-radius:6px;padding:10px 14px;white-space:pre-wrap;margin:8px 0}
+b{color:#123}.rule{font-weight:700;color:#0e3d29}
+</style></head><body>
+<div class="eyebrow">RISK DATA PLATFORM · IMPLEMENTATION NOTE</div>
+<h1>Provenance, the Run, and the SHA</h1>
+<p class="sub">How an aggregated product stays explainable — the ownership boundary, the three rules, and one worked example you can trace with a finger.</p>
+
+<div class="card"><h2 style="margin-top:0">Purpose — the ownership boundary of an aggregated product</h2>
+<p>When Market Risk publishes an aggregate built from many sources, two accountabilities must never blur:</p>
+<p><b>The product owner (Market Risk)</b> answers for the <i>product</i>: its contract, aggregation logic, conformance, coverage, timeliness. One front door for consumers.<br>
+<b>The provenance</b> answers for the <i>values</i>: a bad price from Polypath is Polypath's fault, routed there — Market Risk coordinates, never absorbs.</p>
+<div class="q">The rule that makes this workable: <span class="rule">every number either names its source or names its run — and the run names its sources.</span> A product without this is refused publication: its owner becomes a permanent help desk for other people's errors.</div>
+<p>The three provenance rules:<br>
+<b>1.</b> While transformations are one-to-one (landing, typing, flattening), provenance is a <b>row-level fact</b> — it rides along.<br>
+<b>2.</b> The moment aggregation goes many-to-one, provenance <b>re-homes to the run</b> — the row points at the run; the run holds the input manifest.<br>
+<b>3.</b> The transformation logic itself is <b>never logged as data</b> — it lives in Git; the run records the <b>commit SHA</b>. Manifest + SHA + inputs = full reproducibility.</p></div>
+
+<h2>Step 1 — Four incoming rows, four sources, row-level provenance</h2>
+<p>Book <b>RATES-NY</b>, as-of 2 Apr 2026. Position-level valuations arrive from four producers (each already aligned to the CDO definitions by <i>its own</i> mapping):</p>
+<table><tr><th>position</th><th>pv_usd</th><th>method</th><th>source_system</th><th>source_run</th><th>src Delta version</th><th>owner (bus matrix)</th></tr>
+<tr class="src1"><td>P-771 (5Y IRS $100M)</td><td>+1,245,000</td><td>full PV</td><td>MUREX-GED</td><td>MX-EOD-0402</td><td>v118</td><td>GED desk / Murex team</td></tr>
+<tr class="src2"><td>P-802 (FX option)</td><td>+310,500</td><td>full PV</td><td>POLYPATH</td><td>PP-0402-A</td><td>v67</td><td>Polypath team</td></tr>
+<tr class="src3"><td>P-830 (gold forward)</td><td>18,000,000</td><td><b>notional-only</b> — PV not calculated</td><td>METALS-SYS</td><td>MT-0402</td><td>v41</td><td>Metals desk</td></tr>
+<tr class="src4"><td>P-799 (swaption)</td><td>+92,400</td><td>full PV</td><td>MR-ENGINE (Robin's own — producer hat)</td><td>VR-PRC-0402</td><td>v233</td><td>Market Risk (as producer)</td></tr></table>
+<p>Each row still <b>names its source</b> — rule 1. Note the honesty flag on P-830: notional-only is a declared method, never silently mixed into PV sums (a coverage fact, not a wrinkle).</p>
+
+<h2>Step 2 — The aggregation run: header + input manifest + SHA</h2>
+<p>Robin's aggregate computes the book-level official PV and DV01. The execution writes two small registry rows <i>before</i> any output:</p>
+<div class="ledger">ops.run                                    -- the RUN HEADER (the spine, physically)
+run_id        VR-AGG-0402
+as_of         2026-04-02        run_type   OFFICIAL
+model         BookAggregation   v2.3
+engine        RCAPS 9.1
+code_sha      a41f9c2           -- Git commit of the transformation code
+snapshot_id   EOD-NY-0402
+status        SUCCESS           started 22:04  ended 22:11
+
+ops.run_input                              -- the INPUT MANIFEST
+run_id       input_dataset                delta_version   upstream_run
+VR-AGG-0402  gold.val_murex_ged           v118            MX-EOD-0402
+VR-AGG-0402  gold.val_polypath            v67             PP-0402-A
+VR-AGG-0402  gold.val_metals              v41             MT-0402
+VR-AGG-0402  gold.val_mr_engine           v233            VR-PRC-0402</div>
+<div class="warn"><b>Where are the joins and aggregation logic?</b> Not in these tables, and not in logs — in <b>Git, at commit a41f9c2</b>. The manifest says exactly WHAT went in (Delta versions pin the precise rows); the SHA says exactly WHAT WAS DONE. Rerun the SHA on the manifest → the identical answer. That is reproducibility as two tables and a pointer — logging the internal join mechanics as data would be enormous, unqueried, and redundant with the code.</div>
+
+<h2>Step 3 — The output rows: provenance re-homed to the run</h2>
+<table><tr><th>book</th><th>as_of</th><th>measure</th><th>value</th><th>run_id</th><th>coverage note</th></tr>
+<tr class="out"><td>RATES-NY</td><td>2026-04-02</td><td>book_pv_usd</td><td>+1,647,900</td><td>VR-AGG-0402</td><td>PV positions only — P-830 notional-only EXCLUDED, not zero</td></tr>
+<tr class="out"><td>RATES-NY</td><td>2026-04-02</td><td>book_dv01</td><td>+51,300 / bp</td><td>VR-AGG-0402</td><td>within USD rate factors only</td></tr></table>
+<p>The aggregate row can no longer say "I came from Murex" — it came from four places. So it says <b>run_id = VR-AGG-0402</b>, and the run says the rest. Rule 2: <span class="rule">provenance was not lost — it moved one hop, from the row to the spine.</span></p>
+
+<h2>Step 4 — Fault triage is a query, not an investigation</h2>
+<p>A consumer challenges book_pv_usd. The triage path is mechanical:</p>
+<div class="ledger">-- row → run → manifest → owners
+SELECT ri.input_dataset, ri.delta_version, ri.upstream_run, bm.owner
+FROM   gold.book_valuations v
+JOIN   ops.run_input ri ON ri.run_id = v.run_id
+JOIN   governance.bus_matrix bm ON bm.dataset = ri.input_dataset
+WHERE  v.book='RATES-NY' AND v.as_of='2026-04-02';
+-- → four rows, four owners. Compare each input at its pinned version:
+--   Polypath's P-802 revalued? → their fault, routed to them (provenance answers).
+--   Rollup wrong at same inputs? → rerun SHA a41f9c2 → product fault, Robin's (owner answers).</div>
+<div class="q">One decision splits every incident: <span class="rule">same inputs, wrong output → the product owner; right output of wrong inputs → the provenance.</span> The registry makes that decision a three-join query.</div>
+
+<h2>The middle case, for completeness</h2>
+<p>Where derivation is a small, enumerable sum (a holding = Σ of its agreement's settled movements), keep the contributing keys queryable — the relationships already do this. Where it is mass computation (VaR over thousands of sensitivities), the run manifest is the honest grain — pretending row-level provenance there just fabricates precision. <b>Small sums keep their keys; big computations keep their runs.</b></p>
+
+<div class="card"><b>Standards this example encodes:</b> no derived product publishes without a run_id on every row · every run writes header + manifest before outputs · code referenced by SHA, never logged as data · Delta versions pin inputs · coverage notes declare exclusions ("excluded, not zero") · lineage across layers = recursive query over manifests (row → run → inputs → their runs → …).</div>
+</body></html>

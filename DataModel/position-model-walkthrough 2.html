@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Position &amp; Metric Model — A Fully Worked Example</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F5F1; --panel:#FFFFFF; --ink:#17222E; --muted:#5B6B7A; --line:#DDE2E0;
+  --core:#1E3A5F; --core-bg:#E8EEF6;
+  --sub:#C9660F; --sub-bg:#FBEEDD;
+  --prod:#2E7D46; --prod-bg:#E4F2E8;
+  --met:#8C6A0B; --met-bg:#FAF1D4;
+  --trade:#B07C1E; --dep:#4A4FB5; --lend:#A23FA8; --inst:#1C8C9E;
+  --hit:#FFE96B;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;font-size:15.5px;line-height:1.65}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+/* ---------- hero ---------- */
+header{background:var(--core);color:#EAF1F9;padding:56px 0 48px;border-bottom:6px solid var(--sub)}
+header .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:#9FB8D4;margin-bottom:14px}
+header h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,5vw,46px);line-height:1.08;max-width:820px}
+header p.thesis{margin-top:18px;font-size:17px;max-width:760px;color:#C9D8E8}
+header p.thesis b{color:#fff}
+.snapline{margin-top:26px;display:flex;flex-wrap:wrap;gap:10px;font-family:'IBM Plex Mono',monospace;font-size:13px}
+.snapline span{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);padding:5px 12px;border-radius:4px}
+/* ---------- sections ---------- */
+section{padding:44px 0 8px}
+.sechead{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:22px}
+.secnum{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px;color:var(--sub)}
+h2{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(22px,3.4vw,30px)}
+h3{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;margin:30px 0 10px}
+h4{font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:16px;margin:22px 0 8px;color:var(--core)}
+p{margin:0 0 14px;max-width:820px}
+p.lede{font-size:17px;color:#33424F}
+ul.plain{margin:0 0 16px 22px;max-width:800px}
+ul.plain li{margin-bottom:8px}
+/* ---------- cards & panels ---------- */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:20px 22px;margin:0 0 20px}
+.storybox{background:var(--panel);border-left:5px solid var(--sub);border-radius:0 8px 8px 0;padding:18px 22px;margin:0 0 22px;box-shadow:0 1px 3px rgba(23,34,46,.06)}
+.storybox .kid{font-family:'Space Grotesk',sans-serif;font-weight:500;color:var(--sub);font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr}}
+.refcard{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--core);border-radius:6px;padding:16px 18px}
+.refcard h5{font-family:'Space Grotesk',sans-serif;font-size:15px;margin-bottom:8px}
+.refcard.t-trade{border-top-color:var(--trade)}
+.refcard.t-dep{border-top-color:var(--dep)}
+.refcard.t-lend{border-top-color:var(--lend)}
+.refcard.t-inst{border-top-color:var(--inst)}
+.refcard.t-prod{border-top-color:var(--prod)}
+.refcard ul{list-style:none;font-size:14px}
+.refcard li{padding:4px 0;border-bottom:1px dashed var(--line)}
+.refcard li:last-child{border-bottom:none}
+/* ---------- key chips (signature interaction) ---------- */
+.key{font-family:'IBM Plex Mono',monospace;font-size:.92em;font-weight:500;background:#EEF1EE;border:1px solid #CFD6D2;border-radius:4px;padding:1px 7px;white-space:nowrap;cursor:pointer;transition:background .12s,border-color .12s}
+.key.hit{background:var(--hit);border-color:#C7A900}
+.key.k-core{color:var(--core)} .key.k-sub{color:var(--sub)} .key.k-prod{color:var(--prod)} .key.k-met{color:var(--met)}
+.hint{font-size:13.5px;color:var(--muted);font-style:italic;margin-top:-6px}
+/* ---------- tables ---------- */
+.tblwrap{overflow-x:auto;margin:0 0 22px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13.8px}
+th{font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;text-align:left;padding:10px 12px;background:#F0F2EF;border-bottom:2px solid var(--line);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid #ECEFEC;vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.num{font-family:'IBM Plex Mono',monospace;text-align:right;white-space:nowrap}
+td.mono{font-family:'IBM Plex Mono',monospace;white-space:nowrap}
+td.why{color:var(--muted);font-size:13px;min-width:220px}
+.neg{color:#B3261E}.pos{color:#1F6B3A}
+/* attribute-group band rows inside position tables */
+tr.band td{font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;padding:7px 12px}
+tr.band.core td{background:var(--core-bg);color:var(--core)}
+tr.band.sub td{background:var(--sub-bg);color:var(--sub)}
+tr.band.prod td{background:var(--prod-bg);color:var(--prod)}
+tr.band.met td{background:var(--met-bg);color:var(--met)}
+/* metric class chips */
+.mtag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:3px;letter-spacing:.03em}
+.mtag.val{background:var(--met-bg);color:var(--met)}
+.mtag.risk{background:#F3E3F5;color:var(--lend)}
+.mtag.cf{background:var(--prod-bg);color:var(--prod)}
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin:14px 0 4px}
+.legend .sw{display:flex;align-items:center;gap:8px;font-size:13.5px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 12px}
+.dot{width:14px;height:14px;border-radius:3px;flex:none}
+/* connected view diagram */
+.diagram{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:26px 20px;margin-bottom:22px;overflow-x:auto}
+.dgrid{display:grid;grid-template-columns:repeat(3,minmax(220px,1fr));gap:34px 26px;min-width:760px}
+.node{border:2px solid var(--core);border-radius:6px;padding:12px 14px;font-size:13.5px;position:relative;background:#fff}
+.node h6{font-family:'Space Grotesk',sans-serif;font-size:14px;margin-bottom:6px}
+.node.n-core{border-color:var(--core);background:var(--core-bg)}
+.node.n-prod{border-color:var(--prod);background:var(--prod-bg)}
+.node.n-met{border-color:var(--met);background:var(--met-bg)}
+.node.n-lend{border-color:var(--lend)}
+.node.n-dep{border-color:var(--dep)}
+.node .rel{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--muted);margin-top:6px}
+.arrownote{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);text-align:center;align-self:center}
+/* callouts */
+.callout{border:1px dashed var(--sub);background:#FDF7EF;border-radius:8px;padding:14px 18px;margin:0 0 20px;font-size:14.5px;max-width:860px}
+.callout.blue{border-color:var(--core);background:var(--core-bg)}
+.callout b.tag{font-family:'Space Grotesk',sans-serif;font-size:12.5px;letter-spacing:.09em;text-transform:uppercase}
+footer{margin-top:56px;padding:26px 0 40px;border-top:2px solid var(--ink);font-size:13px;color:var(--muted)}
+/* ---------- Part II: lifecycle ---------- */
+.partband{background:var(--ink);color:#EAF1F9;border-radius:10px;padding:30px 28px;margin:52px 0 10px}
+.partband .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#9FB8D4;margin-bottom:10px}
+.partband h2{color:#fff;border:none}
+.partband p{color:#C9D8E8;margin:10px 0 0;max-width:840px}
+.badge-new{display:inline-block;background:#B3261E;color:#fff;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:10px;padding:2px 6px;border-radius:3px;letter-spacing:.08em;vertical-align:2px;margin-left:6px;white-space:nowrap}
+.badge-evolve{display:inline-block;background:#8C6A0B;color:#fff;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:10px;padding:2px 6px;border-radius:3px;letter-spacing:.08em;vertical-align:2px;margin-left:6px;white-space:nowrap}
+td.newattr,th.newattr{background:#FBEBEA !important;box-shadow:inset 3px 0 0 #B3261E}
+tr.strike td{color:#98A3AD;text-decoration:line-through;text-decoration-color:#B3261E;text-decoration-thickness:1.5px}
+tr.strike td .key,tr.strike td .mtag{text-decoration:line-through;text-decoration-color:#B3261E}
+.tl{display:flex;overflow-x:auto;margin:8px 0 26px;padding-top:10px}
+.tl .ev{flex:1;min-width:168px;border-top:3px solid var(--core);padding:12px 14px 4px;position:relative}
+.tl .ev::before{content:'';width:12px;height:12px;border-radius:50%;background:var(--core);border:2px solid #fff;position:absolute;top:-9px;left:14px}
+.tl .ev .d{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted)}
+.tl .ev b{font-family:'Space Grotesk',sans-serif;font-size:14px;display:block;margin:2px 0 4px}
+.tl .ev p{font-size:13px;margin:0;color:#33424F}
+.tl .ev.e-amend{border-top-color:var(--sub)}.tl .ev.e-amend::before{background:var(--sub)}
+.tl .ev.e-restate{border-top-color:#B3261E}.tl .ev.e-restate::before{background:#B3261E}
+.tl .ev.e-dead{border-top-color:#5B6B7A}.tl .ev.e-dead::before{background:#5B6B7A}
+/* sticky mini legend */
+#sticky{position:fixed;bottom:14px;right:14px;background:var(--ink);color:#fff;font-size:12px;font-family:'IBM Plex Mono',monospace;padding:8px 12px;border-radius:6px;opacity:.88;z-index:50;max-width:250px;display:none}
+@media(min-width:900px){#sticky{display:block}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">CDO Standard Data LDM 1.20 · Diagram 3.00 · Position and Metrics</div>
+    <h1>One counterparty. One date. Six positions. One metric spine.</h1>
+    <p class="thesis">This page takes your Position &amp; Metric model and fills it with a complete, connected set of example data. Everything below happens to <b>one client — Maple Auto Parts Inc.</b> — on <b>one snapshot: end of day, 31&nbsp;July&nbsp;2026</b>. Follow the keys and you will see exactly how a swap, a bond holding, a cash balance, a deposit, a credit facility and its drawdown all become <b>the same shape of Position record</b>, and how every number about them becomes <b>the same shape of Metric record</b>.</p>
+    <div class="snapline">
+      <span>Position Date = 2026-07-31</span>
+      <span>Snap Type = EOD</span>
+      <span>Counterparty = CP-88421</span>
+      <span>Region = AMER</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ============ 0. HOW TO READ ============ -->
+<section id="s0">
+  <div class="sechead"><span class="secnum">00</span><h2>How to read this page</h2></div>
+
+  <p class="lede">The colours here are <b>your own colours</b> — the same legend your spreadsheet uses. Every attribute of every record belongs to one of these families:</p>
+
+  <div class="legend">
+    <div class="sw"><span class="dot" style="background:var(--core)"></span><b>Position Core</b>&nbsp;— identity: who, where, when, what kind</div>
+    <div class="sw"><span class="dot" style="background:var(--sub)"></span><b>Sub-domain details</b>&nbsp;— extra facts only this position type has</div>
+    <div class="sw"><span class="dot" style="background:var(--prod)"></span><b>Product / Instrument</b>&nbsp;— what financial thing it is</div>
+    <div class="sw"><span class="dot" style="background:var(--met)"></span><b>Metrics</b>&nbsp;— every number measured about the position</div>
+  </div>
+
+  <p style="margin-top:16px"><b>The one trick to watch:</b> identifiers repeat. The swap's position id <span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span> appears on the position record <i>and</i> on every one of its metric rows — that repetition <i>is</i> the join. <b>Tap or hover any code like that</b> and every place it appears on this page lights up yellow. That is how you see the connections.</p>
+
+  <div class="callout blue">
+    <b class="tag" style="color:var(--core)">The composite key — say it like a sentence</b><br>
+    A position is uniquely named by: <span class="key k-core" data-key="POS-TRD-000123">Position Identifier</span> + System Name + Position Date + Snap Type.
+    In words: <i>"Position 000123, as known by Murex, as it stood at end-of-day on 31 July 2026."</i>
+    Every metric row carries this whole sentence again, plus <i>which leg</i> and <i>which measurement</i>. So one metric row reads:
+    <i>"For that same position, on the fixed leg, the present value, in USD, was −8,912,400 — calculated by the FO pricer at 18:42."</i>
+  </div>
+
+  <div class="callout">
+    <b class="tag" style="color:var(--sub)">Sign convention used on this page</b><br>
+    Positive = good for the bank (money we will receive / value we own). Negative = money we will pay / value we owe.
+    Deposits are naturally negative-ish (the bank owes the client their money back); loans are naturally positive (the client owes us). Illustrative numbers, rounded.
+  </div>
+</section>
+
+<!-- ============ 1. THE CAST ============ -->
+<section id="s1">
+  <div class="sechead"><span class="secnum">01</span><h2>The cast — reference data everything points to</h2></div>
+  <p>Before any position exists, the reference world must exist: <b>who books it</b> (booking party → books), <b>who it faces</b> (counterparty), and <b>what it is</b> (product, and — for fungible things — instrument). Your LDM shows these as the Booking Party, Counterparty, Product and Instruments boxes around Position&nbsp;2.</p>
+
+  <div class="grid3">
+    <div class="refcard">
+      <h5>Booking parties &amp; books</h5>
+      <ul>
+        <li><b>TD Securities (USA) LLC</b><br>book <span class="key k-core" data-key="NY-RATES-01">NY-RATES-01</span> — rates trading</li>
+        <li>book <span class="key k-core" data-key="NY-CREDIT-02">NY-CREDIT-02</span> — credit trading</li>
+        <li>book <span class="key k-core" data-key="NY-TSY-01">NY-TSY-01</span> — treasury / nostro</li>
+        <li><b>TD Bank, N.A.</b><br>book <span class="key k-core" data-key="CCM-TOR-01">CCM-TOR-01</span> — cash mgmt</li>
+        <li>book <span class="key k-core" data-key="CL-NY-01">CL-NY-01</span> — corp lending</li>
+      </ul>
+    </div>
+    <div class="refcard">
+      <h5>Counterparty</h5>
+      <ul>
+        <li><b>Maple Auto Parts Inc.</b></li>
+        <li>Code <span class="key k-core" data-key="CP-88421">CP-88421</span></li>
+        <li>Mid-size auto parts maker. It <b>trades a swap</b> with us, <b>keeps a deposit</b> with us, and <b>borrows</b> from us.</li>
+        <li style="color:var(--muted)">The bond in section 3.2 is issued by a different firm (ABC Corp) — the bond's risk points at the <i>issuer</i>, not a trading counterparty.</li>
+      </ul>
+    </div>
+    <div class="refcard t-prod">
+      <h5>Products &amp; instruments</h5>
+      <ul>
+        <li><span class="key k-prod" data-key="IRS-USD-STD">IRS-USD-STD</span> — interest rate swap product (swap/fra family)</li>
+        <li><span class="key k-prod" data-key="BOND-CORP-FIX">BOND-CORP-FIX</span> — fixed corp bond product (bond/eq family)</li>
+        <li><span class="key k-prod" data-key="LOANDEPOSIT">LOANDEPOSIT</span> — L&amp;D schema product (deposits, outstandings)</li>
+        <li><span class="key k-prod" data-key="LENDINGFACILITY">LENDINGFACILITY</span> — the new facility product</li>
+        <li>Instrument <span class="key k-prod" data-key="US000ABC1234">US000ABC1234</span> — ABC Corp 4.25% 15-Mar-2031 bond (fungible → has an instrumentId; the OTC swap does not)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b class="tag" style="color:var(--sub)">Product vs Instrument — the child version</b><br>
+    <b>Product</b> = the <i>species</i> ("an interest-rate swap", "a corporate bond"). <b>Instrument</b> = the <i>named individual</i> everyone in the market can hold ("the ABC Corp 4.25% 2031 bond, ISIN US000ABC1234").
+    A bond is fungible — my bond and your bond are interchangeable — so it gets an instrument id. An OTC swap is a private contract between two parties, so it has a product type but <i>no</i> instrument id. That is why in your LDM the Instruments box hangs off Product with a dashed "instrument used by product" line: only some products resolve to instruments.
+  </div>
+</section>
+
+<!-- ============ 2. POSITION ANATOMY ============ -->
+<section id="s2">
+  <div class="sechead"><span class="secnum">02</span><h2>Anatomy of a Position record</h2></div>
+  <p class="lede">Every position — swap, bond, cash, deposit, facility, drawdown — is stored with the <b>same core spine</b>. Here is what each core attribute means in plain words, before we fill them in six times:</p>
+  <div class="tblwrap"><table>
+    <tr><th style="width:220px">Core attribute</th><th>Plain-words meaning</th></tr>
+    <tr><td class="mono">Position Identifier</td><td>The position's own name. Stable across days — <span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span> today is the same swap position as yesterday.</td></tr>
+    <tr><td class="mono">System Name</td><td>Which source system's world this id lives in. "000123" in Murex and "000123" in LoanIQ are different things — the pair (id, system) is what's unique.</td></tr>
+    <tr><td class="mono">Position Date</td><td>The business date the snapshot describes: <b>2026-07-31</b> everywhere on this page.</td></tr>
+    <tr><td class="mono">Position Snap Type</td><td>Which photograph of that day: <b>EOD</b> (official end of day), INTRADAY, FLASH… Same position, same date, can have several snaps.</td></tr>
+    <tr><td class="mono">Book Name</td><td>The shelf inside the bank where the position sits (links to Booking Party via the book relationship).</td></tr>
+    <tr><td class="mono">Aggregation Type</td><td>Is this row <b>one contract</b> (TRADE) or a <b>rolled-up pile</b> (AGGREGATED — e.g. all settled holdings of one bond in one book)?</td></tr>
+    <tr><td class="mono">Position Type</td><td>Which of the six flavours: TRADE, AGG_FUNGIBLE, CASH_BALANCE, DEPOSIT_ARRANGEMENT, LENDING_FACILITY, LENDING_OUTSTANDING — the abstract subtypes in your LDM.</td></tr>
+    <tr><td class="mono">Position Region</td><td>Where the position is owned/booked (AMER here). Note: <i>pricing</i> region lives on the metric, because the same position can be valued by different regional runs.</td></tr>
+    <tr><td class="mono">Counterparty Code</td><td>Who is on the other side. Filled for the swap, deposit, facility, drawdown (<span class="key k-core" data-key="CP-88421">CP-88421</span>); empty for the fungible bond pile and the nostro cash.</td></tr>
+    <tr><td class="mono">Instrument Identifier</td><td>Filled only when the position is <i>in</i> a market instrument (the bond). Empty for OTC contracts and balances.</td></tr>
+    <tr><td class="mono">Product Type / Product Identifier</td><td>The green boxes: what species of financial thing this is, pointing into the Product domain.</td></tr>
+  </table></div>
+  <p class="hint">Everything a specific flavour needs <i>beyond</i> this spine goes into its orange sub-domain block — that is the "one core + typed extensions" pattern your Position Concept sheet draws.</p>
+</section>
+
+<!-- ============ 3. THE SIX POSITIONS ============ -->
+<section id="s3">
+  <div class="sechead"><span class="secnum">03</span><h2>Six positions, fully spelled out</h2></div>
+
+  <!-- 3.1 TRADE -->
+  <h3 style="color:var(--trade)">3.1 · Trade Position — the interest rate swap (with legs)</h3>
+  <div class="storybox">
+    <div class="kid">The story, like to a child</div>
+    <p style="margin-bottom:8px">Maple Auto Parts borrowed money elsewhere at a floating rate and is scared rates will rise. So in Sept 2024 it made a deal with our rates desk: <b>"for 5 years, on $50 million, you pay me the floating SOFR rate, and I pay you a fixed 3.85%."</b> Two promise-streams flow in opposite directions — those streams are the <b>legs</b>.</p>
+    <p style="margin-bottom:0">From the bank's side: we <b>pay fixed</b> (Leg 1) and <b>receive float</b> (Leg 2). Rates went <i>up</i> since 2024 — SOFR now earns us ~4.12% while we still only pay 3.85% — so this trade is currently a winner for us: it is worth about <b>+$538k</b>.</p>
+  </div>
+
+  <h4>Position record</h4>
+  <div class="tblwrap"><table>
+    <tr><th style="width:225px">Attribute</th><th style="width:230px">Value</th><th>Why this value</th></tr>
+    <tr class="band core"><td colspan="3">Position Core</td></tr>
+    <tr><td class="mono">Position Identifier</td><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td class="why">One row per live trade — trade-level positions are near-copies of the trade (your "copy &amp; repersist" note).</td></tr>
+    <tr><td class="mono">System Name</td><td class="mono"><span class="key k-core" data-key="MUREX">MUREX</span></td><td class="why">Sourced from the Global Markets Trade domain.</td></tr>
+    <tr><td class="mono">Position Date / Snap Type</td><td class="mono">2026-07-31 / EOD</td><td class="why">The snapshot this page lives in.</td></tr>
+    <tr><td class="mono">Book Name</td><td class="mono"><span class="key k-core" data-key="NY-RATES-01">NY-RATES-01</span></td><td class="why">Rates trading book → Booking Party TD Securities (USA) LLC.</td></tr>
+    <tr><td class="mono">Aggregation Type</td><td class="mono">TRADE</td><td class="why">One contract, one row.</td></tr>
+    <tr><td class="mono">Position Type</td><td class="mono">TRADE</td><td class="why">The Trade Position subtype → Trade data domain.</td></tr>
+    <tr><td class="mono">Position Region</td><td class="mono">AMER</td><td class="why">Booked in New York.</td></tr>
+    <tr><td class="mono">Counterparty Code</td><td class="mono"><span class="key k-core" data-key="CP-88421">CP-88421</span></td><td class="why">Maple Auto Parts is on the other side of the contract.</td></tr>
+    <tr><td class="mono">Instrument Identifier</td><td class="mono">— (empty)</td><td class="why">OTC contract: not a fungible market instrument.</td></tr>
+    <tr class="band sub"><td colspan="3">Sub-domain details — trade attributes (non-product, selectively copied)</td></tr>
+    <tr><td class="mono">Trade Identifier</td><td class="mono">MX-TRD-7789021</td><td class="why">Back-pointer to the parent trade in the Trade domain.</td></tr>
+    <tr><td class="mono">Trade / Effective / Maturity</td><td class="mono">2024-09-10 / 2024-09-15 / 2029-09-15</td><td class="why">The life of the contract.</td></tr>
+    <tr><td class="mono">Notional</td><td class="num">50,000,000 USD</td><td class="why">The pretend principal both legs are measured on (never exchanged).</td></tr>
+    <tr><td class="mono">Pay leg / Receive leg</td><td class="mono">FIXED 3.85% s.a. 30/360 · SOFR-COMP + 0bp act/360</td><td class="why">The two promise-streams. These define the legs the metrics will reference.</td></tr>
+    <tr class="band prod"><td colspan="3">Product</td></tr>
+    <tr><td class="mono">Product Type / Identifier</td><td class="mono">SWAP / <span class="key k-prod" data-key="IRS-USD-STD">IRS-USD-STD</span></td><td class="why">Swap/fra product family from your green boxes.</td></tr>
+  </table></div>
+
+  <h4>Metric records for <span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span> — valuations</h4>
+  <p>Each row below is one full Position Metric record. The grey columns are the copied position key; then leg, then the measurement itself.</p>
+  <div class="tblwrap"><table>
+    <tr><th>Position Id</th><th>Snap</th><th>Leg Type</th><th>Leg Id</th><th>Metric Type</th><th>Value</th><th>Ccy</th><th>Pricing Region</th><th>Calc Source</th><th>Calc Time</th></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td class="mono">EOD</td><td class="mono">FIXED</td><td class="mono"><span class="key k-met" data-key="LEG-1">LEG-1</span></td><td><span class="mtag val">PV</span></td><td class="num neg">−8,912,400</td><td class="mono">USD</td><td class="mono">AMER-NY</td><td class="mono">MUREX-FO</td><td class="mono">18:42:10</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td class="mono">EOD</td><td class="mono">FLOAT</td><td class="mono"><span class="key k-met" data-key="LEG-2">LEG-2</span></td><td><span class="mtag val">PV</span></td><td class="num pos">+9,450,600</td><td class="mono">USD</td><td class="mono">AMER-NY</td><td class="mono">MUREX-FO</td><td class="mono">18:42:10</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td class="mono">EOD</td><td class="mono">NET</td><td class="mono">—</td><td><span class="mtag val">PV</span></td><td class="num pos">+538,200</td><td class="mono">USD</td><td class="mono">AMER-NY</td><td class="mono">MUREX-FO</td><td class="mono">18:42:10</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td class="mono">EOD</td><td class="mono">FIXED</td><td class="mono"><span class="key k-met" data-key="LEG-1">LEG-1</span></td><td><span class="mtag val">ACCRUED_INT</span></td><td class="num neg">−727,222</td><td class="mono">USD</td><td class="mono">AMER-NY</td><td class="mono">MUREX-FO</td><td class="mono">18:42:10</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td class="mono">EOD</td><td class="mono">FLOAT</td><td class="mono"><span class="key k-met" data-key="LEG-2">LEG-2</span></td><td><span class="mtag val">ACCRUED_INT</span></td><td class="num pos">+789,667</td><td class="mono">USD</td><td class="mono">AMER-NY</td><td class="mono">MUREX-FO</td><td class="mono">18:42:10</td></tr>
+  </table></div>
+  <ul class="plain">
+    <li><b>Why is the fixed-leg PV huge and negative?</b> It is the present value of <i>all</i> the 3.85% payments we still owe until 2029 (~$8.9M of promises out). The float leg is all the SOFR receipts we expect in (~$9.45M). Their difference, <b>+538,200</b>, is the trade's worth. Leg-level rows and the NET row all coexist — the Leg Type column is what keeps them apart.</li>
+    <li><b>Accrued interest</b> = interest earned/owed since the last payment date (2026-03-15) but not yet paid. We've been quietly owing 136 days of 3.85% (−727k) and quietly earning 138 days of SOFR (+790k).</li>
+  </ul>
+
+  <h4>Metric records — risk (Greeks), where risk factor · term node · shock live</h4>
+  <div class="tblwrap"><table>
+    <tr><th>Position Id</th><th>Leg</th><th>Metric Type</th><th>Risk Factor</th><th>Term Node</th><th>Shock Size</th><th>Shock Type</th><th>Value</th><th>Ccy</th><th>Calc Source</th></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td class="mono">NET</td><td><span class="mtag risk">IR_DELTA</span></td><td class="mono"><span class="key" data-key="USD-SOFR-OIS">USD-SOFR-OIS</span></td><td class="mono">1Y</td><td class="mono">0.0001</td><td class="mono">ABSOLUTE</td><td class="num pos">+650</td><td class="mono">USD</td><td class="mono">RISK-ENGINE</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td class="mono">NET</td><td><span class="mtag risk">IR_DELTA</span></td><td class="mono"><span class="key" data-key="USD-SOFR-OIS">USD-SOFR-OIS</span></td><td class="mono">2Y</td><td class="mono">0.0001</td><td class="mono">ABSOLUTE</td><td class="num pos">+1,900</td><td class="mono">USD</td><td class="mono">RISK-ENGINE</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td class="mono">NET</td><td><span class="mtag risk">IR_DELTA</span></td><td class="mono"><span class="key" data-key="USD-SOFR-OIS">USD-SOFR-OIS</span></td><td class="mono">3Y</td><td class="mono">0.0001</td><td class="mono">ABSOLUTE</td><td class="num pos">+10,400</td><td class="mono">USD</td><td class="mono">RISK-ENGINE</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td class="mono">NET</td><td><span class="mtag risk">IR_DELTA</span></td><td class="mono"><span class="key" data-key="USD-SOFR-OIS">USD-SOFR-OIS</span></td><td class="mono">4Y</td><td class="mono">0.0001</td><td class="mono">ABSOLUTE</td><td class="num pos">+1,550</td><td class="mono">USD</td><td class="mono">RISK-ENGINE</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td class="mono">NET</td><td><span class="mtag risk">IR_DELTA</span></td><td class="mono"><span class="key" data-key="USD-SOFR-OIS">USD-SOFR-OIS</span></td><td class="mono">TOTAL</td><td class="mono">0.0001</td><td class="mono">ABSOLUTE</td><td class="num pos">+14,500</td><td class="mono">USD</td><td class="mono">RISK-ENGINE</td></tr>
+  </table></div>
+  <p class="hint">Read one row aloud: "If the 3-year point of the USD SOFR curve moves up by 1 basis point (0.0001, an absolute shock), this position gains $10,400." Full deep-dive on these four columns in section 05.</p>
+
+  <h4>Metric records — cashflows (Cashflow Metric subtype adds a Cashflow Date)</h4>
+  <div class="tblwrap"><table>
+    <tr><th>Position Id</th><th>Leg</th><th>Metric Type</th><th>Cashflow Date</th><th>Value</th><th>Ccy</th><th>Nature</th></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td class="mono">FIXED · <span class="key k-met" data-key="LEG-1">LEG-1</span></td><td><span class="mtag cf">CASHFLOW</span></td><td class="mono">2026-09-15</td><td class="num neg">−962,500</td><td class="mono">USD</td><td class="why">Contractual — 3.85%/2 × 50M is known in advance.</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td class="mono">FLOAT · <span class="key k-met" data-key="LEG-2">LEG-2</span></td><td><span class="mtag cf">CASHFLOW</span></td><td class="mono">2026-09-15</td><td class="num pos">+1,052,900</td><td class="mono">USD</td><td class="why">Projected — SOFR isn't fixed yet, so this is a forecast (~4.12%).</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td class="mono">FIXED · <span class="key k-met" data-key="LEG-1">LEG-1</span></td><td><span class="mtag cf">CASHFLOW</span></td><td class="mono">2027-03-15</td><td class="num neg">−962,500</td><td class="mono">USD</td><td class="why">…and so on every 6 months to 2029-09-15.</td></tr>
+  </table></div>
+  <p class="hint">This is exactly your "Cashflows (contractual, projected)" green box: same metric shape, the distinction is in the metric type / flag, and Cashflow Date is the subtype's extra attribute.</p>
+
+  <!-- 3.2 AGG FUNGIBLE -->
+  <h3 style="color:var(--trade)">3.2 · Agg Fungible Position — the bond pile</h3>
+  <div class="storybox">
+    <div class="kid">The story, like to a child</div>
+    <p style="margin-bottom:0">Our credit desk bought the same ABC Corp bond many times, in many little trades — 3M face here, 2M there, sold 1M back… Listing every trade forever would be silly, because <b>every bond of the same ISIN is identical</b> (fungible). So once trades settle, we just keep score: "book <span class="key k-core" data-key="NY-CREDIT-02">NY-CREDIT-02</span> holds <b>$10M face</b> of <span class="key k-prod" data-key="US000ABC1234">US000ABC1234</span>." That running score is the aggregated position — your "aggregated positions directly sourced, no parent domain" note: it isn't copied from one parent trade, it's a sum.</p>
+  </div>
+
+  <h4>Position record</h4>
+  <div class="tblwrap"><table>
+    <tr><th style="width:225px">Attribute</th><th style="width:230px">Value</th><th>Why this value</th></tr>
+    <tr class="band core"><td colspan="3">Position Core</td></tr>
+    <tr><td class="mono">Position Identifier / System</td><td class="mono"><span class="key k-core" data-key="POS-AGG-000456">POS-AGG-000456</span> / GM-INV</td><td class="why">One row per (book × instrument).</td></tr>
+    <tr><td class="mono">Position Date / Snap</td><td class="mono">2026-07-31 / EOD</td><td class="why">Same snapshot.</td></tr>
+    <tr><td class="mono">Book Name</td><td class="mono"><span class="key k-core" data-key="NY-CREDIT-02">NY-CREDIT-02</span></td><td class="why">Credit trading book.</td></tr>
+    <tr><td class="mono">Aggregation Type / Position Type</td><td class="mono">AGGREGATED / AGG_FUNGIBLE</td><td class="why">A rolled-up pile, the Agg Fungible subtype.</td></tr>
+    <tr><td class="mono">Counterparty Code</td><td class="mono">— (empty)</td><td class="why">A pile of bonds has no single counterparty. Issuer risk comes via the instrument.</td></tr>
+    <tr><td class="mono">Instrument Identifier</td><td class="mono"><span class="key k-prod" data-key="US000ABC1234">US000ABC1234</span></td><td class="why">Fungible ⇒ instrument id is the heart of the key.</td></tr>
+    <tr class="band sub"><td colspan="3">Sub-domain details</td></tr>
+    <tr><td class="mono">Quantity (face)</td><td class="num">10,000,000</td><td class="why">The score: how much face value we hold.</td></tr>
+    <tr><td class="mono">Long/Short</td><td class="mono">LONG</td><td class="why">We own it (a short would be negative face).</td></tr>
+    <tr class="band prod"><td colspan="3">Product</td></tr>
+    <tr><td class="mono">Product Type / Identifier</td><td class="mono">BOND / <span class="key k-prod" data-key="BOND-CORP-FIX">BOND-CORP-FIX</span></td><td class="why">Bond/eq family — the "None" sub-domain row in your concept sheet: little extra beyond core + instrument.</td></tr>
+  </table></div>
+
+  <h4>Metrics for <span class="key k-core" data-key="POS-AGG-000456">POS-AGG-000456</span> — note there are no legs (Leg Type = NET)</h4>
+  <div class="tblwrap"><table>
+    <tr><th>Position Id</th><th>Metric Type</th><th>Risk Factor</th><th>Term Node</th><th>Shock</th><th>Cashflow Date</th><th>Value</th><th>Ccy</th><th>Calc Source</th></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-AGG-000456">POS-AGG-000456</span></td><td><span class="mtag val">PV_DIRTY</span></td><td class="mono">—</td><td class="mono">—</td><td class="mono">—</td><td class="mono">—</td><td class="num pos">+9,945,600</td><td class="mono">USD</td><td class="mono">RISK-ENGINE</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-AGG-000456">POS-AGG-000456</span></td><td><span class="mtag val">ACCRUED_INT</span></td><td class="mono">—</td><td class="mono">—</td><td class="mono">—</td><td class="mono">—</td><td class="num pos">+160,600</td><td class="mono">USD</td><td class="mono">RISK-ENGINE</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-AGG-000456">POS-AGG-000456</span></td><td><span class="mtag risk">IR_DELTA</span></td><td class="mono"><span class="key" data-key="USD-SOFR-OIS">USD-SOFR-OIS</span></td><td class="mono">5Y</td><td class="mono">0.0001 ABS</td><td class="mono">—</td><td class="num neg">−3,970</td><td class="mono">USD</td><td class="mono">RISK-ENGINE</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-AGG-000456">POS-AGG-000456</span></td><td><span class="mtag risk">CS_DELTA</span></td><td class="mono"><span class="key" data-key="ABC-SEN-USD-SPRD">ABC-SEN-USD-SPRD</span></td><td class="mono">5Y</td><td class="mono">0.0001 ABS</td><td class="mono">—</td><td class="num neg">−4,150</td><td class="mono">USD</td><td class="mono">RISK-ENGINE</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-AGG-000456">POS-AGG-000456</span></td><td><span class="mtag cf">CASHFLOW</span></td><td class="mono">—</td><td class="mono">—</td><td class="mono">—</td><td class="mono">2026-09-15</td><td class="num pos">+212,500</td><td class="mono">USD</td><td class="mono">RISK-ENGINE</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-AGG-000456">POS-AGG-000456</span></td><td><span class="mtag cf">CASHFLOW</span></td><td class="mono">—</td><td class="mono">—</td><td class="mono">—</td><td class="mono">2031-03-15</td><td class="num pos">+10,212,500</td><td class="mono">USD</td><td class="mono">RISK-ENGINE</td></tr>
+  </table></div>
+  <ul class="plain">
+    <li><b>Two different risk factors on one position:</b> the bond can lose money because <i>all rates</i> rise (IR_DELTA vs <span class="key" data-key="USD-SOFR-OIS">USD-SOFR-OIS</span>) <b>or</b> because the market trusts <i>ABC Corp specifically</i> less (CS_DELTA vs its credit-spread curve <span class="key" data-key="ABC-SEN-USD-SPRD">ABC-SEN-USD-SPRD</span>). Both are negative: we own the bond, so any upward shock in yield or spread hurts. Compare the swap, whose IR_DELTA was <i>positive</i> — pay-fixed wins when rates rise. Same metric shape, opposite signs: that's the model doing its job.</li>
+    <li>All cashflows here are <b>contractual</b> — a fixed-coupon bond's payments are known to the penny until 2031.</li>
+  </ul>
+
+  <!-- 3.3 CASH BALANCE -->
+  <h3 style="color:var(--trade)">3.3 · Cash Balance Position — the simplest one</h3>
+  <div class="storybox">
+    <div class="kid">The story, like to a child</div>
+    <p style="margin-bottom:0">The bank keeps a big USD wallet (a nostro account) to settle everything else. Tonight the wallet holds <b>$12.45M</b>. Cash is the ultimate fungible — one dollar equals any other dollar — so it's modelled as an aggregated cash balance position. No counterparty, no legs, no risk factors; its value <i>is</i> its balance.</p>
+  </div>
+  <div class="tblwrap"><table>
+    <tr><th style="width:225px">Attribute</th><th style="width:230px">Value</th><th>Why</th></tr>
+    <tr class="band core"><td colspan="3">Position Core</td></tr>
+    <tr><td class="mono">Position Identifier / System</td><td class="mono"><span class="key k-core" data-key="POS-CSH-000789">POS-CSH-000789</span> / CASH-LEDGER</td><td class="why">One row per (book × currency).</td></tr>
+    <tr><td class="mono">Book / Agg / Type</td><td class="mono"><span class="key k-core" data-key="NY-TSY-01">NY-TSY-01</span> / AGGREGATED / CASH_BALANCE</td><td class="why">Cash Balance subtype under the Agg branch.</td></tr>
+    <tr><td class="mono">Counterparty / Instrument</td><td class="mono">— / —</td><td class="why">Just money in our wallet.</td></tr>
+    <tr class="band prod"><td colspan="3">Product</td></tr>
+    <tr><td class="mono">Product Type</td><td class="mono">CASH (currency USD)</td><td class="why">Currency plays the product role.</td></tr>
+    <tr class="band met"><td colspan="3">Its one metric</td></tr>
+    <tr><td class="mono"><span class="mtag val">BALANCE / PV</span></td><td class="num pos">+12,450,000 USD</td><td class="why">Value = balance. Calc source CASH-LEDGER, 18:05.</td></tr>
+  </table></div>
+
+  <!-- 3.4 DEPOSIT -->
+  <h3 style="color:var(--dep)">3.4 · Deposit Arrangement Position — CCM (Cash Management domain)</h3>
+  <div class="storybox" style="border-left-color:var(--dep)">
+    <div class="kid" style="color:var(--dep)">The story, like to a child</div>
+    <p style="margin-bottom:0">Maple Auto Parts also keeps its spare money <b>with us</b>: a savings-style account paying 2.10%. Careful with direction — this money is <b>theirs</b>. We are holding $3.2M that we must give back, and we owe them a little interest every day. That's why this position's "value" thinking flips: the balance is a liability, and the accrued interest metric is <b>negative</b> (we pay it).</p>
+  </div>
+  <div class="tblwrap"><table>
+    <tr><th style="width:225px">Attribute</th><th style="width:230px">Value</th><th>Why</th></tr>
+    <tr class="band core"><td colspan="3">Position Core</td></tr>
+    <tr><td class="mono">Position Identifier / System</td><td class="mono"><span class="key k-core" data-key="POS-DEP-001122">POS-DEP-001122</span> / CCM-CORE</td><td class="why">From Cash Management domain, Deposit Balances feed.</td></tr>
+    <tr><td class="mono">Book / Agg / Type</td><td class="mono"><span class="key k-core" data-key="CCM-TOR-01">CCM-TOR-01</span> / TRADE / DEPOSIT_ARRANGEMENT</td><td class="why">One row per arrangement (account) — it's a contract, not a pile.</td></tr>
+    <tr><td class="mono">Counterparty Code</td><td class="mono"><span class="key k-core" data-key="CP-88421">CP-88421</span></td><td class="why">Same client, different relationship.</td></tr>
+    <tr class="band sub"><td colspan="3">Sub-domain — account balance attributes ("if any account balance attribute — all")</td></tr>
+    <tr><td class="mono">Deposit Arrangement Id</td><td class="mono"><span class="key k-sub" data-key="DEP-ACC-5541">DEP-ACC-5541</span></td><td class="why">→ Deposit Arrangement entity in the Deposit data domain (your indigo boxes).</td></tr>
+    <tr><td class="mono">depositAccountBalance</td><td class="num">3,200,000 USD</td><td class="why">The client's money we hold.</td></tr>
+    <tr><td class="mono">Rate / Basis</td><td class="mono">2.10% act/365</td><td class="why">What we pay them.</td></tr>
+    <tr class="band prod"><td colspan="3">Product</td></tr>
+    <tr><td class="mono">Product Type / Identifier</td><td class="mono">DEPOSIT / <span class="key k-prod" data-key="LOANDEPOSIT">LOANDEPOSIT</span></td><td class="why">Uses the L&amp;D schema, as your concept sheet says.</td></tr>
+  </table></div>
+  <h4>Metrics for <span class="key k-core" data-key="POS-DEP-001122">POS-DEP-001122</span> — matching your "Accrued Int, fees" box</h4>
+  <div class="tblwrap"><table>
+    <tr><th>Position Id</th><th>Metric Type</th><th>Value</th><th>Ccy</th><th>Calc Source</th><th>Plain words</th></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-DEP-001122">POS-DEP-001122</span></td><td><span class="mtag val">ACCRUED_INT</span></td><td class="num neg">−5,706</td><td class="mono">USD</td><td class="mono">CCM-CORE</td><td class="why">31 days × 2.10% on 3.2M — interest we owe the client for July.</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-DEP-001122">POS-DEP-001122</span></td><td><span class="mtag val">FEE_ACCRUAL</span></td><td class="num pos">+150</td><td class="mono">USD</td><td class="mono">CCM-CORE</td><td class="why">Monthly account maintenance fee the client owes us.</td></tr>
+  </table></div>
+  <p class="hint">No Greeks, no cashflow projections — a demand deposit has no market risk factors to shock and no fixed schedule. The metric spine simply has fewer rows. Nothing about the model changes.</p>
+
+  <!-- 3.5 FACILITY -->
+  <h3 style="color:var(--lend)">3.5 · Lending Facility Position — the promise to lend</h3>
+  <div class="storybox" style="border-left-color:var(--lend)">
+    <div class="kid" style="color:var(--lend)">The story, like to a child</div>
+    <p style="margin-bottom:8px">In 2024 we gave Maple Auto Parts a <b>credit card for a company</b>: a revolving facility. "You may borrow up to <b>$100M</b> any time until mid-2029. For the part you <i>haven't</i> borrowed, you pay us a small standby fee (0.35%/yr) — because we must keep that money ready."</p>
+    <p style="margin-bottom:0">The facility itself is <b>not a loan yet</b> — it's the promise. They've currently drawn $40M (next section), leaving $60M undrawn. Your sheet's warning lives here: facility and outstanding are <b>separate positions</b> so committed amounts and drawn amounts are never double-counted.</p>
+  </div>
+  <div class="tblwrap"><table>
+    <tr><th style="width:225px">Attribute</th><th style="width:230px">Value</th><th>Why</th></tr>
+    <tr class="band core"><td colspan="3">Position Core</td></tr>
+    <tr><td class="mono">Position Identifier / System</td><td class="mono"><span class="key k-core" data-key="POS-FAC-000097">POS-FAC-000097</span> / LOANIQ</td><td class="why">From the Corp Lending domain, Facility Balance (header) feed.</td></tr>
+    <tr><td class="mono">Book / Agg / Type</td><td class="mono"><span class="key k-core" data-key="CL-NY-01">CL-NY-01</span> / TRADE / LENDING_FACILITY</td><td class="why">Lending Facility Position subtype.</td></tr>
+    <tr><td class="mono">Counterparty Code</td><td class="mono"><span class="key k-core" data-key="CP-88421">CP-88421</span></td><td class="why">Third relationship with the same client.</td></tr>
+    <tr class="band sub"><td colspan="3">Sub-domain — facility attributes (all)</td></tr>
+    <tr><td class="mono">Facility Id</td><td class="mono"><span class="key k-sub" data-key="FAC-2024-0097">FAC-2024-0097</span></td><td class="why">→ Lending Facility entity in the Lending data domain (magenta boxes).</td></tr>
+    <tr><td class="mono">Commitment / Drawn / Undrawn</td><td class="num">100,000,000 / 40,000,000 / 60,000,000</td><td class="why">Committed amount = what got B/S from C/P, per your note — not total headline.</td></tr>
+    <tr><td class="mono">Maturity / Commitment fee</td><td class="mono">2029-06-30 / 35bp on undrawn</td><td class="why">Life of the promise and its price.</td></tr>
+    <tr><td class="mono">Syndication share</td><td class="mono">40% (agent: us)</td><td class="why">The Synd Details from Facility Balance in your concept sheet.</td></tr>
+    <tr class="band prod"><td colspan="3">Product</td></tr>
+    <tr><td class="mono">Product Type / Identifier</td><td class="mono">REVOLVER / <span class="key k-prod" data-key="LENDINGFACILITY">LENDINGFACILITY</span></td><td class="why">The new lendingFacility product from your green boxes.</td></tr>
+  </table></div>
+  <h4>Metrics for <span class="key k-core" data-key="POS-FAC-000097">POS-FAC-000097</span> — matching "Syndication fees, comm fees etc" + contractual cashflows</h4>
+  <div class="tblwrap"><table>
+    <tr><th>Position Id</th><th>Metric Type</th><th>Cashflow Date</th><th>Value</th><th>Ccy</th><th>Calc Source</th><th>Plain words</th></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-FAC-000097">POS-FAC-000097</span></td><td><span class="mtag val">COMMITMENT_FEE_ACCR</span></td><td class="mono">—</td><td class="num pos">+18,083</td><td class="mono">USD</td><td class="mono">LOANIQ</td><td class="why">July: 60M undrawn × 0.35% × 31/360.</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-FAC-000097">POS-FAC-000097</span></td><td><span class="mtag val">AGENCY_FEE_ACCR</span></td><td class="mono">—</td><td class="num pos">+2,083</td><td class="mono">USD</td><td class="mono">LOANIQ</td><td class="why">1/12 of the $25k/yr agency fee for running the syndicate.</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-FAC-000097">POS-FAC-000097</span></td><td><span class="mtag cf">CASHFLOW</span></td><td class="mono">2026-09-30</td><td class="num pos">+53,667</td><td class="mono">USD</td><td class="mono">LOANIQ</td><td class="why">Next quarterly commitment-fee payment (assumes undrawn stays 60M).</td></tr>
+  </table></div>
+
+  <!-- 3.6 OUTSTANDING -->
+  <h3 style="color:var(--lend)">3.6 · Lending Outstanding Position — the money actually borrowed</h3>
+  <div class="storybox" style="border-left-color:var(--lend)">
+    <div class="kid" style="color:var(--lend)">The story, like to a child</div>
+    <p style="margin-bottom:0">Maple pressed the button on its credit card: it drew <b>$40M</b> under facility <span class="key k-sub" data-key="FAC-2024-0097">FAC-2024-0097</span>, paying SOFR + 2.25% (~6.57% today). It also asked us to issue a <b>$5M letter of credit</b> to one of its suppliers under the same facility. The drawdown is a real loan — real interest accrues daily to <i>us</i>. This is the "facility has Outstanding" relationship drawn between your magenta entities.</p>
+  </div>
+  <div class="tblwrap"><table>
+    <tr><th style="width:225px">Attribute</th><th style="width:230px">Value</th><th>Why</th></tr>
+    <tr class="band core"><td colspan="3">Position Core</td></tr>
+    <tr><td class="mono">Position Identifier / System</td><td class="mono"><span class="key k-core" data-key="POS-OUT-000098">POS-OUT-000098</span> / LOANIQ</td><td class="why">From Outstanding Balance feed of Corp Lending.</td></tr>
+    <tr><td class="mono">Book / Agg / Type</td><td class="mono"><span class="key k-core" data-key="CL-NY-01">CL-NY-01</span> / TRADE / LENDING_OUTSTANDING</td><td class="why">Lending Outstanding Position subtype.</td></tr>
+    <tr><td class="mono">Counterparty Code</td><td class="mono"><span class="key k-core" data-key="CP-88421">CP-88421</span></td><td class="why">Same borrower.</td></tr>
+    <tr class="band sub"><td colspan="3">Sub-domain — outstanding attributes (all)</td></tr>
+    <tr><td class="mono">Outstanding Id</td><td class="mono"><span class="key k-sub" data-key="OUT-0097-D2">OUT-0097-D2</span></td><td class="why">→ Lending Outstanding entity.</td></tr>
+    <tr><td class="mono">Parent Facility Id</td><td class="mono"><span class="key k-sub" data-key="FAC-2024-0097">FAC-2024-0097</span></td><td class="why"><b>The connecting key</b> — "facility has outstanding". Hover it and watch section 3.5 light up.</td></tr>
+    <tr><td class="mono">Outstanding amount / Rate</td><td class="num">40,000,000 · SOFR+225 (6.57%)</td><td class="why">The drawn loan and its price.</td></tr>
+    <tr><td class="mono">Drawdown / Repricing date</td><td class="mono">2026-06-30 / 2026-09-30</td><td class="why">Quarterly interest periods.</td></tr>
+    <tr class="band prod"><td colspan="3">Product</td></tr>
+    <tr><td class="mono">Product Type / Identifier</td><td class="mono">LOAN_DRAWDOWN / <span class="key k-prod" data-key="LOANDEPOSIT">LOANDEPOSIT</span></td><td class="why">Back to the LoanDeposit product — a drawn loan is L&amp;D-shaped, per your green boxes.</td></tr>
+  </table></div>
+  <h4>Metrics for <span class="key k-core" data-key="POS-OUT-000098">POS-OUT-000098</span> — matching "Accrued Int, LC fees" + cashflows</h4>
+  <div class="tblwrap"><table>
+    <tr><th>Position Id</th><th>Metric Type</th><th>Cashflow Date</th><th>Value</th><th>Ccy</th><th>Calc Source</th><th>Plain words</th></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-OUT-000098">POS-OUT-000098</span></td><td><span class="mtag val">ACCRUED_INT</span></td><td class="mono">—</td><td class="num pos">+226,300</td><td class="mono">USD</td><td class="mono">LOANIQ</td><td class="why">July: 40M × 6.57% × 31/360 — interest the client owes us so far.</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-OUT-000098">POS-OUT-000098</span></td><td><span class="mtag val">LC_FEE_ACCR</span></td><td class="mono">—</td><td class="num pos">+6,458</td><td class="mono">USD</td><td class="mono">LOANIQ</td><td class="why">$5M letter of credit × 1.50% × 31/360.</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-OUT-000098">POS-OUT-000098</span></td><td><span class="mtag cf">CASHFLOW</span></td><td class="mono">2026-09-30</td><td class="num pos">+671,600</td><td class="mono">USD</td><td class="mono">LOANIQ</td><td class="why">Projected quarterly interest payment (float rate ⇒ projected).</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-OUT-000098">POS-OUT-000098</span></td><td><span class="mtag cf">CASHFLOW</span></td><td class="mono">2029-06-30</td><td class="num pos">+40,000,000</td><td class="mono">USD</td><td class="mono">LOANIQ</td><td class="why">Contractual principal repayment at facility maturity (revolver: could repay earlier).</td></tr>
+  </table></div>
+</section>
+
+<!-- ============ 4. METRIC ANATOMY & BITEMPORALITY ============ -->
+<section id="s4">
+  <div class="sechead"><span class="secnum">04</span><h2>Anatomy of one Metric record — and the two clocks</h2></div>
+  <p class="lede">Take a single row we've already seen and read every attribute of the Position Metric entity, in order, exactly as your yellow box lists them:</p>
+  <div class="tblwrap"><table>
+    <tr><th style="width:230px">Metric attribute</th><th style="width:220px">Example value</th><th>Plain-words meaning</th></tr>
+    <tr class="band core"><td colspan="3">Copied position key — "which position, in which snapshot"</td></tr>
+    <tr><td class="mono">Position Identifier / System Name</td><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span> / <span class="key k-core" data-key="MUREX">MUREX</span></td><td class="why">Points back to exactly one position row.</td></tr>
+    <tr><td class="mono">Position Date / Snap Type / Book</td><td class="mono">2026-07-31 / EOD / <span class="key k-core" data-key="NY-RATES-01">NY-RATES-01</span></td><td class="why">Metrics attach to a snapshot, not to a floating idea of the position.</td></tr>
+    <tr class="band met"><td colspan="3">Which slice of the position</td></tr>
+    <tr><td class="mono">Position Leg Type / Leg Identifier</td><td class="mono">FIXED / <span class="key k-met" data-key="LEG-1">LEG-1</span></td><td class="why">Legs matter for multi-stream contracts (swaps). NET/blank = whole position.</td></tr>
+    <tr class="band met"><td colspan="3">The measurement itself</td></tr>
+    <tr><td class="mono">Metric Type</td><td class="mono">PV</td><td class="why">What kind of number: PV, ACCRUED_INT, IR_DELTA, CASHFLOW…</td></tr>
+    <tr><td class="mono">Metric Value / Metric Currency</td><td class="mono num">−8,912,400 / USD</td><td class="why">The number and its unit. One value per row — never wide columns.</td></tr>
+    <tr><td class="mono">Pricing Region</td><td class="mono">AMER-NY</td><td class="why">Which regional pricing run produced it (can differ from position region).</td></tr>
+    <tr class="band met"><td colspan="3">Provenance — "who calculated it, when, and when we knew"</td></tr>
+    <tr><td class="mono">Metric Calculation Source</td><td class="mono">MUREX-FO</td><td class="why">The engine of record. Same position may have a MUREX-FO PV <i>and</i> a RISK-ENGINE PV — source disambiguates.</td></tr>
+    <tr><td class="mono">Metric Calculation Time</td><td class="mono">2026-07-31 18:42:10</td><td class="why">When the engine computed it.</td></tr>
+    <tr><td class="mono">Record Effective Time</td><td class="mono">2026-07-31 00:00</td><td class="why"><b>Clock 1 — business truth:</b> the moment in the real world the fact describes.</td></tr>
+    <tr><td class="mono">Record Inserted Time</td><td class="mono">2026-07-31 19:05:33</td><td class="why"><b>Clock 2 — knowledge:</b> when the platform wrote it down.</td></tr>
+  </table></div>
+
+  <h4>The two clocks in action — a correction, without deleting anything</h4>
+  <div class="storybox">
+    <div class="kid">The story, like to a child</div>
+    <p style="margin-bottom:0">On the evening of July 31 the pricer said the swap was worth +538,200. Next morning a curve mark was fixed and the rerun said +542,850 <b>for the same July 31 EOD</b>. We never erase the first answer — we write a second row. Both say "about July 31" (same effective time); they differ in when we <i>learned</i> them (inserted time). Ask "what do we now believe July 31 was?" → latest inserted row. Ask "what did the 7pm report show?" → the first row. That is bitemporality, and it is why regulators can replay any report you ever produced.</p>
+  </div>
+  <div class="tblwrap"><table>
+    <tr><th>Position Id</th><th>Metric</th><th>Leg</th><th>Value</th><th>Record Effective Time</th><th>Record Inserted Time</th><th>Status</th></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td><span class="mtag val">PV</span></td><td class="mono">NET</td><td class="num pos">+538,200</td><td class="mono">2026-07-31 00:00</td><td class="mono">2026-07-31 19:05:33</td><td class="why">First knowledge</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td><span class="mtag val">PV</span></td><td class="mono">NET</td><td class="num pos">+542,850</td><td class="mono">2026-07-31 00:00</td><td class="mono">2026-08-01 09:15:02</td><td class="why">Correction — current belief</td></tr>
+  </table></div>
+</section>
+
+<!-- ============ 5. RISK METRIC DEEP DIVE ============ -->
+<section id="s5">
+  <div class="sechead"><span class="secnum">05</span><h2>Risk metrics decoded — factor, node, shock size, shock type</h2></div>
+  <p class="lede">Your Risk Metric subtype adds exactly four attributes. Together they form a question, and Metric Value is the answer:</p>
+  <div class="grid2">
+    <div class="refcard">
+      <h5 style="color:var(--lend)">Risk Factor — "what market thing moved?"</h5>
+      <p style="font-size:14px;margin:0">A named market driver: a curve (<span class="key" data-key="USD-SOFR-OIS">USD-SOFR-OIS</span>), a spread curve (<span class="key" data-key="ABC-SEN-USD-SPRD">ABC-SEN-USD-SPRD</span>), an FX pair, an equity, a vol surface. The risk engine's dictionary of things that can wiggle.</p>
+    </div>
+    <div class="refcard">
+      <h5 style="color:var(--lend)">Term Node — "which point on it?"</h5>
+      <p style="font-size:14px;margin:0">Curves aren't one number; they're a shape with pillars (1Y, 2Y, 3Y, 5Y, 10Y…). Term node says which pillar was bumped. Non-curve factors (spot FX) simply leave it blank. TOTAL rows sum the pillars.</p>
+    </div>
+    <div class="refcard">
+      <h5 style="color:var(--lend)">Shock Size — "moved by how much?"</h5>
+      <p style="font-size:14px;margin:0">0.0001 = one basis point. 0.01 = 1%. Sensitivities use tiny shocks; stress scenarios use big ones (e.g. 0.02 = +200bp). Same model row shape for both.</p>
+    </div>
+    <div class="refcard">
+      <h5 style="color:var(--lend)">Shock Type — "moved in what way?"</h5>
+      <p style="font-size:14px;margin:0">ABSOLUTE (add 1bp to the rate) vs RELATIVE (multiply by 1.01); could also encode parallel vs pillar-wise. It tells you how to reproduce the bump.</p>
+    </div>
+  </div>
+
+  <h4 style="margin-top:26px">Read the swap's risk block like a sentence</h4>
+  <p>"Position <span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span>, whole position (NET): if <span class="key" data-key="USD-SOFR-OIS">USD-SOFR-OIS</span> at the <b>3Y pillar</b> rises by <b>0.0001 absolute</b>, we gain <b>$10,400</b>." Why is 3Y the big pillar? Because on 2026-07-31 the swap has ~3.1 years left — its sensitivity naturally piles up at the pillar nearest its remaining life. The 2029 maturity is doing the talking.</p>
+  <div class="callout">
+    <b class="tag" style="color:var(--sub)">Why store risk as rows, not columns?</b><br>
+    Tomorrow the desk adds a 7Y pillar, or a new inflation curve, or a 300bp stress. As rows, that's just… more rows. As columns ("DV01_3Y", "DV01_5Y"…) every addition is a schema change across every table and report. This single choice is most of why the metric spine survives new products unchanged — and it's the same reason the model could absorb lending fees and LC fees without a redesign.
+  </div>
+  <p class="hint">Where do VaR and counterparty exposure live? They're computed <i>from</i> these building blocks but usually attach at portfolio level — your "Portfolio Level Metrics" data domain hanging off Position Metric Types. Section 06 shows the roll-up.</p>
+</section>
+
+<!-- ============ 6. CONNECTED VIEW ============ -->
+<section id="s6">
+  <div class="sechead"><span class="secnum">06</span><h2>The connected view — every join on one screen</h2></div>
+  <div class="diagram">
+    <div class="dgrid">
+      <div class="node"><h6>Counterparty</h6><span class="key k-core" data-key="CP-88421">CP-88421</span> Maple Auto Parts<div class="rel">cpty → appears on 4 of 6 positions</div></div>
+      <div class="node"><h6>Booking Party ▸ Book</h6>TDS USA / TD Bank NA<div class="rel">book → every position core</div></div>
+      <div class="node n-prod"><h6>Product ▸ Instrument</h6><span class="key k-prod" data-key="IRS-USD-STD">IRS-USD-STD</span> · <span class="key k-prod" data-key="LENDINGFACILITY">LENDINGFACILITY</span> · <span class="key k-prod" data-key="LOANDEPOSIT">LOANDEPOSIT</span><div class="rel">instrument only when fungible: <span class="key k-prod" data-key="US000ABC1234">US000ABC1234</span></div></div>
+
+      <div class="arrownote">↓ referenced by</div>
+      <div class="arrownote">↓ referenced by</div>
+      <div class="arrownote">↓ referenced by</div>
+
+      <div class="node n-core" style="grid-column:1/-1"><h6>POSITION (core spine — six subtype rows, one shape)</h6>
+        <span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span> trade ·
+        <span class="key k-core" data-key="POS-AGG-000456">POS-AGG-000456</span> agg fungible ·
+        <span class="key k-core" data-key="POS-CSH-000789">POS-CSH-000789</span> cash ·
+        <span class="key k-core" data-key="POS-DEP-001122">POS-DEP-001122</span> deposit ·
+        <span class="key k-core" data-key="POS-FAC-000097">POS-FAC-000097</span> facility ·
+        <span class="key k-core" data-key="POS-OUT-000098">POS-OUT-000098</span> outstanding
+        <div class="rel">key = (Position Identifier, System Name, Position Date, Snap Type)</div>
+      </div>
+
+      <div class="node n-dep"><h6>Deposit domain</h6><span class="key k-sub" data-key="DEP-ACC-5541">DEP-ACC-5541</span> arrangement<div class="rel">deposit position → arrangement</div></div>
+      <div class="node n-lend"><h6>Lending domain</h6><span class="key k-sub" data-key="FAC-2024-0097">FAC-2024-0097</span> ⟶ has ⟶ <span class="key k-sub" data-key="OUT-0097-D2">OUT-0097-D2</span><div class="rel">facility has outstanding — the intra-domain join</div></div>
+      <div class="node n-met"><h6>Portfolio Level Metrics</h6>roll-ups across positions<div class="rel">Metrics Domain — derived, see below</div></div>
+
+      <div class="arrownote" style="grid-column:1/-1">↓ one-to-many: each position → many metric rows (position metrics relationship)</div>
+
+      <div class="node n-met" style="grid-column:1/-1"><h6>POSITION METRIC (the spine)</h6>
+        carries the full position key + Leg (<span class="key k-met" data-key="LEG-1">LEG-1</span>/<span class="key k-met" data-key="LEG-2">LEG-2</span>/NET) + Metric Type/Value/Ccy + Pricing Region + Source + calc/effective/inserted times
+        <div class="rel">subtypes: Valuation · Risk (factor, node, shock size, shock type) · Cashflow (+ cashflow date)</div>
+      </div>
+    </div>
+  </div>
+
+  <h4>The roll-up: one client, whole-bank view (Portfolio Level Metrics)</h4>
+  <p>Because every metric row carries the same key grammar, aggregating is just grouping. Filter metric rows where the position's counterparty = <span class="key k-core" data-key="CP-88421">CP-88421</span>, group by metric type:</p>
+  <div class="tblwrap"><table>
+    <tr><th>Portfolio metric (counterparty = CP-88421)</th><th>Value</th><th>Built from</th></tr>
+    <tr><td>Net MTM of traded exposure</td><td class="num pos">+538,200 USD</td><td class="why"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span> NET PV</td></tr>
+    <tr><td>Drawn credit exposure</td><td class="num">40,000,000 USD</td><td class="why"><span class="key k-core" data-key="POS-OUT-000098">POS-OUT-000098</span> outstanding</td></tr>
+    <tr><td>Undrawn committed exposure</td><td class="num">60,000,000 USD</td><td class="why"><span class="key k-core" data-key="POS-FAC-000097">POS-FAC-000097</span> commitment − drawn</td></tr>
+    <tr><td>Client money held (liability)</td><td class="num neg">−3,200,000 USD</td><td class="why"><span class="key k-core" data-key="POS-DEP-001122">POS-DEP-001122</span> balance</td></tr>
+    <tr><td>Net accrued income this month</td><td class="num pos">+309,753 USD</td><td class="why">+226,300 +18,083 +6,458 +2,083 +62,445* −5,706 +150 − … (*swap net accrual 789,667−727,222)</td></tr>
+  </table></div>
+  <p class="hint">This is the "Risk 360 / slice-and-dice" ask from your platform discussions made concrete: because the atomic layer is uniform, the counterparty view, the book view, and the region view are all just different GROUP BYs over the same metric spine.</p>
+</section>
+
+<!-- ============ 7. WHY THIS SHAPE ============ -->
+<section id="s7">
+  <div class="sechead"><span class="secnum">07</span><h2>Why the model is shaped this way — the recap</h2></div>
+  <ul class="plain">
+    <li><b>One core + typed extensions.</b> Six very different businesses (trading, cash mgmt, lending) land in one queryable spine; each keeps its oddities (facility attrs, depositAccountBalance) in its orange block. New position type = new subtype, not new platform.</li>
+    <li><b>Positions are snapshots, trades are events.</b> The Trade domain records what <i>happened</i>; the Position domain records what we <i>hold</i> at a date+snap. That's why date and snap type sit inside the key.</li>
+    <li><b>Facility ≠ Outstanding.</b> Two positions, linked by <span class="key k-sub" data-key="FAC-2024-0097">FAC-2024-0097</span>, so $100M committed and $40M drawn never double-count — the exact trap your concept sheet calls out.</li>
+    <li><b>Metrics are rows, keyed like sentences.</b> Any engine can add any measurement about any slice (leg!) of any position without schema change — and source + pricing region let competing answers coexist honestly.</li>
+    <li><b>Two clocks.</b> Effective vs inserted time makes corrections additive and every historical report replayable.</li>
+    <li><b>Product/Instrument split.</b> Contracts have products; only fungibles resolve to instruments — which is also why agg positions key on instrument while trade positions key on the trade.</li>
+  </ul>
+</section>
+
+
+<!-- ================= PART II ================= -->
+<div class="partband" id="part2">
+  <div class="eyebrow">Part II · Change, time, and what the model still needs</div>
+  <h2>The life and death of a trade — versions, restatements, cancels</h2>
+  <p>Part I froze the world at one snapshot. Part II lets time move: the swap gets amended, the amendment turns out to be wrong, and finally the trade is terminated. Attributes the current LDM does not yet carry are marked <span class="badge-new">ADD</span> or <span class="badge-evolve">EVOLVE</span> exactly where they earn their keep. Sections 12–15 fold in the three valuations-meeting recordings (12 Aug): the leg-level FX debate, the snapping/version-mismatch discussion, and the extensibility questions — each tied back to a concrete model element.</p>
+</div>
+
+<!-- ============ 08 ============ -->
+<section id="s8">
+  <div class="sechead"><span class="secnum">08</span><h2>The life of trade <span class="key" data-key="MX-TRD-7789021">MX-TRD-7789021</span></h2></div>
+  <div class="tl">
+    <div class="ev"><span class="d">2024-09-10</span><b>Booked · V1</b><p>$50M pay-fixed 3.85% vs SOFR, matures 2029-09-15.</p></div>
+    <div class="ev"><span class="d">2026-07-31</span><b>EOD snap</b><p>Part I world: PV +538,200, later restated +542,850.</p></div>
+    <div class="ev e-amend"><span class="d">2026-08-04</span><b>Amend · V2</b><p>Client partially unwinds $15M → notional $35M. Fee received.</p></div>
+    <div class="ev e-restate"><span class="d">2026-08-06</span><b>Backdated fix · V3</b><p>Confirmation matching: unwind was actually $20M → notional $30M, effective 08-04. Restatement run re-marks Aug 4 &amp; 5.</p></div>
+    <div class="ev e-dead"><span class="d">2026-08-10</span><b>Terminated · V4</b><p>Full unwind of remaining $30M. Termination fee received. Position goes terminal.</p></div>
+  </div>
+
+  <h4>Trade version history — two clocks exist at trade level too</h4>
+  <div class="tblwrap"><table>
+    <tr><th>Version</th><th class="newattr">Version Effective Date <span class="badge-new">ADD</span></th><th>Booked (system time)</th><th>Change</th><th>Notional after</th></tr>
+    <tr><td class="mono">V1</td><td class="mono newattr">2024-09-15</td><td class="mono">2024-09-10 14:22</td><td>New trade</td><td class="num">50,000,000</td></tr>
+    <tr><td class="mono">V2</td><td class="mono newattr">2026-08-04</td><td class="mono">2026-08-04 16:10</td><td>Partial unwind 15M</td><td class="num">35,000,000</td></tr>
+    <tr><td class="mono">V3</td><td class="mono newattr">2026-08-04 <b>(backdated)</b></td><td class="mono">2026-08-06 09:47</td><td>Correction: unwind was 20M</td><td class="num">30,000,000</td></tr>
+    <tr><td class="mono">V4</td><td class="mono newattr">2026-08-10</td><td class="mono">2026-08-10 14:05</td><td>Full termination</td><td class="num">0</td></tr>
+  </table></div>
+  <p class="hint">V3 is the hard case: booked on Aug 6 but <i>true about</i> Aug 4. Effective date vs booked time is bitemporality at the trade level — the position and metric layers below must be able to carry it through. (Real trades accumulate many more versions — every reset and fixing bumps it; four keeps the story readable.)</p>
+</section>
+
+<!-- ============ 09 ============ -->
+<section id="s9">
+  <div class="sechead"><span class="secnum">09</span><h2>Position snaps through the lifecycle</h2></div>
+  <p class="lede">Same position <span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span>, one row per (date, snap) — now with the attributes that make amends and cancels provable:</p>
+  <div class="tblwrap"><table>
+    <tr><th>Position Date</th><th>Snap</th><th class="newattr">Trade Version cited <span class="badge-new">ADD</span></th><th>Notional</th><th class="newattr">Position Status <span class="badge-new">ADD</span></th><th class="newattr">Record Inserted Time <span class="badge-evolve">EVOLVE</span></th><th>Note</th></tr>
+    <tr><td class="mono">2026-07-31</td><td class="mono">EOD</td><td class="mono newattr">V1</td><td class="num">50,000,000</td><td class="mono newattr">ACTIVE</td><td class="mono newattr">07-31 18:55</td><td class="why">Part I world.</td></tr>
+    <tr class="strike"><td class="mono">2026-08-04</td><td class="mono">EOD</td><td class="mono newattr">V2</td><td class="num">35,000,000</td><td class="mono newattr">ACTIVE</td><td class="mono newattr">08-04 18:58</td><td class="why">First belief about Aug 4.</td></tr>
+    <tr><td class="mono">2026-08-04</td><td class="mono">EOD</td><td class="mono newattr">V3</td><td class="num">30,000,000</td><td class="mono newattr">ACTIVE</td><td class="mono newattr">08-06 10:20</td><td class="why">Restated Aug 4 — same date+snap, later insert.</td></tr>
+    <tr><td class="mono">2026-08-10</td><td class="mono">EOD</td><td class="mono newattr">V4</td><td class="num">0</td><td class="mono newattr">TERMINATED</td><td class="mono newattr">08-10 18:57</td><td class="why">Terminal row — the tombstone.</td></tr>
+    <tr><td class="mono">2026-08-11</td><td class="mono">EOD</td><td class="mono newattr">—</td><td class="num">—</td><td class="mono newattr">—</td><td class="mono newattr">—</td><td class="why">No row. Unambiguous only because 08-10 said TERMINATED; absence alone could be a failed feed.</td></tr>
+  </table></div>
+  <ul class="plain">
+    <li><b>Why "Trade Version cited" must be a real column:</b> the Aug-4 mark is only provable if the snap states which contract terms it priced. Today the position carries a trade <i>reference</i> but not the <i>version</i> — and the meeting reached the same conclusion from the consumer side (see §13).</li>
+    <li><b>Why Position Status:</b> for the Cancels &amp; Amends use case specifically, "the position stopped appearing" is not an auditable statement. A terminal row is.</li>
+    <li><b>Why EVOLVE on inserted time:</b> Position Metric already carries Record Effective/Inserted Time; the Position entity itself doesn't. The Aug-4 restated position row above is only expressible if positions get the same two clocks (or an equivalent snapshot-immutability convention is formally confirmed).</li>
+  </ul>
+</section>
+
+<!-- ============ 10 ============ -->
+<section id="s10">
+  <div class="sechead"><span class="secnum">10</span><h2>The marks through time — runs, restatements, and the version handshake</h2></div>
+
+  <h4>Bitemporal PV history for the Aug-4 EOD snap</h4>
+  <div class="tblwrap"><table>
+    <tr><th>Position Id</th><th>Metric</th><th class="newattr">Position Version <span class="badge-new">ADD</span></th><th class="newattr">Run Id / Run Type <span class="badge-new">ADD</span></th><th>Value</th><th>Record Effective</th><th>Record Inserted</th><th>Status</th></tr>
+    <tr class="strike"><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td><span class="mtag val">PV</span> NET</td><td class="mono newattr">V2</td><td class="mono newattr">EOD-AMER-20260804-R1 · OFFICIAL_EOD</td><td class="num pos">+408,170</td><td class="mono">2026-08-04</td><td class="mono">08-04 19:02</td><td class="why">What the Aug-4 report showed.</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td><span class="mtag val">PV</span> NET</td><td class="mono newattr">V3</td><td class="mono newattr">RESTATE-AMER-20260806-R1 · RESTATEMENT</td><td class="num pos">+349,860</td><td class="mono">2026-08-04</td><td class="mono">08-06 10:31</td><td class="why">Corrected belief about Aug 4.</td></tr>
+  </table></div>
+  <p>Both rows are true, and each answers a different question. <b>Query 1 — "what did we report on Aug 4?"</b>: latest row inserted ≤ Aug-4 23:59 → +408,170, run R1, priced against V2. <b>Query 2 — "what is the corrected Aug-4 mark?"</b>: latest inserted overall → +349,860, restatement run, priced against V3. The unwind fee cashflow row is corrected the same way (+174,930 struck, +233,240 inserted). Nothing is ever deleted; hindsight is just more rows.</p>
+
+  <h4>The version handshake — the control the meeting asked for</h4>
+  <p>Recording 2's proposal, made concrete: the valuation producer stamps the trade/position version it priced; the platform compares it to the version the Book-of-Record snap cites; mismatch → flag, investigate, reload. The snapping anchor both sides share is the close-off event (three per day, per the meeting), so it too becomes a citable reference:</p>
+  <div class="tblwrap"><table>
+    <tr><th>Check</th><th>Position snap says</th><th>Metric row says</th><th class="newattr">Snap Reference <span class="badge-new">ADD</span></th><th>Control result</th></tr>
+    <tr><td class="mono">VERSION_MATCH</td><td class="mono">V3</td><td class="mono newattr">V3</td><td class="mono newattr">CLOSEOFF-AMER-20260804-3</td><td class="pos">PASS — provably the same contract state</td></tr>
+    <tr><td class="mono">VERSION_MATCH</td><td class="mono">V5</td><td class="mono newattr">V3</td><td class="mono newattr">CLOSEOFF-AMER-20260804-3</td><td class="neg">FAIL — pipeline dropped versions; ops reloads. Without the column, this break is invisible until reconciliation screams.</td></tr>
+  </table></div>
+  <p class="hint">This also settles snap ownership the way the meeting did: Book of Record owns the snap; producers and CDM cite the <i>same</i> close-off event; the version column turns "we hope they match" into a nightly PASS/FAIL.</p>
+</section>
+
+<!-- ============ 11 ============ -->
+<section id="s11">
+  <div class="sechead"><span class="secnum">11</span><h2>Risk metrics through the lifecycle — and P&amp;L explain</h2></div>
+  <p class="lede">Sensitivities are sibling rows on the same anchors, so lifecycle events flow through them mechanically — DV01 simply rescales with the surviving notional:</p>
+  <div class="tblwrap"><table>
+    <tr><th>Snap</th><th class="newattr">Version</th><th>Risk Factor</th><th>1Y</th><th>2Y</th><th>3Y</th><th>4Y</th><th>TOTAL (per +1bp)</th></tr>
+    <tr><td class="mono">07-31 EOD</td><td class="mono newattr">V1 · 50M</td><td class="mono"><span class="key" data-key="USD-SOFR-OIS">USD-SOFR-OIS</span></td><td class="num">+650</td><td class="num">+1,900</td><td class="num">+10,400</td><td class="num">+1,550</td><td class="num pos">+14,500</td></tr>
+    <tr class="strike"><td class="mono">08-04 EOD</td><td class="mono newattr">V2 · 35M</td><td class="mono">USD-SOFR-OIS</td><td class="num">+455</td><td class="num">+1,330</td><td class="num">+7,280</td><td class="num">+1,085</td><td class="num">+10,150</td></tr>
+    <tr><td class="mono">08-04 EOD (restated)</td><td class="mono newattr">V3 · 30M</td><td class="mono">USD-SOFR-OIS</td><td class="num">+390</td><td class="num">+1,140</td><td class="num">+6,240</td><td class="num">+930</td><td class="num pos">+8,700</td></tr>
+    <tr><td class="mono">08-10 EOD</td><td class="mono newattr">V4 · 0</td><td class="mono">USD-SOFR-OIS</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+  </table></div>
+
+  <h4>P&amp;L explain: restated Jul-31 → corrected Aug-4</h4>
+  <div class="tblwrap"><table>
+    <tr><th>Component</th><th>Amount (USD)</th><th>Computed from</th></tr>
+    <tr><td>Opening PV (Jul-31, restated)</td><td class="num pos">+542,850</td><td class="why">Valuation metric row, run RESTATE-AMER-20260801-R1.</td></tr>
+    <tr><td>Rates effect</td><td class="num pos">+43,500</td><td class="why">DV01 +14,500 × (+3bp at the 3Y node, 3.98%→4.01%) — the join between the metric's Risk Factor / Term Node names and the <b>market data domain</b>. If those names drift, explain breaks.</td></tr>
+    <tr><td>Carry / theta (4 days)</td><td class="num neg">−3,250</td><td class="why">Accrual roll-down.</td></tr>
+    <tr><td>Trade event: unwind 20M (V3)</td><td class="num neg">−233,240</td><td class="why">40% of pre-amend PV leaves the position…</td></tr>
+    <tr><td>Closing PV (Aug-4, corrected)</td><td class="num pos">+349,860</td><td class="why">Sums exactly. Unexplained: 0.</td></tr>
+    <tr><td style="border-top:2px solid var(--line)">Memo: unwind fee received</td><td class="num pos" style="border-top:2px solid var(--line)">+233,240</td><td class="why" style="border-top:2px solid var(--line)">…and comes back as cash — the cashflow metric row. Economic P&amp;L for the period = rates + carry = <b>+40,250</b>. Amends don't create or destroy value when the fee is fair; the model shows that arithmetic.</td></tr>
+  </table></div>
+  <p class="hint">Termination works identically on Aug 10: remaining PV ≈ +364,660 exits as a termination-fee cashflow, PV → 0, DV01 → 0, status TERMINATED. Every number the auditor asks for is a row with a run id and two timestamps.</p>
+</section>
+
+<!-- ============ 12 ============ -->
+<section id="s12">
+  <div class="sechead"><span class="secnum">12</span><h2>The cross-currency leg problem — the meeting's worked example</h2></div>
+  <div class="storybox">
+    <div class="kid">The debate, like to a child</div>
+    <p style="margin-bottom:8px">Recordings 1 &amp; 3 circled one trade shape: a <b>cross-currency swap</b>, where the two legs are in <i>different currencies</i>, so there is no single natural trade-level PV — someone must pick an FX rate to add USD apples to CAD oranges. The model happily stores two leg rows (that's what Leg Type / Leg Identifier are for). The fight is about the adding: if every consumer converts with their own mandated rate (ECB fix for EU reporting, BoC 4pm for Canadian books…), <b>two honest consumers publish two different "official" trade PVs</b> — reg reporting, P&amp;L and trade surveillance stop reconciling.</p>
+    <p style="margin-bottom:0">Meeting direction: source the <b>most granular</b> (leg level, native currency) as the truth; <i>optionally</i> carry a standard reporting-equivalent on each row so simple consumers can just sum; and if a producer also ships its own trade-level number, label it so nobody double counts.</p>
+  </div>
+
+  <h4>New position: <span class="key k-core" data-key="POS-TRD-000124">POS-TRD-000124</span> — USD/CAD cross-currency swap, notionals USD 20M / CAD 27.4M</h4>
+  <div class="tblwrap"><table>
+    <tr><th>Position Id</th><th>Leg Type</th><th>Leg Id</th><th>Metric</th><th>Value</th><th>Ccy</th><th class="newattr">Reporting Equiv (CAD @ BoC 1.3700) <span class="badge-new">ADD</span></th><th class="newattr">Aggregation Level <span class="badge-new">ADD</span></th></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000124">POS-TRD-000124</span></td><td class="mono">RECEIVE</td><td class="mono">LEG-USD</td><td><span class="mtag val">PV</span></td><td class="num pos">+312,000</td><td class="mono">USD</td><td class="num newattr">+427,440</td><td class="mono newattr">LEG</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000124">POS-TRD-000124</span></td><td class="mono">PAY</td><td class="mono">LEG-CAD</td><td><span class="mtag val">PV</span></td><td class="num neg">−405,000</td><td class="mono">CAD</td><td class="num newattr">−405,000</td><td class="mono newattr">LEG</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000124">POS-TRD-000124</span></td><td class="mono">NET</td><td class="mono">—</td><td><span class="mtag val">PV</span></td><td class="num pos">+22,440</td><td class="mono">CAD</td><td class="num newattr">+22,440</td><td class="mono newattr">TRADE_AGG</td></tr>
+  </table></div>
+  <ul class="plain">
+    <li><b>The divergence, quantified:</b> convert the USD leg at the ECB fix (1.3688) instead and the trade PV becomes +22,066 CAD — a 374-CAD phantom break between two correct consumers. A standard Reporting-Equivalent column (rate source + rate stamped alongside) removes the per-consumer interpretation the meeting worried about, without stopping anyone from re-converting for their own mandate.</li>
+    <li><b>Aggregation Level protects against double counting:</b> if the LEG rows and a TRADE_AGG row coexist (the "three records" case discussed for Cancels &amp; Amends), a naive SUM would count the trade twice. The label makes "legs only" or "trade-agg only" a trivial WHERE clause — the same idea as the meeting's alternative of segregating them into separate tables/views, but carried in the data itself.</li>
+    <li><b>Leg linkage discipline:</b> producers speak "LEG-1/LEG-2" (VS) or omit direction entirely (books that don't stamp buy/sell); the model speaks PAY/RECEIVE. The Leg Identifier attribute (already in the newer model version) is the join point — but a published mapping per producer is what makes "the trade leg and the valuation leg are the same leg" consistently true, which was the closing ask of recording 1.</li>
+  </ul>
+</section>
+
+<!-- ============ 13 ============ -->
+<section id="s13">
+  <div class="sechead"><span class="secnum">13</span><h2>Extensibility stress test — Vega grids and scenario VaR</h2></div>
+  <p class="lede">Recording 3's forward-looking question: will this structure stretch to the rest of the risk metrics without a rewrite? Test it on the two hardest shapes mentioned:</p>
+  <div class="tblwrap"><table>
+    <tr><th>Position Id</th><th>Metric Type</th><th>Risk Factor</th><th>Term Node</th><th class="newattr">Node 2 (strike / uly tenor) <span class="badge-new">ADD</span></th><th class="newattr">Scenario Id <span class="badge-new">ADD</span></th><th>Shock</th><th>Value</th><th>Ccy</th></tr>
+    <tr><td class="mono">POS-TRD-000125 (FX option)</td><td><span class="mtag risk">VEGA</span></td><td class="mono">USDCAD-VOL-SURFACE</td><td class="mono">6M (expiry)</td><td class="mono newattr">1.38 (strike)</td><td class="mono newattr">—</td><td class="mono">+1 vol pt</td><td class="num pos">+4,200</td><td class="mono">CAD</td></tr>
+    <tr><td class="mono"><span class="key k-core" data-key="POS-TRD-000123">POS-TRD-000123</span></td><td><span class="mtag risk">SCENARIO_PV</span></td><td class="mono">— (full reval)</td><td class="mono">—</td><td class="mono newattr">—</td><td class="mono newattr">HIST-2008-LEHMAN-D1</td><td class="mono">scenario</td><td class="num pos">+581,400</td><td class="mono">USD</td></tr>
+  </table></div>
+  <ul class="plain">
+    <li><b>Vega is a surface, not a curve:</b> one Term Node isn't enough — a vol point lives at (expiry × strike) or (expiry × underlying tenor for swaptions). One additional node attribute makes the risk subtype 2-dimensional; nothing else changes. Credit delta, by contrast, already fits today (it's the bond's CS_DELTA from §3.2 — a curve).</li>
+    <li><b>VaR/SVaR are scenario families:</b> a Scenario Identifier turns "hundreds of shocked PVs per position" into ordinary metric rows; VaR itself is then a portfolio-level roll-up over them (your Portfolio Level Metrics domain). The open design choice the meeting named — store scenario PVs or scenario P&amp;Ls — is a convention decision (PV is more primitive; P&amp;L = PV − base is derivable), not a structural one.</li>
+    <li><b>Conclusion of the stress test:</b> two added attributes (second node, scenario id) and one convention decision. No rewrite — which is precisely the "expandable without re-architecting" comfort the meeting was asking for.</li>
+  </ul>
+</section>
+
+<!-- ============ 14 ============ -->
+<section id="s14">
+  <div class="sechead"><span class="secnum">14</span><h2>The consolidated ask — attributes to add, evolve, or confirm</h2></div>
+
+  <h4>Where each column lands — your yellow boxes, annotated</h4>
+  <p>Same entities as the LDM diagram (Position Metric and its three subtype boxes), with existing attributes in black and the proposed ones marked. Nothing moves; lines are only added.</p>
+  <div class="diagram"><div class="dgrid" style="grid-template-columns:repeat(2,minmax(260px,1fr))">
+    <div class="node" style="border-color:#B8960B;background:#FDF6C9;grid-row:span 2">
+      <h6>&lt;&lt;Abstract&gt;&gt; Position Metric — the parent box (all metric families)</h6>
+      <div class="rel" style="color:#6b5a10">Position Identifier<br>Position System Name<br>Position Date<br>Position Snap Type<br><b style="color:#B3261E">Position Version <span class="badge-new">ADD</span> — the version handshake (§10)</b><br>Book Name<br>Position Leg Type<br>Position Leg Identifier<br><b style="color:#B3261E">Aggregation Level (LEG / TRADE_AGG) <span class="badge-new">ADD</span> — double-count guard (§12)</b><br>Metric Type<br>Metric Value<br>Metric Currency<br>Pricing Region<br>Metric Calculation Source<br><b style="color:#B3261E">Run Identifier + Run Type <span class="badge-new">ADD</span> — official vs flash vs restatement; set-completeness check (§10, §13)</b><br><b style="color:#B3261E">Snap Reference (close-off event id) <span class="badge-new">ADD</span> — provable common snap (§10)</b><br>Metric Calculation Time<br>Record Effective Time<br>Record Inserted Time</div>
+    </div>
+    <div class="node" style="border-color:#B8960B;background:#FDF6C9">
+      <h6>Valuation Metric — today an empty subtype box</h6>
+      <div class="rel" style="color:#6b5a10"><b style="color:#B3261E">Reporting Equivalent Value + Currency <span class="badge-new">ADD</span></b><br><b style="color:#B3261E">Conversion Rate + Rate Source <span class="badge-new">ADD</span> — the cross-currency fix (§12)</b></div>
+    </div>
+    <div class="node" style="border-color:#B8960B;background:#FDF6C9">
+      <h6>Risk Metric — the box with Risk Factor</h6>
+      <div class="rel" style="color:#6b5a10">Risk Factor<br>Term Node<br><b style="color:#B3261E">Term Node 2 (strike / underlying tenor) <span class="badge-new">ADD</span> — directly under Term Node; makes vega surfaces fit (§13)</b><br>Shock Size<br>Shock Type</div>
+    </div>
+    <div class="node" style="border-color:#B8960B;background:#FDF6C9">
+      <h6>Cashflow Metric</h6>
+      <div class="rel" style="color:#6b5a10">Cashflow Date — <i>unchanged</i></div>
+    </div>
+    <div class="node" style="border-color:#B3261E;background:#FDF0EF;border-style:dashed">
+      <h6 style="color:#B3261E">Scenario Metric — proposed fourth subtype <span class="badge-new">NEW BOX</span></h6>
+      <div class="rel" style="color:#7a2d28"><b>Scenario Identifier</b><br><b>Scenario Set / Version</b><br>Sits beside Valuation / Risk / Cashflow under "Position Metric Types". Alternative: add Scenario Identifier inside Risk Metric instead — workable, but stress results are full revaluations where Risk Factor / Shock are empty, so a sibling box keeps each subtype's attributes always-populated (§13).</div>
+    </div>
+  </div></div>
+  <p class="hint">Summary of placement: two additions are subtype-local (Term Node 2 in Risk Metric; the reporting-equivalent set in Valuation Metric), one is a new sibling subtype (Scenario Metric), and the governance-critical ones (Position Version, Run Id/Type, Snap Reference, Aggregation Level) go in the parent box because every metric family needs them.</p>
+
+  <div class="tblwrap"><table>
+    <tr><th>#</th><th>Attribute / decision</th><th>Where</th><th>Status</th><th>Breaks without it (section)</th><th>Meeting validation</th></tr>
+    <tr><td class="mono">1</td><td>Trade Version cited (+ Version Effective Date)</td><td>Position — trade sub-domain</td><td><span class="badge-new">ADD</span></td><td class="why">Can't prove which contract state a snap represents (08, 09)</td><td class="why">Rec 2 &amp; 3: "include the version / bi-temporal coordinates from the source"</td></tr>
+    <tr><td class="mono">2</td><td>Position Version on the metric</td><td>Position Metric</td><td><span class="badge-new">ADD</span></td><td class="why">Valuation-vs-position version mismatch invisible (10)</td><td class="why">Rec 2: the agreed control; flag &amp; reload on mismatch</td></tr>
+    <tr><td class="mono">3</td><td>Run Id + Run Type (OFFICIAL_EOD / FLASH / RESTATEMENT) and Snap Reference (close-off event id)</td><td>Position Metric</td><td><span class="badge-new">ADD</span></td><td class="why">Official vs flash vs restated marks indistinguishable; snap provenance untestable (10)</td><td class="why">Rec 1 &amp; 2: same close-off mechanism for all producers, 3/day; BoR owns the snap</td></tr>
+    <tr><td class="mono">4</td><td>Position Status (+ terminal-row convention)</td><td>Position core</td><td><span class="badge-new">ADD</span></td><td class="why">Cancel is indistinguishable from a failed feed (09)</td><td class="why">Implied by the Cancels &amp; Amends scope itself</td></tr>
+    <tr><td class="mono">5</td><td>Record Effective/Inserted Time on Position</td><td>Position core</td><td><span class="badge-evolve">EVOLVE</span></td><td class="why">Restated position snaps inexpressible; only metrics have two clocks today (09)</td><td class="why">—</td></tr>
+    <tr><td class="mono">6</td><td>Reporting-Equivalent value (+ rate &amp; rate source)</td><td>Position Metric (valuation)</td><td><span class="badge-new">ADD</span></td><td class="why">Per-consumer FX aggregation → divergent "official" PVs (12)</td><td class="why">Rec 1 &amp; 3: CAD-equivalent per record so consumers "simply add it up"</td></tr>
+    <tr><td class="mono">7</td><td>Aggregation Level indicator (LEG / TRADE_AGG)</td><td>Position Metric</td><td><span class="badge-new">ADD</span></td><td class="why">Leg + trade-level rows double count (12)</td><td class="why">Rec 1: "distinguish… otherwise you're double counting the record"</td></tr>
+    <tr><td class="mono">8</td><td>Leg Identifier + published producer leg-mapping (pay/receive ↔ leg1/leg2)</td><td>Position Metric / governance</td><td><span class="badge-evolve">EVOLVE</span></td><td class="why">Trade leg and valuation leg can't be linked consistently (12)</td><td class="why">Rec 1: attribute exists in newer version; mapping is the ask. Rec 3: pay/receive needed for reporting</td></tr>
+    <tr><td class="mono">9</td><td>Second risk node (strike / underlying tenor); Scenario Identifier</td><td>Risk Metric subtype</td><td><span class="badge-new">ADD</span></td><td class="why">Vega surfaces and VaR scenario vectors don't fit (13)</td><td class="why">Rec 3: "does the structure extend to Vega… VaR and SVaR"</td></tr>
+    <tr><td class="mono">10</td><td>Adjustment vocabulary (MODEL_PV, IPV_ADJ, FVA…, OFFICIAL_MARK = Σ)</td><td>Metric type standard</td><td><span class="badge-evolve">CONFIRM</span></td><td class="why">"MtM vs valuation" vocabulary drift; shadow models (04, 10)</td><td class="why">—</td></tr>
+    <tr><td class="mono">11</td><td>Risk Factor / Term Node governed as FKs into Market Data domain</td><td>Governance</td><td><span class="badge-evolve">CONFIRM</span></td><td class="why">P&amp;L explain join silently breaks on name drift (11)</td><td class="why">—</td></tr>
+  </table></div>
+  <p class="hint">Rows 1–3 are the same finding reached twice independently — once from model reasoning (Part I follow-up) and once by the consumers in the meeting. That convergence is the strongest argument to take into the workshop: these aren't nice-to-haves, they're what amends, cancels and reconciliation actually run on. Note none of the eleven is structural — the spine survives untouched.</p>
+</section>
+
+<!-- ============ 15 ============ -->
+<section id="s15">
+  <div class="sechead"><span class="secnum">15</span><h2>What the meeting decided — recordings distilled</h2></div>
+  <p class="hint" style="margin-bottom:14px">Synthesized from the three recordings (auto-transcribed; ~54 min total). Names lightly used where clear; a few passages were inaudible/garbled and are omitted rather than guessed.</p>
+
+  <h4>Settled</h4>
+  <ul class="plain">
+    <li><b>Granularity:</b> onboard the most granular valuations — leg level, native currency; the model supports both leg-level and trade-level records (cross-currency legs = two records, one per currency).</li>
+    <li><b>Snap ownership:</b> stays with Book of Record. All producers (VS and CDM alike) snap off the same close-off events (3/day per system); a per-system table of snapping mechanisms (Calypso, Calypso Cash, global FX, …) will make that explicit.</li>
+    <li><b>The one model change with consensus:</b> carry the source version / bitemporal coordinates in the metric, enabling the version-match control (flag → investigate → reload). Matches rows 1–3 above.</li>
+    <li><b>Version mismatch root cause:</b> only a dropped version in the trade-curation pipeline should cause position/valuation divergence; ops monitors drops and reloads — the control makes the monitoring automatic rather than reconciliation-driven.</li>
+    <li><b>Operating model:</b> mapping via template-driven config executed by the standard pipeline; domain custodian owns raw→CDM transformation, its controls, and change management; no in-place value fixes ever — reload only (immutability as an operating rule, matching the bitemporal design).</li>
+  </ul>
+
+  <h4>Open items (with owners suggested in the meeting)</h4>
+  <ul class="plain">
+    <li>Map the VS controller PV output (id, currency, metric name, value — four fields) to the CDM metric shape; identify enriched-vs-provided attributes (book name comes from the position side, not the feed). Bring gaps back to the group.</li>
+    <li>Decide the standard reporting-equivalent convention (which rate, stamped where) vs per-consumer conversion — and whether leg vs trade-agg records live in one table with the indicator or segregated views.</li>
+    <li>Leg semantics: confirm pay/receive as canonical; publish the producer mapping (leg1/leg2, missing buy/sell stamps) — follow-up with the trade-domain owners.</li>
+    <li>Extensibility follow-ups: Vega's second dimension; scenario metrics for VaR/SVaR (store scenario PVs vs P&amp;Ls); credit delta confirmed fitting today.</li>
+    <li>Scope discipline for the February go-live: only the systems/metrics Cancels &amp; Amends needs (daily feeds to the platform before go-live; historical migration can follow); escalate the remaining source-system engagements now rather than at integration time.</li>
+    <li>Architecture backdrop: domain-driven / mesh discussions continue in parallel — explicitly not allowed to hold committed deliveries.</li>
+  </ul>
+</section>
+
+
+<!-- ============ 16 ============ -->
+<section id="s16">
+  <div class="sechead"><span class="secnum">16</span><h2>One delta vector, three costumes — HBase, JSON, Databricks, and where the CDM sits</h2></div>
+  <div class="storybox">
+    <div class="kid">The idea, like to a child</div>
+    <p style="margin-bottom:0">The same five numbers — our swap's DV01 by tenor — get dressed differently in each system: as <b>column names</b> in HBase, as a <b>nested list</b> in a JSON message, and as <b>plain rows</b> in Databricks. None of those outfits is the model. The CDM is the <i>meaning</i> underneath: one measured number + the attributes that describe it. As long as every costume can be undressed back to that grain, they're all the same data.</p>
+  </div>
+
+  <h4>Costume 1 — HBase today: the array hides in the column names</h4>
+  <p>In the current store, a delta vector is one "wide row": the row key names the position and date, a column family (say <span class="key" data-key="cf-risk">risk</span>) groups the metric family, and each tenor is a <i>dynamic column qualifier</i>:</p>
+  <div class="tblwrap"><table>
+    <tr><th>Row key</th><th>risk:1Y</th><th>risk:2Y</th><th>risk:3Y</th><th>risk:4Y</th><th>risk:TOTAL</th></tr>
+    <tr><td class="mono">POS-TRD-000123|20260731|EOD</td><td class="num">+650</td><td class="num">+1,900</td><td class="num">+10,400</td><td class="num">+1,550</td><td class="num">+14,500</td></tr>
+  </table></div>
+  <ul class="plain">
+    <li><b>The twist:</b> that wide row is only the logical view. Physically HBase writes every cell as its own key-value entry — (row key, column qualifier, timestamp) → value. There is no array on disk. The qualifier <span class="key" data-key="qual-1y">1Y</span> is <b>Term Node wearing a disguise</b>; a vega qualifier like <span class="key" data-key="qual-vega">6M|1.38</span> is Term Node 1 and Term Node 2 concatenated. HBase has been quietly running the one-row-per-number model all along — it just stores the describing attribute inside the column <i>name</i> instead of a named column.</li>
+    <li><b>The real migration risk:</b> the semantics live in undocumented naming conventions — is it 1Y, 01Y or 1.0Y? how exactly does a vega qualifier concatenate expiry and strike? which column family means which metric family? The <b>qualifier dictionary</b> from the producing team <i>is</i> the mapping spec, and slots directly into the producer-mapping action item from §15.</li>
+    <li><b>Cell timestamps ≈ a lossy inserted-time:</b> HBase keeps N versions per cell by timestamp — a partial, retention-limited cousin of the two clocks. The CDM's Record Effective/Inserted Time is the upgrade, not a duplication.</li>
+  </ul>
+
+  <h4>Costume 2 — JSON in flight: arrays are allowed here</h4>
+  <p>For data movement, packaging the vector as a nested list is correct and efficient — one message per position per run:</p>
+  <div class="tblwrap"><table><tr><td class="mono" style="font-size:12.5px;line-height:1.6">{ "positionId": "POS-TRD-000123", "positionDate": "2026-07-31", "snapType": "EOD",<br>&nbsp;&nbsp;"positionVersion": "V1", "runId": "EOD-AMER-20260731-R1", "runType": "OFFICIAL_EOD",<br>&nbsp;&nbsp;"metrics": [<br>&nbsp;&nbsp;&nbsp;&nbsp;{ "metricType": "IR_DELTA", "riskFactor": "USD-SOFR-OIS", "termNode": "1Y", "value": 650, "ccy": "USD" },<br>&nbsp;&nbsp;&nbsp;&nbsp;{ "metricType": "IR_DELTA", "riskFactor": "USD-SOFR-OIS", "termNode": "2Y", "value": 1900, "ccy": "USD" },<br>&nbsp;&nbsp;&nbsp;&nbsp;{ "metricType": "IR_DELTA", "riskFactor": "USD-SOFR-OIS", "termNode": "3Y", "value": 10400, "ccy": "USD" }, "…" ] }</td></tr></table></div>
+  <p class="hint">The array exists in the JSON without existing in the model: it's a serialization convenience, exploded back to one row per element on landing (an "unpivot"). Grain is the invariant; packaging is free to differ. Note the shared header carries the key + run once — which is also the natural place the completeness contract rides ("this run, 5 elements").</p>
+
+  <h4>Costume 3 — Databricks at rest: long rows in family tables</h4>
+  <ul class="plain">
+    <li><b>Shape:</b> exactly the §14 boxes made physical — long-form rows, one per number. The "one big table vs several" question is a physical choice the logical model deliberately leaves open.</li>
+    <li><b>Why a small family split wins:</b> valuations, sensitivities, cashflows and scenario results have wildly different volumes and access patterns (scenario rows can be 1000× valuation rows; an EOD PV query shouldn't scan a VaR batch). Pattern: three or four family tables sharing an <b>identical key prefix</b> (position id, system, date, snap, leg, version, run id, the two record times) plus their family columns (Term Node/Node 2, Scenario Id, Cashflow Date) — with a unifying view on top for "all metrics". This is also the same instinct as the meeting's leg-vs-trade-level table segregation (§12): make misuse hard in the physical layout.</li>
+    <li><b>If one big table is chosen anyway:</b> workable — partition by date/snap, cluster by position + metric type, accept sparse nulls (cheap in Delta). Just harder to tune, and every consumer scans past families they never asked for.</li>
+    <li><b>Trap to flag:</b> <b>Delta time travel is not bitemporality.</b> It's an operational undo bounded by VACUUM/retention — not a queryable business history. Record Effective/Inserted Time must be real columns with append-only merges, exactly as the model says; otherwise Part II's restatement story becomes unreproducible the day housekeeping runs.</li>
+  </ul>
+
+  <h4>Where the CDM actually sits — the Unity Catalog layer</h4>
+  <p>The CDM is not one of the three stores; it is the <b>agreement all three are held to</b>, and Unity Catalog is where that agreement gets enforced rather than merely documented:</p>
+  <div class="tblwrap"><table>
+    <tr><th>CDM element</th><th>Unity Catalog enforcement</th></tr>
+    <tr><td>The metric grain and attributes (§14 boxes)</td><td class="why">Table schemas + column contracts — a producer physically cannot land a row without the key, version, run id.</td></tr>
+    <tr><td>Governed vocabularies (Risk Factor, Term Node, Scenario names)</td><td class="why">Reference tables + constraint checks — the P&amp;L-explain join (§11) stops depending on naming luck.</td></tr>
+    <tr><td>The controls (version handshake §10, run completeness §13)</td><td class="why">Data-quality expectations on ingest: VERSION_MISMATCH and INCOMPLETE_SET become nightly PASS/FAIL, not reconciliation surprises.</td></tr>
+    <tr><td>Domain ownership &amp; reload-only correction (§15 operating model)</td><td class="why">Access policies + lineage: custodians own writes, consumers read views, and every restated number traces to its run.</td></tr>
+  </table></div>
+  <p class="hint">So the stack reads: <b>CDM owns meaning · JSON owns movement · HBase/Delta own storage · Unity Catalog holds everyone to the CDM.</b> The HBase wide rows aren't a contradiction of the model — they're evidence for it, one parse away.</p>
+</section>
+
+
+<!-- ============ APPENDIX A ============ -->
+<section id="sA">
+  <div class="sechead"><span class="secnum">A</span><h2>Appendix — the meeting in plain English</h2></div>
+  <p class="hint" style="margin-bottom:16px">A narrative retelling of the three recordings for anyone who was in and out of the call. Names are as heard in the auto-transcription (approximate). §15 has the same content compressed into decisions and action items; this is the story version. Jargon decoded inline: <b>VS</b> = the valuation service producing PVs; <b>Book of Record (BOR)</b> = the source trading systems (Calypso etc.); <b>SPRX</b> = a downstream reporting platform (used in the call only as an example); <b>TDVIP</b> = the data platform the CDM tables live on; <b>close-off</b> = the thrice-daily "pencils down" event a system publishes, listing which trades and versions make up its snapshot.</p>
+
+  <h4>What the meeting was for</h4>
+  <p>Aniket opened with the goal: the platform is onboarding positions from the book-of-record systems, and now needs to plug in the <b>valuations</b> that go with them — first for the Cancels &amp; Amends project (regulatory, ~February go-live), whose consumers (Eugene's side, plus finance/US-reporting applications) need to know <i>when</i> this data will be available. So the session had three jobs: recap how the model works, resolve the open worries from last time, and start converging on timelines.</p>
+
+  <h4>Act 1 — the recap</h4>
+  <p>Aniket restated the design in two sentences: trades stream all day; at agreed moments you take a photograph — that photograph is a <b>position</b> (trade-level, aggregated bonds, cash balances, deposits, lending facilities — the six shapes of Part I). Everything you then <i>measure</i> about a position — its value, its Greeks, its cashflows — lands in one common <b>metric</b> schema, and the only rule that really matters is that the metric's position ID must match the position's ID. "That's the crux of it."</p>
+
+  <h4>Act 2 — the leg debate (most of recording 1)</h4>
+  <p>The first open loop: some systems produce valuations <b>per leg</b>, not per trade — will the model cope? Chris and Aniket: yes, by design. The position record holds the trade's economics including both legs; each metric row says which leg it belongs to (Leg Type, and a Leg Identifier in the newer model version). A cross-currency swap therefore produces <b>two valuation records</b> — a USD one and a CAD one.</p>
+  <p>That answer is what triggered the real debate. <b>Eugene's worry:</b> fine, but most consumers need one number per trade. To get it they must convert currencies and add the legs up <i>themselves</i> — and different consumers are mandated different FX rates (an EU report must use the ECB rate; others use end-of-day). So two perfectly correct consumers will publish two different "official" PVs for the same trade, and then reg reporting, P&amp;L and trade surveillance stop reconciling with each other. He was careful to frame it: the data model is fine; it's the <i>operating model</i> that scares him.</p>
+  <p>Three responses emerged, none final: (1) source the most granular truth — leg level, native currency — because any trade-level number bakes in someone's FX choice; (2) optionally stamp a standard <b>CAD-equivalent on every record</b> so simple consumers can just sum (this became §12 and §14's Reporting-Equivalent columns); (3) if a producer also ships its own trade-level number, label it so nobody adds legs <i>and</i> the total (the double-counting guard, ditto §12). A cousin problem surfaced alongside: some sources don't say which leg is which — no buy/sell stamp, just "leg 1 / leg 2" — and today a downstream platform does fragile matching to line trade legs up with valuation legs. The model speaks pay/receive; agreeing the producer-to-model leg mapping was parked for a separate session with the trade-domain owners.</p>
+
+  <h4>Act 3 — the version handshake (recording 2, the sharpest six minutes)</h4>
+  <p>Then the amends question, which is really <i>the</i> question for a Cancels &amp; Amends project: what guarantees that the valuation was computed on the <b>same version</b> of the trade that the position snapshot shows? The failure mode spelled out in the call: the valuation service prices version 15, the CDM's curated pipeline dropped an event and its position says version 13 — and now "our reg is off, our trade surveillance is off," and nobody can tell by looking.</p>
+  <p>The resolution came in three steps. Aniket proposed the simple mechanic: <b>put the version on the metric record</b>, compare it nightly to the version the position cites, flag mismatches, investigate and reload. Eli agreed but pushed further — identifying breaks isn't preventing them; ideally the producer publishes exactly which records it valued (a manifest). That idea hit a wall everyone respected: it would quietly move ownership of the snapshot from the Book of Record to the valuation system, and nobody wanted that. Landing position: <b>BOR owns the snap</b>; every producer and the CDM anchor to the <i>same close-off events</i> (three per day); the version column makes agreement checkable. In practice versions should only diverge when the pipeline drops one — which is precisely what the check will catch. This is §10's version handshake, and it was the one model change with unanimous support.</p>
+
+  <h4>Act 4 — will it stretch? (recording 3)</h4>
+  <p>Robin joined late and usefully re-asked everything: was the risk-metric model reviewed, who transforms producer output into the CDM, and what about systems the valuation service doesn't cover? The model feedback to date was confirmed as just one item — carry the version / bitemporal coordinates from the source — plus the pay/receive leg point for reporting.</p>
+  <p>Then the forward-looking probes: today's need is PVs, but does the structure <b>extend</b> to credit delta (yes — it's a curve, fits now), <b>Vega</b> ("it's a grid, not a rate" — needs the second dimension, §13/§14's Term Node 2), and <b>VaR/SVaR</b> (scenario-based: apply a named shock, get a whole set of PVs — needs a scenario identifier, and an open choice of storing scenario PVs vs P&amp;Ls). Nobody tried to settle these on the call; the comfort sought and given was that they're additions, not a rewrite.</p>
+  <p>A practical mapping gap surfaced here too: the valuation service's PV output carries only four fields — id, currency, metric name, value. Everything else on the metric record (book, region, etc.) must be <b>enriched from the position side</b>. Robin's team took the action to map their actual outputs to the CDM and bring back the gaps.</p>
+
+  <h4>Act 5 — who owns it, and the clock on the wall</h4>
+  <p>On ownership: the CDO side has a mapping framework — a mapping spreadsheet uploaded as configuration, executed by the standard pipeline — so onboarding a producer is mostly mapping work, not engineering. Per the domain-driven direction, the domain custodian owns the raw-to-CDM transformation and its controls (version match, missing values); crucially, <b>nobody may edit a wrong number in place</b> — the only correction is reloading the pipeline, which is the operating-model twin of the bitemporal design. Radhika raised the structural tension honestly: centralizing through a CDM costs time-to-market when producers invent new metrics and consumers need them "yesterday" — and noted Chetan is exploring a mesh/data-contract architecture in parallel. Agreed disposition: keep that conversation going, but it must not hold committed deliveries.</p>
+  <p>The closing stretch was scheduling with an edge to it. February is regulatory, daily valuation feeds must be flowing to the platform before go-live (historical backfill can follow), some sources are ready (Darwin, Compass produce CDM-shaped data), at least one isn't (Sophos), and — the moment of candor — several upstream system owners may not yet grasp that this is a regulatory dependency at all. The group agreed to sound the alarm now rather than at integration time: a standing cadence with the valuation-producing systems, escalations where needed, the consolidated backlog with Chris, and strict scope discipline — onboard what Cancels &amp; Amends needs, not everything that exists.</p>
+
+  <div class="callout blue">
+    <b class="tag" style="color:var(--core)">If you only remember three things</b><br>
+    1) The leg-level design stands; the fight was about who does the FX adding-up, answered by a standard reporting-equivalent on each record plus a label preventing double counts. 2) The version-on-the-metric handshake was agreed by everyone and is the backbone of Cancels &amp; Amends. 3) The risk-metric extensions (Vega's second dimension, scenario ids) were previewed and are additive — the escalation-worthy risk is upstream engagement and the February clock, not the model.
+  </div>
+</section>
+
+<footer class="wrap" style="padding-left:0;padding-right:0">
+  Worked example for CDO Standard Data LDM 1.20 · Diagram 3.00 (Position and Metrics). Part II incorporates the 12-Aug valuations meeting (3 recordings, auto-transcribed). All parties, identifiers and values are illustrative and rounded; day-count conventions simplified for readability.
+</footer>
+
+</div><!-- /wrap -->
+
+<div id="sticky">hover any <span style="background:#FFE96B;color:#17222E;padding:0 4px;border-radius:3px">code chip</span> to light up its every appearance</div>
+
+<script>
+(function(){
+  var chips=document.querySelectorAll('.key');
+  function setHit(k,on){
+    document.querySelectorAll('.key[data-key="'+k+'"]').forEach(function(el){
+      el.classList.toggle('hit',on);
+    });
+  }
+  chips.forEach(function(ch){
+    var k=ch.getAttribute('data-key');
+    ch.addEventListener('mouseenter',function(){setHit(k,true)});
+    ch.addEventListener('mouseleave',function(){setHit(k,false)});
+    ch.addEventListener('click',function(e){
+      var was=ch.classList.contains('lock');
+      document.querySelectorAll('.key.lock').forEach(function(el){el.classList.remove('lock');el.classList.remove('hit')});
+      if(!was){document.querySelectorAll('.key[data-key="'+k+'"]').forEach(function(el){el.classList.add('lock');el.classList.add('hit')});}
+      e.stopPropagation();
+    });
+  });
+  document.addEventListener('click',function(){
+    document.querySelectorAll('.key.lock').forEach(function(el){el.classList.remove('lock');el.classList.remove('hit')});
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build an API, step by step</title>
+<style>
+  :root{
+    --bg:#F5F6F3;--surface:#FFFFFF;--ink:#15191A;--muted:#5C635F;--line:#E4E6E1;
+    --teal:#0E6B54;--teal-d:#0B5341;--teal-soft:#E3F0EB;--teal-line:#BFD9CF;
+    --amber:#9A6207;--amber-soft:#FaF0DC;--amber-line:#E8D2A6;
+    --code-bg:#161F1C;--code-ink:#D9E6E0;--code-dim:#7E948B;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.62}
+  .wrap{max-width:880px;margin:0 auto;padding:0 22px 90px}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);font-weight:500}
+  h1{font-size:33px;line-height:1.12;letter-spacing:-.02em;margin:.35em 0 .25em;font-weight:600}
+  h2{font-size:21px;margin:0;font-weight:600}
+  h3{font-size:15px;margin:1.1em 0 .3em;font-weight:600}
+  p{margin:.5em 0}
+  .lede{font-size:18px;color:var(--muted);max-width:62ch}
+  header{padding:58px 0 26px;border-bottom:1px solid var(--line)}
+  .muted{color:var(--muted)}.small{font-size:13.5px}
+  .step{padding:36px 0;border-bottom:1px solid var(--line)}
+  .step-head{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+  .badge{flex:0 0 34px;height:34px;border-radius:50%;background:var(--teal);color:#fff;font-family:var(--mono);font-size:15px;display:flex;align-items:center;justify-content:center}
+  .badge.g{background:var(--ink)}
+  .goal{font-family:var(--mono);font-size:12px;color:var(--muted);margin:2px 0 14px 48px}
+  .code-card{position:relative;background:var(--code-bg);border-radius:10px;overflow:hidden;margin:12px 0}
+  .code-card .lang{position:absolute;top:8px;left:12px;font-family:var(--mono);font-size:10.5px;color:var(--code-dim);letter-spacing:.08em;text-transform:uppercase}
+  .code-card pre{margin:0;padding:30px 16px 16px 18px;overflow:auto;color:var(--code-ink);font-family:var(--mono);font-size:12.5px;line-height:1.62}
+  .copy{position:absolute;top:7px;right:8px;font-family:var(--mono);font-size:11px;color:var(--code-dim);background:#22302b;border:1px solid #2e3f39;border-radius:6px;padding:4px 9px;cursor:pointer}
+  .copy:hover{color:var(--code-ink)}
+  .run{font-family:var(--mono);font-size:12.5px;background:#EEF1EE;border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin:10px 0}
+  .run b{color:var(--teal-d)}
+  .out{background:#10201b;color:#cfe6dc;font-family:var(--mono);font-size:12px;line-height:1.55;padding:12px 14px;border-radius:8px;white-space:pre-wrap;margin:8px 0}
+  .out .k{color:#7E948B}
+  .note{border-left:3px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:12px 15px;font-size:14px;margin:12px 0}
+  .note .k{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--teal-d);display:block;margin-bottom:4px}
+  .anno{font-size:14px;margin:.4em 0}
+  code{font-family:var(--mono);font-size:12.5px;background:#eef0ec;padding:1px 5px;border-radius:5px}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:500}
+  td code{background:none;padding:0;color:var(--teal-d);font-weight:600}
+  .svg-t{font:500 12.5px var(--sans);fill:var(--ink)}.svg-s{font:11px var(--mono);fill:var(--muted)}
+  footer{padding:34px 0 0;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Hands-on · request → response</div>
+  <h1>Build an API, one concept at a time</h1>
+  <p class="lede">We build one small real thing — an <b>Instrument Reference API</b> serving securities data — in isolated steps. Run each step, read the output, and the words become concrete. No prior web experience assumed.</p>
+</header>
+
+<section class="step">
+  <div class="step-head"><span class="badge g">0</span><h2>The mental model</h2></div>
+  <div class="goal">before any code — what these pieces are</div>
+  <p>An API is a <b>server</b> that answers <b>requests</b>. A <b>client</b> sends a request ("give me AAPL"); the server sends back a <b>response</b> (the data + a status code). That back-and-forth is the whole idea.</p>
+  <svg width="100%" viewBox="0 0 680 150" role="img" aria-label="A client sends an HTTP request to a server and gets a response back.">
+    <rect x="20" y="46" width="150" height="58" rx="9" fill="#fff" stroke="#BFD9CF"/><text class="svg-t" x="95" y="70" text-anchor="middle">Client</text><text class="svg-s" x="95" y="88" text-anchor="middle">your code / a browser</text>
+    <rect x="510" y="46" width="150" height="58" rx="9" fill="#E3F0EB" stroke="#BFD9CF"/><text class="svg-t" x="585" y="70" text-anchor="middle">Server (API)</text><text class="svg-s" x="585" y="88" text-anchor="middle">FastAPI + DB</text>
+    <line x1="172" y1="62" x2="506" y2="62" stroke="#0E6B54" stroke-width="1.4" marker-end="url(#a)"/>
+    <line x1="506" y1="90" x2="172" y2="90" stroke="#9A6207" stroke-width="1.4" marker-end="url(#a)"/>
+    <text class="svg-s" x="339" y="52" text-anchor="middle" fill="#0E6B54">request:  GET /instruments/AAPL</text>
+    <text class="svg-s" x="339" y="106" text-anchor="middle" fill="#9A6207">response:  200  +  { "symbol": "AAPL", ... }</text>
+    <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5"/></marker></defs>
+  </svg>
+  <div class="note"><span class="k">The four libraries, in one line each</span>
+    <p class="anno" style="margin:.2em 0"><b>Pydantic</b> — defines the <i>shape</i> of the data and validates it (the contract).</p>
+    <p class="anno" style="margin:.2em 0"><b>SQLAlchemy</b> — talks to the <i>database</i> (define tables, read/write rows) in Python.</p>
+    <p class="anno" style="margin:.2em 0"><b>FastAPI</b> — the <i>server</i>: maps URLs to functions, checks requests against the contract.</p>
+    <p class="anno" style="margin:.2em 0"><b>httpx</b> (client) + <b>OpenAPI</b> (the auto-written contract/docs) — the other side, and the proof.</p>
+  </div>
+  <h3>Prerequisites — run once</h3>
+  <div class="code-card"><span class="lang">bash</span><button class="copy">copy</button><pre>python3 -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+pip install fastapi "uvicorn[standard]" sqlalchemy pydantic httpx</pre></div>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="badge">1</span><h2>Pydantic — the contract</h2></div>
+  <div class="goal">define a data shape · validate good and bad data · no web yet</div>
+  <p>Before servers or databases, just this: describe what an instrument <i>is</i>, and let Pydantic enforce it.</p>
+  <div class="code-card"><span class="lang">step1_pydantic.py</span><button class="copy">copy</button><pre>from pydantic import BaseModel, field_validator, ValidationError
+
+ALLOWED = {"equity", "bond", "fx", "commodity"}
+
+class Instrument(BaseModel):        # a "model" = a data shape
+    symbol: str
+    name: str
+    asset_class: str
+    price: float
+
+    @field_validator("asset_class")     # a custom rule for one field
+    @classmethod
+    def known_class(cls, v):
+        if v not in ALLOWED:
+            raise ValueError(f"asset_class must be one of {sorted(ALLOWED)}")
+        return v
+
+    @field_validator("price")
+    @classmethod
+    def non_negative(cls, v):
+        if v < 0:
+            raise ValueError("price must be >= 0")
+        return v
+
+good = {"symbol": "AAPL", "name": "Apple Inc", "asset_class": "equity", "price": 195.2}
+print("VALID   ->", Instrument(**good))
+print("as dict ->", Instrument(**good).model_dump())
+
+bad = {"symbol": "BAD", "name": "Nope", "asset_class": "crypto", "price": -5}
+try:
+    Instrument(**bad)
+except ValidationError as e:
+    print("REJECTED:")
+    for err in e.errors():
+        print("   -", err["loc"][-1], ":", err["msg"])</pre></div>
+  <div class="run"><b>Run:</b> python step1_pydantic.py</div>
+  <div class="out">VALID   -> symbol='AAPL' name='Apple Inc' asset_class='equity' price=195.2
+as dict -> {'symbol': 'AAPL', 'name': 'Apple Inc', 'asset_class': 'equity', 'price': 195.2}
+REJECTED:
+   - asset_class : Value error, asset_class must be one of ['bond', 'commodity', 'equity', 'fx']
+   - price : Value error, price must be >= 0</div>
+  <div class="note"><span class="k">What just happened</span>You declared field <b>types</b> (<code>str</code>, <code>float</code>) and two <b>rules</b>. Pydantic parsed the good dict into an object and <i>rejected</i> the bad one with clear reasons. This exact model becomes your API's request/response contract later — same code, reused.</div>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="badge">2</span><h2>SQLAlchemy — the database</h2></div>
+  <div class="goal">define a table · write rows · read them back · still no web</div>
+  <div class="code-card"><span class="lang">step2_sqlalchemy.py</span><button class="copy">copy</button><pre>from sqlalchemy import create_engine, String, Float, select
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
+
+engine = create_engine("sqlite:///demo.db")     # a local file database
+
+class Base(DeclarativeBase):
+    pass
+
+class Instrument(Base):                          # one class == one table
+    __tablename__ = "instruments"
+    id:          Mapped[int]   = mapped_column(primary_key=True)
+    symbol:      Mapped[str]   = mapped_column(String, unique=True)
+    name:        Mapped[str]   = mapped_column(String)
+    asset_class: Mapped[str]   = mapped_column(String)
+    price:       Mapped[float] = mapped_column(Float)
+
+Base.metadata.create_all(engine)                 # CREATE TABLE if needed
+
+with Session(engine) as s:                        # WRITE two rows
+    s.add(Instrument(symbol="AAPL", name="Apple Inc", asset_class="equity", price=195.2))
+    s.add(Instrument(symbol="UST10Y", name="US Treasury 10Y", asset_class="bond", price=98.7))
+    s.commit()
+
+with Session(engine) as s:                        # READ them back
+    for r in s.scalars(select(Instrument)).all():
+        print(f"{r.id}: {r.symbol:8} {r.asset_class:8} {r.price}")
+    one = s.scalar(select(Instrument).where(Instrument.symbol == "AAPL"))
+    print("looked up AAPL ->", one.name)</pre></div>
+  <div class="run"><b>Run:</b> python step2_sqlalchemy.py &nbsp;<span class="muted">(creates demo.db in the folder)</span></div>
+  <div class="out">1: AAPL     equity   195.2
+2: UST10Y   bond     98.7
+looked up AAPL -> Apple Inc</div>
+  <div class="note"><span class="k">What just happened</span>A Python class became a SQL table. <code>Session</code> is your workspace for a unit of work — <code>add</code> + <code>commit</code> to write, <code>select</code> to read. You never wrote raw SQL. This is the storage the server will read from.</div>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="badge">3</span><h2>The smallest possible server</h2></div>
+  <div class="goal">one endpoint · see request → response for real</div>
+  <div class="code-card"><span class="lang">step3_server.py</span><button class="copy">copy</button><pre>from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/ping")            # when a GET request hits /ping, run this function
+def ping():
+    return {"status": "ok"}   # returned as JSON, with a 200 status code</pre></div>
+  <div class="run"><b>Run the server:</b> uvicorn step3_server:app --reload</div>
+  <div class="run"><b>Then, in another terminal (or a browser):</b> curl http://127.0.0.1:8000/ping</div>
+  <div class="out">{"status":"ok"}</div>
+  <div class="note"><span class="k">The one new idea: a route</span><code>@app.get("/ping")</code> is a <b>decorator</b> — it says "wire this URL + method to this function." That mapping (method + path → function) is the core of every API. <code>uvicorn</code> is the process that runs it and listens on port 8000.</div>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="badge">4</span><h2>Put it together — serve the database, shaped by the contract</h2></div>
+  <div class="goal">FastAPI + SQLAlchemy + Pydantic in one file · GET endpoints</div>
+  <p>This is <code>app.py</code> — the real thing. It has all three layers. Read the four numbered blocks; they're the three libraries plus the wiring.</p>
+  <div class="code-card"><span class="lang">app.py</span><button class="copy">copy</button><pre>from fastapi import FastAPI, HTTPException, Depends
+from pydantic import BaseModel, field_validator, ConfigDict
+from sqlalchemy import create_engine, String, Float, select
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
+
+# ---- 1. SQLAlchemy: the DATABASE ----
+engine = create_engine("sqlite:///instruments.db")
+class Base(DeclarativeBase): pass
+class InstrumentRow(Base):
+    __tablename__ = "instruments"
+    id:          Mapped[int]   = mapped_column(primary_key=True)
+    symbol:      Mapped[str]   = mapped_column(String, unique=True)
+    name:        Mapped[str]   = mapped_column(String)
+    asset_class: Mapped[str]   = mapped_column(String)
+    currency:    Mapped[str]   = mapped_column(String)
+    price:       Mapped[float] = mapped_column(Float)
+Base.metadata.create_all(engine)
+
+# ---- 2. Pydantic: the CONTRACTS ----
+ALLOWED = {"equity", "bond", "fx", "commodity"}
+class InstrumentIn(BaseModel):        # what a client SENDS (no id)
+    symbol: str; name: str; asset_class: str; currency: str; price: float
+    @field_validator("asset_class")
+    @classmethod
+    def known_class(cls, v):
+        if v not in ALLOWED: raise ValueError(f"asset_class must be one of {sorted(ALLOWED)}")
+        return v
+    @field_validator("price")
+    @classmethod
+    def non_negative(cls, v):
+        if v < 0: raise ValueError("price must be >= 0")
+        return v
+class InstrumentOut(InstrumentIn):    # what the API RETURNS (adds id)
+    id: int
+    model_config = ConfigDict(from_attributes=True)   # can read a DB row directly
+
+# ---- 3. one DB session per request ----
+def get_db():
+    with Session(engine) as session:
+        yield session
+
+# ---- 4. FastAPI: the SERVER ----
+app = FastAPI(title="Instrument Reference API", version="1.0")
+
+@app.get("/instruments", response_model=list[InstrumentOut])
+def list_instruments(db: Session = Depends(get_db)):
+    return db.scalars(select(InstrumentRow)).all()
+
+@app.get("/instruments/{symbol}", response_model=InstrumentOut)
+def get_instrument(symbol: str, db: Session = Depends(get_db)):
+    row = db.scalar(select(InstrumentRow).where(InstrumentRow.symbol == symbol))
+    if row is None:
+        raise HTTPException(status_code=404, detail="instrument not found")
+    return row</pre></div>
+  <h3>Seed some of our own data, then run</h3>
+  <div class="code-card"><span class="lang">seed.py</span><button class="copy">copy</button><pre>from app import engine, InstrumentRow, Base
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+Base.metadata.create_all(engine)
+DATA = [
+    ("AAPL","Apple Inc","equity","USD",195.2),
+    ("MSFT","Microsoft Corp","equity","USD",420.1),
+    ("UST10Y","US Treasury 10Y","bond","USD",98.7),
+    ("EURUSD","Euro / US Dollar","fx","USD",1.09),
+    ("GOLD","Gold Spot","commodity","USD",2400.0),
+]
+with Session(engine) as s:
+    for sym,name,cls,ccy,px in DATA:
+        if not s.scalar(select(InstrumentRow).where(InstrumentRow.symbol==sym)):
+            s.add(InstrumentRow(symbol=sym,name=name,asset_class=cls,currency=ccy,price=px))
+    s.commit(); print("seeded:", s.scalars(select(InstrumentRow.symbol)).all())</pre></div>
+  <div class="run"><b>1.</b> python seed.py &nbsp;&nbsp;<b>2.</b> uvicorn app:app --reload</div>
+  <div class="run"><b>Try it:</b> curl http://127.0.0.1:8000/instruments/AAPL</div>
+  <div class="out">{"symbol":"AAPL","name":"Apple Inc","asset_class":"equity","currency":"USD","price":195.2,"id":1}</div>
+  <div class="note"><span class="k">Two new ideas worth naming</span><b>Path parameter:</b> <code>{symbol}</code> in the URL becomes the function's <code>symbol</code> argument — that's how <code>/instruments/AAPL</code> knows which one. <b><code>response_model</code>:</b> FastAPI runs your DB rows back through the Pydantic contract on the way out, so the response shape is guaranteed. And <code>HTTPException(404)</code> is how you return a proper "not found" instead of crashing.</div>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="badge">5</span><h2>POST — a request that sends data</h2></div>
+  <div class="goal">the request has a body · the contract validates it before you touch the DB</div>
+  <p>Add this to <code>app.py</code>. Now the client can <i>create</i> an instrument by sending JSON.</p>
+  <div class="code-card"><span class="lang">app.py (add)</span><button class="copy">copy</button><pre>@app.post("/instruments", response_model=InstrumentOut, status_code=201)
+def create_instrument(payload: InstrumentIn, db: Session = Depends(get_db)):
+    exists = db.scalar(select(InstrumentRow).where(InstrumentRow.symbol == payload.symbol))
+    if exists:
+        raise HTTPException(status_code=409, detail="symbol already exists")
+    row = InstrumentRow(**payload.model_dump())   # validated Pydantic -> DB row
+    db.add(row); db.commit(); db.refresh(row)
+    return row</pre></div>
+  <div class="run"><b>Create one:</b> curl -X POST http://127.0.0.1:8000/instruments \<br>&nbsp;&nbsp;-H "Content-Type: application/json" \<br>&nbsp;&nbsp;-d '{"symbol":"BTCUSD","name":"Bitcoin","asset_class":"fx","currency":"USD","price":68000}'</div>
+  <div class="out"><span class="k"># 201 Created</span>
+{"symbol":"BTCUSD","name":"Bitcoin","asset_class":"fx","currency":"USD","price":68000.0,"id":6}</div>
+  <div class="note"><span class="k">The magic line: <code>payload: InstrumentIn</code></span>Because you typed the argument as your Pydantic model, FastAPI automatically reads the request's JSON body, validates it against the contract, and only calls your function if it passes. Send a bad body and you get a <b>422</b> with the exact reasons — you never wrote validation code in the endpoint:</div>
+  <div class="out"><span class="k"># POST with asset_class:"crypto", price:-1  ->  422</span>
+rejected: asset_class - Value error, asset_class must be one of ['bond','commodity','equity','fx']
+rejected: price - Value error, price must be >= 0</div>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="badge">6</span><h2>The client — the other side</h2></div>
+  <div class="goal">write code that CALLS your API · see both halves</div>
+  <div class="code-card"><span class="lang">client.py</span><button class="copy">copy</button><pre>import httpx
+BASE = "http://127.0.0.1:8000"
+
+# GET the list
+resp = httpx.get(f"{BASE}/instruments")
+print("GET /instruments ->", resp.status_code)
+for inst in resp.json():
+    print(f"   {inst['symbol']:8} {inst['asset_class']:10} {inst['price']}")
+
+# GET one
+print("\nGET /instruments/AAPL ->", httpx.get(f"{BASE}/instruments/AAPL").json())
+
+# POST a new one
+new = {"symbol":"BTCUSD","name":"Bitcoin","asset_class":"fx","currency":"USD","price":68000.0}
+print("\nPOST ->", httpx.post(f"{BASE}/instruments", json=new).status_code)</pre></div>
+  <div class="run"><b>Server running in one terminal, then:</b> python client.py</div>
+  <div class="out">GET /instruments -> 200
+   AAPL     equity     195.2
+   MSFT     equity     420.1
+   UST10Y   bond       98.7
+   EURUSD   fx         1.09
+   GOLD     commodity  2400.0
+
+GET /instruments/AAPL -> {'symbol': 'AAPL', ... 'id': 1}
+
+POST -> 201</div>
+  <div class="note"><span class="k">Now you've seen both halves</span><code>httpx.get</code> / <code>httpx.post</code> send the request; <code>.status_code</code> and <code>.json()</code> read the response. This is exactly what a catalog UI, another service, or a partner does to your API — and what <i>you</i> do to someone else's.</div>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="badge">7</span><h2>OpenAPI — the contract, written for you</h2></div>
+  <div class="goal">the payoff · interactive docs you didn't write</div>
+  <p>With the server running, open <code>http://127.0.0.1:8000/docs</code> in a browser.</p>
+  <div class="note"><span class="k">What you'll see</span>An interactive page listing every endpoint (<code>GET /instruments</code>, <code>GET /instruments/{symbol}</code>, <code>POST /instruments</code>), each with its exact request and response shape — generated automatically from your Pydantic models. There's a "Try it out" button that sends real requests. The machine-readable version lives at <code>/openapi.json</code>.</div>
+  <p><b>Why this matters for governance:</b> OpenAPI <i>is</i> the API's published contract. A consumer reads it to know exactly how to call you and what they'll get back — no meeting required. "A data contract is an API, and OpenAPI is how that contract is published" is a line you can now say from experience.</p>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="badge g">★</span><h2>Glossary — the words, now concrete</h2></div>
+  <table>
+    <thead><tr><th>Term</th><th>What it means (you just used it)</th></tr></thead>
+    <tbody>
+      <tr><td><code>request / response</code></td><td>The client asks (method + path + optional body); the server answers (status code + body).</td></tr>
+      <tr><td><code>GET / POST</code></td><td>The method. GET reads; POST creates. (Also PUT/PATCH to update, DELETE to remove.)</td></tr>
+      <tr><td><code>endpoint / route</code></td><td>A URL + method mapped to a function, via <code>@app.get(...)</code>.</td></tr>
+      <tr><td><code>path parameter</code></td><td>A variable in the URL, like <code>{symbol}</code> → the function's argument.</td></tr>
+      <tr><td><code>request body</code></td><td>JSON sent with a POST; typed as a Pydantic model so it's auto-validated.</td></tr>
+      <tr><td><code>status code</code></td><td>200 ok · 201 created · 404 not found · 409 conflict · 422 invalid body.</td></tr>
+      <tr><td><code>response_model</code></td><td>The Pydantic shape the response is forced into on the way out.</td></tr>
+      <tr><td><code>dependency</code></td><td><code>Depends(get_db)</code> — FastAPI supplies a fresh DB session to each request.</td></tr>
+      <tr><td><code>engine / Session</code></td><td>SQLAlchemy: the DB connection, and your per-unit-of-work workspace.</td></tr>
+      <tr><td><code>OpenAPI</code></td><td>The auto-generated, machine-readable contract + docs at <code>/docs</code>.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  <p>Do the steps in order, run every one, and read each output. By step 7 the request/response cycle is no longer abstract — you've built it, called it, broken it, and read its contract. That's fluency, not memorization.</p>
+</footer>
+
+<script>
+  document.querySelectorAll('.copy').forEach(b=>{b.onclick=()=>{const t=b.parentElement.querySelector('pre').innerText;navigator.clipboard.writeText(t).then(()=>{b.textContent='copied';setTimeout(()=>b.textContent='copy',1200)});};});
+</script>
+</body>
+</html>
