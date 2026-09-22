@@ -1,0 +1,194 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2080" height="1180" viewBox="0 0 2080 1180" font-family="DejaVu Sans,Arial,sans-serif" xmlns:c2pa="http://c2pa.org/manifest"><metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTowMjk3MmZiOC0zOWZjLTQ5MTgtYTBlNi04NzY3NWQ1NmM5ZjgAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaOZ0DOOI/spmPy6WFe2YA0QAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDpmY2ZjM2ViZC1jNTlhLTQ3YmItYTJiZi0yODMzNGY1NDYzYTJscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoKVBKzI+FJPLI9md07vmsIAAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggE0m84JbzIPr2F1WmNf/wOu/UcCczjYqZmI1OmY/MviykZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaAt9IVev5+iweXrQm9DHsUEAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRNAAAAAAAAAAAAAAAAAGRoYXNoWCAiBpZDmELd/wSy/i24P8NvnjY7lPa5AUo9FGXckx7h5GRuYW1lbmp1bWJmIG1hbmlmZXN0amV4Y2x1c2lvbnOBomVzdGFydBjFZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjAyOTcyZmI4LTM5ZmMtNDkxOC1hMGU2LTg3Njc1ZDU2YzlmOC9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOmI5NmMzY2VlLTdkMzgtNDVmOS04NmMxLWQ0MTM0OTk0YzU2NnJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCATSbzglvMg+vYXVaY1//A679RwJzONipmYjU6Zj8y+LKJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggFU3v/RAMTSqVK/uiSqEsofWchBemXhuSjEfTlj/Gw36iY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggXtWbNItwySapWXccRrGhstrkXyIU4Ty56l9jZ7PBR7p0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQB4/Uz4eN2ZHEUDTidRGTGVvIsjj4jR5lkSrcWuPH5gyyuvzJrL4MKO1exMXws1O7qOaZrnzBgyGbRotRz9PItc=</c2pa:manifest></metadata>
+<rect width="2080" height="1180" fill="#fbfaf7"/>
+<text x="40" y="48" font-size="24" fill="#20242a" font-weight="bold" text-anchor="start">The six position subtypes — one worked record each (LDM 1.22)</text>
+<text x="40" y="74" font-size="13" fill="#5a626e" font-weight="normal" text-anchor="start">green = position record (BOR-owned) · yellow = its metric rows (engine-written) · orange = what makes this subtype itself</text>
+<rect x="40" y="110" width="660" height="320" rx="10" fill="#fff" stroke="#20242a" stroke-width="1.6"/>
+<rect x="40" y="110" width="660" height="34" rx="10" fill="#2f6b3a"/>
+<text x="54" y="133" font-size="14" fill="#fff" font-weight="bold" text-anchor="start">Trade Position</text>
+<text x="686" y="133" font-size="11" fill="#d7e8d0" font-weight="normal" text-anchor="end">one trade = one position; Position Id = trade id</text>
+<text x="56" y="164" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Position Identifier</text>
+<text x="245" y="164" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">987654321 (= trade id)</text>
+<text x="56" y="183" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">System Name</text>
+<text x="245" y="183" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">CALYPSO</text>
+<text x="56" y="202" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Date · Snap</text>
+<text x="245" y="202" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">2026-09-11 · EOD</text>
+<text x="56" y="221" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Book</text>
+<text x="245" y="221" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">US_Rates_GVSW</text>
+<text x="56" y="240" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">PositionType · Agg</text>
+<text x="245" y="240" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">TRADE · TRADE</text>
+<text x="56" y="259" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Counterparty</text>
+<text x="245" y="259" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">JPM</text>
+<text x="56" y="278" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Product</text>
+<text x="245" y="278" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">SingleCurrencyIRS · PRD-77102</text>
+<text x="56" y="297" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Instrument Id</text>
+<text x="245" y="297" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">— (bespoke OTC: none)</text>
+<text x="56" y="316" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Reference</text>
+<text x="245" y="316" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">CALYPSO · 987654321 · v1</text>
+<text x="56" y="335" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Position Currency</text>
+<text x="245" y="335" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">USD</text>
+<rect x="412" y="148" width="280" height="140" rx="6" fill="#f7df6e" stroke="#8a7a1c" stroke-width="1.5"/>
+<text x="420" y="164" font-size="10.5" fill="#8a7a1c" font-weight="bold" text-anchor="start">metric rows</text>
+<text x="420" y="183" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">NPV            —    +538,200 USD  RCAPS</text>
+<text x="420" y="202" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">NPV         leg1  −98,120,400 USD</text>
+<text x="420" y="221" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">NPV         leg2  +98,658,600 USD</text>
+<text x="420" y="240" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">IR_DELTA  node30  +10,400 USD</text>
+<text x="420" y="259" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">REALIZED_CASH — +1,250,000 CALYPSO</text>
+<text x="420" y="278" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">CASHFLOW leg1 −2,125,000 pay 2027-03-13</text>
+<text x="56" y="416" font-size="10.8" fill="#5a626e" font-weight="normal" text-anchor="start">Legs defined in Product; metric legId points at them. Reference = which trade version the photo captured.</text>
+<rect x="730" y="110" width="660" height="320" rx="10" fill="#fff" stroke="#20242a" stroke-width="1.6"/>
+<rect x="730" y="110" width="660" height="34" rx="10" fill="#2f6b3a"/>
+<text x="744" y="133" font-size="14" fill="#fff" font-weight="bold" text-anchor="start">Fungible Position</text>
+<text x="1376" y="133" font-size="11" fill="#d7e8d0" font-weight="normal" text-anchor="end">many trades netted into one holding of an instrument</text>
+<text x="746" y="164" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Position Identifier</text>
+<text x="935" y="164" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">US000ABC1234 · NY-CR-01</text>
+<text x="746" y="183" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">System Name</text>
+<text x="935" y="183" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">SOPHOS</text>
+<text x="746" y="202" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Date · Snap</text>
+<text x="935" y="202" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">2026-09-11 · EOD</text>
+<text x="746" y="221" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Book</text>
+<text x="935" y="221" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">NY-CREDIT-01</text>
+<text x="746" y="240" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">PositionType · Agg</text>
+<text x="935" y="240" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">FUNGIBLE · AGGREGATED</text>
+<text x="746" y="259" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Counterparty</text>
+<text x="935" y="259" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">— (market-faced, none)</text>
+<text x="746" y="278" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Product</text>
+<text x="935" y="278" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Bond</text>
+<text x="746" y="297" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Instrument Id</text>
+<text x="935" y="297" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">US000ABC1234 (ISIN)</text>
+<text x="746" y="316" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Reference</text>
+<text x="935" y="316" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">SOPHOS · pos-key · v–</text>
+<text x="746" y="335" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Quantity basis</text>
+<text x="935" y="335" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">10,000,000 face</text>
+<rect x="1102" y="148" width="280" height="102" rx="6" fill="#f7df6e" stroke="#8a7a1c" stroke-width="1.5"/>
+<text x="1110" y="164" font-size="10.5" fill="#8a7a1c" font-weight="bold" text-anchor="start">metric rows</text>
+<text x="1110" y="183" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">NPV            —   +10,213,400 USD</text>
+<text x="1110" y="202" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">IR_DELTA  node30      −4,850 USD</text>
+<text x="1110" y="221" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">CS_DELTA node1825   −9,120 USD  (credit spread)</text>
+<text x="1110" y="240" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">ACCRUED_INT —      +118,300 USD</text>
+<text x="746" y="416" font-size="10.8" fill="#5a626e" font-weight="normal" text-anchor="start">Identity = instrument × book, not a trade. The only subtype where Instrument Identifier is the star.</text>
+<rect x="1420" y="110" width="660" height="320" rx="10" fill="#fff" stroke="#20242a" stroke-width="1.6"/>
+<rect x="1420" y="110" width="660" height="34" rx="10" fill="#2f6b3a"/>
+<text x="1434" y="133" font-size="14" fill="#fff" font-weight="bold" text-anchor="start">Cash Balance Position</text>
+<text x="2066" y="133" font-size="11" fill="#d7e8d0" font-weight="normal" text-anchor="end">money sitting in an account — no contract behind it</text>
+<text x="1436" y="164" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Position Identifier</text>
+<text x="1625" y="164" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">CASH-USD-NY-OPS-01</text>
+<text x="1436" y="183" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">System Name</text>
+<text x="1625" y="183" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">GL-CASH</text>
+<text x="1436" y="202" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Date · Snap</text>
+<text x="1625" y="202" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">2026-09-11 · EOD</text>
+<text x="1436" y="221" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Book</text>
+<text x="1625" y="221" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">NY-OPS-01</text>
+<text x="1436" y="240" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">PositionType · Agg</text>
+<text x="1625" y="240" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">CASH_BALANCE · AGGREGATED</text>
+<text x="1436" y="259" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Counterparty</text>
+<text x="1625" y="259" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">— (nostro bank optional)</text>
+<text x="1436" y="278" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Product</text>
+<text x="1625" y="278" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">— (none)</text>
+<text x="1436" y="297" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Instrument Id</text>
+<text x="1625" y="297" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">— (none)</text>
+<text x="1436" y="316" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Reference</text>
+<text x="1625" y="316" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">GL feed · acct 4471-USD</text>
+<text x="1436" y="335" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Position Currency</text>
+<text x="1625" y="335" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">USD</text>
+<rect x="1792" y="148" width="280" height="64" rx="6" fill="#f7df6e" stroke="#8a7a1c" stroke-width="1.5"/>
+<text x="1800" y="164" font-size="10.5" fill="#8a7a1c" font-weight="bold" text-anchor="start">metric rows</text>
+<text x="1800" y="183" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">BALANCE      —   +2,500,000 USD</text>
+<text x="1800" y="202" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">ACCRUED_INT —       +1,250 USD</text>
+<text x="1436" y="416" font-size="10.8" fill="#5a626e" font-weight="normal" text-anchor="start">Simplest citizen: nearly all coordinates empty. Proof the shared spine degrades gracefully.</text>
+<rect x="40" y="470" width="660" height="320" rx="10" fill="#fff" stroke="#20242a" stroke-width="1.6"/>
+<rect x="40" y="470" width="660" height="34" rx="10" fill="#2f6b3a"/>
+<text x="54" y="493" font-size="14" fill="#fff" font-weight="bold" text-anchor="start">Deposit Arrangement Position</text>
+<text x="686" y="493" font-size="11" fill="#d7e8d0" font-weight="normal" text-anchor="end">client money WE owe — the sign flips</text>
+<text x="56" y="524" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Position Identifier</text>
+<text x="245" y="524" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">DEP-8891022</text>
+<text x="56" y="543" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">System Name</text>
+<text x="245" y="543" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">MATNY</text>
+<text x="56" y="562" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Date · Snap</text>
+<text x="245" y="562" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">2026-09-11 · EOD</text>
+<text x="56" y="581" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Book</text>
+<text x="245" y="581" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">GTB Corp Cash Mgmt_US</text>
+<text x="56" y="600" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">PositionType · Agg</text>
+<text x="245" y="600" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">DEPOSIT · TRADE</text>
+<text x="56" y="619" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Counterparty</text>
+<text x="245" y="619" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Maple Auto Parts (CP-88421)</text>
+<text x="56" y="638" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Product</text>
+<text x="245" y="638" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">LoanDeposit (term deposit 4.10%)</text>
+<text x="56" y="657" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Instrument Id</text>
+<text x="245" y="657" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">—</text>
+<text x="56" y="676" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Reference</text>
+<text x="245" y="676" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">MATNY · DEP-8891022 · v3</text>
+<text x="56" y="695" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Position Currency</text>
+<text x="245" y="695" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">USD</text>
+<rect x="412" y="508" width="280" height="83" rx="6" fill="#f7df6e" stroke="#8a7a1c" stroke-width="1.5"/>
+<text x="420" y="524" font-size="10.5" fill="#8a7a1c" font-weight="bold" text-anchor="start">metric rows</text>
+<text x="420" y="543" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">NPV            —   −25,018,400 USD  (liability)</text>
+<text x="420" y="562" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">ACCRUED_INT —      −18,400 USD</text>
+<text x="420" y="581" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">NII             —      +36,667 USD  MATNY</text>
+<text x="56" y="776" font-size="10.8" fill="#5a626e" font-weight="normal" text-anchor="start">Negative PV is correct, not an error: their asset, our liability. Producer = MATNY for its own accruals.</text>
+<rect x="730" y="470" width="660" height="320" rx="10" fill="#fff" stroke="#20242a" stroke-width="1.6"/>
+<rect x="730" y="470" width="660" height="34" rx="10" fill="#2f6b3a"/>
+<text x="744" y="493" font-size="14" fill="#fff" font-weight="bold" text-anchor="start">Facility Arrangement Position</text>
+<text x="1376" y="493" font-size="11" fill="#d7e8d0" font-weight="normal" text-anchor="end">the promise to lend — commitment, not cash</text>
+<text x="746" y="524" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Position Identifier</text>
+<text x="935" y="524" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">FAC-2024-0097</text>
+<text x="746" y="543" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">System Name</text>
+<text x="935" y="543" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">LOANIQ</text>
+<text x="746" y="562" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Date · Snap</text>
+<text x="935" y="562" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">2026-09-11 · EOD</text>
+<text x="746" y="581" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Book</text>
+<text x="935" y="581" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">CORP-LEND-NA</text>
+<text x="746" y="600" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">PositionType · Agg</text>
+<text x="935" y="600" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">FACILITY · TRADE</text>
+<text x="746" y="619" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Counterparty</text>
+<text x="935" y="619" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Maple Auto Parts (CP-88421)</text>
+<text x="746" y="638" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Facility Name</text>
+<text x="935" y="638" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Maple Revolver 2024</text>
+<text x="746" y="657" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Facility Status</text>
+<text x="935" y="657" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">ACTIVE</text>
+<text x="746" y="676" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Product</text>
+<text x="935" y="676" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">lendingFacility · $100M revolver</text>
+<text x="746" y="695" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Reference</text>
+<text x="935" y="695" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">LOANIQ · FAC-2024-0097 · v2</text>
+<rect x="1102" y="508" width="280" height="83" rx="6" fill="#f7df6e" stroke="#8a7a1c" stroke-width="1.5"/>
+<text x="1110" y="524" font-size="10.5" fill="#8a7a1c" font-weight="bold" text-anchor="start">metric rows</text>
+<text x="1110" y="543" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">UNDRAWN_COMMIT — +60,000,000 USD</text>
+<text x="1110" y="562" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">COMMITMENT_FEE  —     +41,100 USD accrual</text>
+<text x="1110" y="581" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">(no NPV row — nothing to discount until drawn)</text>
+<text x="746" y="776" font-size="10.8" fill="#5a626e" font-weight="normal" text-anchor="start">Subtype attributes appear: Facility Name/Status (1.22). Kept separate from Outstanding to avoid double-count.</text>
+<rect x="1420" y="470" width="660" height="320" rx="10" fill="#fff" stroke="#20242a" stroke-width="1.6"/>
+<rect x="1420" y="470" width="660" height="34" rx="10" fill="#2f6b3a"/>
+<text x="1434" y="493" font-size="14" fill="#fff" font-weight="bold" text-anchor="start">Lending Outstanding Position</text>
+<text x="2066" y="493" font-size="11" fill="#d7e8d0" font-weight="normal" text-anchor="end">the drawn slice of the facility — actual money out</text>
+<text x="1436" y="524" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Position Identifier</text>
+<text x="1625" y="524" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">OUT-0097-01</text>
+<text x="1436" y="543" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">System Name</text>
+<text x="1625" y="543" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">LOANIQ</text>
+<text x="1436" y="562" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Date · Snap</text>
+<text x="1625" y="562" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">2026-09-11 · EOD</text>
+<text x="1436" y="581" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Book</text>
+<text x="1625" y="581" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">CORP-LEND-NA</text>
+<text x="1436" y="600" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">PositionType · Agg</text>
+<text x="1625" y="600" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">OUTSTANDING · TRADE</text>
+<text x="1436" y="619" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Counterparty</text>
+<text x="1625" y="619" font-size="11.3" fill="#20242a" font-weight="normal" text-anchor="start">Maple Auto Parts (CP-88421)</text>
+<text x="1436" y="638" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Outstanding Name</text>
+<text x="1625" y="638" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Drawdown 1</text>
+<text x="1436" y="657" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Outstanding Status</text>
+<text x="1625" y="657" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">DRAWN</text>
+<text x="1436" y="676" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Product</text>
+<text x="1625" y="676" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">LoanDeposit · SOFR+250, $40M</text>
+<text x="1436" y="695" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">Links to</text>
+<text x="1625" y="695" font-size="11.3" fill="#c05f10" font-weight="bold" text-anchor="start">FAC-2024-0097  (facility has Outstanding)</text>
+<rect x="1792" y="508" width="280" height="83" rx="6" fill="#f7df6e" stroke="#8a7a1c" stroke-width="1.5"/>
+<text x="1800" y="524" font-size="10.5" fill="#8a7a1c" font-weight="bold" text-anchor="start">metric rows</text>
+<text x="1800" y="543" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">NPV            —   +39,880,000 USD</text>
+<text x="1800" y="562" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">ACCRUED_INT —     +310,000 USD</text>
+<text x="1800" y="581" font-size="10.8" fill="#20242a" font-weight="normal" text-anchor="start">CASHFLOW    —     +512,300 USD pay 2026-12-15</text>
+<text x="1436" y="776" font-size="10.8" fill="#5a626e" font-weight="normal" text-anchor="start">Facility 100 = Outstanding 40 + Undrawn 60 — two positions, one truth, summable only because they're split.</text>
+<text x="40" y="840" font-size="15" fill="#20242a" font-weight="bold" text-anchor="start">Reading the set as one lesson</text>
+<text x="50" y="870" font-size="12.5" fill="#20242a" font-weight="normal" text-anchor="start">• The green spine is identical six times — id, system, date+snap, book, type — which is why one metric table serves them all.</text>
+<text x="50" y="894" font-size="12.5" fill="#20242a" font-weight="normal" text-anchor="start">• What varies is which identity field is the star: trade id (Trade) · instrument×book (Fungible) · account (Cash) · arrangement id + subtype attributes (Deposit/Facility/Outstanding).</text>
+<text x="50" y="918" font-size="12.5" fill="#20242a" font-weight="normal" text-anchor="start">• Reference fields matter most where the source record versions (trades, deposits); least where there is no source contract at all (cash).</text>
+<text x="50" y="942" font-size="12.5" fill="#20242a" font-weight="normal" text-anchor="start">• Facility/Outstanding is the model's double-count lesson in reference form: aggregate UNDRAWN + drawn NPV only because the subtypes keep them apart.</text>
+<text x="50" y="966" font-size="12.5" fill="#20242a" font-weight="normal" text-anchor="start">• Every metric row above lands in the SAME yellow table — subtype of the position never changes the shape of its metrics.</text>
+</svg>
