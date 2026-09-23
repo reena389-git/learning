@@ -1,0 +1,304 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><title>Databricks Data Engineering & Performance Reference</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+         line-height: 1.6; color: #1f2430; max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+  h1 { color: #1F3A5F; border-bottom: 3px solid #2E6DA4; padding-bottom: 8px; }
+  h2 { color: #1F3A5F; margin-top: 44px; border-left: 5px solid #2E6DA4; padding-left: 12px; }
+  h3 { color: #2E6DA4; margin-top: 26px; }
+  code { background: #eef2f7; padding: 2px 6px; border-radius: 4px; font-family: SFMono-Regular, Consolas, monospace; font-size: 0.92em; }
+  pre { background: #1e2733; color: #e6edf3; padding: 14px; border-radius: 8px; overflow-x: auto;
+        font-family: SFMono-Regular, Consolas, monospace; font-size: 0.85em; line-height: 1.5; margin: 8px 0 14px 0; }
+  pre code { background: none; color: inherit; padding: 0; }
+  .box { border-radius: 8px; padding: 12px 16px; margin: 10px 0; }
+  .def { background: #eaf1f8; border-left: 5px solid #2E6DA4; }
+  .ex  { background: #f2f8f0; border-left: 5px solid #4a8f3c; }
+  .why { background: #fff7e6; border-left: 5px solid #b8860b; }
+  .warn{ background: #fdecea; border-left: 5px solid #c0392b; }
+  .dep { background: #f1eef5; border-left: 5px solid #7a5ea8; }
+  .cmdlabel { font-size:0.78em; text-transform:uppercase; letter-spacing:0.04em; color:#2E6DA4; font-weight:bold; margin-top:18px; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 16px 0; font-size: 0.88em; }
+  th, td { border: 1px solid #cfd8e3; padding: 6px 9px; text-align: left; vertical-align: top; }
+  th { background: #1F3A5F; color: #fff; }
+  .flagtbl td:first-child { font-family: SFMono-Regular, Consolas, monospace; white-space:nowrap; color:#1F3A5F; font-weight:bold; }
+  .toc a { text-decoration: none; color: #2E6DA4; }
+  .toc li { margin: 4px 0; }
+  .small { color:#666; font-size:0.9em; }
+</style>
+</head><body>
+<h1>Databricks Data Engineering &amp; Performance — Reference Guide</h1>
+<p class="small">Every command-based concept below shows the FULL command with every flag together first,
+then a flag-by-flag breakdown tied to that exact command, then a worked example. Purely conceptual topics
+(no command to anchor to) stay example-led.</p>
+
+<h2 id="toc">Contents</h2>
+<ul class="toc">
+<li><a href="#ingest">1. Ingestion &amp; streaming</a></li>
+<li><a href="#dq">2. Data quality</a></li>
+<li><a href="#perf">3. Performance capability matrix</a></li>
+<li><a href="#parallel">4. Insert performance &amp; parallelism</a></li>
+<li><a href="#oltp">5. Databricks as an operational (OLTP-style) backend</a></li>
+<li><a href="#arch">6. Architecture diagram</a></li>
+</ul>
+
+<!-- ================= SECTION 1 ================= -->
+<h2 id="ingest">1. Ingestion &amp; streaming</h2>
+
+<h3>1.1 Auto Loader — the full command</h3>
+<div class="cmdlabel">THE FULL COMMAND</div>
+<pre><code>df = (spark.readStream
+      .format(&quot;cloudFiles&quot;)
+      .option(&quot;cloudFiles.format&quot;, &quot;csv&quot;)
+      .option(&quot;cloudFiles.schemaLocation&quot;, &quot;/Volumes/cat/schema/raw/transactions&quot;)
+      .option(&quot;cloudFiles.schemaEvolutionMode&quot;, &quot;addNewColumns&quot;)
+      .option(&quot;cloudFiles.inferColumnTypes&quot;, &quot;true&quot;)
+      .option(&quot;header&quot;, &quot;true&quot;)
+      .load(&quot;/Volumes/cat/raw/transactions/&quot;))
+
+(df.writeStream
+   .option(&quot;checkpointLocation&quot;, &quot;/Volumes/cat/checkpoints/bronze_transactions&quot;)
+   .trigger(availableNow=True)
+   .toTable(&quot;catalog.schema.bronze_transactions&quot;))</code></pre>
+<table class="flagtbl"><tr><th>Flag / clause</th><th>What it does</th></tr><tr><td>.format(&quot;cloudFiles&quot;)</td><td>activates Auto Loader as the source (vs. a plain file reader)</td></tr><tr><td>cloudFiles.format</td><td>the format of the SOURCE files being read: csv / json / parquet / avro</td></tr><tr><td>cloudFiles.schemaLocation</td><td>where Auto Loader persists the schema it infers, across restarts</td></tr><tr><td>cloudFiles.schemaEvolutionMode</td><td>how to react when a new column appears (see 1.4 for all 4 modes)</td></tr><tr><td>cloudFiles.inferColumnTypes</td><td>infer real types (int/date/etc.) instead of treating every column as string</td></tr><tr><td>header</td><td>whether the source files have a header row to read column names from</td></tr><tr><td>checkpointLocation</td><td>where streaming PROGRESS is tracked — this is what makes restarts resumable</td></tr><tr><td>trigger(availableNow=True)</td><td>process everything currently sitting in the source, then STOP (vs. running forever)</td></tr><tr><td>.toTable(...)</td><td>the target table — auto-created on first run if it doesn't exist</td></tr></table>
+<div class="box ex"><b>Example</b><br>A bank drops ~500 trade-confirmation CSVs a day into a Volume. Running the command above the first time creates <code>bronze_transactions</code> and loads all 500. Running it again the next day, with the SAME checkpoint location, picks up only the NEW files that landed since — because <code>checkpointLocation</code> remembers what was already processed.</div>
+
+<h3>1.2 Batch load — the full command, for contrast</h3>
+<div class="cmdlabel">THE FULL COMMAND</div>
+<pre><code>df_batch = (spark.read
+            .option(&quot;header&quot;, &quot;true&quot;)
+            .option(&quot;inferSchema&quot;, &quot;true&quot;)
+            .csv(&quot;/Volumes/cat/raw/transactions/&quot;))
+
+df_batch.write.mode(&quot;overwrite&quot;).saveAsTable(&quot;catalog.schema.bronze_transactions_batch&quot;)</code></pre>
+<table class="flagtbl"><tr><th>Flag / clause</th><th>What it does</th></tr><tr><td>spark.read (not readStream)</td><td>a ONE-TIME read — no checkpoint, no memory of prior runs</td></tr><tr><td>inferSchema</td><td>guesses column types from the data (no persisted schema location, unlike Auto Loader)</td></tr><tr><td>.write.mode(&quot;overwrite&quot;)</td><td>replaces the table's contents entirely on every run</td></tr></table>
+<div class="box ex"><b>Example</b><br>You run this Monday: loads 500 files. Tuesday, 500 MORE files have landed. Re-running this EXACT command re-reads all 1,000 files from scratch — <code>overwrite</code> plus no checkpoint means there's no concept of 'what's new'.</div>
+
+<h3>1.3 Checkpointing</h3>
+<div class="box def"><b>What it does</b><br>Stores which files/versions have already been committed, so a restart resumes rather than reprocesses.</div>
+<div class="box ex"><b>Example</b><br>Auto Loader is 60 files into a 100-file batch when the cluster crashes. The checkpoint (the folder at <code>checkpointLocation</code> above) recorded files 1–60 as committed. On restart, Spark resumes at file 61.</div>
+
+<h3>1.4 Schema evolution modes — the flag, every value</h3>
+<div class="cmdlabel">THE ONE FLAG, ALL FOUR VALUES</div>
+<pre><code>.option(&quot;cloudFiles.schemaEvolutionMode&quot;, &quot;addNewColumns&quot;)    # default
+.option(&quot;cloudFiles.schemaEvolutionMode&quot;, &quot;rescue&quot;)
+.option(&quot;cloudFiles.schemaEvolutionMode&quot;, &quot;failOnNewColumns&quot;)
+.option(&quot;cloudFiles.schemaEvolutionMode&quot;, &quot;none&quot;)</code></pre>
+<table class="flagtbl"><tr><th>Flag / clause</th><th>What it does</th></tr><tr><td>addNewColumns</td><td>a new column widens the schema; the stream restarts to pick it up; old rows get NULL for it</td></tr><tr><td>rescue</td><td>instead of altering the schema, new/mismatched content lands in a `_rescued_data` JSON column</td></tr><tr><td>failOnNewColumns</td><td>the pipeline halts entirely until a human updates the expected schema</td></tr><tr><td>none</td><td>the new column is silently ignored — its values never make it into the table</td></tr></table>
+<div class="box ex"><b>Example</b><br>A new <code>discount_code</code> column appears in a CSV. With <code>addNewColumns</code> (the flag set in 1.1's full command), the schema widens automatically and old rows backfill with NULL for that column.</div>
+
+<h3>1.5 <code>_rescued_data</code></h3>
+<div class="box ex"><b>Example</b><br>With <code>schemaEvolutionMode = "rescue"</code>, a row with <code>amount: "N/A"</code> (malformed) lands as <code>_rescued_data = {{"amount":"N/A"}}</code>, while the rest of that row's columns load normally.</div>
+
+<h3>1.6 Delta table history / time travel — the full commands</h3>
+<div class="cmdlabel">THE FULL COMMAND</div>
+<pre><code>DESCRIBE HISTORY catalog.schema.bronze_transactions;
+
+SELECT * FROM catalog.schema.bronze_transactions VERSION AS OF 11;
+SELECT * FROM catalog.schema.bronze_transactions TIMESTAMP AS OF &#x27;2026-09-01&#x27;;</code></pre>
+<table class="flagtbl"><tr><th>Flag / clause</th><th>What it does</th></tr><tr><td>DESCRIBE HISTORY</td><td>lists every write: version, timestamp, user, operation, rows affected</td></tr><tr><td>VERSION AS OF n</td><td>query the table exactly as it looked at version n</td></tr><tr><td>TIMESTAMP AS OF ts</td><td>query the table exactly as it looked at a point in time</td></tr></table>
+<div class="box ex"><b>Example</b><br><code>DESCRIBE HISTORY</code> shows version 12 was a MERGE at 3:14pm that changed 40 rows. <code>VERSION AS OF 11</code> shows a row's value BEFORE that correction was applied.</div>
+
+<h3>1.7 Silver as a streaming table — the full command</h3>
+<div class="cmdlabel">THE FULL COMMAND</div>
+<pre><code>CREATE OR REFRESH STREAMING TABLE catalog.schema.silver_transactions
+AS SELECT * FROM STREAM(catalog.schema.bronze_transactions);</code></pre>
+<table class="flagtbl"><tr><th>Flag / clause</th><th>What it does</th></tr><tr><td>CREATE OR REFRESH</td><td>create on first run; incrementally refresh on every subsequent run — same statement both times</td></tr><tr><td>STREAMING TABLE</td><td>backed by a stream: processes only NEW micro-batches, never reprocesses history</td></tr><tr><td>STREAM(bronze_transactions)</td><td>treats bronze's Delta transaction log as an incrementally-readable source, not a one-time snapshot</td></tr></table>
+<div class="box ex"><b>Example</b><br>Silver has processed through bronze version 20. Bronze writes version 21 (500 new rows). Silver's next trigger asks 'what changed since version 20?' via <code>STREAM(...)</code> and receives exactly those 500 rows.</div>
+
+<h3>1.8 Update/merge logic — the full <code>foreachBatch</code> command</h3>
+<div class="cmdlabel">THE FULL COMMAND</div>
+<pre><code>def upsert_to_silver(microBatchDF, batchId):
+    (DeltaTable.forName(spark, &quot;catalog.schema.silver_customers&quot;)
+        .alias(&quot;t&quot;)
+        .merge(microBatchDF.alias(&quot;s&quot;), &quot;t.customer_id = s.customer_id&quot;)
+        .whenMatchedUpdateAll()
+        .whenNotMatchedInsertAll()
+        .execute())
+
+(spark.readStream.table(&quot;catalog.schema.bronze_customers&quot;)
+    .writeStream
+    .foreachBatch(upsert_to_silver)
+    .option(&quot;checkpointLocation&quot;, &quot;/Volumes/cat/checkpoints/silver_customers&quot;)
+    .trigger(availableNow=True)
+    .start())</code></pre>
+<table class="flagtbl"><tr><th>Flag / clause</th><th>What it does</th></tr><tr><td>.foreachBatch(fn)</td><td>escape hatch from pure-append streaming: hands each micro-batch to your function as a static DataFrame</td></tr><tr><td>.merge(...)</td><td>the actual MERGE — matches on the key column(s) you specify</td></tr><tr><td>whenMatchedUpdateAll()</td><td>existing customer_id -> UPDATE the row</td></tr><tr><td>whenNotMatchedInsertAll()</td><td>new customer_id -> INSERT a new row</td></tr></table>
+<div class="box ex"><b>Example</b><br>A customer's address changes. A plain append would create a duplicate row. This command instead updates the existing row for that <code>customer_id</code> — silver always has exactly one current row per customer.</div>
+
+<!-- ================= SECTION 2 ================= -->
+<h2 id="dq">2. Data quality</h2>
+
+<h3>2.1 Expectations — the full command, all three actions together</h3>
+<div class="cmdlabel">SQL FORM</div>
+<pre><code>CREATE OR REFRESH STREAMING TABLE silver_transactions (
+  CONSTRAINT valid_amount   EXPECT (amount &gt;= 0),                            -- WARN (default)
+  CONSTRAINT has_customer   EXPECT (customer_id IS NOT NULL) ON VIOLATION DROP ROW,
+  CONSTRAINT valid_currency EXPECT (currency IN (&#x27;USD&#x27;,&#x27;CAD&#x27;)) ON VIOLATION FAIL UPDATE
+)
+AS SELECT * FROM STREAM(bronze_transactions);</code></pre>
+<div class="cmdlabel">PYTHON FORM (same three actions)</div>
+<pre><code>from pyspark import pipelines as dp
+
+@dp.table(name=&quot;silver_transactions&quot;)
+@dp.expect(&quot;valid_amount&quot;, &quot;amount &gt;= 0&quot;)                          # WARN
+@dp.expect_or_drop(&quot;has_customer&quot;, &quot;customer_id IS NOT NULL&quot;)      # DROP
+@dp.expect_or_fail(&quot;valid_currency&quot;, &quot;currency IN (&#x27;USD&#x27;,&#x27;CAD&#x27;)&quot;)  # FAIL
+def silver_transactions():
+    return dp.read_stream(&quot;bronze_transactions&quot;)</code></pre>
+<table class="flagtbl"><tr><th>Flag / clause</th><th>What it does</th></tr><tr><td>EXPECT (...) — no ON VIOLATION / @dp.expect</td><td>WARN: row stays in the output, violation is logged as a count</td></tr><tr><td>ON VIOLATION DROP ROW / @dp.expect_or_drop</td><td>DROP: row is removed from the output entirely</td></tr><tr><td>ON VIOLATION FAIL UPDATE / @dp.expect_or_fail</td><td>FAIL: the entire pipeline update stops on any violation</td></tr></table>
+<div class="box ex"><b>Example</b><br>A row with <code>amount = -15</code> hits <code>valid_amount</code> (WARN): it stays in the table, logged. A row with a NULL <code>customer_id</code> hits <code>has_customer</code> (DROP): removed. A row with <code>currency = 'EUR'</code> hits <code>valid_currency</code> (FAIL): the whole pipeline run stops.</div>
+
+<h3>2.2 Event log — the full query</h3>
+<div class="cmdlabel">THE FULL COMMAND</div>
+<pre><code>SELECT * FROM event_log(TABLE(catalog.schema.your_pipeline))
+WHERE event_type = &#x27;flow_progress&#x27;;</code></pre>
+<div class="box ex"><b>Example</b><br>Returns rows like <code>valid_amount: passed=980, failed=20</code> — a COUNT, not the actual 20 rows. See 2.3 for how to capture the rows themselves.</div>
+
+<h3>2.3 Quarantine pattern — the full command</h3>
+<div class="cmdlabel">THE FULL COMMAND</div>
+<pre><code>CREATE OR REFRESH STREAMING TABLE silver_transactions_quarantine
+PARTITIONED BY (is_quarantined)
+AS SELECT *,
+   NOT (customer_id IS NOT NULL AND amount &gt;= 0) AS is_quarantined
+FROM STREAM(bronze_transactions);
+
+CREATE OR REFRESH MATERIALIZED VIEW silver_transactions_valid    AS SELECT * FROM silver_transactions_quarantine WHERE is_quarantined = false;
+CREATE OR REFRESH MATERIALIZED VIEW silver_transactions_rejected AS SELECT * FROM silver_transactions_quarantine WHERE is_quarantined = true;</code></pre>
+<table class="flagtbl"><tr><th>Flag / clause</th><th>What it does</th></tr><tr><td>PARTITIONED BY (is_quarantined)</td><td>physically separates good/bad rows on disk, keeping every column intact</td></tr><tr><td>NOT (...) AS is_quarantined</td><td>computes the SAME condition an expectation would check, but as a column, not a gate</td></tr><tr><td>...WHERE is_quarantined = true</td><td>this view/table holds the FULL failing rows — every column, not a count</td></tr></table>
+<div class="box ex"><b>Example</b><br>Transaction T1004 (<code>amount = -15</code>) lands in <code>silver_transactions_rejected</code> with every original column intact — an analyst opens that table and sees the complete row, not just 'count: 1'.</div>
+
+<h3>2.4 Join-reject capture — the full command</h3>
+<div class="cmdlabel">THE FULL COMMAND</div>
+<pre><code>CREATE OR REFRESH STREAMING TABLE transactions_enriched_quarantine
+AS SELECT t.*, c.customer_name,
+   c.customer_name IS NULL AS is_unmatched
+FROM STREAM(silver_transactions_valid) t
+LEFT JOIN customers c ON t.customer_id = c.customer_id;
+
+CREATE OR REFRESH MATERIALIZED VIEW transactions_join_rejects
+AS SELECT * FROM transactions_enriched_quarantine WHERE is_unmatched = true;</code></pre>
+<table class="flagtbl"><tr><th>Flag / clause</th><th>What it does</th></tr><tr><td>LEFT JOIN (not INNER)</td><td>keeps every transaction, even ones with no matching customer — INNER would silently drop them</td></tr><tr><td>c.customer_name IS NULL AS is_unmatched</td><td>flags exactly which rows had no match, without losing them</td></tr></table>
+<div class="box ex"><b>Example</b><br>Transaction T1005 references customer 'C999', who doesn't exist. An INNER JOIN would make T1005 vanish with zero trace. This LEFT JOIN keeps it, flags <code>is_unmatched = true</code>, and it lands in <code>transactions_join_rejects</code> — captured, not lost.</div>
+
+<!-- ================= SECTION 3 ================= -->
+<h2 id="perf">3. Performance capability matrix — full commands first</h2>
+
+<h3>File compaction — the full set of commands together</h3>
+<div class="cmdlabel">THE FULL COMMAND</div>
+<pre><code>-- session-level (applies to writes in this session)
+SET spark.databricks.delta.optimizeWrite.enabled = true;
+SET spark.databricks.delta.autoCompact.enabled = true;
+
+-- table-level (persists regardless of session)
+ALTER TABLE catalog.schema.t SET TBLPROPERTIES (
+  &#x27;delta.autoOptimize.optimizeWrite&#x27; = &#x27;true&#x27;,
+  &#x27;delta.autoOptimize.autoCompact&#x27;   = &#x27;true&#x27;,
+  &#x27;delta.targetFileSize&#x27;             = &#x27;134217728&#x27;   -- 128 MB
+);
+
+-- on-demand manual compaction
+OPTIMIZE catalog.schema.t;</code></pre>
+<table class="flagtbl"><tr><th>Flag / clause</th><th>What it does</th></tr><tr><td>optimizeWrite.enabled</td><td>right-sizes files DURING the write (adds a shuffle stage, targets ~128MB files)</td></tr><tr><td>autoCompact.enabled</td><td>runs a background compaction job immediately AFTER a write succeeds</td></tr><tr><td>delta.targetFileSize</td><td>tells Delta explicitly what 'right-sized' means for this table</td></tr><tr><td>OPTIMIZE</td><td>on-demand, explicit bin-packing — run any time file health has degraded</td></tr></table>
+<div class="box ex"><b>Example</b><br>A streaming job writes 200 tiny 2MB files overnight. With these settings on, <code>autoCompact</code> rewrites them into ~3 files of ~130MB each automatically — a query that opened 200 files now opens 3.</div>
+
+<h3>Liquid Clustering — the full command</h3>
+<div class="cmdlabel">THE FULL COMMAND</div>
+<pre><code>ALTER TABLE catalog.schema.t CLUSTER BY AUTO;
+-- or, to pick the columns yourself instead of letting it learn them:
+ALTER TABLE catalog.schema.t CLUSTER BY (customer_id, transaction_date);</code></pre>
+<table class="flagtbl"><tr><th>Flag / clause</th><th>What it does</th></tr><tr><td>CLUSTER BY AUTO</td><td>Predictive Optimization watches real query predicates/joins and picks + evolves the clustering keys itself</td></tr><tr><td>CLUSTER BY (col1, col2)</td><td>you name the columns explicitly instead of letting it learn them</td></tr></table>
+<div class="box ex"><b>Example</b><br>Analysts always filter <code>WHERE customer_id = X AND transaction_date > Y</code>. <code>CLUSTER BY AUTO</code> notices this pattern over time and co-locates matching rows physically, so that filter reads a handful of files instead of scanning the table.</div>
+
+<h3><div class="box dep"><b>DEPRECATED</b><br>Bloom filter indexes — shown for completeness</div></h3>
+<div class="cmdlabel">THE OLD COMMAND (avoid for new tables)</div>
+<pre><code>-- legacy syntax - do not use for new tables:
+ALTER TABLE catalog.schema.t
+  SET TBLPROPERTIES (&#x27;delta.bloomFilter.customer_id.enabled&#x27; = &#x27;true&#x27;);</code></pre>
+<div class="box ex"><b>Example</b><br>This used to speed up <code>WHERE customer_id = 'C001'</code> by probabilistically skipping files that definitely don't contain C001. <code>CLUSTER BY AUTO</code> + Predictive I/O now achieve the same file-skipping outcome without a separate index to maintain — that's why this is deprecated.</div>
+
+<h3>Deletion vectors — the full command</h3>
+<div class="cmdlabel">THE FULL COMMAND</div>
+<pre><code>ALTER TABLE catalog.schema.t SET TBLPROPERTIES (&#x27;delta.enableDeletionVectors&#x27; = &#x27;true&#x27;);
+
+UPDATE catalog.schema.t SET status = &#x27;CANCELLED&#x27; WHERE transaction_id = &#x27;T1001&#x27;;</code></pre>
+<table class="flagtbl"><tr><th>Flag / clause</th><th>What it does</th></tr><tr><td>delta.enableDeletionVectors</td><td>turns on marking rows as removed instead of rewriting the whole file they live in</td></tr></table>
+<div class="box ex"><b>Example</b><br>Without this flag, that <code>UPDATE</code> rewrites the ENTIRE file containing T1001 — maybe 100,000 unrelated rows. With it on, Delta marks just that one row and writes a small supplemental file instead.</div>
+
+<h3>Table statistics for the optimizer — the full command</h3>
+<div class="cmdlabel">THE FULL COMMAND</div>
+<pre><code>ANALYZE TABLE catalog.schema.t COMPUTE STATISTICS FOR ALL COLUMNS;</code></pre>
+<table class="flagtbl"><tr><th>Flag / clause</th><th>What it does</th></tr><tr><td>COMPUTE STATISTICS FOR ALL COLUMNS</td><td>column-level row/distinct counts the query PLANNER uses for join strategy and scan order</td></tr></table>
+<div class="box ex"><b>Example</b><br>Without stats, the optimizer might guess a join order badly. After <code>ANALYZE TABLE</code>, it knows (for example) that <code>customers</code> has 5 rows and <code>transactions</code> has 9 — and picks the smaller table to broadcast rather than shuffle.</div>
+
+<h3>Data skipping — the full command</h3>
+<div class="cmdlabel">THE FULL COMMAND</div>
+<pre><code>ALTER TABLE catalog.schema.t SET TBLPROPERTIES (&#x27;delta.dataSkippingNumIndexedCols&#x27; = &#x27;32&#x27;);</code></pre>
+<table class="flagtbl"><tr><th>Flag / clause</th><th>What it does</th></tr><tr><td>delta.dataSkippingNumIndexedCols</td><td>how many of the table's FIRST columns get automatic min/max stats collected per file (default 32)</td></tr></table>
+<div class="box ex"><b>Example</b><br>A query filters <code>WHERE amount > 1000</code>. If <code>amount</code> is within the first 32 indexed columns, Delta can skip any file whose max recorded amount is 500 — without opening it.</div>
+
+<!-- ================= SECTION 4 ================= -->
+<h2 id="parallel">4. Insert performance &amp; parallelism — the full command, worked example</h2>
+<div class="cmdlabel">THE FULL COMMAND</div>
+<pre><code># check current partition count BEFORE
+df.rdd.getNumPartitions()          # e.g. 2
+
+# repartition to match cluster capacity, THEN write
+df_right_sized = df.repartition(32)
+df_right_sized.write.mode(&quot;overwrite&quot;).saveAsTable(&quot;catalog.schema.t&quot;)</code></pre>
+<table class="flagtbl"><tr><th>Flag / clause</th><th>What it does</th></tr><tr><td>df.rdd.getNumPartitions()</td><td>read-only check: how many parallel chunks the DataFrame is currently split into</td></tr><tr><td>df.repartition(32)</td><td>reshuffles the DataFrame into exactly 32 partitions BEFORE the write</td></tr></table>
+<div class="box def"><b>What 'parallelism' means here</b><br>Spark splits a DataFrame into PARTITIONS. Each partition is one TASK, and tasks run in parallel across the cluster's CORES. Too few partitions = idle cores during the write; too many tiny partitions = scheduling overhead and a swarm of tiny output files.</div>
+<div class="box ex"><b>Example</b><br>Cluster: 8 workers x 4 cores = <b>32 cores total</b>. Writing 10 GB.<br><br><b>Too few partitions</b> (the default, 2, from the check above): only 2 tasks run at once — 2 cores work, 30 sit idle. Each 5GB partition takes ~60s to write, so the whole job takes ~60s, using ~6% of the cluster.<br><br><b>After <code>repartition(32)</code></b>: each partition is ~312MB. All 32 cores work simultaneously, one task each. Each finishes in ~4s, and because they run AT ONCE, the whole write finishes in ~4–8s — a 7–10x speedup from parallelism alone, nothing else changed.<br><br><b>Too many</b> (e.g. <code>repartition(5000)</code>): 5,000 tiny output files (a few MB each) — the small-file problem — and scheduling overhead for 5,000 tiny tasks can outweigh the parallelism gain.</div>
+
+<!-- ================= SECTION 5 (conceptual - unchanged structure) ================= -->
+<h2 id="oltp">5. Databricks as an operational (OLTP-style) backend</h2>
+<p>No single command to anchor this section to — it's an architecture question. Staying example-led, as confirmed.</p>
+
+<div class="box warn"><b>The honest answer: not great, by design</b><br>Delta Lake / the Lakehouse is architected for OLAP — analytical queries over mostly-append, batch or micro-batch data — NOT low-latency, high-concurrency, single-row transactional writes from a live UI.</div>
+
+<h3>5.1 Latency</h3>
+<div class="box ex"><b>Example</b><br>A risk analyst edits one field and clicks Save. A direct <code>UPDATE</code> against Delta on a non-warm cluster might take 2–10+ seconds. Even a warm serverless SQL warehouse carries query-planning + transaction-log-commit overhead a row-store OLTP database (sub-10ms) doesn't have.</div>
+
+<h3>5.2 Concurrency — Optimistic Concurrency Control (OCC)</h3>
+<div class="box def"><b>How Delta handles concurrent writes</b><br>No row-level locking. On commit, Delta checks whether another transaction modified the same underlying files since this one started — if so, one of them RETRIES.</div>
+<div class="box ex"><b>Example</b><br>Two analysts correct different agreements within the same second. If their updates touch overlapping files (common in a small/hot table), one Save fails with a conflict and must retry — the UI needs its own retry logic, unlike a traditional RDBMS's row locks.</div>
+
+<h3>5.3 Small-file amplification</h3>
+<div class="box ex"><b>Example</b><br>500 analysts each correct 1 row over a day. Each correction produces its own small commit/file — recreating the small-file problem inside an OPERATIONAL table, forcing frequent compaction just to stay readable.</div>
+
+<h3>5.4 The Databricks-native answer: Lakebase</h3>
+<div class="box def"><b>Lakebase</b><br>Databricks' managed Postgres — a real OLTP row-store, built for low-latency, high-concurrency, row-level CRUD from an application. Pattern: the UI writes to Lakebase; Zero-ETL/synced tables flow that data into Delta for analytics.</div>
+<div class="box ex"><b>Example</b><br>The corrections UI writes to Lakebase (millisecond saves, normal row locking). A synced table replicates changes into Delta on a short lag, where dashboards, Genie spaces, and agents consume it.</div>
+
+<h3>5.5 When direct Delta UPDATE/MERGE from a UI IS fine</h3>
+<div class="box ex"><b>Example</b><br>Occasional, low-frequency corrections — a handful of GDPR deletes a week, a monthly reconciliation batch — are a reasonable use of Delta's UPDATE/MERGE. The concern above is HIGH-FREQUENCY, MANY-CONCURRENT-USERS traffic specifically.</div>
+
+<!-- ================= SECTION 6 ================= -->
+<h2 id="arch">6. Architecture — the performance stack</h2>
+<div class="svgwrap" style="text-align:center">
+<svg viewBox="0 0 640 560" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;font-family:Arial">
+  <rect x="60" y="20" width="240" height="50" rx="8" fill="#DCEAF7" stroke="#2E6DA4"/>
+  <text x="180" y="40" text-anchor="middle" font-weight="bold" font-size="13" fill="#1F3A5F">Photon engine</text>
+  <text x="180" y="58" text-anchor="middle" font-size="11" fill="#333">vectorized execution</text>
+  <line x1="180" y1="70" x2="180" y2="100" stroke="#2E6DA4" stroke-width="2"/>
+  <rect x="60" y="100" width="240" height="50" rx="8" fill="#DCEAF7" stroke="#2E6DA4"/>
+  <text x="180" y="120" text-anchor="middle" font-weight="bold" font-size="13" fill="#1F3A5F">Predictive I/O</text>
+  <text x="180" y="138" text-anchor="middle" font-size="11" fill="#333">reads + fewer rewrites</text>
+  <line x1="180" y1="150" x2="180" y2="180" stroke="#2E6DA4" stroke-width="2"/>
+  <rect x="20" y="182" width="560" height="150" rx="16" fill="#F2F2F2" stroke="#999"/>
+  <text x="40" y="205" font-weight="bold" font-size="13" fill="#1F3A5F">Predictive Optimization (auto OPTIMIZE / VACUUM / ANALYZE / clustering)</text>
+  <rect x="40" y="220" width="160" height="50" rx="8" fill="#EDE7F6" stroke="#7a5ea8"/>
+  <text x="120" y="240" text-anchor="middle" font-weight="bold" font-size="12" fill="#1F3A5F">Liquid clustering</text>
+  <text x="120" y="258" text-anchor="middle" font-size="10" fill="#333">CLUSTER BY AUTO</text>
+  <rect x="240" y="220" width="160" height="50" rx="8" fill="#EDE7F6" stroke="#7a5ea8"/>
+  <text x="320" y="240" text-anchor="middle" font-weight="bold" font-size="12" fill="#1F3A5F">Deletion vectors</text>
+  <text x="320" y="258" text-anchor="middle" font-size="10" fill="#333">mark, don't rewrite</text>
+  <rect x="440" y="220" width="140" height="50" rx="8" fill="#EDE7F6" stroke="#7a5ea8"/>
+  <text x="510" y="240" text-anchor="middle" font-weight="bold" font-size="12" fill="#1F3A5F">Data skipping</text>
+  <text x="510" y="258" text-anchor="middle" font-size="10" fill="#333">min/max per file</text>
+  <line x1="180" y1="332" x2="180" y2="362" stroke="#2E6DA4" stroke-width="2"/>
+  <rect x="60" y="364" width="240" height="40" rx="8" fill="#F2F2F2" stroke="#999"/>
+  <text x="180" y="389" text-anchor="middle" font-weight="bold" font-size="13" fill="#1F3A5F">Cloud storage (Parquet)</text>
+  <rect x="60" y="440" width="240" height="50" rx="8" fill="#FBE9E7" stroke="#c0392b"/>
+  <text x="180" y="460" text-anchor="middle" font-weight="bold" font-size="12" fill="#1F3A5F">Bloom filter indexes</text>
+  <text x="180" y="478" text-anchor="middle" font-size="10" fill="#333">deprecated — see above</text>
+</svg>
+</div>
+</body></html>
