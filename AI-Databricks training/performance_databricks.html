@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Databricks performance map (Azure)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F8FA; --ink:#17212B; --muted:#5A6878; --rule:#D5DCE3; --panel:#FFFFFF;
+    --l1:#3B5B7A; --l2:#8A5A12; --l3:#2F7468; --l4:#6A4A8C; --l5:#9A3B4F;
+    --auto:#2F7468; --admin:#6A4A8C; --you:#3B5B7A; --legacy:#7C8794;
+    --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 var(--sans)}
+  header{padding:28px 20px 8px;max-width:1100px;margin:0 auto}
+  h1{font-size:26px;line-height:1.2;margin:0 0 8px;font-weight:700;letter-spacing:-.01em}
+  .lede{color:var(--muted);max-width:70ch;margin:0}
+  .asof{font-size:13px;color:var(--muted);margin-top:6px}
+  nav{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--rule)}
+  .tabs{display:flex;gap:4px;overflow-x:auto;max-width:1100px;margin:0 auto;padding:8px 16px}
+  .tabs button{font:500 14px var(--sans);border:1px solid transparent;background:none;color:var(--muted);padding:8px 12px;border-radius:6px;white-space:nowrap;cursor:pointer}
+  .tabs button[aria-selected="true"]{background:var(--ink);color:#fff}
+  .tabs button:focus-visible,.chip:focus-visible,select:focus-visible{outline:2px solid var(--l1);outline-offset:2px}
+  main{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+  section[hidden]{display:none}
+  h2{font-size:20px;margin:0 0 6px}
+  h3{font-size:16px;margin:0 0 4px}
+  p.note{color:var(--muted);margin:0 0 16px;max-width:75ch}
+  code{font:13px var(--mono);background:#EDF1F5;padding:1px 5px;border-radius:4px;word-break:break-word}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+  .badge{display:inline-block;font:600 12px var(--sans);padding:2px 8px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+  .b-auto{color:var(--auto)} .b-admin{color:var(--admin)} .b-you{color:var(--you)} .b-legacy{color:var(--legacy)}
+  .b-rw{color:var(--ink);border-color:var(--rule);background:#fff}
+
+  /* Tree */
+  .tree{position:relative;padding-left:26px}
+  .tree::before{content:"";position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:var(--rule)}
+  .layer{position:relative;margin:0 0 22px}
+  .layer::before{content:"";position:absolute;left:-23px;top:6px;width:14px;height:14px;border-radius:50%;background:var(--c);box-shadow:0 0 0 4px var(--paper)}
+  .layer-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .layer-num{font:600 13px var(--mono);color:var(--c)}
+  .layer-title{font-weight:700;font-size:17px}
+  .layer-sub{color:var(--muted);font-size:14px;margin:2px 0 10px;max-width:72ch}
+  .branches{list-style:none;margin:0;padding:0;border-left:3px solid var(--c);background:var(--panel);border-radius:0 8px 8px 0}
+  .branches li{padding:10px 14px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+  .branches li:last-child{border-bottom:0}
+  .branches .name{font-weight:600}
+  .branches .what{color:var(--muted);font-size:14px}
+  .branches .tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;max-width:45%}
+  .flow{font-size:14px;color:var(--muted);margin:-8px 0 20px 0;max-width:72ch}
+
+  /* Matrix */
+  .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 14px}
+  .filters label{font-size:13px;color:var(--muted)}
+  select{font:14px var(--sans);padding:6px 8px;border:1px solid var(--rule);border-radius:6px;background:#fff;color:var(--ink)}
+  .chip{font:500 13px var(--sans);padding:5px 10px;border-radius:999px;border:1px solid var(--rule);background:#fff;color:var(--ink);cursor:pointer}
+  .chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .count{font-size:13px;color:var(--muted);margin-left:auto}
+  table{width:100%;border-collapse:collapse;background:var(--panel);font-size:14px}
+  th{text-align:left;font-weight:600;font-size:13px;color:var(--muted);padding:10px;border-bottom:2px solid var(--ink);position:sticky;top:53px;background:var(--panel)}
+  td{padding:12px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+  td.layer-cell{border-left:4px solid var(--c);font-weight:600;color:var(--c);white-space:nowrap}
+  td .nm{font-weight:600;display:block;margin-bottom:2px}
+  td .muted{color:var(--muted);font-size:13px}
+  @media (max-width:820px){
+    thead{display:none}
+    table,tbody,tr,td{display:block;width:100%}
+    tr{border-left:4px solid var(--c);margin:0 0 12px;background:var(--panel);border-radius:0 8px 8px 0}
+    td{border:0;padding:6px 12px}
+    td.layer-cell{border:0;padding-top:12px}
+    td[data-k]::before{content:attr(data-k);display:block;font-size:12px;color:var(--muted);font-weight:600}
+    .branches li{flex-direction:column}
+    .branches .tags{justify-content:flex-start;max-width:none}
+  }
+
+  /* Cards used in other tabs */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:14px 16px}
+  .card p{margin:6px 0 0;font-size:14px}
+  .card .k{font-size:12px;font-weight:600;color:var(--muted);margin-top:10px}
+  .answer{background:#fff;border-left:4px solid var(--l3);padding:12px 16px;margin:0 0 18px;border-radius:0 8px 8px 0;max-width:80ch}
+  .timeline{list-style:none;padding:0;margin:0;counter-reset:s}
+  .timeline li{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:12px 16px;margin:0 0 10px}
+  .timeline .when{font-weight:700}
+  .src{font-size:13px;color:var(--muted);margin-top:28px;border-top:1px solid var(--rule);padding-top:12px}
+  .src a{color:var(--l1)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Databricks performance map</h1>
+  <p class="lede">What makes reads and writes fast on Azure Databricks, layer by layer: what's built in, what an admin switches on, and what you set yourself on the table, the compute, or the query.</p>
+  <p class="asof">Based on Azure Databricks documentation current to September 2026. Versions are Databricks Runtime (DBR) minimums.</p>
+</header>
+
+<nav>
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="stack">Stack</button>
+    <button role="tab" aria-selected="false" data-tab="matrix">Matrix</button>
+    <button role="tab" aria-selected="false" data-tab="auto">Automatic maintenance</button>
+    <button role="tab" aria-selected="false" data-tab="cache">Caching</button>
+    <button role="tab" aria-selected="false" data-tab="tools">Diagnostics</button>
+  </div>
+</nav>
+
+<main>
+  <div class="legend" aria-label="Legend">
+    <span class="badge b-auto">Built in</span>
+    <span class="badge b-admin">Admin setting</span>
+    <span class="badge b-you">You configure</span>
+    <span class="badge b-legacy">Legacy</span>
+    <span class="badge b-rw">Read / Write</span>
+  </div>
+
+  <!-- STACK -->
+  <section id="stack">
+    <h2>How the layers stack</h2>
+    <p class="note">Each layer builds on the one before it. A query only runs as fast as the weakest layer below it allows.</p>
+    <div class="tree" id="tree"></div>
+  </section>
+
+  <!-- MATRIX -->
+  <section id="matrix" hidden>
+    <h2>Configuration matrix</h2>
+    <p class="note">Filter by layer, by who sets it, or by whether it tunes reads or writes.</p>
+    <div class="filters">
+      <label for="fLayer">Layer</label>
+      <select id="fLayer"><option value="">All layers</option></select>
+      <button class="chip" data-owner="auto" aria-pressed="false">Built in</button>
+      <button class="chip" data-owner="admin" aria-pressed="false">Admin setting</button>
+      <button class="chip" data-owner="you" aria-pressed="false">You configure</button>
+      <button class="chip" data-rw="R" aria-pressed="false">Reads</button>
+      <button class="chip" data-rw="W" aria-pressed="false">Writes</button>
+      <span class="count" id="count"></span>
+    </div>
+    <table>
+      <thead><tr><th>Layer</th><th>Optimization</th><th>How to set it</th><th>Benefit</th><th>Tunes</th><th>Who / default</th><th>Available from</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </section>
+
+  <!-- AUTO -->
+  <section id="auto" hidden>
+    <h2>When the automatic operations run</h2>
+    <p class="note">None of these follow a fixed schedule you set. Some happen during your write, on your cluster; others are queued in the background on serverless compute.</p>
+    <ol class="timeline">
+      <li><div class="when">During the write, on your cluster</div>
+        <p><b>Optimized writes</b> reshuffle data before writing so fewer, larger files land. Always on for MERGE, UPDATE and DELETE (DBR 10.4 LTS+). For Unity Catalog managed tables, file sizing is tuned automatically on SQL warehouses and DBR 11.3 LTS+.</p>
+        <p><b>Clustering on write</b> happens only when the transaction is big enough: for UC managed tables, 64 MB with 1 clustering key up to 1 GB with 4 keys. Smaller writes are clustered later by OPTIMIZE.</p></li>
+      <li><div class="when">Right after the write succeeds, still on your cluster</div>
+        <p><b>Auto compaction</b> merges small files. It runs synchronously after the write, so it adds a little time to your job, and only touches files not already compacted. It's independent of predictive optimization.</p></li>
+      <li><div class="when">In the background, on serverless compute</div>
+        <p><b>Predictive optimization</b> identifies tables that would benefit and queues <code>OPTIMIZE</code> (compaction and incremental clustering), <code>VACUUM</code> and <code>ANALYZE</code>. It also collects statistics as data is written to managed tables. It's billed to your account on the serverless jobs SKU.</p></li>
+    </ol>
+
+    <h3 style="margin-top:22px">Does anything special have to be done?</h3>
+    <div class="answer">
+      <p style="margin:0"><b>For Unity Catalog managed tables: mostly no.</b> Predictive optimization is on by default for accounts created on or after November 11, 2024, and Databricks planned to finish enabling older accounts by August 2026. Check rather than assume:</p>
+      <p style="margin:8px 0 0"><code>DESCRIBE CATALOG EXTENDED my_catalog</code> shows whether it's enabled or inherited.</p>
+    </div>
+    <div class="grid">
+      <div class="card"><h3>Requirements</h3><p>Premium plan, a supported region, SQL warehouses or DBR 12.2 LTS+, and <b>Unity Catalog managed tables only</b>. External tables are skipped, so they still need your own OPTIMIZE and VACUUM jobs.</p></div>
+      <div class="card"><h3>Who can switch it</h3><p>Account admin for the whole account. Catalog, schema or table owners (or users with <code>MANAGE</code>) can override with <code>ALTER CATALOG | SCHEMA | TABLE … ENABLE | DISABLE | INHERIT PREDICTIVE OPTIMIZATION</code>.</p></div>
+      <div class="card"><h3>Do before enabling</h3><p>VACUUM keeps 7 days of old files by default. If you need longer time travel, set <code>delta.deletedFileRetentionDuration</code> first. Turn off your own scheduled OPTIMIZE jobs once it's running.</p></div>
+      <div class="card"><h3>What it won't do</h3><p>It never runs <code>ZORDER</code> and ignores Z-ordered files. Tables still on Z-order should move to liquid clustering to benefit.</p></div>
+      <div class="card"><h3>Private networking</h3><p>If storage requires private connectivity, serverless private connectivity must be configured, or operations fail with <code>PRIVATE_LINK_SETUP_ERROR</code>. Worth checking with your platform team.</p></div>
+      <div class="card"><h3>Why it skipped a table</h3><p>On DBR 18 LTS+, <code>DESCRIBE TABLE EXTENDED … AS JSON</code> or the Catalog Explorer History tab shows skip reasons (up to 24 h delay).</p></div>
+    </div>
+  </section>
+
+  <!-- CACHE -->
+  <section id="cache" hidden>
+    <h2>Caching</h2>
+    <div class="answer">
+      <p style="margin:0"><b>Disk cache and Delta cache are the same thing.</b> Databricks renamed the Delta cache (also called the DBIO cache) to disk cache to avoid confusion with the Delta Lake protocol. Nothing was decommissioned. The only related change: <code>CACHE SELECT</code> is ignored on SQL warehouses and DBR 14.2+, replaced by an improved automatic caching algorithm.</p>
+    </div>
+    <div class="grid">
+      <div class="card"><h3>Disk cache</h3>
+        <div class="k">Where</div><p>Copies of remote Parquet/Delta files on each worker's local SSD, in a fast intermediate format.</p>
+        <div class="k">Triggered</div><p>Automatically on first read. Invalidated automatically when files change.</p>
+        <div class="k">How to get it</div><p>Choose worker VMs with local SSDs; they come pre-configured. Check with <code>spark.conf.get("spark.databricks.io.cache.enabled")</code>. Uses at most half the SSD by default.</p>
+        <div class="k">Who</div><p><span class="badge b-auto">Built in</span> on SSD node types; <span class="badge b-you">You configure</span> the VM choice.</p>
+        <div class="k">Tunes</div><p>Repeated reads of the same data.</p></div>
+      <div class="card"><h3>Spark cache</h3>
+        <div class="k">Where</div><p>Executor memory (and disk, depending on storage level).</p>
+        <div class="k">Triggered</div><p>Manually: <code>df.cache()</code> / <code>df.persist()</code>, released with <code>unpersist()</code>.</p>
+        <div class="k">When to use</div><p>Reusing an expensive intermediate DataFrame several times in one job. Lost when autoscaling removes a worker.</p>
+        <div class="k">Who</div><p><span class="badge b-you">You configure</span> in code.</p></div>
+      <div class="card"><h3>SQL warehouse result cache</h3>
+        <div class="k">Where</div><p>Query results kept by the SQL warehouse.</p>
+        <div class="k">Triggered</div><p>Automatically when the same query runs again and the underlying tables haven't changed.</p>
+        <div class="k">Who</div><p><span class="badge b-auto">Built in</span> on SQL warehouses; nothing to set.</p>
+        <div class="k">Tunes</div><p>Dashboards and repeated BI queries.</p></div>
+    </div>
+  </section>
+
+  <!-- TOOLS -->
+  <section id="tools" hidden>
+    <h2>Diagnostics: how to see what's happening</h2>
+    <p class="note">Start with the query profile or Spark UI to find the slow step, then check the table the slow step reads.</p>
+    <div class="grid">
+      <div class="card"><h3>Query profile</h3><p>SQL warehouses and serverless. Shows each operator's time and rows, files read vs pruned, and how much time Photon handled. The fastest way to spot a scan that skipped nothing or a skewed join.</p></div>
+      <div class="card"><h3>Spark UI → SQL/DataFrame tab</h3><p>Classic clusters. The query DAG shows Photon operators in orange and standard Spark operators in blue, so you can see where Photon fell back.</p></div>
+      <div class="card"><h3><code>EXPLAIN</code></h3><p><code>EXPLAIN FORMATTED</code> for a readable plan, <code>EXPLAIN COST</code> for size and row estimates. Confirms join strategy (broadcast vs sort-merge), pushed-down filters and join elimination.</p></div>
+      <div class="card"><h3><code>DESCRIBE DETAIL</code></h3><p>File count, total size, clustering columns. Many small files relative to size means compaction isn't keeping up.</p></div>
+      <div class="card"><h3><code>DESCRIBE HISTORY</code></h3><p>Every write and maintenance operation with metrics (files added and removed, rows). Shows whether OPTIMIZE and VACUUM actually ran.</p></div>
+      <div class="card"><h3>Statistics checks</h3><p><code>DESCRIBE EXTENDED tbl col</code> shows column statistics; <code>ANALYZE TABLE tbl COMPUTE STATISTICS FOR ALL COLUMNS</code> refreshes them manually if predictive optimization isn't on.</p></div>
+      <div class="card"><h3><code>DESCRIBE TABLE EXTENDED … AS JSON</code></h3><p>DBR 18 LTS+. Latest predictive optimization evaluation per operation, including why it skipped.</p></div>
+      <div class="card"><h3>System tables</h3><p><code>system.query.history</code> for slow queries over time; <code>system.storage.predictive_optimization_operations_history</code> for maintenance runs and their cost; <code>system.billing.usage</code> to compare DBUs, e.g. Photon vs non-Photon jobs.</p></div>
+    </div>
+  </section>
+
+  <p class="src">Sources: Microsoft Learn, Azure Databricks docs — Predictive optimization; Use liquid clustering for tables; Control data file size; What is Photon?; Disk cache; Deletion vectors and Auto-enable deletion vectors; Query optimization using primary key constraints. Photon DBU multiplier figure is from a third-party analysis (Zipher, 2026); confirm on the <a href="https://azure.microsoft.com/pricing/details/databricks/">Azure Databricks pricing page</a>. Defaults change often; verify in your workspace.</p>
+</main>
+
+<script>
+const LAYERS = [
+  {id:1, key:"infra", title:"Azure VMs and compute", c:"var(--l1)",
+   sub:"The hardware Azure provides: CPU cores, memory and local SSD per node. Everything above runs on this, so VM choice sets the ceiling."},
+  {id:2, key:"engine", title:"Execution engine", c:"var(--l2)",
+   sub:"The software that runs your query on those VMs. Photon (native C++, vectorized) where it can; the standard Spark engine (JVM) otherwise. The optimizer plans; AQE re-plans mid-query."},
+  {id:3, key:"table", title:"Table design and properties", c:"var(--l3)",
+   sub:"How the data sits in storage: file sizes, clustering, statistics, constraints. This decides how much data the engine has to read."},
+  {id:4, key:"maint", title:"Automatic maintenance", c:"var(--l4)",
+   sub:"Background jobs that keep the table layer healthy as data changes: compaction, clustering, cleanup and statistics."},
+  {id:5, key:"query", title:"Query and session", c:"var(--l5)",
+   sub:"What you write: filters, joins, hints, caching in code. Last-mile tuning once the layers below are right."}
+];
+
+// owner: auto | admin | you | legacy ; rw: R, W, RW
+const ITEMS = [
+  // Layer 1
+  {l:1, name:"Worker VM family", cfg:"Node type on the cluster or cluster policy. Local-SSD (storage optimized) for cache-heavy reads; memory optimized for big joins and shuffles; compute optimized for OPTIMIZE.", ben:"Right amount of memory avoids spilling to disk; local SSD enables the disk cache; CPU-heavy OPTIMIZE runs faster on compute optimized VMs.", rw:"RW", owner:"you", who:"You (or admin via cluster policy)", ver:"—"},
+  {l:1, name:"Serverless vs classic compute", cfg:"Choose serverless compute / SQL warehouse, or a classic cluster.", ben:"Serverless: Photon always on, fast start, Databricks manages VM choice. Classic: you control VMs, Spark config and networking.", rw:"RW", owner:"you", who:"You; admin controls availability", ver:"—"},
+  {l:1, name:"Autoscaling", cfg:"Min/max workers on the cluster.", ben:"Matches size to load. Removing workers drops their Spark cache, so heavily cached jobs may re-read data.", rw:"RW", owner:"you", who:"You", ver:"—"},
+  {l:1, name:"Disk cache", cfg:"On by default for SSD worker types. spark.databricks.io.cache.enabled", ben:"Repeated reads served from local SSD instead of cloud storage. Formerly called Delta cache.", rw:"R", owner:"auto", who:"Built in on SSD node types", ver:"All current DBR"},
+  // Layer 2
+  {l:2, name:"Photon", cfg:"Classic: “Use Photon Acceleration” checkbox (default on in the UI); via Clusters/Jobs API set runtime_engine = PHOTON. SQL: SET enable_photon.", ben:"Vectorized C++ engine: faster scans, aggregations, hash joins and Parquet/Delta writes (MERGE, INSERT, CTAS). Falls back to Spark for unsupported operations.", rw:"RW", owner:"auto", who:"Always on for serverless and SQL warehouses; default on for new classic clusters in the UI", ver:"DBR 9.1 LTS+"},
+  {l:2, name:"Standard Spark engine (Photon off)", cfg:"Uncheck Photon, or runtime_engine = STANDARD.", ben:"Same results, JVM execution. Lower DBU rate on classic compute; worth it for Python UDF-heavy or non-SQL workloads where Photon can't help.", rw:"RW", owner:"you", who:"You", ver:"—"},
+  {l:2, name:"Adaptive Query Execution (AQE)", cfg:"spark.sql.adaptive.enabled (default true).", ben:"Re-plans during execution: switches to broadcast joins, splits skewed partitions, merges tiny shuffle partitions.", rw:"R", owner:"auto", who:"Built in, on by default", ver:"DBR 7.3 LTS+"},
+  {l:2, name:"Predictive I/O", cfg:"Nothing to set; used by Photon.", ben:"Faster selective reads, and faster DELETE/UPDATE/MERGE on tables with deletion vectors.", rw:"RW", owner:"auto", who:"Built in with Photon", ver:"Updates GA DBR 14.0"},
+  // Layer 3
+  {l:3, name:"Unity Catalog managed tables", cfg:"CREATE TABLE without a LOCATION in a UC catalog.", ben:"Unlocks automatic file-size tuning, predictive optimization and automatic clustering. Most automation below only applies to these.", rw:"RW", owner:"you", who:"You, at table creation", ver:"DBR 11.3 LTS+ for auto tuning"},
+  {l:3, name:"Liquid clustering", cfg:"CLUSTER BY (col1, col2) — up to 4 keys; ALTER TABLE … CLUSTER BY for existing tables.", ben:"Groups related rows in the same files so filters and joins skip most files. Replaces partitioning and Z-order; keys can change without rewriting data.", rw:"R", owner:"you", who:"You choose keys", ver:"GA DBR 15.4 LTS"},
+  {l:3, name:"Automatic liquid clustering", cfg:"CLUSTER BY AUTO", ben:"Databricks picks and evolves clustering keys from your actual query history, only when the savings outweigh the cost.", rw:"R", owner:"you", who:"You opt in per table; needs predictive optimization", ver:"DBR 15.4 LTS+ (UC managed)"},
+  {l:3, name:"Deletion vectors", cfg:"delta.enableDeletionVectors = true. Workspace admin setting “Auto-Enable Deletion Vectors” decides the default for new tables.", ben:"UPDATE/DELETE/MERGE mark rows as removed instead of rewriting whole files. Much faster writes; reads apply the markers.", rw:"W", owner:"admin", who:"Admin setting (default varies by workspace)", ver:"Default on new tables DBR 14.1+"},
+  {l:3, name:"Row-level concurrency", cfg:"Automatic when deletion vectors (and row tracking) are on.", ben:"Concurrent writers touching different rows no longer conflict — fewer failed/retried jobs.", rw:"W", owner:"auto", who:"Built in with deletion vectors", ver:"DBR 14.2+"},
+  {l:3, name:"Optimized writes", cfg:"delta.autoOptimize.optimizeWrite, or spark.databricks.delta.optimizeWrite.enabled", ben:"Fewer, right-sized files at write time.", rw:"W", owner:"auto", who:"Always on for MERGE/UPDATE/DELETE; auto-tuned for UC managed tables", ver:"DBR 10.4 LTS+"},
+  {l:3, name:"Auto compaction", cfg:"delta.autoOptimize.autoCompact", ben:"Compacts small files right after each write on the same cluster.", rw:"W", owner:"auto", who:"Always on for MERGE/UPDATE/DELETE; set it yourself for external tables", ver:"DBR 10.4 LTS+"},
+  {l:3, name:"Target file size", cfg:"delta.targetFileSize", ben:"Overrides file sizing. Rarely needed on UC managed tables, which tune this automatically.", rw:"RW", owner:"you", who:"You (mainly external tables)", ver:"—"},
+  {l:3, name:"Data-skipping statistics columns", cfg:"delta.dataSkippingStatsColumns or delta.dataSkippingNumIndexedCols (default: first 32 columns)", ben:"Min/max stats let queries skip files. Clustering keys must have stats, so wide tables may need this set.", rw:"R", owner:"auto", who:"Built in; you adjust for wide tables", ver:"—"},
+  {l:3, name:"PK / FK constraints with RELY", cfg:"ALTER TABLE t ADD PRIMARY KEY (id) RELY", ben:"Optimizer can drop unnecessary DISTINCTs and joins. Not enforced — wrong results if data violates it.", rw:"R", owner:"you", who:"You", ver:"GA DBR 15.2"},
+  {l:3, name:"Retention window", cfg:"delta.deletedFileRetentionDuration (default 7 days)", ben:"How long old files stay for time travel before VACUUM removes them. Longer = more storage.", rw:"W", owner:"you", who:"You", ver:"—"},
+  {l:3, name:"Partitioning / Z-order", cfg:"PARTITIONED BY, OPTIMIZE … ZORDER BY. Convert with ALTER TABLE … REPLACE PARTITIONED BY WITH CLUSTER BY.", ben:"Older layout techniques. Not run by predictive optimization. Move to liquid clustering.", rw:"R", owner:"legacy", who:"Legacy", ver:"Conversion command DBR 18.1+"},
+  // Layer 4
+  {l:4, name:"Predictive optimization", cfg:"Account console → Feature enablement; or ALTER CATALOG/SCHEMA/TABLE … ENABLE PREDICTIVE OPTIMIZATION", ben:"Decides when OPTIMIZE, VACUUM and ANALYZE are worth running and runs them on serverless.", rw:"RW", owner:"admin", who:"On by default for accounts created from Nov 11, 2024; older accounts rolled out by Aug 2026", ver:"SQL warehouse or DBR 12.2 LTS+"},
+  {l:4, name:"OPTIMIZE (compaction + clustering)", cfg:"Automatic via predictive optimization; manual OPTIMIZE t, or OPTIMIZE t FULL after changing keys", ben:"Merges small files and incrementally clusters new data.", rw:"R", owner:"auto", who:"Automatic on UC managed; schedule yourself for external", ver:"FULL: DBR 16.4 LTS+"},
+  {l:4, name:"VACUUM", cfg:"Automatic via predictive optimization; manual VACUUM t", ben:"Deletes unreferenced old files, cutting storage cost and file listing overhead.", rw:"W", owner:"auto", who:"Automatic on UC managed; schedule yourself for external", ver:"—"},
+  {l:4, name:"ANALYZE (optimizer statistics)", cfg:"Automatic via predictive optimization, including on write; manual ANALYZE TABLE t COMPUTE STATISTICS FOR ALL COLUMNS", ben:"Row counts and column stats for join ordering and strategy choice.", rw:"R", owner:"auto", who:"Automatic on UC managed", ver:"—"},
+  // Layer 5
+  {l:5, name:"Filter on clustering keys; select only needed columns", cfg:"Write WHERE clauses on clustered columns; avoid SELECT *", ben:"Lets file skipping and column pruning do their job.", rw:"R", owner:"you", who:"You", ver:"—"},
+  {l:5, name:"Join hints", cfg:"/*+ BROADCAST(t) */, MERGE, SHUFFLE_HASH, SHUFFLE_REPLICATE_NL", ben:"Force a join strategy when the optimizer picks badly. Check EXPLAIN first; AQE is usually right.", rw:"R", owner:"you", who:"You", ver:"—"},
+  {l:5, name:"Spark cache in code", cfg:"df.cache() / df.persist(); df.unpersist()", ben:"Reuse an expensive intermediate result within one job.", rw:"R", owner:"you", who:"You", ver:"—"},
+  {l:5, name:"Session Spark configs", cfg:"spark.conf.set(...) or SET key = value", ben:"Per-session overrides, e.g. shuffle partitions or broadcast threshold. Usually unnecessary with AQE.", rw:"RW", owner:"you", who:"You", ver:"—"},
+  {l:5, name:"CACHE SELECT", cfg:"CACHE SELECT … FROM t", ben:"Ignored on SQL warehouses and DBR 14.2+; automatic disk caching replaced it.", rw:"R", owner:"legacy", who:"Legacy", ver:"Ignored DBR 14.2+"}
+];
+
+const ownerLabel = {auto:"Built in", admin:"Admin setting", you:"You configure", legacy:"Legacy"};
+const rwLabel = {R:"Read", W:"Write", RW:"Read + write"};
+const esc = s => s.replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+// Tree
+const tree = document.getElementById("tree");
+LAYERS.forEach(L => {
+  const items = ITEMS.filter(i => i.l === L.id);
+  const div = document.createElement("div");
+  div.className = "layer"; div.style.setProperty("--c", L.c);
+  div.innerHTML = `
+    <div class="layer-head"><span class="layer-num">Layer ${L.id}</span><span class="layer-title">${L.title}</span></div>
+    <p class="layer-sub">${L.sub}</p>
+    <ul class="branches">${items.map(i => `
+      <li><div><div class="name">${esc(i.name)}</div><div class="what">${esc(i.ben)}</div></div>
+      <div class="tags"><span class="badge b-${i.owner}">${ownerLabel[i.owner]}</span><span class="badge b-rw">${rwLabel[i.rw]}</span></div></li>`).join("")}
+    </ul>`;
+  tree.appendChild(div);
+});
+
+// Matrix
+const sel = document.getElementById("fLayer");
+LAYERS.forEach(L => { const o = document.createElement("option"); o.value = L.id; o.textContent = `${L.id}. ${L.title}`; sel.appendChild(o); });
+const state = {layer:"", owners:new Set(), rw:new Set()};
+function render(){
+  const rows = ITEMS.filter(i =>
+    (!state.layer || i.l == state.layer) &&
+    (!state.owners.size || state.owners.has(i.owner)) &&
+    (!state.rw.size || [...state.rw].some(r => i.rw.includes(r))));
+  document.getElementById("rows").innerHTML = rows.map(i => {
+    const L = LAYERS.find(x => x.id === i.l);
+    return `<tr style="--c:${L.c}">
+      <td class="layer-cell">${L.id}. ${L.title}</td>
+      <td data-k="Optimization"><span class="nm">${esc(i.name)}</span></td>
+      <td data-k="How to set it"><code>${esc(i.cfg)}</code></td>
+      <td data-k="Benefit">${esc(i.ben)}</td>
+      <td data-k="Tunes">${rwLabel[i.rw]}</td>
+      <td data-k="Who / default"><span class="badge b-${i.owner}">${ownerLabel[i.owner]}</span><div class="muted">${esc(i.who)}</div></td>
+      <td data-k="Available from">${esc(i.ver)}</td></tr>`;
+  }).join("");
+  document.getElementById("count").textContent = `${rows.length} of ${ITEMS.length}`;
+}
+sel.addEventListener("change", e => { state.layer = e.target.value; render(); });
+document.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
+  const on = b.getAttribute("aria-pressed") !== "true";
+  b.setAttribute("aria-pressed", on);
+  const set = b.dataset.owner ? state.owners : state.rw;
+  const v = b.dataset.owner || b.dataset.rw;
+  on ? set.add(v) : set.delete(v);
+  render();
+}));
+render();
+
+// Tabs
+document.querySelectorAll('[role="tab"]').forEach(t => t.addEventListener("click", () => {
+  document.querySelectorAll('[role="tab"]').forEach(x => x.setAttribute("aria-selected", x === t));
+  document.querySelectorAll("main > section").forEach(s => s.hidden = s.id !== t.dataset.tab);
+}));
+</script>
+</body>
+</html>
